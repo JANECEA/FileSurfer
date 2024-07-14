@@ -1,0 +1,65 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="FileSurfer.MainWindow"
+        Title="FileSurfer">
+
+    <Window.Styles>
+        <StyleInclude Source="Styles.axaml"/>
+    </Window.Styles>
+
+    <DockPanel Background="{StaticResource PrimaryColor}">
+        <DockPanel DockPanel.Dock="Top" Height="50" Margin="10 0">
+            <Button Classes="TopLeftButton"/> 
+            <Button Classes="TopLeftButton"/> 
+            <Button Classes="TopLeftButton"/>
+            <Grid ColumnDefinitions="* 250">
+                <TextBox Classes="TopTextBox" Grid.Column="0" Margin="5 0 10 0"/>
+                <TextBox Classes="TopTextBox" Grid.Column="1" Margin="5 0 0 0"/>
+            </Grid>
+        </DockPanel>
+
+        <Border Height="55" DockPanel.Dock="Top" Grid.Row="2" BorderThickness="0 1 0 1" BorderBrush="{StaticResource SecondaryColor}">
+            <DockPanel LastChildFill="False" Margin="10 0">
+                <Button Classes="FileOperationButton"/>
+                <Button Classes="FileOperationButton"/>
+                <Rectangle Classes="ButtonSeparator"/>
+                <Button Classes="FileOperationButton"/>
+                <Button Classes="FileOperationButton"/>
+                <Button Classes="FileOperationButton"/>
+                <Button Classes="FileOperationButton"/>
+                <Rectangle Classes="ButtonSeparator"/>
+                <Button Classes="FileOperationButton"/>
+                    
+                <Button Classes="GitButton" Content="PULL"/>
+                <Button Classes="GitButton" Content="PUSH"/>
+                <Button Classes="GitButton" Content="COMMIT"/>
+                <ComboBox DockPanel.Dock="Right" Width="120" Height="35" VerticalAlignment="Center" Margin="0 0 10 0"/>
+            </DockPanel>
+        </Border>
+
+        <Grid RowDefinitions="* 24" DockPanel.Dock="Bottom">
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200" MinWidth="100"/>
+                    <ColumnDefinition Width="9"/>
+                    <ColumnDefinition Width="*" MinWidth="100"/>
+                </Grid.ColumnDefinitions>
+                <Rectangle Grid.Column="0"/>
+                <GridSplitter BorderThickness="4 0" BorderBrush="{StaticResource PrimaryColor}" Background="{StaticResource SecondaryColor}" MinWidth="5" Grid.Column="1" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext"/>
+                <Rectangle Grid.Column="2"/>
+            </Grid>
+
+            <Border Grid.Row="2" BorderThickness="0 1 0 0" BorderBrush="{StaticResource SecondaryColor}">
+                <DockPanel LastChildFill="False">
+                    <TextBlock Foreground="{StaticResource TextColor}" VerticalAlignment="Center" Margin="10 0" DockPanel.Dock="Left">Hello World</TextBlock>
+                    <Button DockPanel.Dock="Right" Height="20" Width="20" Margin="0 0 5 0"/>
+                    <Button DockPanel.Dock="Right" Height="20" Width="20" Margin="1 0 2 0"/>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </DockPanel>
+    
+</Window>
