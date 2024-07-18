@@ -4,18 +4,89 @@
     <Style Selector="Button.TopLeftButton">
         <Setter Property="Height" Value="30"/>
         <Setter Property="Width" Value="30"/>
+        <Setter Property="Padding" Value="0"/>
         <Setter Property="Margin" Value="0 0 10 0"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource IconColor}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FontFamily" Value="FiraCode Nerd Font"/>
     </Style>
 
     <Style Selector="TextBox.TopTextBox">
-        <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
         <Setter Property="Height" Value="30"/>
+        <Setter Property="AcceptsTab" Value="False"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{StaticResource TextColor}"/>
+        <Setter Property="Background" Value="{StaticResource TextBlockColor}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="TextBox:focus">
+        <Setter Property="Background" Value="White"/>
+    </Style>
+
+    <Style Selector="TextBox.PathBox">
+        <Setter Property="Margin" Value="5 0 10 0"/>
+    </Style>
+
+    <Style Selector="TextBox.SearchBox">
+        <Setter Property="Margin" Value="5 0 0 0"/>
+        <Setter Property="Width" Value="250"/>
+    </Style>
+
+    <Style Selector="Button.CancelSearchButton">
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="Height" Value="23"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="0 0 8 0"/>
+        <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
+        <Setter Property="Foreground" Value="{StaticResource IconColor}"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FontFamily" Value="FiraCode Nerd Font"/>
+        <Setter Property="IsVisible" Value="False"/>
+    </Style>
+
+    <Style Selector="TextBlock.MagnifyingGlass">
+        <Setter Property="Margin" Value="0 0 12 0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="FontFamily" Value="FiraCode Nerd Font"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{StaticResource IconColor}"/>
     </Style>
 
     <Style Selector="Button.FileOperationButton">
         <Setter Property="Height" Value="35"/>
         <Setter Property="Width" Value="35"/>
+        <Setter Property="Padding" Value="0"/>
         <Setter Property="Margin" Value="0 0 10 0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource IconColor}"/>
+        <Setter Property="FontFamily" Value="FiraCode Nerd Font"/>
+    </Style>
+
+    <Style Selector="Button.MenuButton">
+        <Setter Property="Height" Value="35"/>
+        <Setter Property="Width" Value="42"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="0 0 10 0"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource IconColor}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FontFamily" Value="FiraCode Nerd Font"/>
+    </Style>
+
+    <Style Selector="MenuItem.MenuOption">
+        <Setter Property="Width" Value="150"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource TextColor}"/>
     </Style>
 
     <Style Selector="Rectangle.ButtonSeparator">
@@ -25,14 +96,60 @@
         <Setter Property="Margin" Value="5 0 15 0"/>
     </Style>
 
+    <Style Selector="ComboBox.BranchComboBox">
+        <Setter Property="DockPanel.Dock" Value="Right"/>
+        <Setter Property="Height" Value="35"/>
+        <Setter Property="Width" Value="120"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Background" Value="{StaticResource TextBlockColor}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextColor}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
     <Style Selector="Button.GitButton">
         <Setter Property="FontSize" Value="10"/> 
         <Setter Property="DockPanel.Dock" Value="Right"/>
         <Setter Property="Height" Value="35"/>
         <Setter Property="Width" Value="60"/>
-        <Setter Property="Margin" Value="0 0 10 0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="10 0 0 0"/>
+        <Setter Property="FontWeight" Value="Heavy"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Background" Value="{StaticResource GitColor}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextColor}"/>
     </Style>
 
+    <Style Selector="GridSplitter.GridSplitter">
+        <Setter Property="BorderThickness" Value="4 0" />
+        <Setter Property="BorderBrush" Value="{StaticResource PrimaryColor}" />
+        <Setter Property="Background" Value="{StaticResource SecondaryColor}" />
+        <Setter Property="MinWidth" Value="5" />
+        <Setter Property="ResizeDirection" Value="Columns"/>
+        <Setter Property="ResizeBehavior" Value="PreviousAndNext"/>
+    </Style>
+
+    <Style Selector="ListBox.FileDisplay">
+        <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
+    </Style>
+
+    <Style Selector="Button.ViewFormatButton">
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="Width" Value="20"/>
+        <Setter Property="DockPanel.Dock" Value="Right"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Background" Value="{StaticResource SecondaryColor}"/>
+        <Setter Property="Foreground" Value="{StaticResource IconColor}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FontFamily" Value="FiraCode Nerd Font"/>
+        <Setter Property="FontSize" Value="14.5"/>
+    </Style>
+
+    <Style Selector="TextBlock.SelectInfo">
+        <Setter Property="Foreground" Value="{StaticResource TextColor}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="10 0"/>
+    </Style>
+    
 </Styles>

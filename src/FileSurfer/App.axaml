@@ -12,7 +12,10 @@
         <ResourceDictionary>
             <Color x:Key="PrimaryColor">#282828</Color>
             <Color x:Key="SecondaryColor">#4F4F4F</Color>
-            <Color x:Key="TextColor">#EBDBB2</Color>
+            <Color x:Key="TextBlockColor">#353535</Color>
+            <Color x:Key="TextColor">#D0D0D0</Color>
+            <Color x:Key="IconColor">#D0D0D0</Color>
+            <Color x:Key="GitColor">#F34F29</Color>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
