@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using LibGit2Sharp;
 
@@ -11,17 +12,33 @@ public class GitVersionControlHandler : IVersionControl
 
     public bool IsVersionControlled(string directoryPath)
     {
-        _currentRepo?.Dispose();
-        try
+        if (_currentRepo is not null && directoryPath.StartsWith(_currentRepo.Info.Path))
         {
-            _currentRepo = new Repository(directoryPath);
             return true;
         }
-        catch
+
+        _currentRepo?.Dispose();
+        string? repoPath = directoryPath;
+        while (repoPath is not null)
         {
-            _currentRepo = null;
-            return false;
+            string gitDir = Path.Combine(repoPath, ".git");
+            if (!Directory.Exists(gitDir))
+            {
+                repoPath = Directory.GetParent(repoPath)?.FullName;
+                continue;
+            }
+            try
+            {
+                _currentRepo = new Repository(gitDir);
+                return true;
+            }
+            catch
+            {
+                break;
+            }
         }
+        _currentRepo = null;
+        return false;
     }
 
     public string[] GetUnstagedFiles() =>
