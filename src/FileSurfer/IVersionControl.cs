@@ -4,7 +4,7 @@ public interface IVersionControl
 {
     public bool IsVersionControlled(string directoryPath);
 
-    public bool TryDownload(out string? errorMessage);
+    public bool DownloadChanges(out string? errorMessage);
     
     public string[] GetBranches(out string? errorMessage);
 
