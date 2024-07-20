@@ -20,3 +20,4 @@ public interface IVersionControl
 
     public bool UploadChanges(out string? errorMessage);
 }
+
