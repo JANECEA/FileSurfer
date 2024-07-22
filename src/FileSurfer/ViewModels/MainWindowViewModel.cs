@@ -1,24 +1,52 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Input;
 using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
 
-#pragma warning disable CA1822 // Mark members as static
-public class MainWindowViewModel : ViewModelBase
+public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
-    private string[] _selectedFiles = Array.Empty<string>();
+#pragma warning disable CA1822 // Mark members as static
+    private readonly IVersionControl _versionControl = new GitVersionControlHandler();
+    private readonly IFileOperationsHandler _fileOperationsHandler =
+        new WindowsFileOperationsHandler();
+    private readonly UndoRedoHandler _undoRedoHandler = new();
 
-    private IVersionControl _versionControl = new GitVersionControlHandler();
-    private IFileOperationsHandler _fileOperationsHandler = new WindowsFileOperationsHandler();
-    private UndoRedoHandler _undoRedoHandler = new();
+    private ObservableCollection<string> _selectedFiles = new();
+
+    private string _currentPath = "D:/Stažené";
+    public string CurrentPath
+    {
+        get => _currentPath;
+        set => this.RaiseAndSetIfChanged(ref _currentPath, value);
+    }
+
+    private string _searchQuery = string.Empty;
+    public string SearchQuery
+    {
+        get => _searchQuery;
+        set
+        {
+            _searchQuery = value;
+            SearchDirectory(_searchQuery);
+        }
+    }
+
+    private string _selectionInfo = "Hello World!";
+    public string SelectionInfo
+    {
+        get => _selectionInfo;
+        set => this.RaiseAndSetIfChanged(ref _selectionInfo, value);
+    }
 
     public ICommand GoBackCommand { get; }
     public ICommand GoForwardCommand { get; }
     public ICommand ReloadCommand { get; }
     public ICommand OpenPowerShellCommand { get; }
-    public ICommand ChangePathCommand { get; }
-    public ICommand SearchDirectoryCommand { get; }
+    public ICommand CancelSearchCommand { get; }
     public ICommand NewFileCommand { get; }
     public ICommand NewFolderCommand { get; }
     public ICommand CutCommand { get; }
@@ -48,8 +76,7 @@ public class MainWindowViewModel : ViewModelBase
         GoForwardCommand = ReactiveCommand.Create(GoForward);
         ReloadCommand = ReactiveCommand.Create(Reload);
         OpenPowerShellCommand = ReactiveCommand.Create(OpenPowerShell);
-        ChangePathCommand = ReactiveCommand.Create(ChangePath);
-        SearchDirectoryCommand = ReactiveCommand.Create(SearchDirectory);
+        CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
         NewFileCommand = ReactiveCommand.Create(NewFile);
         NewFolderCommand = ReactiveCommand.Create(NewFolder);
         CutCommand = ReactiveCommand.Create(Cut);
@@ -74,33 +101,61 @@ public class MainWindowViewModel : ViewModelBase
         IconViewCommand = ReactiveCommand.Create(IconView);
     }
 
-    private void GoBack() { throw new ExecutionEngineException(); }
-    private void GoForward() {}
-    private void Reload() {}
-    private void OpenPowerShell() {}
-    private void ChangePath() {}
-    private void SearchDirectory() {}
-    private void NewFile() {}
-    private void NewFolder() {}
-    private void Cut() {}
-    private void Copy() {}
-    private void Paste() {}
-    private void Rename() {}
-    private void MoveToTrash() {}
-    private void Delete() {}
-    private void SortByName() {}
-    private void SortByDate() {}
-    private void SortByType() {}
-    private void Undo() {}
-    private void Redo() {}
-    private void SelectAll() {}
-    private void SelectNone() {}
-    private void InvertSelection() {}
-    private void SwitchBranch() {}
-    private void Pull() {}
-    private void Commit() {}
-    private void Push() {}
-    private void ListView() {}
-    private void IconView() {}
-}
+    private void GoBack() { }
+
+    private void GoForward() { }
+
+    private void Reload() { }
+
+    private void OpenPowerShell() { }
+
+    private void SearchDirectory(string searchQuery) { }
+
+    private void CancelSearch() { }
+
+    private void NewFile() { }
+
+    private void NewFolder() { }
+
+    private void Cut() { }
+
+    private void Copy() { }
+
+    private void Paste() { }
+
+    private void Rename() { }
+
+    private void MoveToTrash() { }
+
+    private void Delete() { }
+
+    private void SortByName() { }
+
+    private void SortByDate() { }
+
+    private void SortByType() { }
+
+    private void Undo() { }
+
+    private void Redo() { }
+
+    private void SelectAll() { }
+
+    private void SelectNone() { }
+
+    private void InvertSelection() { }
+
+    private void SwitchBranch() { }
+
+    private void Pull() { }
+
+    private void Commit() { }
+
+    private void Push() { }
+
+    private void ListView() { }
+
+    private void IconView() { }
 #pragma warning restore CA1822 // Mark members as static
+}
+
