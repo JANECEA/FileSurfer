@@ -9,26 +9,30 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="FileSurfer">
 
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+    
     <Window.Styles>
         <StyleInclude Source="avares://FileSurfer/Views/Styles.axaml"/>
     </Window.Styles>
 
     <Window.KeyBindings>
-        
+        <KeyBinding Gesture="Shift+Delete" Command="{Binding DeleteCommand}"/> 
     </Window.KeyBindings>
 
     <DockPanel Background="{DynamicResource PrimaryColor}">
         <DockPanel DockPanel.Dock="Top" Height="50" Margin="10 0">
             <Button Classes="TopLeftButton" Content="" HotKey="Alt+Left" Command="{Binding GoBackCommand}"/>
-            <Button Classes="TopLeftButton" Content=""/> 
-            <Button Classes="TopLeftButton" Content=""/>
-            <Button Classes="TopLeftButton" Content=""/>
+            <Button Classes="TopLeftButton" Content="" HotKey="Alt+Right" Command="{Binding GoForwardCommand}"/> 
+            <Button Classes="TopLeftButton" Content="" HotKey="F5" Command="{Binding ReloadCommand}"/>
+            <Button Classes="TopLeftButton" Content="" HotKey="F12" Command="{Binding OpenPowerShellCommand}"/>
 
             <Grid ColumnDefinitions="* 250">
-                <TextBox Classes="PathBox TopTextBox" Grid.Column="0"/>
+                <TextBox Classes="PathBox TopTextBox" Grid.Column="0" Text="{Binding CurrentPath}"/>
                 <Grid Grid.Column="1">
-                    <TextBox Classes="SearchBox TopTextBox"/>
-                    <Button Classes="CancelSearchButton" Content=""/>
+                    <TextBox Classes="SearchBox TopTextBox" Text="{Binding SearchQuery}"/>
+                    <Button Classes="CancelSearchButton" Content="" Command="{Binding CancelSearchCommand}"/>
                     <TextBlock Classes="MagnifyingGlass" Text=""/>
                 </Grid>
             </Grid>
@@ -36,42 +40,42 @@
 
         <Border Height="55" DockPanel.Dock="Top" Grid.Row="2" BorderThickness="0 1 0 1" BorderBrush="{DynamicResource SecondaryColor}">
             <DockPanel LastChildFill="False" Margin="10 0">
-                <Button Classes="FileOperationButton" Content=""/>
-                <Button Classes="FileOperationButton" Content=""/>
+                <Button Classes="FileOperationButton" Content="" HotKey="Ctrl+N" Command="{Binding NewFileCommand}"/>
+                <Button Classes="FileOperationButton" Content="" HotKey="Ctrl+Shift+N" Command="{Binding NewFolderCommand}"/>
                 <Rectangle Classes="ButtonSeparator"/>
-                <Button Classes="FileOperationButton" Content="󰆐"/>
-                <Button Classes="FileOperationButton" Content=""/>
-                <Button Classes="FileOperationButton" Content="󰆒"/>
-                <Button Classes="FileOperationButton" Content="󰑕"/>
-                <Button Classes="FileOperationButton" Content=""/>
+                <Button Classes="FileOperationButton" Content="󰆐" HotKey="Ctrl+X" Command="{Binding CutCommand}"/>
+                <Button Classes="FileOperationButton" Content="" HotKey="Ctrl+C" Command="{Binding CopyCommand}"/>
+                <Button Classes="FileOperationButton" Content="󰆒" HotKey="Ctrl+P" Command="{Binding PasteCommand}"/>
+                <Button Classes="FileOperationButton" Content="󰑕" HotKey="F2" Command="{Binding RenameCommand}"/>
+                <Button Classes="FileOperationButton" Content="" HotKey="Delete" Command="{Binding MoveToTrashCommand}"/>
                 <Rectangle Classes="ButtonSeparator"/>
                 <Button Classes="MenuButton" Width="80" Content=" Sort">
                     <Button.Flyout>
                         <MenuFlyout>
-                            <MenuItem Classes="MenuOption" Header="Name"/>
-                            <MenuItem Classes="MenuOption" Header="Date"/>
-                            <MenuItem Classes="MenuOption" Header="Type"/>
+                            <MenuItem Classes="MenuOption" Header="Name" Command="{Binding SortByNameCommand}"/>
+                            <MenuItem Classes="MenuOption" Header="Date" Command="{Binding SortByDateCommand}"/>
+                            <MenuItem Classes="MenuOption" Header="Type" Command="{Binding SortByTypeCommand}"/>
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
                 <Button Classes="MenuButton" Content="···" FontWeight="ExtraBold">
                     <Button.Flyout>
                         <MenuFlyout>
-                            <MenuItem Classes="MenuOption" Header="Undo"/>
-                            <MenuItem Classes="MenuOption" Header="Redo"/>
+                            <MenuItem Classes="MenuOption" Header="Undo" HotKey="Ctrl+Z" Command="{Binding UndoCommand}"/>
+                            <MenuItem Classes="MenuOption" Header="Redo" HotKey="Ctrl+Y" Command="{Binding RedoCommand}"/>
                             <Separator/>
-                            <MenuItem Classes="MenuOption" Header="Select all"/>
-                            <MenuItem Classes="MenuOption" Header="Select none"/>
-                            <MenuItem Classes="MenuOption" Header="Invert selection"/>
+                            <MenuItem Classes="MenuOption" HotKey="Ctrl+A" Header="Select all" Command="{Binding SelectAllCommand}"/>
+                            <MenuItem Classes="MenuOption" HotKey="Escape" Header="Select none" Command="{Binding SelectNoneCommand}"/>
+                            <MenuItem Classes="MenuOption" Header="Invert selection" Command="{Binding InvertSelectionCommand}"/>
                             <Separator/>
                             <MenuItem Classes="MenuOption" Header="Settings"/>
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
                     
-                <Button Classes="GitButton GitButtonHover" Content="PUSH"/>
-                <Button Classes="GitButton GitButtonHover" Content="COMMIT"/>
-                <Button Classes="GitButton GitButtonHover" Content="PULL"/>
+                <Button Classes="GitButton GitButtonHover" Content="PUSH" Command="{Binding PushCommand}"/>
+                <Button Classes="GitButton GitButtonHover" Content="COMMIT" Command="{Binding CommitCommand}"/>
+                <Button Classes="GitButton GitButtonHover" Content="PULL" Command="{Binding PullCommand}"/>
                 <ComboBox Classes="BranchComboBox"/>
             </DockPanel>
         </Border>
@@ -100,10 +104,10 @@
 
             <Border Grid.Row="2" BorderThickness="0 1 0 0" BorderBrush="{DynamicResource SecondaryColor}">
                 <DockPanel LastChildFill="False">
-                    <TextBlock Classes="SelectInfo" Text="Hello World"/>
+                    <TextBlock Classes="SelectInfo" Text="{Binding SelectionInfo}"/>
 
-                    <Button Classes="ViewFormatButton" Content="󰕳" Margin="0 0 5 0"/>
-                    <Button Classes="ViewFormatButton" Content="󰕱" Margin="0 0 3 0"/>
+                    <Button Classes="ViewFormatButton" Content="󰕳" Margin="0 0 5 0" Command="{Binding ListViewCommand}"/>
+                    <Button Classes="ViewFormatButton" Content="󰕱" Margin="0 0 3 0" Command="{Binding IconViewCommand}"/>
                 </DockPanel>
             </Border>
         </Grid>
