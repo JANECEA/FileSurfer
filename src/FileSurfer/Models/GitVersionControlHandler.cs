@@ -12,11 +12,6 @@ public class GitVersionControlHandler : IVersionControl
 
     public bool IsVersionControlled(string directoryPath)
     {
-        if (_currentRepo is not null && directoryPath.StartsWith(_currentRepo.Info.Path))
-        {
-            return true;
-        }
-
         _currentRepo?.Dispose();
         string? repoPath = directoryPath;
         while (repoPath is not null)

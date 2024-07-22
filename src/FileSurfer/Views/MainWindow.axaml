@@ -1,24 +1,31 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:FileSurfer.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="450"
-        x:Class="FileSurfer.MainWindow"
+        mc:Ignorable="d" d:DesignWidth="860" d:DesignHeight="450"
+        x:Class="FileSurfer.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
         Title="FileSurfer">
 
     <Window.Styles>
-        <StyleInclude Source="Styles.axaml"/>
+        <StyleInclude Source="avares://FileSurfer/Views/Styles.axaml"/>
     </Window.Styles>
+
+    <Window.KeyBindings>
+        
+    </Window.KeyBindings>
 
     <DockPanel Background="{DynamicResource PrimaryColor}">
         <DockPanel DockPanel.Dock="Top" Height="50" Margin="10 0">
-            <Button Classes="TopLeftButton" Content=""/>
+            <Button Classes="TopLeftButton" Content="" HotKey="Alt+Left" Command="{Binding GoBackCommand}"/>
             <Button Classes="TopLeftButton" Content=""/> 
             <Button Classes="TopLeftButton" Content=""/>
             <Button Classes="TopLeftButton" Content=""/>
 
             <Grid ColumnDefinitions="* 250">
-                <TextBox Classes="PathBox TopTextBox" Grid.Column="0" />
+                <TextBox Classes="PathBox TopTextBox" Grid.Column="0"/>
                 <Grid Grid.Column="1">
                     <TextBox Classes="SearchBox TopTextBox"/>
                     <Button Classes="CancelSearchButton" Content=""/>
@@ -29,7 +36,7 @@
 
         <Border Height="55" DockPanel.Dock="Top" Grid.Row="2" BorderThickness="0 1 0 1" BorderBrush="{DynamicResource SecondaryColor}">
             <DockPanel LastChildFill="False" Margin="10 0">
-                <Button Classes="FileOperationButton" Content="" FocusAdorner=""/>
+                <Button Classes="FileOperationButton" Content=""/>
                 <Button Classes="FileOperationButton" Content=""/>
                 <Rectangle Classes="ButtonSeparator"/>
                 <Button Classes="FileOperationButton" Content="󰆐"/>

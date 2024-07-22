@@ -1,0 +1,6 @@
+namespace FileSurfer;
+
+class UndoRedoHandler
+{
+
+}
