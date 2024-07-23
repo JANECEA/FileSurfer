@@ -64,11 +64,11 @@
                             <MenuItem Classes="MenuOption" Header="Undo" HotKey="Ctrl+Z" Command="{Binding UndoCommand}"/>
                             <MenuItem Classes="MenuOption" Header="Redo" HotKey="Ctrl+Y" Command="{Binding RedoCommand}"/>
                             <Separator/>
-                            <MenuItem Classes="MenuOption" HotKey="Ctrl+A" Header="Select all" Command="{Binding SelectAllCommand}"/>
-                            <MenuItem Classes="MenuOption" HotKey="Escape" Header="Select none" Command="{Binding SelectNoneCommand}"/>
-                            <MenuItem Classes="MenuOption" Header="Invert selection" Command="{Binding InvertSelectionCommand}"/>
+                            <MenuItem Classes="MenuOption" Header="Select all" HotKey="Ctrl+A" Command="{Binding SelectAllCommand}"/>
+                            <MenuItem Classes="MenuOption" Header="Select none" HotKey="Ctrl+Shift+L" Command="{Binding SelectNoneCommand}"/>
+                            <MenuItem Classes="MenuOption" Header="Invert selection" HotKey="Multiply" Command="{Binding InvertSelectionCommand}"/>
                             <Separator/>
-                            <MenuItem Classes="MenuOption" Header="Settings"/>
+                            <MenuItem Classes="MenuOption" Header="Settings" Click="OpenSettingsWindow"/>
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
