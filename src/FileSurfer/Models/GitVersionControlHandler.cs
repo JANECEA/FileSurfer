@@ -45,8 +45,13 @@ public class GitVersionControlHandler : IVersionControl
 
     public bool DownloadChanges(out string? errorMessage)
     {
-        string command = $"cd \"{_currentRepo.Info.Path}\" && git pull";
-        return ExecuteCmd(command, out errorMessage);
+        if (_currentRepo is not null)
+        {
+            string command = $"cd \"{_currentRepo.Info.Path}\" && git pull";
+            return ExecuteCmd(command, out errorMessage);
+        }
+        errorMessage = "No git repository found";
+        return false;
     }
 
     public string GetCurrentBranchName() => _currentRepo.Head.FriendlyName;
@@ -72,6 +77,11 @@ public class GitVersionControlHandler : IVersionControl
     {
         try
         {
+            if (_currentRepo is null)
+            {
+                errorMessage = "No git repository found";
+                return false;
+            }
             _currentRepo.Index.Add(filePath);
             _currentRepo.Index.Write();
             errorMessage = null;
@@ -96,7 +106,7 @@ public class GitVersionControlHandler : IVersionControl
         return ExecuteCmd(command, out errorMessage);
     }
 
-    private bool ExecuteCmd(string command, out string? errorMessage)
+    private static bool ExecuteCmd(string command, out string? errorMessage)
     {
         using Process process =
             new()
