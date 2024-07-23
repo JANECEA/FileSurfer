@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Windows.Input;
 using ReactiveUI;
 
@@ -17,6 +15,20 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private ObservableCollection<string> _selectedFiles = new();
 
+    private bool _needRefresh = false;
+    public bool NeedRefresh
+    {
+        get => _needRefresh;
+        set => this.RaiseAndSetIfChanged(ref _needRefresh, value);
+    }
+
+    private string? _errorMessage = null;
+    public string? ErrorMessage
+    {
+        get => _errorMessage;
+        set => this.RaiseAndSetIfChanged(ref _errorMessage, value);
+    }
+
     private string _currentPath = "D:/Stažené";
     public string CurrentPath
     {
@@ -31,7 +43,25 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         set
         {
             _searchQuery = value;
-            SearchDirectory(_searchQuery);
+            if (!string.IsNullOrEmpty(value))
+            {
+                SearchDirectory(_searchQuery);
+            }
+        }
+    }
+
+    private string? _currentBranch;
+    public string? CurrentBranch
+    {
+        get => _currentBranch;
+        set
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                _versionControl.SwitchBranches(value, out string? errorMessage);
+                _errorMessage = errorMessage;
+            }
+            _currentBranch = value;
         }
     }
 
@@ -63,7 +93,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public ICommand SelectAllCommand { get; }
     public ICommand SelectNoneCommand { get; }
     public ICommand InvertSelectionCommand { get; }
-    public ICommand SwitchBranchCommand { get; }
     public ICommand PullCommand { get; }
     public ICommand CommitCommand { get; }
     public ICommand PushCommand { get; }
@@ -93,7 +122,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         SelectAllCommand = ReactiveCommand.Create(SelectAll);
         SelectNoneCommand = ReactiveCommand.Create(SelectNone);
         InvertSelectionCommand = ReactiveCommand.Create(InvertSelection);
-        SwitchBranchCommand = ReactiveCommand.Create(SwitchBranch);
         PullCommand = ReactiveCommand.Create(Pull);
         CommitCommand = ReactiveCommand.Create(Commit);
         PushCommand = ReactiveCommand.Create(Push);
@@ -107,15 +135,37 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void Reload() { }
 
-    private void OpenPowerShell() { }
+    private void OpenPowerShell()
+    { 
+        if (!_fileOperationsHandler.OpenCmdAt(_currentPath, out string? errorMessage))
+        {
+            _errorMessage = errorMessage;
+        }
+    }
 
     private void SearchDirectory(string searchQuery) { }
 
     private void CancelSearch() { }
 
-    private void NewFile() { }
+    private void NewFile() 
+    {
+        if (!_fileOperationsHandler.NewFileAt(_currentPath, "New File", out string? errorMessage))
+        {
+            _errorMessage = errorMessage;
+            return;
+        }
+        _needRefresh = true;
+    }
 
-    private void NewFolder() { }
+    private void NewFolder()
+    {
+        if (!_fileOperationsHandler.NewDirAt(_currentPath, "New Directory", out string? errorMessage))
+        {
+            _errorMessage = errorMessage;
+            return;
+        }
+        _needRefresh = true;
+    }
 
     private void Cut() { }
 
@@ -147,7 +197,15 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void SwitchBranch() { }
 
-    private void Pull() { }
+    private void Pull() 
+    { 
+        if (!_versionControl.DownloadChanges(out string? errorMessage)) 
+        {
+            _errorMessage = errorMessage;
+            return;
+        } 
+        _needRefresh = true;
+    }
 
     private void Commit() { }
 
