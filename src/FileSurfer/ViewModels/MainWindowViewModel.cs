@@ -26,7 +26,13 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public string? ErrorMessage
     {
         get => _errorMessage;
-        set => this.RaiseAndSetIfChanged(ref _errorMessage, value);
+        set
+        {
+            if (value is not null)
+            {
+                this.RaiseAndSetIfChanged(ref _errorMessage, value);
+            }
+        }
     }
 
     private string _currentPath = "D:/Stažené";
@@ -48,6 +54,13 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                 SearchDirectory(_searchQuery);
             }
         }
+    }
+
+    private string[] _branches;
+    public string[] Branches
+    {
+        get => _branches;
+        set => this.RaiseAndSetIfChanged(ref _branches, value);
     }
 
     private string? _currentBranch;
@@ -135,31 +148,31 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void Reload() { }
 
-    private void OpenPowerShell()
-    { 
-        if (!_fileOperationsHandler.OpenCmdAt(_currentPath, out string? errorMessage))
-        {
-            _errorMessage = errorMessage;
-        }
-    }
+    private void OpenPowerShell() =>
+        _fileOperationsHandler.OpenCmdAt(_currentPath, out string? _errorMessage);
 
     private void SearchDirectory(string searchQuery) { }
 
     private void CancelSearch() { }
 
-    private void NewFile() 
+    private void NewFile()
     {
-        if (!_fileOperationsHandler.NewFileAt(_currentPath, "New File", out string? errorMessage))
+        if (_fileOperationsHandler.NewFileAt(_currentPath, "New File", out string? _errorMessage))
         {
-            _errorMessage = errorMessage;
-            return;
+            _needRefresh = true;
+            // _undoRedoHandler.NewOperation(new NewFileAt(_currentPath));
         }
-        _needRefresh = true;
     }
 
     private void NewFolder()
     {
-        if (!_fileOperationsHandler.NewDirAt(_currentPath, "New Directory", out string? errorMessage))
+        if (
+            !_fileOperationsHandler.NewDirAt(
+                _currentPath,
+                "New Directory",
+                out string? errorMessage
+            )
+        )
         {
             _errorMessage = errorMessage;
             return;
@@ -185,9 +198,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void SortByType() { }
 
-    private void Undo() { }
+    private void Undo() => _undoRedoHandler.Undo(out _errorMessage);
 
-    private void Redo() { }
+    private void Redo() => _undoRedoHandler.Redo(out _errorMessage);
 
     private void SelectAll() { }
 
@@ -197,15 +210,8 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void SwitchBranch() { }
 
-    private void Pull() 
-    { 
-        if (!_versionControl.DownloadChanges(out string? errorMessage)) 
-        {
-            _errorMessage = errorMessage;
-            return;
-        } 
-        _needRefresh = true;
-    }
+    private void Pull() =>
+        _needRefresh = _versionControl.DownloadChanges(out _errorMessage);
 
     private void Commit() { }
 
@@ -216,4 +222,3 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private void IconView() { }
 #pragma warning restore CA1822 // Mark members as static
 }
-
