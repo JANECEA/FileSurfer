@@ -12,7 +12,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private readonly IVersionControl _versionControl = new GitVersionControlHandler();
     private readonly IFileOperationsHandler _fileOperationsHandler =
         new WindowsFileOperationsHandler();
-    private readonly UndoRedoHandler _undoRedoHandler = new();
+    private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHandler = new();
 
     private ObservableCollection<string> _selectedFiles = new();
 
