@@ -76,7 +76,7 @@
                 <Button Classes="GitButton GitButtonHover" Content="PUSH" Command="{Binding PushCommand}"/>
                 <Button Classes="GitButton GitButtonHover" Content="COMMIT" Command="{Binding CommitCommand}"/>
                 <Button Classes="GitButton GitButtonHover" Content="PULL" Command="{Binding PullCommand}"/>
-                <ComboBox Classes="BranchComboBox"/>
+                <ComboBox Classes="BranchComboBox" ItemsSource="{Binding Branches}" SelectedItem="{Binding CurrentBranch}"/>
             </DockPanel>
         </Border>
 
