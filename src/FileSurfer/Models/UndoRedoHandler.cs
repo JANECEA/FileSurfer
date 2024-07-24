@@ -2,111 +2,72 @@ using System;
 
 namespace FileSurfer;
 
-class UndoRedoHandler
+class UndoRedoHandler<T>
 {
-    private UndoRedoNode? _current = null;
-
     class UndoRedoNode
     {
+        internal T? Data;
         internal UndoRedoNode? Previous;
-        internal IUndoableFileOperation Operation;
         internal UndoRedoNode? Next;
-        internal bool EndOfChain = false;
 
-        internal UndoRedoNode(
-            IUndoableFileOperation operation,
-            UndoRedoNode? previous = null
-        )
+        internal UndoRedoNode(T? data, UndoRedoNode? previous = null, UndoRedoNode? next = null)
         {
-            Operation = operation;
+            Data = data;
             Previous = previous;
+            Next = next;
 
             if (Previous is not null)
-            {
                 Previous.Next = this;
-                Previous.EndOfChain = false;
-            }
+
+            if (Next is not null)
+                Next.Previous = this;
         }
     }
 
-    public void NewOperation(IUndoableFileOperation operation) =>
-        _current = new UndoRedoNode(operation, _current);
+    private readonly UndoRedoNode _head;
+    private readonly UndoRedoNode _tail;
+    private UndoRedoNode _current;
+    public T? Current => _current.Data;
 
-    public bool Undo(out string? errorMessage)
+    public UndoRedoHandler()
     {
-        if (_current is null || (_current.EndOfChain && _current.Previous is null))
-        {
-            errorMessage = "Nothing left to undo";
-            return false;
-        }
-        if (!_current.Operation.Undo(out errorMessage))
-        {
-            RemoveNode(true);
-            return false;
-        }
+        _head = new(default);
+        _tail = new(default, _head);
+        _current = _head;
+    }
 
+    public void NewNode(T data) => _current = new UndoRedoNode(data, _current, _tail);
+
+    public T? GetPrevious()
+    {
         if (_current.Previous is null)
-            _current.EndOfChain = true;
-        else
-            _current = _current.Previous;
-        return true;
+            return default;
+
+        _current = _current.Previous;
+        return _current.Data;
     }
 
-    public bool Redo(out string? errorMessage)
+    public T? GetNext()
     {
-        if (_current is null || (_current.EndOfChain && _current.Next is null))
-        {
-            errorMessage = "Nothing left to redo";
-            return false;
-        }
-        if (!_current.Operation.Redo(out errorMessage))
-        {
-            RemoveNode(false);
-            return false;
-        }
-
         if (_current.Next is null)
-            _current.EndOfChain = true;
-        else
-            _current = _current.Next;
-        return true;
+            return default;
+
+        _current = _current.Next;
+        return _current.Data;
     }
 
-    private void RemoveNode(bool undo)
+    public void RemoveNode(bool goToPrevious)
     {
-        if (_current is null)
+        if (
+            _current.Previous is null
+            || _current.Next is null
+            || _current == _head
+            || _current == _tail
+        )
             throw new ArgumentNullException();
 
-        if (_current.Previous is null || _current.Next is null)
-        {
-            RemoveEndNode();
-            return;
-        }
         _current.Previous.Next = _current.Next;
         _current.Next.Previous = _current.Previous;
-        _current = undo ? _current.Previous : _current.Next;
-    }
-
-    private void RemoveEndNode()
-    {
-        if (_current is null)
-            throw new ArgumentNullException();
-
-        if (_current.Previous is null  && _current.Next is not null)
-        {
-            _current.Next.Previous = _current.Previous;
-            _current.Next.EndOfChain = true;
-            _current = _current.Next;
-            return;
-        }
-        if (_current.Previous is not null && _current.Next is null)
-        {
-            _current.Previous.Next = _current.Next;
-            _current.Previous.EndOfChain = true;
-            _current = _current.Previous;
-            return;
-        }
-        _current = null;
+        _current = goToPrevious ? _current.Previous : _current.Next;
     }
 }
-
