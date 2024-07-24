@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
 using ReactiveUI;
@@ -56,7 +57,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
-    private string[] _branches;
+    private string[] _branches = Array.Empty<string>();
     public string[] Branches
     {
         get => _branches;
@@ -149,7 +150,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private void Reload() { }
 
     private void OpenPowerShell() =>
-        _fileOperationsHandler.OpenCmdAt(_currentPath, out string? _errorMessage);
+        _fileOperationsHandler.OpenCmdAt(_currentPath, out _errorMessage);
 
     private void SearchDirectory(string searchQuery) { }
 
@@ -157,7 +158,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void NewFile()
     {
-        if (_fileOperationsHandler.NewFileAt(_currentPath, "New File", out string? _errorMessage))
+        if (_fileOperationsHandler.NewFileAt(_currentPath, "New File", out _errorMessage))
         {
             _needRefresh = true;
             // _undoRedoHandler.NewOperation(new NewFileAt(_currentPath));
@@ -198,9 +199,28 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void SortByType() { }
 
-    private void Undo() => _undoRedoHandler.Undo(out _errorMessage);
+    private void Undo()
+    {
+        IUndoableFileOperation? action = _undoRedoHandler.Current;
+        action ??= _undoRedoHandler.GetPrevious();
+        if (action is null)
+            return;
 
-    private void Redo() => _undoRedoHandler.Redo(out _errorMessage);
+        if (action.Undo(out _errorMessage))
+            _undoRedoHandler.GetPrevious();
+        else
+            _undoRedoHandler.RemoveNode(true);
+    }
+
+    private void Redo()
+    {
+        IUndoableFileOperation? action = _undoRedoHandler.GetNext();
+        if (action is null)
+            return;
+
+        if (!action.Redo(out _errorMessage))
+            _undoRedoHandler.RemoveNode(false);
+    }
 
     private void SelectAll() { }
 
@@ -208,10 +228,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void InvertSelection() { }
 
-    private void SwitchBranch() { }
-
-    private void Pull() =>
-        _needRefresh = _versionControl.DownloadChanges(out _errorMessage);
+    private void Pull() => _needRefresh = _versionControl.DownloadChanges(out _errorMessage);
 
     private void Commit() { }
 
