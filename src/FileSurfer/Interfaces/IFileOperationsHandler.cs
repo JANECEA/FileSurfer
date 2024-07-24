@@ -30,6 +30,10 @@ public interface IFileOperationsHandler
 
     public bool RenameDirAt(string filePath, string newName, out string? errorMessage);
 
+    public bool MoveFileTo(string filePath, string destinationDir, out string? errorMessage);
+
+    public bool MoveDirTo(string dirPath, string destinationDir, out string? errorMessage);
+
     public bool MoveFileToTrash(string filePath, out string? errorMessage);
 
     public bool MoveDirToTrash(string dirPath, out string? errorMessage);
@@ -38,4 +42,3 @@ public interface IFileOperationsHandler
 
     public bool DeleteDirectory(string dirPath, out string? errorMessage);
 }
-
