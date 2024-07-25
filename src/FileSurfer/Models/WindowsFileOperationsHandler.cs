@@ -1,8 +1,9 @@
-using System;
-using System.IO;
-using System.Diagnostics;
 using Microsoft.VisualBasic.FileIO;
-// using System.Windows.Forms;
+using System;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
 
 namespace FileSurfer;
 
@@ -80,9 +81,19 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public object GetFileIcon(string path, out string? errorMessage) { throw new System.NotImplementedException(); }
-
-    public object GetFileContextMenu(string path, out string? errorMessage) { throw new System.NotImplementedException(); }
+    public Icon? GetFileIcon(string path, out string? errorMessage)
+    {
+        try
+        {
+            errorMessage = null;
+            return Icon.ExtractAssociatedIcon(path);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            return null;
+        }
+    }
 
     public long? GetFileSizeKiB(string path, out string? errorMessage)
     {
@@ -102,7 +113,11 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     {
         try
         {
-            FileSystem.DeleteDirectory(filePath, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+            FileSystem.DeleteDirectory(
+                filePath,
+                UIOption.OnlyErrorDialogs,
+                RecycleOption.SendToRecycleBin
+            );
             errorMessage = null;
             return true;
         }
@@ -117,7 +132,11 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     {
         try
         {
-            FileSystem.DeleteFile(dirPath, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+            FileSystem.DeleteFile(
+                dirPath,
+                UIOption.OnlyErrorDialogs,
+                RecycleOption.SendToRecycleBin
+            );
             errorMessage = null;
             return true;
         }
@@ -132,7 +151,9 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     {
         try
         {
-            using FileStream file = File.Create(Path.Combine(dirPath, GetAvailableName(dirPath, fileName)));
+            using FileStream file = File.Create(
+                Path.Combine(dirPath, GetAvailableName(dirPath, fileName))
+            );
             file.Close();
             errorMessage = null;
             return true;
@@ -149,7 +170,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         try
         {
             Directory.CreateDirectory(Path.Combine(dirPath, GetAvailableName(dirPath, folderName)));
-            errorMessage = null; 
+            errorMessage = null;
             return true;
         }
         catch (Exception ex)
@@ -157,6 +178,22 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = ex.Message;
             return false;
         }
+    }
+
+    public bool IsHidden(string filePath)
+    {
+        try
+        {
+            if (File.GetAttributes(filePath).HasFlag(FileAttributes.Directory))
+            {
+                return new DirectoryInfo(filePath).Attributes.HasFlag(FileAttributes.Hidden);
+            }
+            return new FileInfo(filePath).Attributes.HasFlag(FileAttributes.Hidden);
+        }
+        catch
+        {
+            return false;
+        } 
     }
 
     private static string GetAvailableName(string path, string fileName)
@@ -181,12 +218,12 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         {
             new Process
             {
-                StartInfo = new() 
+                StartInfo = new()
                 {
                     FileName = "powershell.exe",
                     WorkingDirectory = dirPath,
                     Arguments = "-NoExit",
-                    UseShellExecute = true 
+                    UseShellExecute = true
                 }
             }.Start();
             errorMessage = null;
@@ -217,12 +254,100 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public bool CopyFileToSystemClipBoard(string filePath, out string? errorMessage) 
-    { 
-        throw new System.NotImplementedException(); 
+    public bool CopyFileToSystemClipBoard(string filePath, out string? errorMessage)
+    {
+        string command = $"Set-Clipboard -Path {filePath}";
+        return PowerShellCommand(command, out errorMessage);
     }
 
-    public bool PasteFileFromClipBoardAt(string filePath, out string? errorMessage) { throw new System.NotImplementedException(); }
+    public bool PasteFileFromClipBoardAt(string filePath, out string? errorMessage)
+    {
+        string command = 
+            "foreach ($file in Get-Clipboard -Format FileDropList) { $destFile = Join-Path" 
+            + filePath 
+            + "(Split-Path $file -Leaf) Copy-Item -Path $file -Destination $destFile }";
+        return PowerShellCommand(command, out errorMessage);
+    }
+
+    private static bool PowerShellCommand(string command, out string? errorMessage)
+    {
+        using Process process =
+            new()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = "powershell.exe",
+                    Arguments = "/c " + command,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+        process.WaitForExit();
+
+        if (process.ExitCode == 0)
+        {
+            errorMessage = null;
+            return true;
+        }
+        errorMessage = process.StandardError.ReadToEnd();
+        return false;
+    }
+
+    public bool ExecuteCmd(string command, out string? errorMessage)
+    {
+        using Process process =
+            new()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = "cmd.exe",
+                    Arguments = "/c " + command,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+        process.WaitForExit();
+
+        if (process.ExitCode == 0)
+        {
+            errorMessage = null;
+            return true;
+        }
+        errorMessage = process.StandardError.ReadToEnd();
+        return false;
+    }
+
+    public bool IsValidFileName(string fileName)
+    {
+        char[] invalidChars = Path.GetInvalidFileNameChars();
+        foreach (char c in fileName)
+        {
+            if (invalidChars.Contains(c)) 
+                return false;
+        }
+        return true;
+    }
+
+    public bool IsValidDirName(string dirName)
+    {
+        char[] invalidChars = Path.GetInvalidPathChars();
+        foreach (char c in dirName)
+        {
+            if (invalidChars.Contains(c)) 
+                return false;
+        }
+        return true;
+    }
 
     public bool RenameFileAt(string filePath, string newName, out string? errorMessage)
     {
@@ -265,4 +390,39 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             return false;
         }
     }
+
+    public bool MoveFileTo(string filePath, string destinationDir, out string? errorMessage)
+    {
+        try
+        {
+            string newFilePath = Path.Combine(destinationDir, Path.GetFileName(filePath));
+            File.Move(filePath, newFilePath);
+            errorMessage = null;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage= ex.Message;
+            return false;
+        }
+    }
+
+    public bool MoveDirTo(string dirPath, string destinationDir, out string? errorMessage)
+    {
+        try
+        {
+            string newDirPath = Path.Combine(destinationDir, Path.GetFileName(dirPath));
+            Directory.Move(dirPath, newDirPath);
+            errorMessage = null;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage= ex.Message;
+            return false;
+        }
+    }
+
+    public bool CopyFileTo(string filePath, string destinationDir, out string? errorMessage) => throw new NotImplementedException();
+    public bool CopyDirTo(string dirPath, string destinationDir, out string? errorMessage) => throw new NotImplementedException();
 }

@@ -1,3 +1,5 @@
+using System.Drawing;
+
 namespace FileSurfer;
 
 public interface IFileOperationsHandler
@@ -12,11 +14,13 @@ public interface IFileOperationsHandler
 
     public long? GetFileSizeKiB(string path, out string? errorMessage);
 
-    public object GetFileIcon(string path, out string? errorMessage);
-
-    public object GetFileContextMenu(string path, out string? errorMessage);
+    public Icon? GetFileIcon(string path, out string? errorMessage);
 
     public bool OpenCmdAt(string dirPath, out string? errorMessage);
+
+    public bool ExecuteCmd(string command, out string? errorMessage);
+
+    public bool IsHidden(string filePath);
 
     public bool NewFileAt(string dirPath, string fileName, out string? errorMessage);
 
@@ -26,6 +30,10 @@ public interface IFileOperationsHandler
 
     public bool PasteFileFromClipBoardAt(string filePath, out string? errorMessage);
 
+    public bool IsValidFileName(string fileName);
+    
+    public bool IsValidDirName(string dirName);
+
     public bool RenameFileAt(string filePath, string newName, out string? errorMessage);
 
     public bool RenameDirAt(string filePath, string newName, out string? errorMessage);
@@ -33,6 +41,10 @@ public interface IFileOperationsHandler
     public bool MoveFileTo(string filePath, string destinationDir, out string? errorMessage);
 
     public bool MoveDirTo(string dirPath, string destinationDir, out string? errorMessage);
+
+    public bool CopyFileTo(string filePath, string destinationDir, out string? errorMessage);
+
+    public bool CopyDirTo(string dirPath, string destinationDir, out string? errorMessage);
 
     public bool MoveFileToTrash(string filePath, out string? errorMessage);
 
