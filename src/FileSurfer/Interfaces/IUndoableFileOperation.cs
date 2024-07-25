@@ -6,4 +6,3 @@ public interface IUndoableFileOperation
 
     public bool Redo(out string? errorMessage);
 }
-
