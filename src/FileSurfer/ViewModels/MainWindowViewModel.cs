@@ -1,18 +1,18 @@
-﻿using System;
+﻿using ReactiveUI;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
-using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
 
+#pragma warning disable CA1822 // Mark members as static
 public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
-#pragma warning disable CA1822 // Mark members as static
-    private readonly IVersionControl _versionControl = new GitVersionControlHandler();
-    private readonly IFileOperationsHandler _fileOperationsHandler =
-        new WindowsFileOperationsHandler();
+    private readonly IFileOperationsHandler _fileOperationsHandler = new WindowsFileOperationsHandler();
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHandler = new();
+    private readonly UndoRedoHandler<string> _pathHistory = new();
+    private readonly IVersionControl _versionControl;
 
     private ObservableCollection<string> _selectedFiles = new();
 
@@ -92,7 +92,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public ICommand OpenPowerShellCommand { get; }
     public ICommand CancelSearchCommand { get; }
     public ICommand NewFileCommand { get; }
-    public ICommand NewFolderCommand { get; }
+    public ICommand NewDirCommand { get; }
     public ICommand CutCommand { get; }
     public ICommand CopyCommand { get; }
     public ICommand PasteCommand { get; }
@@ -115,13 +115,14 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public MainWindowViewModel()
     {
+        _versionControl = new GitVersionControlHandler(_fileOperationsHandler);
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
         ReloadCommand = ReactiveCommand.Create(Reload);
         OpenPowerShellCommand = ReactiveCommand.Create(OpenPowerShell);
         CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
         NewFileCommand = ReactiveCommand.Create(NewFile);
-        NewFolderCommand = ReactiveCommand.Create(NewFolder);
+        NewDirCommand = ReactiveCommand.Create(NewDir);
         CutCommand = ReactiveCommand.Create(Cut);
         CopyCommand = ReactiveCommand.Create(Copy);
         PasteCommand = ReactiveCommand.Create(Paste);
@@ -161,24 +162,17 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (_fileOperationsHandler.NewFileAt(_currentPath, "New File", out _errorMessage))
         {
             _needRefresh = true;
-            // _undoRedoHandler.NewOperation(new NewFileAt(_currentPath));
+            // _undoRedoHandler.NewNode(new NewFileAt(_currentPath));
         }
     }
 
-    private void NewFolder()
+    private void NewDir()
     {
-        if (
-            !_fileOperationsHandler.NewDirAt(
-                _currentPath,
-                "New Directory",
-                out string? errorMessage
-            )
-        )
+        if (_fileOperationsHandler.NewDirAt(_currentPath, "New Directory", out _errorMessage))
         {
-            _errorMessage = errorMessage;
-            return;
+            _needRefresh = true;
+            // _undoRedoHandler.NewNode(new NewDirAt(_currentPath));
         }
-        _needRefresh = true;
     }
 
     private void Cut() { }
@@ -237,5 +231,5 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private void ListView() { }
 
     private void IconView() { }
-#pragma warning restore CA1822 // Mark members as static
 }
+#pragma warning restore CA1822 // Mark members as static

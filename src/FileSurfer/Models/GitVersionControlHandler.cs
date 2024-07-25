@@ -1,12 +1,11 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp;
 
 namespace FileSurfer;
 
-public class GitVersionControlHandler : IVersionControl
+public class GitVersionControlHandler(IFileOperationsHandler _fileOperationsHandler) : IVersionControl, IDisposable
 {
     private Repository? _currentRepo = null;
 
@@ -48,7 +47,7 @@ public class GitVersionControlHandler : IVersionControl
         if (_currentRepo is not null)
         {
             string command = $"cd \"{_currentRepo.Info.Path}\" && git pull";
-            return ExecuteCmd(command, out errorMessage);
+            return _fileOperationsHandler.ExecuteCmd(command, out errorMessage);
         }
         errorMessage = "No git repository found";
         return false;
@@ -97,41 +96,14 @@ public class GitVersionControlHandler : IVersionControl
     public bool CommitChanges(string commitMessage, out string? errorMessage)
     {
         string command = $"cd \"{_currentRepo.Info.Path}\" && git commit -m \"{commitMessage}\"";
-        return ExecuteCmd(command, out errorMessage);
+        return _fileOperationsHandler.ExecuteCmd(command, out errorMessage);
     }
 
     public bool UploadChanges(out string? errorMessage)
     {
         string command = $"cd \"{_currentRepo.Info.Path}\" && git push";
-        return ExecuteCmd(command, out errorMessage);
+        return _fileOperationsHandler.ExecuteCmd(command, out errorMessage);
     }
 
-    private static bool ExecuteCmd(string command, out string? errorMessage)
-    {
-        using Process process =
-            new()
-            {
-                StartInfo = new ProcessStartInfo()
-                {
-                    FileName = "cmd.exe",
-                    Arguments = "/c " + command,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
-        process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
-        process.WaitForExit();
-
-        if (process.ExitCode == 0)
-        {
-            errorMessage = null;
-            return true;
-        }
-        errorMessage = process.StandardError.ReadToEnd();
-        return false;
-    }
+    public void Dispose() => _currentRepo?.Dispose();
 }

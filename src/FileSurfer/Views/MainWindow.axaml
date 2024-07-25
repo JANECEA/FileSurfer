@@ -41,7 +41,7 @@
         <Border Height="55" DockPanel.Dock="Top" Grid.Row="2" BorderThickness="0 1 0 1" BorderBrush="{DynamicResource SecondaryColor}">
             <DockPanel LastChildFill="False" Margin="10 0">
                 <Button Classes="FileOperationButton" Content="" HotKey="Ctrl+N" Command="{Binding NewFileCommand}"/>
-                <Button Classes="FileOperationButton" Content="" HotKey="Ctrl+Shift+N" Command="{Binding NewFolderCommand}"/>
+                <Button Classes="FileOperationButton" Content="" HotKey="Ctrl+Shift+N" Command="{Binding NewDirCommand}"/>
                 <Rectangle Classes="ButtonSeparator"/>
                 <Button Classes="FileOperationButton" Content="󰆐" HotKey="Ctrl+X" Command="{Binding CutCommand}"/>
                 <Button Classes="FileOperationButton" Content="" HotKey="Ctrl+C" Command="{Binding CopyCommand}"/>
