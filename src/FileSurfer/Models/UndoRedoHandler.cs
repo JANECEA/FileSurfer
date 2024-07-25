@@ -36,7 +36,13 @@ class UndoRedoHandler<T>
         _current = _head;
     }
 
-    public void NewNode(T data) => _current = new UndoRedoNode(data, _current, _tail);
+    public void NewNode(T data)
+    {
+        if (_current == _tail)
+            GetPrevious();
+
+        _current = new UndoRedoNode(data, _current, _tail);
+    }
 
     public T? GetPrevious()
     {
