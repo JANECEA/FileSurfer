@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using FileSurfer.Views;
+using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -32,6 +33,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             if (value is not null)
             {
                 this.RaiseAndSetIfChanged(ref _errorMessage, value);
+                new ErrorWindow(value).Show();
             }
         }
     }
@@ -73,7 +75,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             if (!string.IsNullOrEmpty(value))
             {
                 _versionControl.SwitchBranches(value, out string? errorMessage);
-                _errorMessage = errorMessage;
+                ErrorMessage = errorMessage;
             }
             _currentBranch = value;
         }
@@ -150,8 +152,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void Reload() { }
 
-    private void OpenPowerShell() =>
-        _fileOperationsHandler.OpenCmdAt(_currentPath, out _errorMessage);
+    private void OpenPowerShell()
+    {
+        _fileOperationsHandler.OpenCmdAt(_currentPath, out string? errorMessage);
+        ErrorMessage = errorMessage;
+    }
 
     private void SearchDirectory(string searchQuery) { }
 
@@ -160,21 +165,25 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private void NewFile()
     {
         string newFileName = _fileOperationsHandler.GetAvailableName(_currentPath, "New File");
-        if (_fileOperationsHandler.NewFileAt(_currentPath, newFileName, out _errorMessage))
+        if (_fileOperationsHandler.NewFileAt(_currentPath, newFileName, out string? errorMessage))
         {
             _needRefresh = true;
             _undoRedoHandler.NewNode(new NewFileAt(_fileOperationsHandler, _currentPath, newFileName));
         }
+        else
+            ErrorMessage = errorMessage;
     }
 
     private void NewDir()
     {
         string newDirName = _fileOperationsHandler.GetAvailableName(_currentPath, "New Folder");
-        if (_fileOperationsHandler.NewDirAt(_currentPath, newDirName, out _errorMessage))
+        if (_fileOperationsHandler.NewDirAt(_currentPath, newDirName, out string? errorMessage))
         {
             _needRefresh = true;
             _undoRedoHandler.NewNode(new NewDirAt(_fileOperationsHandler , _currentPath, newDirName));
         }
+        else 
+            ErrorMessage = errorMessage;
     }
 
     private void Cut() { }
@@ -206,10 +215,13 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (operation is null)
             return;
 
-        if (operation.Undo(out _errorMessage))
+        if (operation.Undo(out string? errorMessage))
             _undoRedoHandler.MoveToPrevious();
         else
+        {
             _undoRedoHandler.RemoveNode(true);
+            ErrorMessage = errorMessage;
+        }
     }
 
     private void Redo()
@@ -220,8 +232,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
         _undoRedoHandler.MoveToNext();
 
-        if (!operation.Redo(out _errorMessage))
+        if (!operation.Redo(out string? errorMessage))
+        {
             _undoRedoHandler.RemoveNode(true);
+            ErrorMessage= errorMessage;
+        }
     }
 
     private void SelectAll() { }
@@ -230,7 +245,16 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void InvertSelection() { }
 
-    private void Pull() => _needRefresh = _versionControl.DownloadChanges(out _errorMessage);
+    private void Pull() 
+    {
+        if (_versionControl.DownloadChanges(out string? errorMessage))
+        {
+            NeedRefresh = true;
+        }
+        else
+            ErrorMessage = errorMessage;
+    }
+    
 
     private void Commit() { }
 

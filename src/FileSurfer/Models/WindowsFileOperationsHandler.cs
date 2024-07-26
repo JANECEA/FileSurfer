@@ -13,6 +13,8 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     {
         try
         {
+            if (!File.Exists(filePath)) 
+                throw new FileNotFoundException($"Could not find file: \"{filePath}\"");
             File.Delete(filePath);
             errorMessage = null;
             return true;
