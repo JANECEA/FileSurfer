@@ -5,33 +5,38 @@ namespace FileSurfer;
 
 public class MoveDirToTrash : IUndoableFileOperation
 {
-    readonly IFileOperationsHandler _fileOpsHandler;
+    private readonly IFileOperationsHandler _fileOpsHandler;
+    private readonly string _dirPath;
 
-
-    public bool Redo(out string? errorMessage)
+    public MoveDirToTrash(IFileOperationsHandler fileHandler, string dirPath)
     {
-        throw new System.NotImplementedException();
+        _fileOpsHandler= fileHandler;
+        _dirPath = dirPath;
     }
 
-    public bool Undo(out string? errorMessage)
-    {
-        throw new System.NotImplementedException();
-    }
+    public bool Redo(out string? errorMessage) =>
+        _fileOpsHandler.MoveDirToTrash(_dirPath, out errorMessage);
+
+    public bool Undo(out string? errorMessage) =>
+        _fileOpsHandler.RestoreDir(_dirPath, out errorMessage);
 }
 
 public class MoveFileToTrash : IUndoableFileOperation
 {
-    readonly IFileOperationsHandler _fileOpsHandler;
+    private readonly IFileOperationsHandler _fileOpsHandler;
+    private readonly string _filePath;
 
-    public bool Redo(out string? errorMessage)
+    public MoveFileToTrash(IFileOperationsHandler fileHandler, string filePath)
     {
-        throw new System.NotImplementedException();
+        _fileOpsHandler= fileHandler;
+        _filePath = filePath;
     }
 
-    public bool Undo(out string? errorMessage)
-    {
-        throw new System.NotImplementedException();
-    }
+    public bool Redo(out string? errorMessage) =>
+        _fileOpsHandler.MoveFileToTrash(_filePath, out errorMessage);
+
+    public bool Undo(out string? errorMessage) =>
+        _fileOpsHandler.RestoreFile(_filePath, out errorMessage);
 }
 
 public class MoveFileTo : IUndoableFileOperation
@@ -41,14 +46,14 @@ public class MoveFileTo : IUndoableFileOperation
     private readonly string _oldDir;
     private readonly string _newDir;
 
-    public MoveFileTo(string oldPath, string destinationDir)
+    public MoveFileTo(IFileOperationsHandler fileHandler, string oldPath, string destinationDir)
     {
+        _fileOpsHandler = fileHandler;
         _fileName = Path.GetFileName(oldPath);
         _oldDir = Path.GetDirectoryName(oldPath);
         _newDir = destinationDir;
 
-        _oldDir = _oldDir
-            ?? throw new ArgumentNullException(_oldDir);
+        _oldDir = _oldDir ?? throw new ArgumentNullException(_oldDir);
     }
 
     public bool Redo(out string? errorMessage) => 
@@ -72,8 +77,7 @@ public class MoveDirTo : IUndoableFileOperation
         _oldDir = Path.GetDirectoryName(oldPath);
         _newDir = destinationDir;
 
-        _oldDir = _oldDir
-            ?? throw new ArgumentNullException(_oldDir);
+        _oldDir = _oldDir ?? throw new ArgumentNullException(_oldDir);
     }
 
     public bool Redo(out string? errorMessage) =>
@@ -120,7 +124,7 @@ public class CopyDirTo : IUndoableFileOperation
         _fileOpsHandler.CopyDirTo(_oldPath, _newPath, out errorMessage);
 
     public bool Undo(out string? errorMessage) =>
-        _fileOpsHandler.DeleteDirectory(_newPath, out errorMessage);
+        _fileOpsHandler.DeleteDir(_newPath, out errorMessage);
 }
 
 public class RenameFile : IUndoableFileOperation
@@ -136,6 +140,8 @@ public class RenameFile : IUndoableFileOperation
         _dir = Path.GetDirectoryName(path);
         _oldName = Path.GetFileName(path);
         _newName = newName;
+        
+        _dir = _dir ?? throw new ArgumentNullException(_dir);
     }
 
     public bool Redo(out string? errorMessage) =>
@@ -158,6 +164,8 @@ public class RenameDir : IUndoableFileOperation
         _dir = Path.GetDirectoryName(path);
         _oldName = Path.GetFileName(path);
         _newName = newName;
+
+        _dir = _dir ?? throw new ArgumentNullException(_dir);
     }
 
     public bool Redo(out string? errorMessage) =>
@@ -169,27 +177,41 @@ public class RenameDir : IUndoableFileOperation
 
 public class NewFileAt : IUndoableFileOperation
 {
-    public bool Redo(out string? errorMessage)
+    private readonly IFileOperationsHandler _fileOpsHandler;
+    private readonly string _path;
+    private readonly string _fileName;
+
+    public NewFileAt(IFileOperationsHandler fileHandler, string path, string fileName)
     {
-        throw new System.NotImplementedException();
+        _fileOpsHandler= fileHandler;
+        _path = path;
+        _fileName = fileName;
     }
 
-    public bool Undo(out string? errorMessage)
-    {
-        throw new System.NotImplementedException();
-    }
+    public bool Redo(out string? errorMessage) =>
+        _fileOpsHandler.NewFileAt(_path, _fileName, out errorMessage);
+
+    public bool Undo(out string? errorMessage) =>
+        _fileOpsHandler.DeleteFile(Path.Combine(_path, _fileName), out errorMessage);
 }
 
 public class NewDirAt : IUndoableFileOperation
 {
-    public bool Redo(out string? errorMessage)
+    private readonly IFileOperationsHandler _fileOpsHandler;
+    private readonly string _path;
+    private readonly string _dirName;
+
+    public NewDirAt(IFileOperationsHandler fileHandler, string path, string dirName)
     {
-        throw new System.NotImplementedException();
+        _fileOpsHandler= fileHandler;
+        _path = path;
+        _dirName = dirName;
     }
 
-    public bool Undo(out string? errorMessage)
-    {
-        throw new System.NotImplementedException();
-    }
+    public bool Redo(out string? errorMessage) =>
+        _fileOpsHandler.NewDirAt(_path, _dirName, out errorMessage);
+
+    public bool Undo(out string? errorMessage) =>
+        _fileOpsHandler.DeleteDir(Path.Combine(_path, _dirName), out errorMessage);
 }
 
