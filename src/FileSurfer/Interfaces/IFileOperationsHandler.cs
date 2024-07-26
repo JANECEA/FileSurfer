@@ -22,6 +22,8 @@ public interface IFileOperationsHandler
 
     public bool IsHidden(string filePath);
 
+    public string GetAvailableName(string path, string fileName);
+
     public bool NewFileAt(string dirPath, string fileName, out string? errorMessage);
 
     public bool NewDirAt(string dirPath, string DirName, out string? errorMessage);
@@ -50,7 +52,11 @@ public interface IFileOperationsHandler
 
     public bool MoveDirToTrash(string dirPath, out string? errorMessage);
 
-    public bool DeleteFile(string filePath, out string? errorMessage);
+    public bool RestoreFile(string ogFilePath, out string? errorMessage);
 
-    public bool DeleteDirectory(string dirPath, out string? errorMessage);
+    public bool RestoreDir(string ogDirPath, out string? errorMessage);
+
+    public bool DeleteFile(string fileName, out string? errorMessage);
+
+    public bool DeleteDir(string dirName, out string? errorMessage);
 }

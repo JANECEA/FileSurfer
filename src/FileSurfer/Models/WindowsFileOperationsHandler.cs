@@ -17,14 +17,14 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage = ex.Message;
             return false;
         }
     }
 
-    public bool DeleteDirectory(string dirPath, out string? errorMessage)
+    public bool DeleteDir(string dirPath, out string? errorMessage)
     {
         try
         {
@@ -32,7 +32,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -46,7 +46,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return Directory.GetLogicalDrives();
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage = ex.Message;
             return Array.Empty<string>();
@@ -60,7 +60,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return Directory.GetFiles(dirPath);
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage = ex.Message;
             return Array.Empty<string>();
@@ -74,7 +74,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return Directory.GetDirectories(dirPath);
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage = ex.Message;
             return Array.Empty<string>();
@@ -88,7 +88,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return Icon.ExtractAssociatedIcon(path);
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage = ex.Message;
             return null;
@@ -102,7 +102,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return new FileInfo(path).Length / 1024;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage = ex.Message;
             return null;
@@ -121,7 +121,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -140,40 +140,44 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage = ex.Message;
             return false;
         }
     }
+
+    public bool RestoreFile(string ogFilePath, out string? errorMessage) =>
+        WindowsFileRestorer.RestoreFile(ogFilePath, out errorMessage);
+
+    public bool RestoreDir(string ogDirPath, out string? errorMessage) =>
+        WindowsFileRestorer.RestoreDir(ogDirPath, out errorMessage);
 
     public bool NewFileAt(string dirPath, string fileName, out string? errorMessage)
     {
         try
         {
-            using FileStream file = File.Create(
-                Path.Combine(dirPath, GetAvailableName(dirPath, fileName))
-            );
+            using FileStream file = File.Create(Path.Combine(dirPath, fileName));
             file.Close();
             errorMessage = null;
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage = ex.Message;
             return false;
         }
     }
 
-    public bool NewDirAt(string dirPath, string folderName, out string? errorMessage)
+    public bool NewDirAt(string dirPath, string dirName, out string? errorMessage)
     {
         try
         {
-            Directory.CreateDirectory(Path.Combine(dirPath, GetAvailableName(dirPath, folderName)));
+            Directory.CreateDirectory(Path.Combine(dirPath, dirName));
             errorMessage = null;
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -196,15 +200,17 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         } 
     }
 
-    private static string GetAvailableName(string path, string fileName)
+    public string GetAvailableName(string path, string fileName)
     {
         if (!Path.Exists(Path.Combine(path, fileName)))
         {
             return fileName;
         }
+        string nameWOextension = Path.GetFileNameWithoutExtension(fileName);
+        string extension = Path.GetExtension(fileName);
         for (int index = 1; ; index++)
         {
-            string newFileName = $"{fileName} (${index})";
+            string newFileName = $"{nameWOextension} ({index}){extension}";
             if (!Path.Exists(Path.Combine(path, newFileName)))
             {
                 return newFileName;
@@ -229,7 +235,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -247,7 +253,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -363,7 +369,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -384,7 +390,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -400,7 +406,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage= ex.Message;
             return false;
@@ -416,13 +422,58 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             errorMessage= ex.Message;
             return false;
         }
     }
 
-    public bool CopyFileTo(string filePath, string destinationDir, out string? errorMessage) => throw new NotImplementedException();
-    public bool CopyDirTo(string dirPath, string destinationDir, out string? errorMessage) => throw new NotImplementedException();
+    public bool CopyFileTo(string filePath, string destinationDir, out string? errorMessage)
+    {
+        try
+        {
+            errorMessage = null;
+            if (Path.GetDirectoryName(filePath) == destinationDir)
+            {
+                string newName = 
+                    Path.GetFileNameWithoutExtension(filePath) 
+                    + " - copy" 
+                    + Path.GetExtension(filePath);
+                newName = GetAvailableName(destinationDir, newName);
+                File.Copy(filePath, Path.Combine(destinationDir, newName));
+                return true;
+            }
+            string fileName = Path.GetFileName(filePath);
+            File.Copy(filePath, Path.Combine(destinationDir, fileName), true);
+            return true;
+        }
+        catch (IOException ex)
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
+    }
+
+    public bool CopyDirTo(string dirPath, string destinationDir, out string? errorMessage)
+    {
+        try
+        {
+            errorMessage = null;
+            string dirName = Path.GetFileName(dirPath);
+            if (Path.GetDirectoryName(dirPath) == destinationDir)
+            {
+                string newName = GetAvailableName(destinationDir, dirName + " - copy");
+                FileSystem.CopyDirectory(dirPath, Path.Combine(destinationDir, newName));
+                return true;
+            }
+            FileSystem.CopyDirectory(dirPath, Path.Combine(destinationDir, dirName), true);
+            return true;
+        }
+        catch (IOException ex)
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
+    }
 }
