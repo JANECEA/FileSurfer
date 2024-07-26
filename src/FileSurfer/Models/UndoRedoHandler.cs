@@ -39,28 +39,18 @@ class UndoRedoHandler<T>
     public void NewNode(T data)
     {
         if (_current == _tail)
-            GetPrevious();
+            MoveToPrevious();
 
         _current = new UndoRedoNode(data, _current, _tail);
     }
 
-    public T? GetPrevious()
-    {
-        if (_current.Previous is null)
-            return default;
+    public T? GetPrevious() => _current.Previous is null ? default : _current.Previous.Data;
 
-        _current = _current.Previous;
-        return _current.Data;
-    }
+    public T? GetNext() => _current.Next is null ? default : _current.Next.Data;
 
-    public T? GetNext()
-    {
-        if (_current.Next is null)
-            return default;
+    public void MoveToPrevious() => _current = _current.Previous ?? _current;
 
-        _current = _current.Next;
-        return _current.Data;
-    }
+    public void MoveToNext()  => _current = _current.Previous ?? _current;
 
     public void RemoveNode(bool goToPrevious)
     {
@@ -70,7 +60,9 @@ class UndoRedoHandler<T>
             || _current == _head
             || _current == _tail
         )
-            throw new ArgumentNullException();
+        {
+            throw new DataMisalignedException(nameof(_current));
+        }
 
         _current.Previous.Next = _current.Next;
         _current.Next.Previous = _current.Previous;

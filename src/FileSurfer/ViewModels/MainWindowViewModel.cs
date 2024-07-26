@@ -159,19 +159,21 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void NewFile()
     {
-        if (_fileOperationsHandler.NewFileAt(_currentPath, "New File", out _errorMessage))
+        string newFileName = _fileOperationsHandler.GetAvailableName(_currentPath, "New File");
+        if (_fileOperationsHandler.NewFileAt(_currentPath, newFileName, out _errorMessage))
         {
             _needRefresh = true;
-            // _undoRedoHandler.NewNode(new NewFileAt(_currentPath));
+            _undoRedoHandler.NewNode(new NewFileAt(_fileOperationsHandler, _currentPath, newFileName));
         }
     }
 
     private void NewDir()
     {
-        if (_fileOperationsHandler.NewDirAt(_currentPath, "New Directory", out _errorMessage))
+        string newDirName = _fileOperationsHandler.GetAvailableName(_currentPath, "New Folder");
+        if (_fileOperationsHandler.NewDirAt(_currentPath, newDirName, out _errorMessage))
         {
             _needRefresh = true;
-            // _undoRedoHandler.NewNode(new NewDirAt(_currentPath));
+            _undoRedoHandler.NewNode(new NewDirAt(_fileOperationsHandler , _currentPath, newDirName));
         }
     }
 
@@ -195,25 +197,31 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void Undo()
     {
-        IUndoableFileOperation? action = _undoRedoHandler.Current;
-        action ??= _undoRedoHandler.GetPrevious();
-        if (action is null)
+        IUndoableFileOperation? operation = _undoRedoHandler.Current;
+        if (operation is null)
+        {
+            operation = _undoRedoHandler.GetPrevious();
+            _undoRedoHandler.MoveToPrevious();
+        }
+        if (operation is null)
             return;
 
-        if (action.Undo(out _errorMessage))
-            _undoRedoHandler.GetPrevious();
+        if (operation.Undo(out _errorMessage))
+            _undoRedoHandler.MoveToPrevious();
         else
             _undoRedoHandler.RemoveNode(true);
     }
 
     private void Redo()
     {
-        IUndoableFileOperation? action = _undoRedoHandler.GetNext();
-        if (action is null)
+        IUndoableFileOperation? operation = _undoRedoHandler.GetNext();
+        if (operation is null)
             return;
 
-        if (!action.Redo(out _errorMessage))
-            _undoRedoHandler.RemoveNode(false);
+        _undoRedoHandler.MoveToNext();
+
+        if (!operation.Redo(out _errorMessage))
+            _undoRedoHandler.RemoveNode(true);
     }
 
     private void SelectAll() { }
