@@ -2,9 +2,9 @@
 using FileSurfer.Views;
 using ReactiveUI;
 using System;
-using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace FileSurfer.ViewModels;

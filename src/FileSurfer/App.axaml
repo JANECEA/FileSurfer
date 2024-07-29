@@ -32,7 +32,7 @@
                     <Color x:Key="SecondaryColor">#4F4F4F</Color>
                     <Color x:Key="TextBlockColor">#353535</Color>
                     <Color x:Key="TextColor">#D0D0D0</Color>
-                    <Color x:Key="IconColor">#D0D0D0</Color>
+                    <Color x:Key="IconColor">#D5D5D5</Color>
                     <Color x:Key="GitColor">#F34F29</Color>
                     <Color x:Key="GitTextColor">#FFFFFF</Color>
                     <Color x:Key="GitHoverColor">#F2836B</Color>

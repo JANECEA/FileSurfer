@@ -15,6 +15,18 @@
     </ItemGroup>
 
     <ItemGroup>
+      <COMReference Include="Shell32">
+        <WrapperTool>tlbimp</WrapperTool>
+        <VersionMinor>0</VersionMinor>
+        <VersionMajor>1</VersionMajor>
+        <Guid>50a7e9b0-70ef-11d1-b75a-00a0c90564fe</Guid>
+        <Lcid>0</Lcid>
+        <Isolated>false</Isolated>
+        <EmbedInteropTypes>true</EmbedInteropTypes>
+      </COMReference>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Avalonia" Version="11.0.10" />
         <PackageReference Include="Avalonia.Desktop" Version="11.0.10" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.10" />
@@ -24,5 +36,6 @@
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.10" />
         <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
         <PackageReference Include="System.Drawing.Common" Version="8.0.7" />
+        <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
     </ItemGroup>
 </Project>

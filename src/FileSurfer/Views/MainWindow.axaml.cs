@@ -8,6 +8,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        new ErrorWindow("This is indeed a message").Show();
     }
 
     private void OpenSettingsWindow(object sender, RoutedEventArgs args) => 

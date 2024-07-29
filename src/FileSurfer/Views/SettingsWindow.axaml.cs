@@ -1,12 +1,11 @@
 using Avalonia.Controls;
 
-namespace FileSurfer.Views
+namespace FileSurfer.Views;
+
+public partial class SettingsWindow : Window
 {
-    public partial class SettingsWindow : Window
+    public SettingsWindow()
     {
-        public SettingsWindow()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }
