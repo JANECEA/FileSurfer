@@ -1,0 +1,24 @@
+<Styles xmlns="https://github.com/avaloniaui"
+         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <Style Selector="Grid.MainGrid">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="TextBlock.ErrorBlock">
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+        <Setter Property="Grid.Row" Value="0"/>
+    </Style>
+
+    <Style Selector="Button.OKButton">
+        <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Width" Value="60"/>
+        <Setter Property="Grid.Row" Value="1"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+</Styles>
