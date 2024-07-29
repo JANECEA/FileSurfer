@@ -13,13 +13,16 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     {
         try
         {
-            if (!File.Exists(filePath)) 
-                throw new FileNotFoundException($"Could not find file: \"{filePath}\"");
+            if (!File.Exists(filePath))
+            {
+                errorMessage = $"Could not find file: \"{filePath}\"";
+                return false;
+            }
             File.Delete(filePath);
             errorMessage = null;
             return true;
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -34,7 +37,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -48,7 +51,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return Directory.GetLogicalDrives();
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return Array.Empty<string>();
@@ -62,7 +65,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return Directory.GetFiles(dirPath);
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return Array.Empty<string>();
@@ -76,7 +79,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return Directory.GetDirectories(dirPath);
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return Array.Empty<string>();
@@ -90,7 +93,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return Icon.ExtractAssociatedIcon(path);
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return null;
@@ -104,7 +107,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return new FileInfo(path).Length / 1024;
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return null;
@@ -123,7 +126,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -142,7 +145,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -159,12 +162,18 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     {
         try
         {
-            using FileStream file = File.Create(Path.Combine(dirPath, fileName));
+            string filePath = Path.Combine(dirPath, fileName);
+            if (File.Exists(filePath))
+            {
+                errorMessage = $"File: \"{filePath}\" already exists";
+                return false;
+            }
+            using FileStream file = File.Create(filePath);
             file.Close();
             errorMessage = null;
             return true;
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -179,7 +188,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -237,7 +246,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -255,7 +264,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -371,7 +380,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -392,7 +401,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -408,7 +417,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage= ex.Message;
             return false;
@@ -424,7 +433,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage= ex.Message;
             return false;
@@ -450,7 +459,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             File.Copy(filePath, Path.Combine(destinationDir, fileName), true);
             return true;
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -472,7 +481,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             FileSystem.CopyDirectory(dirPath, Path.Combine(destinationDir, dirName), true);
             return true;
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return false;
