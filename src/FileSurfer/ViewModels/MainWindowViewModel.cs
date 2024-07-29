@@ -1,6 +1,8 @@
-﻿using FileSurfer.Views;
+﻿using Avalonia.Threading;
+using FileSurfer.Views;
 using ReactiveUI;
 using System;
+using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -11,7 +13,7 @@ namespace FileSurfer.ViewModels;
 public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
     private readonly IFileOperationsHandler _fileOperationsHandler = new WindowsFileOperationsHandler();
-    private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHandler = new();
+    private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory = new();
     private readonly UndoRedoHandler<string> _pathHistory = new();
     private readonly IVersionControl _versionControl;
 
@@ -33,10 +35,19 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             if (value is not null)
             {
                 this.RaiseAndSetIfChanged(ref _errorMessage, value);
-                new ErrorWindow(value).Show();
+                Dispatcher.UIThread.InvokeAsync(async () =>
+                {
+                    await ShowErrorWindowAsync(value);
+                });
             }
         }
     }
+
+    private async Task ShowErrorWindowAsync(string errorMessage) =>
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            new ErrorWindow(errorMessage).Show();
+        });
 
     private string _currentPath = "D:/Stažené";
     public string CurrentPath
@@ -168,7 +179,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (_fileOperationsHandler.NewFileAt(_currentPath, newFileName, out string? errorMessage))
         {
             _needRefresh = true;
-            _undoRedoHandler.NewNode(new NewFileAt(_fileOperationsHandler, _currentPath, newFileName));
+            _undoRedoHistory.NewNode(new NewFileAt(_fileOperationsHandler, _currentPath, newFileName));
         }
         else
             ErrorMessage = errorMessage;
@@ -180,7 +191,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (_fileOperationsHandler.NewDirAt(_currentPath, newDirName, out string? errorMessage))
         {
             _needRefresh = true;
-            _undoRedoHandler.NewNode(new NewDirAt(_fileOperationsHandler , _currentPath, newDirName));
+            _undoRedoHistory.NewNode(new NewDirAt(_fileOperationsHandler , _currentPath, newDirName));
         }
         else 
             ErrorMessage = errorMessage;
@@ -206,35 +217,34 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void Undo()
     {
-        IUndoableFileOperation? operation = _undoRedoHandler.Current;
-        if (operation is null)
-        {
-            operation = _undoRedoHandler.GetPrevious();
-            _undoRedoHandler.MoveToPrevious();
-        }
-        if (operation is null)
+        if (_undoRedoHistory.IsTail())
+            _undoRedoHistory.MoveToPrevious();   
+
+        if (_undoRedoHistory.IsHead())
             return;
 
+        IUndoableFileOperation operation = 
+            _undoRedoHistory.Current ?? throw new NullReferenceException();
+
         if (operation.Undo(out string? errorMessage))
-            _undoRedoHandler.MoveToPrevious();
+            _undoRedoHistory.MoveToPrevious();
         else
         {
-            _undoRedoHandler.RemoveNode(true);
+            _undoRedoHistory.RemoveNode(true);
             ErrorMessage = errorMessage;
         }
     }
 
     private void Redo()
     {
-        IUndoableFileOperation? operation = _undoRedoHandler.GetNext();
-        if (operation is null)
+        _undoRedoHistory.MoveToNext();
+        if (_undoRedoHistory.Current is null)
             return;
 
-        _undoRedoHandler.MoveToNext();
-
+        IUndoableFileOperation operation = _undoRedoHistory.Current;
         if (!operation.Redo(out string? errorMessage))
         {
-            _undoRedoHandler.RemoveNode(true);
+            _undoRedoHistory.RemoveNode(true);
             ErrorMessage= errorMessage;
         }
     }
@@ -254,7 +264,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         else
             ErrorMessage = errorMessage;
     }
-    
 
     private void Commit() { }
 
