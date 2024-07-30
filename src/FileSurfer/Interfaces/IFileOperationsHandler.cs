@@ -8,6 +8,16 @@ public interface IFileOperationsHandler
 
     public bool OpenFile(string filePath, out string? errorMessage);
 
+    public bool ShowProperties(string filePath, out string? errorMessage);
+
+    public bool IsZipped(string filePath);
+
+    public bool ZipFiles(string[] filePaths, string destinationPath, out string? errorMessage);
+
+    public bool UnzipArchive(string archivePath, string extractPath, out string? errorMessage);
+
+    public bool CreateLink(string filePath, out string? errorMessage);
+
     public string[] GetDirFiles(string dirPath, out string? errorMessage);
 
     public string[] GetDirFolders(string dirPath, out string? errorMessage);

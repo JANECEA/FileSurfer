@@ -4,6 +4,10 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using SharpCompress.Archives.Zip;
+using SharpCompress.Common;
+using SharpCompress.Writers;
+using SharpCompress.Archives;
 
 namespace FileSurfer;
 
@@ -484,6 +488,98 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         catch (Exception ex)
         {
             errorMessage = ex.Message;
+            return false;
+        }
+    }
+
+    public bool ShowProperties(string filePath, out string? errorMessage) =>
+        WindowsFileProperties.ShowFileProperties(filePath, out errorMessage);
+
+    public bool IsZipped(string filePath) =>
+        Path.GetExtension(filePath).ToLowerInvariant() switch
+        {
+            ".zip" => true,
+            ".rar" => true,
+            ".7z" => true,
+            ".gzip" => true,
+            ".tar" => true,
+            _ => false
+        };
+
+    public bool ZipFiles(string[] filePaths, string destinationPath, out string? errorMessage)
+    {
+        try 
+        {
+            using ZipArchive archive = ZipArchive.Create();
+            using FileStream zipStream = File.OpenWrite(destinationPath);
+
+            foreach (string filePath in filePaths)
+            {
+                archive.AddEntry(Path.GetFileName(filePath), File.OpenRead(filePath));
+            }
+            archive.SaveTo(zipStream, new WriterOptions(CompressionType.Deflate));
+            errorMessage = null;
+            return true;
+        }
+        catch (Exception ex) 
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
+    }
+
+    public bool UnzipArchive(string archivePath, string extractPath, out string? errorMessage)
+    {
+        if (!IsZipped(archivePath))
+        {
+            errorMessage = $"\"{archivePath}\" is not an archive.";
+            return false;
+        }
+        try
+        {
+            string extractName = Path.GetFileNameWithoutExtension(archivePath);
+            Directory.CreateDirectory(Path.Combine(extractPath, extractName));
+            using IArchive archive = ArchiveFactory.Open(archivePath);
+            foreach (IArchiveEntry entry in archive.Entries.Where(entry => !entry.IsDirectory))
+            {
+                entry.WriteToDirectory(extractPath, new ExtractionOptions()
+                {
+                    ExtractFullPath = true,
+                    Overwrite = true
+                });
+            }
+            errorMessage = null;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
+    }
+
+    public bool CreateLink(string filePath, out string? errorMessage)
+    {
+        try
+        {
+            string linkName = Path.GetFileName(filePath) + " - Shortcut.lnk";
+            string parentDir = Path.GetDirectoryName(filePath) 
+                ?? Path.GetPathRoot(filePath)
+                ?? throw new ArgumentNullException(filePath);
+            string linkPath = Path.Combine(parentDir, linkName);
+
+            IWshRuntimeLibrary.WshShell wshShell = new();
+            IWshRuntimeLibrary.IWshShortcut shortcut = wshShell.CreateShortcut(linkPath);
+
+            shortcut.TargetPath = filePath;
+            shortcut.WorkingDirectory = Path.GetDirectoryName(filePath);
+            shortcut.Save();
+            errorMessage = null;
+            return true;
+        }
+        catch (Exception e)
+        {
+            errorMessage = e.Message;
             return false;
         }
     }
