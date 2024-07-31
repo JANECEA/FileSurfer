@@ -90,16 +90,14 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public Icon? GetFileIcon(string path, out string? errorMessage)
+    public Icon? GetFileIcon(string path)
     {
         try
         {
-            errorMessage = null;
             return Icon.ExtractAssociatedIcon(path);
         }
-        catch (Exception ex)
+        catch
         {
-            errorMessage = ex.Message;
             return null;
         }
     }

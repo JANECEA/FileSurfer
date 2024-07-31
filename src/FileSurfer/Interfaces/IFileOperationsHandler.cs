@@ -24,7 +24,7 @@ public interface IFileOperationsHandler
 
     public long? GetFileSizeKiB(string path, out string? errorMessage);
 
-    public Icon? GetFileIcon(string path, out string? errorMessage);
+    public Icon? GetFileIcon(string path);
 
     public bool OpenCmdAt(string dirPath, out string? errorMessage);
 
