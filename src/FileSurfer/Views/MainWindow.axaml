@@ -3,6 +3,7 @@
         xmlns:vm="using:FileSurfer.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FileSurfer"
         mc:Ignorable="d" d:DesignWidth="860" d:DesignHeight="450"
         MinWidth="860" MinHeight="400"
         x:Class="FileSurfer.Views.MainWindow"
@@ -24,6 +25,15 @@
         <KeyBinding Gesture="Ctrl+Y" Command="{Binding RedoCommand}"/> 
     </Window.KeyBindings>
 
+    <Window.DataTemplates>
+        <DataTemplate DataType="{x:Type local:FileSystemEntry}">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <Image Source="{Binding GetIcon}" Width="16" Height="16"/>
+                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </DataTemplate>
+    </Window.DataTemplates>
+
     <DockPanel Background="{DynamicResource PrimaryColor}">
         <DockPanel DockPanel.Dock="Top" Height="50" Margin="10 0">
             <Button Classes="TopLeftButton" Content="" HotKey="Alt+Left" Command="{Binding GoBackCommand}"/>
@@ -32,7 +42,7 @@
             <Button Classes="TopLeftButton" Content="" HotKey="F12" Command="{Binding OpenPowerShellCommand}"/>
 
             <Grid ColumnDefinitions="* 250">
-                <TextBox Classes="PathBox TopTextBox" Grid.Column="0" Text="{Binding CurrentPath}"/>
+                <TextBox Classes="PathBox TopTextBox" Grid.Column="0" Text="{Binding CurrentDir}"/>
                 <Grid Grid.Column="1">
                     <TextBox Classes="SearchBox TopTextBox" Text="{Binding SearchQuery}"/>
                     <Button Classes="CancelSearchButton" Content="" Command="{Binding CancelSearchCommand}"/>
@@ -76,10 +86,10 @@
                     </Button.Flyout>
                 </Button>
                     
-                <Button Classes="GitButton GitButtonHover" Content="PUSH" Command="{Binding PushCommand}"/>
-                <Button Classes="GitButton GitButtonHover" Content="COMMIT" Command="{Binding CommitCommand}"/>
-                <Button Classes="GitButton GitButtonHover" Content="PULL" Command="{Binding PullCommand}"/>
-                <ComboBox Classes="BranchComboBox" ItemsSource="{Binding Branches}" SelectedItem="{Binding CurrentBranch}"/>
+                <Button Classes="GitButton GitButtonHover" Content="PUSH" Command="{Binding PushCommand}" IsVisible="{Binding IsVersionControlled}"/>
+                <Button Classes="GitButton GitButtonHover" Content="COMMIT" Command="{Binding CommitCommand}" IsVisible="{Binding IsVersionControlled}"/>
+                <Button Classes="GitButton GitButtonHover" Content="PULL" Command="{Binding PullCommand}" IsVisible="{Binding IsVersionControlled}"/>
+                <ComboBox Classes="BranchComboBox" ItemsSource="{Binding Branches}" SelectedItem="{Binding CurrentBranch}" IsVisible="{Binding IsVersionControlled}"/>
             </DockPanel>
         </Border>
 
@@ -96,13 +106,7 @@
 
                 <GridSplitter Classes="GridSplitter" Grid.Column="1"/>
 
-                <ListBox Classes="FileDisplay" Grid.Column="2">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
+                <ListBox Classes="FileDisplay" Grid.Column="2" ItemsSource="{Binding FileEntries}"/>
             </Grid>
 
             <Border Grid.Row="2" BorderThickness="0 1 0 0" BorderBrush="{DynamicResource SecondaryColor}">

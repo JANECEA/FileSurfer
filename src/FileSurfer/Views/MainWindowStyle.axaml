@@ -142,6 +142,8 @@
 
     <Style Selector="ListBox.FileDisplay">
         <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+        <Setter Property="Margin" Value="15"/>
     </Style>
 
     <Style Selector="Button.ViewFormatButton">

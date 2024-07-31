@@ -4,8 +4,9 @@ using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Threading.Tasks;
-using System.Windows.Input;
+using System.Reactive;
 
 namespace FileSurfer.ViewModels;
 
@@ -17,14 +18,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private readonly UndoRedoHandler<string> _pathHistory = new();
     private readonly IVersionControl _versionControl;
 
-    private ObservableCollection<string> _selectedFiles = new();
+    private readonly ObservableCollection<FileSystemEntry> _selectedFiles = new();
+    private ObservableCollection<FileSystemEntry> SelectedFiles => _selectedFiles;
 
-    private bool _needRefresh = false;
-    public bool NeedRefresh
-    {
-        get => _needRefresh;
-        set => this.RaiseAndSetIfChanged(ref _needRefresh, value);
-    }
+    private readonly ObservableCollection<FileSystemEntry> _fileEntries = new();
+    public ObservableCollection<FileSystemEntry> FileEntries => _fileEntries;
 
     private string? _errorMessage = null;
     public string? ErrorMessage
@@ -49,11 +47,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             new ErrorWindow(errorMessage).Show();
         });
 
-    private string _currentPath = "D:/Stažené";
-    public string CurrentPath
+    private string _currentDir = "D:/Stažené";
+    public string CurrentDir
     {
-        get => _currentPath;
-        set => this.RaiseAndSetIfChanged(ref _currentPath, value);
+        get => _currentDir;
+        set => this.RaiseAndSetIfChanged(ref _currentDir, value);
     }
 
     private string _searchQuery = string.Empty;
@@ -99,36 +97,45 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         set => this.RaiseAndSetIfChanged(ref _selectionInfo, value);
     }
 
-    public ICommand GoBackCommand { get; }
-    public ICommand GoForwardCommand { get; }
-    public ICommand ReloadCommand { get; }
-    public ICommand OpenPowerShellCommand { get; }
-    public ICommand CancelSearchCommand { get; }
-    public ICommand NewFileCommand { get; }
-    public ICommand NewDirCommand { get; }
-    public ICommand CutCommand { get; }
-    public ICommand CopyCommand { get; }
-    public ICommand PasteCommand { get; }
-    public ICommand RenameCommand { get; }
-    public ICommand MoveToTrashCommand { get; }
-    public ICommand DeleteCommand { get; }
-    public ICommand SortByNameCommand { get; }
-    public ICommand SortByDateCommand { get; }
-    public ICommand SortByTypeCommand { get; }
-    public ICommand UndoCommand { get; }
-    public ICommand RedoCommand { get; }
-    public ICommand SelectAllCommand { get; }
-    public ICommand SelectNoneCommand { get; }
-    public ICommand InvertSelectionCommand { get; }
-    public ICommand PullCommand { get; }
-    public ICommand CommitCommand { get; }
-    public ICommand PushCommand { get; }
-    public ICommand ListViewCommand { get; }
-    public ICommand IconViewCommand { get; }
+    private bool _isVersionControlled = false;
+    public bool IsVersionControlled
+    {
+        get => _isVersionControlled;
+        set => this.RaiseAndSetIfChanged(ref _isVersionControlled, value);
+    }
+
+    public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
+    public ReactiveCommand<Unit, Unit> GoForwardCommand { get; }
+    public ReactiveCommand<Unit, Unit> ReloadCommand { get; }
+    public ReactiveCommand<Unit, Unit> OpenPowerShellCommand { get; }
+    public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
+    public ReactiveCommand<Unit, Unit> NewFileCommand { get; }
+    public ReactiveCommand<Unit, Unit> NewDirCommand { get; }
+    public ReactiveCommand<Unit, Unit> CutCommand { get; }
+    public ReactiveCommand<Unit, Unit> CopyCommand { get; }
+    public ReactiveCommand<Unit, Unit> PasteCommand { get; }
+    public ReactiveCommand<Unit, Unit> RenameCommand { get; }
+    public ReactiveCommand<Unit, Unit> MoveToTrashCommand { get; }
+    public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
+    public ReactiveCommand<Unit, Unit> SortByNameCommand { get; }
+    public ReactiveCommand<Unit, Unit> SortByDateCommand { get; }
+    public ReactiveCommand<Unit, Unit> SortByTypeCommand { get; }
+    public ReactiveCommand<Unit, Unit> UndoCommand { get; }
+    public ReactiveCommand<Unit, Unit> RedoCommand { get; }
+    public ReactiveCommand<Unit, Unit> SelectAllCommand { get; }
+    public ReactiveCommand<Unit, Unit> SelectNoneCommand { get; }
+    public ReactiveCommand<Unit, Unit> InvertSelectionCommand { get; }
+    public ReactiveCommand<Unit, Unit> PullCommand { get; }
+    public ReactiveCommand<Unit, Unit> CommitCommand { get; }
+    public ReactiveCommand<Unit, Unit> PushCommand { get; }
+    public ReactiveCommand<Unit, Unit> ListViewCommand { get; }
+    public ReactiveCommand<Unit, Unit> IconViewCommand { get; }
 
     public MainWindowViewModel()
     {
         _versionControl = new GitVersionControlHandler(_fileOperationsHandler);
+        LoadDirEntries();
+        CheckVC();
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
         ReloadCommand = ReactiveCommand.Create(Reload);
@@ -157,15 +164,37 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         IconViewCommand = ReactiveCommand.Create(IconView);
     }
 
+    private void LoadDirEntries()
+    {
+        _fileEntries.Clear();
+        foreach (string dirPath in Directory.GetDirectories(_currentDir))
+        {
+            DirectoryInfo dirInfo = new(dirPath);
+            _fileEntries.Add(new DirectoryEntry(_fileOperationsHandler, dirInfo.FullName));
+        }
+        foreach (string filePath in Directory.GetFiles(_currentDir))
+        {
+            FileInfo fileInfo = new(filePath);
+            _fileEntries.Add(new FileEntry(_fileOperationsHandler, fileInfo.FullName));
+        }
+    }
+
+    private void CheckVC() => 
+        IsVersionControlled = _versionControl.IsVersionControlled(_currentDir);
+
     private void GoBack() { }
 
     private void GoForward() { }
 
-    private void Reload() { }
+    private void Reload()
+    {
+        LoadDirEntries();
+        CheckVC();
+    }
 
     private void OpenPowerShell()
     {
-        _fileOperationsHandler.OpenCmdAt(_currentPath, out string? errorMessage);
+        _fileOperationsHandler.OpenCmdAt(_currentDir, out string? errorMessage);
         ErrorMessage = errorMessage;
     }
 
@@ -175,11 +204,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void NewFile()
     {
-        string newFileName = _fileOperationsHandler.GetAvailableName(_currentPath, "New File");
-        if (_fileOperationsHandler.NewFileAt(_currentPath, newFileName, out string? errorMessage))
+        string newFileName = _fileOperationsHandler.GetAvailableName(_currentDir, "New File");
+        if (_fileOperationsHandler.NewFileAt(_currentDir, newFileName, out string? errorMessage))
         {
-            _needRefresh = true;
-            _undoRedoHistory.NewNode(new NewFileAt(_fileOperationsHandler, _currentPath, newFileName));
+            Reload();
+            _undoRedoHistory.NewNode(new NewFileAt(_fileOperationsHandler, _currentDir, newFileName));
         }
         else
             ErrorMessage = errorMessage;
@@ -187,11 +216,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void NewDir()
     {
-        string newDirName = _fileOperationsHandler.GetAvailableName(_currentPath, "New Folder");
-        if (_fileOperationsHandler.NewDirAt(_currentPath, newDirName, out string? errorMessage))
+        string newDirName = _fileOperationsHandler.GetAvailableName(_currentDir, "New Folder");
+        if (_fileOperationsHandler.NewDirAt(_currentDir, newDirName, out string? errorMessage))
         {
-            _needRefresh = true;
-            _undoRedoHistory.NewNode(new NewDirAt(_fileOperationsHandler , _currentPath, newDirName));
+            Reload();
+            _undoRedoHistory.NewNode(new NewDirAt(_fileOperationsHandler , _currentDir, newDirName));
         }
         else 
             ErrorMessage = errorMessage;
@@ -227,7 +256,10 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             _undoRedoHistory.Current ?? throw new NullReferenceException();
 
         if (operation.Undo(out string? errorMessage))
+        {
             _undoRedoHistory.MoveToPrevious();
+            Reload();
+        }
         else
         {
             _undoRedoHistory.RemoveNode(true);
@@ -242,10 +274,12 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             return;
 
         IUndoableFileOperation operation = _undoRedoHistory.Current;
-        if (!operation.Redo(out string? errorMessage))
+        if (operation.Redo(out string? errorMessage))
+            Reload();
+        else
         {
             _undoRedoHistory.RemoveNode(true);
-            ErrorMessage= errorMessage;
+            ErrorMessage = errorMessage;
         }
     }
 
@@ -257,10 +291,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void Pull() 
     {
+        if (!IsVersionControlled) 
+            return;
+
         if (_versionControl.DownloadChanges(out string? errorMessage))
-        {
-            NeedRefresh = true;
-        }
+            Reload();
         else
             ErrorMessage = errorMessage;
     }
