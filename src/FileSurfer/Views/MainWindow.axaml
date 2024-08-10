@@ -25,15 +25,6 @@
         <KeyBinding Gesture="Ctrl+Y" Command="{Binding RedoCommand}"/> 
     </Window.KeyBindings>
 
-    <Window.DataTemplates>
-        <DataTemplate DataType="{x:Type local:FileSystemEntry}">
-            <StackPanel Orientation="Horizontal" Spacing="10">
-                <Image Source="{Binding GetIcon}" Width="16" Height="16"/>
-                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-            </StackPanel>
-        </DataTemplate>
-    </Window.DataTemplates>
-
     <DockPanel Background="{DynamicResource PrimaryColor}">
         <DockPanel DockPanel.Dock="Top" Height="50" Margin="10 0">
             <Button Classes="TopLeftButton" Content="" HotKey="Alt+Left" Command="{Binding GoBackCommand}"/>
@@ -42,7 +33,7 @@
             <Button Classes="TopLeftButton" Content="" HotKey="F12" Command="{Binding OpenPowerShellCommand}"/>
 
             <Grid ColumnDefinitions="* 250">
-                <TextBox Classes="PathBox TopTextBox" Grid.Column="0" Text="{Binding CurrentDir}"/>
+                <TextBox Classes="PathBox TopTextBox" Grid.Column="0" Text="{Binding CurrentDir, Mode=TwoWay}" TextChanged=""/>
                 <Grid Grid.Column="1">
                     <TextBox Classes="SearchBox TopTextBox" Text="{Binding SearchQuery}"/>
                     <Button Classes="CancelSearchButton" Content="" Command="{Binding CancelSearchCommand}"/>
@@ -106,7 +97,16 @@
 
                 <GridSplitter Classes="GridSplitter" Grid.Column="1"/>
 
-                <ListBox Classes="FileDisplay" Grid.Column="2" ItemsSource="{Binding FileEntries}"/>
+                <ListBox Classes="FileDisplay" Grid.Column="2" SelectionMode="Multiple" ItemsSource="{Binding FileEntries}" SelectedItems="{Binding SelectedFiles}" DoubleTapped="EntryDoubleTapped">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="{Binding Icon}" Width="20" Height="20"/>
+                                <TextBlock Text="{Binding Name}" Margin="10 0 10 0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </Grid>
 
             <Border Grid.Row="2" BorderThickness="0 1 0 0" BorderBrush="{DynamicResource SecondaryColor}">
