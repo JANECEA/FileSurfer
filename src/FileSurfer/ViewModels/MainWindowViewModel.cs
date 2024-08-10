@@ -1,19 +1,20 @@
-﻿using Avalonia.Threading;
-using FileSurfer.Views;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Threading.Tasks;
 using System.Reactive;
+using System.Threading.Tasks;
+using Avalonia.Threading;
+using FileSurfer.Views;
+using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
 
 #pragma warning disable CA1822 // Mark members as static
 public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
-    private readonly IFileOperationsHandler _fileOperationsHandler = new WindowsFileOperationsHandler();
+    private readonly IFileOperationsHandler _fileOperationsHandler =
+        new WindowsFileOperationsHandler();
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory = new();
     private readonly UndoRedoHandler<string> _pathHistory = new();
     private readonly IVersionControl _versionControl;
@@ -51,7 +52,16 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public string CurrentDir
     {
         get => _currentDir;
-        set => this.RaiseAndSetIfChanged(ref _currentDir, value);
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _currentDir, value);
+            if (Directory.Exists(value))
+            {
+                LoadDirEntries();
+                CheckVC();
+                _pathHistory.NewNode(value);
+            }
+        }
     }
 
     private string _searchQuery = string.Empty;
@@ -134,8 +144,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public MainWindowViewModel()
     {
         _versionControl = new GitVersionControlHandler(_fileOperationsHandler);
-        LoadDirEntries();
-        CheckVC();
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
         ReloadCommand = ReactiveCommand.Create(Reload);
@@ -162,6 +170,22 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         PushCommand = ReactiveCommand.Create(Push);
         ListViewCommand = ReactiveCommand.Create(ListView);
         IconViewCommand = ReactiveCommand.Create(IconView);
+        LoadDirEntries();
+        CheckVC();
+        _pathHistory.NewNode(CurrentDir);
+    }
+
+    public void OpenEntry(FileSystemEntry entry)
+    {
+        if (entry.IsDirectory)
+        {
+            CurrentDir = entry.PathToEntry;
+        }
+        else
+        {
+            _fileOperationsHandler.OpenFile(entry.PathToEntry, out string? errorMessage);
+            ErrorMessage = errorMessage ?? ErrorMessage;
+        }
     }
 
     private void LoadDirEntries()
@@ -170,21 +194,51 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         foreach (string dirPath in Directory.GetDirectories(_currentDir))
         {
             DirectoryInfo dirInfo = new(dirPath);
-            _fileEntries.Add(new DirectoryEntry(_fileOperationsHandler, dirInfo.FullName));
+            _fileEntries.Add(new FileSystemEntry(dirInfo.FullName, true));
         }
         foreach (string filePath in Directory.GetFiles(_currentDir))
         {
             FileInfo fileInfo = new(filePath);
-            _fileEntries.Add(new FileEntry(_fileOperationsHandler, fileInfo.FullName));
+            _fileEntries.Add(new FileSystemEntry(fileInfo.FullName, false));
         }
     }
 
-    private void CheckVC() => 
+    private void CheckVC() =>
         IsVersionControlled = _versionControl.IsVersionControlled(_currentDir);
 
-    private void GoBack() { }
+    private void GoBack()
+    {
+        string? previousPath = _pathHistory.GetPrevious();
+        if (previousPath != CurrentDir && previousPath is not null)
+        {
+            _pathHistory.MoveToPrevious();
+            if (Path.Exists(previousPath))
+            {
+                CurrentDir = previousPath;
+            }
+            else
+            {
+                _pathHistory.RemoveNode(false);
+            }
+        }
+    }
 
-    private void GoForward() { }
+    private void GoForward()
+    {
+        string? nextPath = _pathHistory.GetNext();
+        if (nextPath != CurrentDir && nextPath is not null)
+        {
+            _pathHistory.MoveToNext();
+            if (Path.Exists(nextPath))
+            {
+                CurrentDir = nextPath;
+            }
+            else
+            {
+                _pathHistory.RemoveNode(true);
+            }
+        }
+    }
 
     private void Reload()
     {
@@ -208,7 +262,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (_fileOperationsHandler.NewFileAt(_currentDir, newFileName, out string? errorMessage))
         {
             Reload();
-            _undoRedoHistory.NewNode(new NewFileAt(_fileOperationsHandler, _currentDir, newFileName));
+            _undoRedoHistory.NewNode(
+                new NewFileAt(_fileOperationsHandler, _currentDir, newFileName)
+            );
         }
         else
             ErrorMessage = errorMessage;
@@ -220,9 +276,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (_fileOperationsHandler.NewDirAt(_currentDir, newDirName, out string? errorMessage))
         {
             Reload();
-            _undoRedoHistory.NewNode(new NewDirAt(_fileOperationsHandler , _currentDir, newDirName));
+            _undoRedoHistory.NewNode(new NewDirAt(_fileOperationsHandler, _currentDir, newDirName));
         }
-        else 
+        else
             ErrorMessage = errorMessage;
     }
 
@@ -247,12 +303,12 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private void Undo()
     {
         if (_undoRedoHistory.IsTail())
-            _undoRedoHistory.MoveToPrevious();   
+            _undoRedoHistory.MoveToPrevious();
 
         if (_undoRedoHistory.IsHead())
             return;
 
-        IUndoableFileOperation operation = 
+        IUndoableFileOperation operation =
             _undoRedoHistory.Current ?? throw new NullReferenceException();
 
         if (operation.Undo(out string? errorMessage))
@@ -289,9 +345,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void InvertSelection() { }
 
-    private void Pull() 
+    private void Pull()
     {
-        if (!IsVersionControlled) 
+        if (!IsVersionControlled)
             return;
 
         if (_versionControl.DownloadChanges(out string? errorMessage))
@@ -302,7 +358,13 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void Commit() { }
 
-    private void Push() { }
+    private void Push()
+    {
+        if (!_versionControl.UploadChanges(out string? errorMessage))
+        {
+            ErrorMessage = errorMessage;
+        }
+    }
 
     private void ListView() { }
 
