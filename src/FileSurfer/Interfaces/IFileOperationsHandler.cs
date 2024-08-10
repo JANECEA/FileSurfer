@@ -43,7 +43,7 @@ public interface IFileOperationsHandler
     public bool PasteFileFromClipBoardAt(string filePath, out string? errorMessage);
 
     public bool IsValidFileName(string fileName);
-    
+
     public bool IsValidDirName(string dirName);
 
     public bool RenameFileAt(string filePath, string newName, out string? errorMessage);

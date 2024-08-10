@@ -54,7 +54,7 @@ class UndoRedoHandler<T>
 
     public void MoveToPrevious() => _current = _current.Previous ?? _current;
 
-    public void MoveToNext()  => _current = _current.Next ?? _current;
+    public void MoveToNext() => _current = _current.Next ?? _current;
 
     public void RemoveNode(bool goToPrevious)
     {

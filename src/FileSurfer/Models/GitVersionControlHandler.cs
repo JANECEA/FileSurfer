@@ -5,7 +5,9 @@ using LibGit2Sharp;
 
 namespace FileSurfer;
 
-public class GitVersionControlHandler(IFileOperationsHandler _fileOperationsHandler) : IVersionControl, IDisposable
+public class GitVersionControlHandler(IFileOperationsHandler _fileOperationsHandler)
+    : IVersionControl,
+        IDisposable
 {
     private Repository? _currentRepo = null;
 

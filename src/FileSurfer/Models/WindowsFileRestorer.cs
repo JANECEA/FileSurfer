@@ -1,8 +1,8 @@
-using Shell32;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using Shell32;
 
 namespace FileSurfer;
 
@@ -17,7 +17,7 @@ static class WindowsFileRestorer
     {
         Shell shell = new();
         errorMessage = null;
-        try 
+        try
         {
             Folder bin = shell.NameSpace(BinFolderID);
             foreach (FolderItem item in bin.Items())
@@ -34,13 +34,13 @@ static class WindowsFileRestorer
             }
             Marshal.FinalReleaseComObject(shell);
             errorMessage = $"file: \"{originalPath}\" not found";
-            return false; 
+            return false;
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
         }
-        finally 
+        finally
         {
             Marshal.FinalReleaseComObject(shell);
         }

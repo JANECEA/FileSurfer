@@ -10,7 +10,7 @@ public class MoveDirToTrash : IUndoableFileOperation
 
     public MoveDirToTrash(IFileOperationsHandler fileHandler, string dirPath)
     {
-        _fileOpsHandler= fileHandler;
+        _fileOpsHandler = fileHandler;
         _dirPath = dirPath;
     }
 
@@ -28,7 +28,7 @@ public class MoveFileToTrash : IUndoableFileOperation
 
     public MoveFileToTrash(IFileOperationsHandler fileHandler, string filePath)
     {
-        _fileOpsHandler= fileHandler;
+        _fileOpsHandler = fileHandler;
         _filePath = filePath;
     }
 
@@ -56,11 +56,19 @@ public class MoveFileTo : IUndoableFileOperation
         _oldDir = _oldDir ?? throw new ArgumentNullException(_oldDir);
     }
 
-    public bool Redo(out string? errorMessage) => 
-        _fileOpsHandler.MoveFileTo(Path.Combine(_oldDir, _fileName), Path.Combine(_newDir, _fileName), out errorMessage);
+    public bool Redo(out string? errorMessage) =>
+        _fileOpsHandler.MoveFileTo(
+            Path.Combine(_oldDir, _fileName),
+            Path.Combine(_newDir, _fileName),
+            out errorMessage
+        );
 
     public bool Undo(out string? errorMessage) =>
-        _fileOpsHandler.MoveFileTo(Path.Combine(_newDir, _fileName), Path.Combine(_oldDir, _fileName), out errorMessage);
+        _fileOpsHandler.MoveFileTo(
+            Path.Combine(_newDir, _fileName),
+            Path.Combine(_oldDir, _fileName),
+            out errorMessage
+        );
 }
 
 public class MoveDirTo : IUndoableFileOperation
@@ -81,10 +89,18 @@ public class MoveDirTo : IUndoableFileOperation
     }
 
     public bool Redo(out string? errorMessage) =>
-        _fileOpsHandler.MoveDirTo(Path.Combine(_oldDir, _dirName), Path.Combine(_newDir, _dirName), out errorMessage);
+        _fileOpsHandler.MoveDirTo(
+            Path.Combine(_oldDir, _dirName),
+            Path.Combine(_newDir, _dirName),
+            out errorMessage
+        );
 
     public bool Undo(out string? errorMessage) =>
-        _fileOpsHandler.MoveDirTo(Path.Combine(_newDir, _dirName), Path.Combine(_oldDir, _dirName), out errorMessage);
+        _fileOpsHandler.MoveDirTo(
+            Path.Combine(_newDir, _dirName),
+            Path.Combine(_oldDir, _dirName),
+            out errorMessage
+        );
 }
 
 public class CopyFileTo : IUndoableFileOperation
@@ -95,7 +111,7 @@ public class CopyFileTo : IUndoableFileOperation
 
     public CopyFileTo(IFileOperationsHandler fileHandler, string path, string destinationDir)
     {
-        _fileOpsHandler= fileHandler;
+        _fileOpsHandler = fileHandler;
         _oldPath = path;
         _newPath = Path.Combine(destinationDir, Path.GetFileName(path));
     }
@@ -115,7 +131,7 @@ public class CopyDirTo : IUndoableFileOperation
 
     public CopyDirTo(IFileOperationsHandler fileHandler, string path, string destinationDir)
     {
-        _fileOpsHandler= fileHandler;
+        _fileOpsHandler = fileHandler;
         _oldPath = path;
         _newPath = Path.Combine(destinationDir, Path.GetFileName(path));
     }
@@ -136,11 +152,11 @@ public class RenameFile : IUndoableFileOperation
 
     public RenameFile(IFileOperationsHandler fileHandler, string path, string newName)
     {
-        _fileOpsHandler= fileHandler;
+        _fileOpsHandler = fileHandler;
         _dir = Path.GetDirectoryName(path);
         _oldName = Path.GetFileName(path);
         _newName = newName;
-        
+
         _dir = _dir ?? throw new ArgumentNullException(_dir);
     }
 
@@ -160,7 +176,7 @@ public class RenameDir : IUndoableFileOperation
 
     public RenameDir(IFileOperationsHandler fileHandler, string path, string newName)
     {
-        _fileOpsHandler= fileHandler;
+        _fileOpsHandler = fileHandler;
         _dir = Path.GetDirectoryName(path);
         _oldName = Path.GetFileName(path);
         _newName = newName;
@@ -183,7 +199,7 @@ public class NewFileAt : IUndoableFileOperation
 
     public NewFileAt(IFileOperationsHandler fileHandler, string path, string fileName)
     {
-        _fileOpsHandler= fileHandler;
+        _fileOpsHandler = fileHandler;
         _path = path;
         _fileName = fileName;
     }
@@ -203,7 +219,7 @@ public class NewDirAt : IUndoableFileOperation
 
     public NewDirAt(IFileOperationsHandler fileHandler, string path, string dirName)
     {
-        _fileOpsHandler= fileHandler;
+        _fileOpsHandler = fileHandler;
         _path = path;
         _dirName = dirName;
     }
@@ -214,4 +230,3 @@ public class NewDirAt : IUndoableFileOperation
     public bool Undo(out string? errorMessage) =>
         _fileOpsHandler.DeleteDir(Path.Combine(_path, _dirName), out errorMessage);
 }
-

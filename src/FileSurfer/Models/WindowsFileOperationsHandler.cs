@@ -1,13 +1,13 @@
-using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using Microsoft.VisualBasic.FileIO;
+using SharpCompress.Archives;
 using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
 using SharpCompress.Writers;
-using SharpCompress.Archives;
 
 namespace FileSurfer;
 
@@ -210,7 +210,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         catch
         {
             return false;
-        } 
+        }
     }
 
     public string GetAvailableName(string path, string fileName)
@@ -281,9 +281,9 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
 
     public bool PasteFileFromClipBoardAt(string filePath, out string? errorMessage)
     {
-        string command = 
-            "foreach ($file in Get-Clipboard -Format FileDropList) { $destFile = Join-Path" 
-            + filePath 
+        string command =
+            "foreach ($file in Get-Clipboard -Format FileDropList) { $destFile = Join-Path"
+            + filePath
             + "(Split-Path $file -Leaf) Copy-Item -Path $file -Destination $destFile }";
         return PowerShellCommand(command, out errorMessage);
     }
@@ -351,7 +351,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         char[] invalidChars = Path.GetInvalidFileNameChars();
         foreach (char c in fileName)
         {
-            if (invalidChars.Contains(c)) 
+            if (invalidChars.Contains(c))
                 return false;
         }
         return true;
@@ -362,7 +362,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         char[] invalidChars = Path.GetInvalidPathChars();
         foreach (char c in dirName)
         {
-            if (invalidChars.Contains(c)) 
+            if (invalidChars.Contains(c))
                 return false;
         }
         return true;
@@ -421,7 +421,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
         catch (Exception ex)
         {
-            errorMessage= ex.Message;
+            errorMessage = ex.Message;
             return false;
         }
     }
@@ -437,7 +437,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
         catch (Exception ex)
         {
-            errorMessage= ex.Message;
+            errorMessage = ex.Message;
             return false;
         }
     }
@@ -449,9 +449,9 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             if (Path.GetDirectoryName(filePath) == destinationDir)
             {
-                string newName = 
-                    Path.GetFileNameWithoutExtension(filePath) 
-                    + " - copy" 
+                string newName =
+                    Path.GetFileNameWithoutExtension(filePath)
+                    + " - copy"
                     + Path.GetExtension(filePath);
                 newName = GetAvailableName(destinationDir, newName);
                 File.Copy(filePath, Path.Combine(destinationDir, newName));
@@ -506,7 +506,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
 
     public bool ZipFiles(string[] filePaths, string destinationPath, out string? errorMessage)
     {
-        try 
+        try
         {
             using ZipArchive archive = ZipArchive.Create();
             using FileStream zipStream = File.OpenWrite(destinationPath);
@@ -519,7 +519,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = null;
             return true;
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
             return false;
@@ -540,11 +540,10 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             using IArchive archive = ArchiveFactory.Open(archivePath);
             foreach (IArchiveEntry entry in archive.Entries.Where(entry => !entry.IsDirectory))
             {
-                entry.WriteToDirectory(extractPath, new ExtractionOptions()
-                {
-                    ExtractFullPath = true,
-                    Overwrite = true
-                });
+                entry.WriteToDirectory(
+                    extractPath,
+                    new ExtractionOptions() { ExtractFullPath = true, Overwrite = true }
+                );
             }
             errorMessage = null;
             return true;
@@ -561,7 +560,8 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         try
         {
             string linkName = Path.GetFileName(filePath) + " - Shortcut.lnk";
-            string parentDir = Path.GetDirectoryName(filePath) 
+            string parentDir =
+                Path.GetDirectoryName(filePath)
                 ?? Path.GetPathRoot(filePath)
                 ?? throw new ArgumentNullException(filePath);
             string linkPath = Path.Combine(parentDir, linkName);
