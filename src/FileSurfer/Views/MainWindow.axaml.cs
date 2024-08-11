@@ -24,5 +24,18 @@ public partial class MainWindow : Window
         )
             viewModel.OpenEntry(entry);
     }
+
+    private void MouseButtonPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (DataContext is not MainWindowViewModel viewModel)
+            return;
+        PointerPointProperties properties = e.GetCurrentPoint(this).Properties;
+
+        if (properties.IsXButton1Pressed)
+            viewModel.GoBack();
+
+        else if (properties.IsXButton2Pressed)
+            viewModel.GoForward();
+    }
 }
 

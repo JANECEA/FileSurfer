@@ -8,6 +8,7 @@
         MinWidth="860" MinHeight="400"
         x:Class="FileSurfer.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
+        PointerPressed="MouseButtonPressed"
         Icon="/Assets/avalonia-logo.ico"
         Title="FileSurfer">
 
@@ -23,6 +24,8 @@
         <KeyBinding Gesture="Shift+Delete" Command="{Binding DeleteCommand}"/> 
         <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}"/> 
         <KeyBinding Gesture="Ctrl+Y" Command="{Binding RedoCommand}"/> 
+        <KeyBinding Gesture="BrowserBack" Command="{Binding GoBackCommand}"/> 
+        <KeyBinding Gesture="BrowserForward" Command="{Binding GoForwardCommand}"/> 
     </Window.KeyBindings>
 
     <DockPanel Background="{DynamicResource PrimaryColor}">
@@ -101,7 +104,7 @@
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Image Source="{Binding Icon}" Width="20" Height="20"/>
+                                <Image Source="{Binding Icon}" Width="25" Height="25"/>
                                 <TextBlock Text="{Binding Name}" Margin="10 0 10 0" VerticalAlignment="Center"/>
                             </StackPanel>
                         </DataTemplate>

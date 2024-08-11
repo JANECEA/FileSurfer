@@ -1,8 +1,5 @@
-using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using Avalonia.Media.Imaging;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace FileSurfer;
@@ -13,17 +10,25 @@ public class FileSystemEntry
     public readonly bool IsDirectory;
     private readonly string _name;
     public string Name => _name;
-    public Bitmap? Icon => GetIcon();
+    public Bitmap? Icon { get; }
 
-    public FileSystemEntry(string path, bool isDirectory)
+    public FileSystemEntry(string path, bool isDirectory, IFileOperationsHandler fileOpsHandler)
     {
         PathToEntry = path;
         IsDirectory = isDirectory;
         _name = Path.GetFileName(path);
+        Icon = GetIcon(fileOpsHandler);
     }
 
-    private Bitmap? GetIcon()
+    private Bitmap? GetIcon(IFileOperationsHandler fileOpsHandler)
     {
+        if (fileOpsHandler.GetFileIcon(PathToEntry) is Icon icon)
+        {
+            using MemoryStream stream = new();
+            icon.Save(stream);
+            stream.Position = 0;
+            return new Bitmap(stream);
+        }
         return null;
     }
 }

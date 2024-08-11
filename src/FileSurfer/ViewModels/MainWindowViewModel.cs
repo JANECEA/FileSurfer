@@ -194,19 +194,19 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         foreach (string dirPath in Directory.GetDirectories(_currentDir))
         {
             DirectoryInfo dirInfo = new(dirPath);
-            _fileEntries.Add(new FileSystemEntry(dirInfo.FullName, true));
+            _fileEntries.Add(new FileSystemEntry(dirInfo.FullName, true, _fileOperationsHandler));
         }
         foreach (string filePath in Directory.GetFiles(_currentDir))
         {
             FileInfo fileInfo = new(filePath);
-            _fileEntries.Add(new FileSystemEntry(fileInfo.FullName, false));
+            _fileEntries.Add(new FileSystemEntry(fileInfo.FullName, false, _fileOperationsHandler));
         }
     }
 
     private void CheckVC() =>
         IsVersionControlled = _versionControl.IsVersionControlled(_currentDir);
 
-    private void GoBack()
+    public void GoBack()
     {
         string? previousPath = _pathHistory.GetPrevious();
         if (previousPath != CurrentDir && previousPath is not null)
@@ -223,7 +223,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
-    private void GoForward()
+    public void GoForward()
     {
         string? nextPath = _pathHistory.GetNext();
         if (nextPath != CurrentDir && nextPath is not null)
