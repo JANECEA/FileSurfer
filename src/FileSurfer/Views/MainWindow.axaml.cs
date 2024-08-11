@@ -17,12 +17,13 @@ public partial class MainWindow : Window
 
     private void EntryDoubleTapped(object sender, TappedEventArgs e)
     {
-        if (
-            sender is ListBox listBox
-            && listBox.SelectedItem is FileSystemEntry entry
-            && DataContext is MainWindowViewModel viewModel
-        )
-            viewModel.OpenEntry(entry);
+        if (sender is ListBox listBox && DataContext is MainWindowViewModel viewModel)
+        {
+            if (listBox.SelectedItem is FileSystemEntry entry)
+                viewModel.OpenEntry(entry);
+            else
+                viewModel.GoUp();
+        }
     }
 
     private void MouseButtonPressed(object? sender, PointerPressedEventArgs e)

@@ -184,8 +184,13 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         else
         {
             _fileOperationsHandler.OpenFile(entry.PathToEntry, out string? errorMessage);
-            ErrorMessage = errorMessage ?? ErrorMessage;
+            ErrorMessage = errorMessage;
         }
+    }
+
+    public void GoUp()
+    {
+        CurrentDir = Path.GetDirectoryName(CurrentDir) ?? CurrentDir;
     }
 
     private void LoadDirEntries()
