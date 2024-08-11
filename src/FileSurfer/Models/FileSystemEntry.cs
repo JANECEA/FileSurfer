@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
@@ -22,13 +23,13 @@ public class FileSystemEntry
 
     private Bitmap? GetIcon(IFileOperationsHandler fileOpsHandler)
     {
-        if (fileOpsHandler.GetFileIcon(PathToEntry) is Icon icon)
-        {
-            using MemoryStream stream = new();
-            icon.Save(stream);
-            stream.Position = 0;
-            return new Bitmap(stream);
-        }
-        return null;
+        if (fileOpsHandler.GetFileIcon(PathToEntry) is not Icon icon)
+            return null;
+
+        System.Drawing.Bitmap bitmap = icon.ToBitmap();
+        using MemoryStream stream = new();
+        bitmap.Save(stream, ImageFormat.Png);
+        stream.Position = 0;
+        return new Bitmap(stream);
     }
 }
