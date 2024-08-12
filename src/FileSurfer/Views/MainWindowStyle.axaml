@@ -140,10 +140,39 @@
         <Setter Property="ResizeBehavior" Value="PreviousAndNext"/>
     </Style>
 
+    <Style Selector="Border.LabelBorder">
+        <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}"/>
+        <Setter Property="BorderThickness" Value="0 0 1 0"/>
+        <Setter Property="Margin" Value="0 0 10 0"/>
+    </Style>
+
     <Style Selector="ListBox.FileDisplay">
         <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
-        <Setter Property="Margin" Value="15"/>
+        <Setter Property="Margin" Value="15 10 15 15"/>
+    </Style>
+
+    <Style Selector="Label.InfoLabel">
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+    </Style>
+
+    <Style Selector="TextBlock.FileInfo">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="FontFamily" Value="Courier"/>
+        <Setter Property="Padding" Value="0 0 10 0"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style Selector="TextBlock.IconViewInfo">
+        <Setter Property="FontFamily" Value="Arial"/>
+        <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="MaxHeight" Value="70"/>
     </Style>
 
     <Style Selector="Button.ViewFormatButton">

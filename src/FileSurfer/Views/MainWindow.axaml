@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FileSurfer"
-        mc:Ignorable="d" d:DesignWidth="860" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="450"
         MinWidth="860" MinHeight="400"
         x:Class="FileSurfer.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -27,6 +27,24 @@
         <KeyBinding Gesture="BrowserBack" Command="{Binding GoBackCommand}"/> 
         <KeyBinding Gesture="BrowserForward" Command="{Binding GoForwardCommand}"/> 
     </Window.KeyBindings>
+
+    <Window.Resources>
+        <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type local:FileSystemEntry}">
+            <Grid ColumnDefinitions="30 360 160 130 90" Height="30">
+                <Image Source="{Binding Icon}" Grid.Column="0" Width="20" Height="20" Margin="0 0 10 0"/>
+                <TextBlock Classes="FileInfo" Grid.Column="1" Text="{Binding Name}" FontFamily="Arial"/>
+                <TextBlock Classes="FileInfo" Grid.Column="2" Text="{Binding LastModified}"/> 
+                <TextBlock Classes="FileInfo" Grid.Column="3" Text="{Binding Type}"/>
+                <TextBlock Classes="FileInfo" Grid.Column="4" Text="{Binding Size}" TextAlignment="Right"/>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="IconViewTemplate" x:DataType="{x:Type local:FileSystemEntry}">
+            <StackPanel Width="80" Spacing="10">
+                <Image Source="{Binding Icon}" Width="60" Height="60" Margin="5"/>
+                <TextBlock Classes="IconViewInfo" Text="{Binding Name}"/>
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
 
     <DockPanel Background="{DynamicResource PrimaryColor}">
         <DockPanel DockPanel.Dock="Top" Height="50" Margin="10 0">
@@ -100,24 +118,48 @@
 
                 <GridSplitter Classes="GridSplitter" Grid.Column="1"/>
 
-                <ListBox Classes="FileDisplay" Grid.Column="2" SelectionMode="Multiple" ItemsSource="{Binding FileEntries}" SelectedItems="{Binding SelectedFiles}" DoubleTapped="EntryDoubleTapped">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Height="15" Margin="0 0 0 1">
-                                <Image Source="{Binding Icon}" Width="20" Height="20"/>
-                                <TextBlock Text="{Binding Name}" FontSize="14" Margin="10 0 0 0" Padding="0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                <DockPanel Grid.Column="2">
+                    <StackPanel x:Name="LabelsPanel" DockPanel.Dock="Top" Margin="55 0 0 0" Orientation="Horizontal" Height="30">
+                        <Border Classes="LabelBorder" Width="350" >
+                            <Label Classes="InfoLabel" Content="Name"/>
+                        </Border>
+                        <Border Classes="LabelBorder" Width="150">
+                            <Label Classes="InfoLabel" Content="Date"/>
+                        </Border>
+                        <Border Classes="LabelBorder" Width="120">
+                            <Label Classes="InfoLabel" Content="Type"/>
+                        </Border>
+                        <Border Classes="LabelBorder" Width="100">
+                            <Label Classes="InfoLabel" Content="Size"/>
+                        </Border>
+                    </StackPanel>
+
+                    <ListBox x:Name="FileDisplay" Classes="FileDisplay" DockPanel.Dock="Top" SelectionMode="Multiple" Tapped="FilesTapped"
+                             ItemsSource="{Binding FileEntries}" SelectedItems="{Binding SelectedFiles}" DoubleTapped="FilesDoubleTapped">
+                        <ListBox.Styles>
+                            <Style Selector="ListBoxItem">
+                                <Setter Property="Padding" Value="12 0 10 0"/>
+                                <Setter Property="Margin" Value="0 0 10 0"/>
+                            </Style>
+                        </ListBox.Styles>
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Vertical"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <StaticResource ResourceKey="ListViewTemplate"/>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
             </Grid>
 
             <Border Grid.Row="2" BorderThickness="0 1 0 0" BorderBrush="{DynamicResource SecondaryColor}">
                 <DockPanel LastChildFill="False">
                     <TextBlock Classes="SelectInfo" Text="{Binding SelectionInfo}"/>
 
-                    <Button Classes="ViewFormatButton" Content="󰕳" Margin="0 0 5 0" Command="{Binding ListViewCommand}"/>
-                    <Button Classes="ViewFormatButton" Content="󰕱" Margin="0 0 3 0" Command="{Binding IconViewCommand}"/>
+                    <Button Classes="ViewFormatButton" Content="󰕳" Margin="0 0 5 0" Click="IconView"/>
+                    <Button Classes="ViewFormatButton" Content="󰕱" Margin="0 0 3 0" Click="ListView"/>
                 </DockPanel>
             </Border>
         </Grid>

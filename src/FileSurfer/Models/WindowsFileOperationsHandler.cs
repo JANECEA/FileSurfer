@@ -102,16 +102,38 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public long? GetFileSizeKiB(string path, out string? errorMessage)
+    public long GetFileSizeB(string path)
     {
         try
         {
-            errorMessage = null;
-            return new FileInfo(path).Length / 1024;
+            return new FileInfo(path).Length;
         }
-        catch (Exception ex)
+        catch
         {
-            errorMessage = ex.Message;
+            return 0;
+        }
+    }
+
+    public DateTime? GetFileLastModified(string filePath)
+    {
+        try
+        {
+            return new FileInfo(filePath).LastWriteTime;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public DateTime? GetDirLastModified(string dirPath)
+    {
+        try
+        {
+            return new DirectoryInfo(dirPath).LastWriteTime;
+        }
+        catch
+        {
             return null;
         }
     }

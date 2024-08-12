@@ -20,7 +20,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private readonly IVersionControl _versionControl;
 
     private readonly ObservableCollection<FileSystemEntry> _selectedFiles = new();
-    private ObservableCollection<FileSystemEntry> SelectedFiles => _selectedFiles;
+    public ObservableCollection<FileSystemEntry> SelectedFiles => _selectedFiles;
 
     private readonly ObservableCollection<FileSystemEntry> _fileEntries = new();
     public ObservableCollection<FileSystemEntry> FileEntries => _fileEntries;
@@ -138,8 +138,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public ReactiveCommand<Unit, Unit> PullCommand { get; }
     public ReactiveCommand<Unit, Unit> CommitCommand { get; }
     public ReactiveCommand<Unit, Unit> PushCommand { get; }
-    public ReactiveCommand<Unit, Unit> ListViewCommand { get; }
-    public ReactiveCommand<Unit, Unit> IconViewCommand { get; }
 
     public MainWindowViewModel()
     {
@@ -168,8 +166,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         PullCommand = ReactiveCommand.Create(Pull);
         CommitCommand = ReactiveCommand.Create(Commit);
         PushCommand = ReactiveCommand.Create(Push);
-        ListViewCommand = ReactiveCommand.Create(ListView);
-        IconViewCommand = ReactiveCommand.Create(IconView);
         LoadDirEntries();
         CheckVC();
         _pathHistory.NewNode(CurrentDir);
@@ -370,9 +366,5 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             ErrorMessage = errorMessage;
         }
     }
-
-    private void ListView() { }
-
-    private void IconView() { }
 }
 #pragma warning restore CA1822 // Mark members as static

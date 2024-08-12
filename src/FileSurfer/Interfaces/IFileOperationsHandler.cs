@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 
 namespace FileSurfer;
@@ -22,7 +23,11 @@ public interface IFileOperationsHandler
 
     public string[] GetDirFolders(string dirPath, out string? errorMessage);
 
-    public long? GetFileSizeKiB(string path, out string? errorMessage);
+    public long GetFileSizeB(string path);
+
+    public DateTime? GetFileLastModified(string filePath);
+
+    public DateTime? GetDirLastModified(string dirPath);
 
     public Icon? GetFileIcon(string path);
 
