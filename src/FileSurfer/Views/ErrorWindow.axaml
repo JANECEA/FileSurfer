@@ -9,6 +9,7 @@
         WindowStartupLocation="CenterOwner"
         x:DataType="vm:MainWindowViewModel"
         Title="Unexpected error"
+        Icon="/Assets/FileSurfer-logo.ico"
         Background="{DynamicResource PrimaryColor}">
 
     <Window.Styles>

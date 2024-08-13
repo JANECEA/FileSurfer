@@ -8,6 +8,8 @@ namespace FileSurfer;
 
 public class FileSystemEntry
 {
+    private readonly static Bitmap _folderIcon = 
+        new(Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/FolderIcon.png")));
     public readonly string PathToEntry;
     public readonly bool IsDirectory;
     public Bitmap? Icon { get; }
@@ -22,7 +24,7 @@ public class FileSystemEntry
         PathToEntry = path;
         IsDirectory = isDirectory;
         Name = Path.GetFileName(path);
-        Icon = GetIcon(fileOpsHandler);
+        Icon = isDirectory ? _folderIcon : GetIcon(fileOpsHandler);
         LastModfiedTime = fileOpsHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
         LastModified = SetLastModified(fileOpsHandler);
 
