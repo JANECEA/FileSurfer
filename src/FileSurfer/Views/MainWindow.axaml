@@ -21,11 +21,12 @@
     </Window.Styles>
 
     <Window.KeyBindings>
-        <KeyBinding Gesture="Shift+Delete" Command="{Binding DeleteCommand}"/> 
+        <KeyBinding Gesture="Shift+Delete" Command="{Binding DeleteCommand}"/>
         <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}"/> 
-        <KeyBinding Gesture="Ctrl+Y" Command="{Binding RedoCommand}"/> 
-        <KeyBinding Gesture="BrowserBack" Command="{Binding GoBackCommand}"/> 
-        <KeyBinding Gesture="BrowserForward" Command="{Binding GoForwardCommand}"/> 
+        <KeyBinding Gesture="Ctrl+Y" Command="{Binding RedoCommand}"/>
+        <KeyBinding Gesture="Ctrl+A" Command="{Binding SelectAllCommand}"/>
+        <KeyBinding Gesture="Ctrl+Shift+L" Command="{Binding SelectNoneCommand}"/>
+        <KeyBinding Gesture="Multiply" Command="{Binding InvertSelectionCommand}"/>
     </Window.KeyBindings>
 
     <Window.Resources>
@@ -89,9 +90,9 @@
                             <MenuItem Classes="MenuOption" Header="Undo" Command="{Binding UndoCommand}"/>
                             <MenuItem Classes="MenuOption" Header="Redo" Command="{Binding RedoCommand}"/>
                             <Separator/>
-                            <MenuItem Classes="MenuOption" Header="Select all" HotKey="Ctrl+A" Command="{Binding SelectAllCommand}"/>
-                            <MenuItem Classes="MenuOption" Header="Select none" HotKey="Ctrl+Shift+L" Command="{Binding SelectNoneCommand}"/>
-                            <MenuItem Classes="MenuOption" Header="Invert selection" HotKey="Multiply" Command="{Binding InvertSelectionCommand}"/>
+                            <MenuItem Classes="MenuOption" Header="Select all" Command="{Binding SelectAllCommand}"/>
+                            <MenuItem Classes="MenuOption" Header="Select none" Command="{Binding SelectNoneCommand}"/>
+                            <MenuItem Classes="MenuOption" Header="Invert selection" Command="{Binding InvertSelectionCommand}"/>
                             <Separator/>
                             <MenuItem Classes="MenuOption" Header="Settings"/>
                         </MenuFlyout>

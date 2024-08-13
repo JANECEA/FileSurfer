@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Avalonia.Threading;
+using FileSurfer.UndoableFileOperations;
+using FileSurfer.Views;
+using ReactiveUI;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Reactive;
 using System.Threading.Tasks;
-using Avalonia.Threading;
-using FileSurfer.Views;
-using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
 

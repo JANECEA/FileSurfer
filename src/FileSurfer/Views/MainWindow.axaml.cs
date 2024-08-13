@@ -1,11 +1,11 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using FileSurfer.ViewModels;
-using Avalonia.VisualTree;
 using Avalonia.Markup.Xaml.Templates;
+using Avalonia.VisualTree;
+using FileSurfer.ViewModels;
 using System;
-using Avalonia;
 
 namespace FileSurfer.Views;
 

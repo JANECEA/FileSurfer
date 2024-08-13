@@ -22,6 +22,7 @@
         <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
     </Style>
 
     <Style Selector="Rectangle.BottomRectangle">
