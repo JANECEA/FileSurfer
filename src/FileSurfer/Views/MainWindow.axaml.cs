@@ -26,9 +26,6 @@ public partial class MainWindow : Window
         _iconViewTemplate = iconViewTemplate;
     }
 
-    private void OpenSettingsWindow(object sender, RoutedEventArgs e) =>
-        new SettingsWindow().Show();
-
     private void FilesDoubleTapped(object sender, TappedEventArgs e)
     {
         if (sender is ListBox listBox && DataContext is MainWindowViewModel viewModel)

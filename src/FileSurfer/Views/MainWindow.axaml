@@ -93,7 +93,7 @@
                             <MenuItem Classes="MenuOption" Header="Select none" HotKey="Ctrl+Shift+L" Command="{Binding SelectNoneCommand}"/>
                             <MenuItem Classes="MenuOption" Header="Invert selection" HotKey="Multiply" Command="{Binding InvertSelectionCommand}"/>
                             <Separator/>
-                            <MenuItem Classes="MenuOption" Header="Settings" Click="OpenSettingsWindow"/>
+                            <MenuItem Classes="MenuOption" Header="Settings"/>
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
