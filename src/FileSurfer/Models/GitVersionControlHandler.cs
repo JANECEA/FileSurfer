@@ -1,7 +1,7 @@
+using LibGit2Sharp;
 using System;
 using System.IO;
 using System.Linq;
-using LibGit2Sharp;
 
 namespace FileSurfer;
 
@@ -9,6 +9,7 @@ public class GitVersionControlHandler(IFileOperationsHandler _fileOperationsHand
     : IVersionControl,
         IDisposable
 {
+    private const string MissingRepoMessage = "No git repository found";
     private Repository? _currentRepo = null;
 
     public bool IsVersionControlled(string directoryPath)
@@ -51,17 +52,26 @@ public class GitVersionControlHandler(IFileOperationsHandler _fileOperationsHand
             string command = $"cd \"{_currentRepo.Info.Path}\" && git pull";
             return _fileOperationsHandler.ExecuteCmd(command, out errorMessage);
         }
-        errorMessage = "No git repository found";
+        errorMessage = MissingRepoMessage;
         return false;
     }
 
-    public string GetCurrentBranchName() => _currentRepo.Head.FriendlyName;
+    public string GetCurrentBranchName() =>
+        _currentRepo is null ? string.Empty : _currentRepo.Head.FriendlyName;
 
-    public string[] GetBranches() =>
+    public string[] GetBranches() => 
+        _currentRepo is null ? 
+        Array.Empty<string>() : 
         _currentRepo.Branches.Where(b => !b.IsRemote).Select(b => b.FriendlyName).ToArray();
 
     public bool SwitchBranches(string branchName, out string? errorMessage)
     {
+        if (_currentRepo is null)
+        {
+            errorMessage = MissingRepoMessage;
+            return false;
+        }
+
         Branch branch = _currentRepo.Branches[branchName];
         if (branch is null)
         {
@@ -80,7 +90,7 @@ public class GitVersionControlHandler(IFileOperationsHandler _fileOperationsHand
         {
             if (_currentRepo is null)
             {
-                errorMessage = "No git repository found";
+                errorMessage = MissingRepoMessage;
                 return false;
             }
             _currentRepo.Index.Add(filePath);
@@ -97,12 +107,22 @@ public class GitVersionControlHandler(IFileOperationsHandler _fileOperationsHand
 
     public bool CommitChanges(string commitMessage, out string? errorMessage)
     {
+        if (_currentRepo is null)
+        {
+            errorMessage = MissingRepoMessage;
+            return false;
+        }
         string command = $"cd \"{_currentRepo.Info.Path}\" && git commit -m \"{commitMessage}\"";
         return _fileOperationsHandler.ExecuteCmd(command, out errorMessage);
     }
 
     public bool UploadChanges(out string? errorMessage)
     {
+        if (_currentRepo is null)
+        {
+            errorMessage = MissingRepoMessage;
+            return false;
+        }
         string command = $"cd \"{_currentRepo.Info.Path}\" && git push";
         return _fileOperationsHandler.ExecuteCmd(command, out errorMessage);
     }
