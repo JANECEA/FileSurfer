@@ -53,7 +53,7 @@ public interface IFileOperationsHandler
 
     public bool RenameFileAt(string filePath, string newName, out string? errorMessage);
 
-    public bool RenameDirAt(string filePath, string newName, out string? errorMessage);
+    public bool RenameDirAt(string dirPath, string newName, out string? errorMessage);
 
     public bool MoveFileTo(string filePath, string destinationDir, out string? errorMessage);
 
@@ -71,7 +71,7 @@ public interface IFileOperationsHandler
 
     public bool RestoreDir(string ogDirPath, out string? errorMessage);
 
-    public bool DeleteFile(string fileName, out string? errorMessage);
+    public bool DeleteFile(string filePath, out string? errorMessage);
 
-    public bool DeleteDir(string dirName, out string? errorMessage);
+    public bool DeleteDir(string dirPath, out string? errorMessage);
 }

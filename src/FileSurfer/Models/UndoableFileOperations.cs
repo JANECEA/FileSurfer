@@ -1,194 +1,292 @@
 using System;
 using System.IO;
 
-namespace FileSurfer;
+namespace FileSurfer.UndoableFileOperations;
 
-public class MoveDirToTrash : IUndoableFileOperation
+public class MoveFilesToTrash : IUndoableFileOperation
 {
     private readonly IFileOperationsHandler _fileOpsHandler;
-    private readonly string _dirPath;
+    private readonly FileSystemEntry[] _entries;
 
-    public MoveDirToTrash(IFileOperationsHandler fileHandler, string dirPath)
+    public MoveFilesToTrash(IFileOperationsHandler fileHandler, FileSystemEntry[] entries)
     {
         _fileOpsHandler = fileHandler;
-        _dirPath = dirPath;
+        _entries = entries;
     }
 
-    public bool Redo(out string? errorMessage) =>
-        _fileOpsHandler.MoveDirToTrash(_dirPath, out errorMessage);
+    public bool Redo(out string? errorMessage)
+    {
+        bool errorOccured = false;
+        errorMessage = "Problems occurred moving these files to trash: ";
+        string? errMessage;
+        foreach (FileSystemEntry entry in _entries)
+        {
+            if (entry.IsDirectory)
+                _fileOpsHandler.MoveDirToTrash(entry.PathToEntry, out errMessage);
+            else
+                _fileOpsHandler.MoveFileToTrash(entry.PathToEntry, out errMessage);
 
-    public bool Undo(out string? errorMessage) =>
-        _fileOpsHandler.RestoreDir(_dirPath, out errorMessage);
+            if (errMessage is not null)
+            {
+                errorOccured = true;
+                errorMessage += $"\"{entry.PathToEntry}\", ";
+            }
+        }
+        if (!errorOccured) 
+            errorMessage = null;
+        return !errorOccured;
+    }
+
+    public bool Undo(out string? errorMessage)
+    {
+        bool errorOccured = false;
+        string? errMessage;
+        errorMessage = "Problems occurred restoring these files: ";
+        foreach (FileSystemEntry entry in _entries)
+        {
+            if (entry.IsDirectory)
+                _fileOpsHandler.RestoreDir(entry.PathToEntry, out errMessage);
+            else
+                _fileOpsHandler.RestoreFile(entry.PathToEntry, out errMessage);
+
+            if (errMessage is not null)
+            {
+                errorOccured = true;
+                errorMessage += $"\"{entry.PathToEntry}\", ";
+            }
+        }
+        if (!errorOccured)
+            errorMessage = null;
+        return !errorOccured;
+    }
 }
 
-public class MoveFileToTrash : IUndoableFileOperation
+public class MoveFilesTo : IUndoableFileOperation
 {
     private readonly IFileOperationsHandler _fileOpsHandler;
-    private readonly string _filePath;
+    private readonly FileSystemEntry[] _entries;
+    private readonly string _destinationDir;
 
-    public MoveFileToTrash(IFileOperationsHandler fileHandler, string filePath)
+    public MoveFilesTo(IFileOperationsHandler fileHandler, FileSystemEntry[] entries, string destinationDir)
+    {
+        _entries = entries;
+        _fileOpsHandler = fileHandler;
+        _destinationDir = destinationDir;
+    }
+
+    public bool Redo(out string? errorMessage)
+    {
+        bool errorOccured = false;
+        string? errMessage;
+        errorMessage = "Problems occured moving these files: ";
+        foreach (FileSystemEntry entry in _entries)
+        {
+            if (entry.IsDirectory)
+                _fileOpsHandler.MoveDirTo(entry.PathToEntry, _destinationDir, out errMessage);
+            else
+                _fileOpsHandler.MoveFileTo(entry.PathToEntry, _destinationDir, out errMessage);
+
+            if (errMessage is not null)
+            {
+                errorOccured = true;
+                errorMessage += $"\"{entry.PathToEntry}\", ";;
+            }
+        }
+        if (!errorOccured)
+            errorMessage = null;
+        return !errorOccured;
+    }
+
+
+    public bool Undo(out string? errorMessage)
+    {
+        bool errorOccured = false;
+        string? errMessage;
+        errorMessage = "Problems occured moving these files: ";
+        foreach (FileSystemEntry entry in _entries)
+        {
+            string newPath = Path.Combine(_destinationDir, entry.Name);
+            if (entry.IsDirectory)
+                _fileOpsHandler.MoveDirTo(newPath, entry.PathToEntry, out errMessage);
+            else
+                _fileOpsHandler.MoveFileTo(newPath, entry.PathToEntry, out errMessage);
+
+            if (errMessage is not null)
+            {
+                errorOccured = true;
+                errorMessage += $"\"{newPath}\", "; ;
+            }
+        }
+        if (!errorOccured)
+            errorMessage = null;
+        return !errorOccured;
+    }
+}
+
+public class CopyFilesTo : IUndoableFileOperation
+{
+    private readonly IFileOperationsHandler _fileOpsHandler;
+    private readonly FileSystemEntry[] _entries;
+    private readonly string _destinationDir;
+
+    public CopyFilesTo(IFileOperationsHandler fileHandler, FileSystemEntry[] entries, string destinationDir)
     {
         _fileOpsHandler = fileHandler;
-        _filePath = filePath;
+        _entries = entries;
+        _destinationDir = destinationDir;
     }
 
-    public bool Redo(out string? errorMessage) =>
-        _fileOpsHandler.MoveFileToTrash(_filePath, out errorMessage);
+    public bool Redo(out string? errorMessage)
+    {
+        bool errorOccured = false;
+        string? errMessage;
+        errorMessage = "Problems occured copying these files: ";
+        foreach (FileSystemEntry entry in _entries)
+        {
+            if (entry.IsDirectory)
+                _fileOpsHandler.CopyDirTo(entry.PathToEntry, _destinationDir, out errMessage);
+            else
+                _fileOpsHandler.CopyFileTo(entry.PathToEntry, _destinationDir, out errMessage);
 
-    public bool Undo(out string? errorMessage) =>
-        _fileOpsHandler.RestoreFile(_filePath, out errorMessage);
+            if (errMessage is not null)
+            {
+                errorOccured = true;
+                errorMessage += $"\"{entry.PathToEntry}\", "; ;
+            }
+        }
+        if (!errorOccured)
+            errorMessage = null;
+        return !errorOccured;
+    }
+
+    public bool Undo(out string? errorMessage)
+    {
+        bool errorOccured = false;
+        string? errMessage;
+        errorMessage = "Problems occured deleting these files: ";
+        foreach (FileSystemEntry entry in _entries)
+        {
+            if (entry.IsDirectory)
+                _fileOpsHandler.DeleteDir(Path.Combine(_destinationDir, entry.Name), out errMessage);
+            else
+                _fileOpsHandler.DeleteFile(Path.Combine(_destinationDir, entry.Name), out errMessage);
+
+            if (errMessage is not null)
+            {
+                errorOccured = true;
+                errorMessage += $"\"{entry.PathToEntry}\", "; ;
+            }
+        }
+        if (!errorOccured)
+            errorMessage = null;
+        return !errorOccured;
+    }
 }
 
-public class MoveFileTo : IUndoableFileOperation
+public class RenameMultiple : IUndoableFileOperation
 {
     private readonly IFileOperationsHandler _fileOpsHandler;
-    private readonly string _fileName;
-    private readonly string _oldDir;
-    private readonly string _newDir;
+    private readonly FileSystemEntry[] _entries;
+    private readonly string[] _newPaths;
+    private readonly string _directoryName;
+    private readonly string _namingPattern;
+    private readonly string? _extension = null;
 
-    public MoveFileTo(IFileOperationsHandler fileHandler, string oldPath, string destinationDir)
+    public RenameMultiple(IFileOperationsHandler fileHandler, FileSystemEntry[] entries, string NamingPattern)
     {
         _fileOpsHandler = fileHandler;
-        _fileName = Path.GetFileName(oldPath);
-        _oldDir = Path.GetDirectoryName(oldPath);
-        _newDir = destinationDir;
+        _entries = entries;
+        _newPaths = new string[entries.Length];
+        _namingPattern = Path.GetFileNameWithoutExtension(NamingPattern);
+        _directoryName = Path.GetDirectoryName(entries[0].PathToEntry) ?? throw new InvalidOperationException();
 
-        _oldDir = _oldDir ?? throw new ArgumentNullException(_oldDir);
+        if (!entries[0].IsDirectory)
+        {
+            _extension = Path.GetExtension(entries[0].PathToEntry);
+            _extension = _extension == string.Empty ? null : _extension;
+        }
     }
 
-    public bool Redo(out string? errorMessage) =>
-        _fileOpsHandler.MoveFileTo(
-            Path.Combine(_oldDir, _fileName),
-            Path.Combine(_newDir, _fileName),
-            out errorMessage
-        );
-
-    public bool Undo(out string? errorMessage) =>
-        _fileOpsHandler.MoveFileTo(
-            Path.Combine(_newDir, _fileName),
-            Path.Combine(_oldDir, _fileName),
-            out errorMessage
-        );
-}
-
-public class MoveDirTo : IUndoableFileOperation
-{
-    private readonly IFileOperationsHandler _fileOpsHandler;
-    private readonly string _dirName;
-    private readonly string _oldDir;
-    private readonly string _newDir;
-
-    public MoveDirTo(IFileOperationsHandler fileHandler, string oldPath, string destinationDir)
+    public bool Redo(out string? errorMessage)
     {
-        _fileOpsHandler = fileHandler;
-        _dirName = Path.GetFileName(oldPath);
-        _oldDir = Path.GetDirectoryName(oldPath);
-        _newDir = destinationDir;
+        bool errorOccured = false;
+        string? errMessage;
+        errorMessage = "Problems occured renaming these files: ";
+        int index = 0;
 
-        _oldDir = _oldDir ?? throw new ArgumentNullException(_oldDir);
+        foreach (FileSystemEntry entry in _entries)
+        {
+            string newName = $"{_namingPattern} ({index + 1})";
+            if (_extension is not null)
+                newName += _extension;
+
+            if (entry.IsDirectory)
+                _fileOpsHandler.RenameDirAt(entry.PathToEntry, newName, out errMessage);
+            else
+                _fileOpsHandler.RenameFileAt(entry.PathToEntry, newName, out errMessage);
+
+            if (errMessage is null)
+                _newPaths[index] = Path.Combine(_directoryName, newName);
+            else
+            {
+                errorOccured = true;
+                errorMessage += $"\"{entry.PathToEntry}\", "; ;
+            }
+            index++;
+        }
+        if (!errorOccured)
+            errorMessage = null;
+        return !errorOccured;
     }
 
-    public bool Redo(out string? errorMessage) =>
-        _fileOpsHandler.MoveDirTo(
-            Path.Combine(_oldDir, _dirName),
-            Path.Combine(_newDir, _dirName),
-            out errorMessage
-        );
+    public bool Undo(out string? errorMessage)
+    {
+        bool errorOccured = false;
+        string? errMessage;
+        errorMessage = "Problems occured renaming these files: ";
 
-    public bool Undo(out string? errorMessage) =>
-        _fileOpsHandler.MoveDirTo(
-            Path.Combine(_newDir, _dirName),
-            Path.Combine(_oldDir, _dirName),
-            out errorMessage
-        );
+        for (int i = 0; i < _entries.Length; i++)
+        {
+            if (_entries[i].IsDirectory)
+                _fileOpsHandler.RenameDirAt(_newPaths[i], _entries[i].Name, out errMessage);
+            else
+                _fileOpsHandler.RenameFileAt(_newPaths[i], _entries[i].Name, out errMessage);
+
+            if (errMessage is not null)
+            {
+                errorOccured = true;
+                errorMessage += $"\"{_newPaths[i]}\", "; ;
+            }
+        }
+        if (!errorOccured)
+            errorMessage = null;
+        return !errorOccured;
+    }
 }
 
-public class CopyFileTo : IUndoableFileOperation
+public class RenameOne : IUndoableFileOperation
 {
     private readonly IFileOperationsHandler _fileOpsHandler;
-    private readonly string _oldPath;
+    private readonly FileSystemEntry _entry;
+    private readonly string _newName;
     private readonly string _newPath;
 
-    public CopyFileTo(IFileOperationsHandler fileHandler, string path, string destinationDir)
+    public RenameOne(IFileOperationsHandler fileHandler, FileSystemEntry entry, string newName)
     {
         _fileOpsHandler = fileHandler;
-        _oldPath = path;
-        _newPath = Path.Combine(destinationDir, Path.GetFileName(path));
-    }
-
-    public bool Redo(out string? errorMessage) =>
-        _fileOpsHandler.CopyFileTo(_oldPath, _newPath, out errorMessage);
-
-    public bool Undo(out string? errorMessage) =>
-        _fileOpsHandler.DeleteFile(_newPath, out errorMessage);
-}
-
-public class CopyDirTo : IUndoableFileOperation
-{
-    private readonly IFileOperationsHandler _fileOpsHandler;
-    private readonly string _oldPath;
-    private readonly string _newPath;
-
-    public CopyDirTo(IFileOperationsHandler fileHandler, string path, string destinationDir)
-    {
-        _fileOpsHandler = fileHandler;
-        _oldPath = path;
-        _newPath = Path.Combine(destinationDir, Path.GetFileName(path));
-    }
-
-    public bool Redo(out string? errorMessage) =>
-        _fileOpsHandler.CopyDirTo(_oldPath, _newPath, out errorMessage);
-
-    public bool Undo(out string? errorMessage) =>
-        _fileOpsHandler.DeleteDir(_newPath, out errorMessage);
-}
-
-public class RenameFile : IUndoableFileOperation
-{
-    private readonly IFileOperationsHandler _fileOpsHandler;
-    private readonly string _dir;
-    private readonly string _oldName;
-    private readonly string _newName;
-
-    public RenameFile(IFileOperationsHandler fileHandler, string path, string newName)
-    {
-        _fileOpsHandler = fileHandler;
-        _dir = Path.GetDirectoryName(path);
-        _oldName = Path.GetFileName(path);
+        _entry = entry;
         _newName = newName;
-
-        _dir = _dir ?? throw new ArgumentNullException(_dir);
+        string dirName = Path.GetDirectoryName(entry.PathToEntry) ?? throw new InvalidOperationException();
+        _newPath = Path.Combine(dirName, newName);
     }
 
-    public bool Redo(out string? errorMessage) =>
-        _fileOpsHandler.RenameFileAt(Path.Combine(_dir, _oldName), _newName, out errorMessage);
+    public bool Redo(out string? errorMessage) => _entry.IsDirectory ? 
+        _fileOpsHandler.RenameDirAt(_entry.PathToEntry, _newName, out errorMessage) : 
+        _fileOpsHandler.RenameFileAt(_entry.PathToEntry, _newName, out errorMessage);
 
-    public bool Undo(out string? errorMessage) =>
-        _fileOpsHandler.RenameFileAt(Path.Combine(_dir, _newName), _oldName, out errorMessage);
-}
-
-public class RenameDir : IUndoableFileOperation
-{
-    private readonly IFileOperationsHandler _fileOpsHandler;
-    private readonly string _dir;
-    private readonly string _oldName;
-    private readonly string _newName;
-
-    public RenameDir(IFileOperationsHandler fileHandler, string path, string newName)
-    {
-        _fileOpsHandler = fileHandler;
-        _dir = Path.GetDirectoryName(path);
-        _oldName = Path.GetFileName(path);
-        _newName = newName;
-
-        _dir = _dir ?? throw new ArgumentNullException(_dir);
-    }
-
-    public bool Redo(out string? errorMessage) =>
-        _fileOpsHandler.RenameDirAt(Path.Combine(_dir, _oldName), _newName, out errorMessage);
-
-    public bool Undo(out string? errorMessage) =>
-        _fileOpsHandler.RenameDirAt(Path.Combine(_dir, _newName), _oldName, out errorMessage);
+    public bool Undo(out string? errorMessage) => _entry.IsDirectory ? 
+        _fileOpsHandler.RenameDirAt(_newPath, _entry.Name, out errorMessage) : 
+        _fileOpsHandler.RenameFileAt(_newPath, _entry.Name, out errorMessage);
 }
 
 public class NewFileAt : IUndoableFileOperation
