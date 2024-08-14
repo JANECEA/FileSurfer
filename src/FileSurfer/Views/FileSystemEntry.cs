@@ -14,7 +14,7 @@ public class FileSystemEntry
     public readonly bool IsDirectory;
     public Bitmap? Icon { get; }
     public string Name { get; }
-    public DateTime LastModfiedTime { get; }
+    public DateTime LastChanged { get; }
     public string LastModified { get; }
     public string Size { get; }
     public string Type { get; }
@@ -25,7 +25,7 @@ public class FileSystemEntry
         IsDirectory = isDirectory;
         Name = Path.GetFileName(path);
         Icon = isDirectory ? _folderIcon : GetIcon(fileOpsHandler);
-        LastModfiedTime = fileOpsHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
+        LastChanged = fileOpsHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
         LastModified = SetLastModified(fileOpsHandler);
 
         Size = isDirectory ?

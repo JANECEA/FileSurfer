@@ -5,12 +5,14 @@ using System.Linq;
 
 namespace FileSurfer;
 
-public class GitVersionControlHandler(IFileOperationsHandler _fileOperationsHandler)
-    : IVersionControl,
-        IDisposable
+public class GitVersionControlHandler : IVersionControl, IDisposable
 {
     private const string MissingRepoMessage = "No git repository found";
+    private readonly IFileOperationsHandler fileOperationsHandler;
     private Repository? _currentRepo = null;
+
+    public GitVersionControlHandler(IFileOperationsHandler _fileOperationsHandler) =>
+        fileOperationsHandler = _fileOperationsHandler;
 
     public bool IsVersionControlled(string directoryPath)
     {
@@ -50,7 +52,7 @@ public class GitVersionControlHandler(IFileOperationsHandler _fileOperationsHand
         if (_currentRepo is not null)
         {
             string command = $"cd \"{_currentRepo.Info.Path}\" && git pull";
-            return _fileOperationsHandler.ExecuteCmd(command, out errorMessage);
+            return fileOperationsHandler.ExecuteCmd(command, out errorMessage);
         }
         errorMessage = MissingRepoMessage;
         return false;
@@ -113,7 +115,7 @@ public class GitVersionControlHandler(IFileOperationsHandler _fileOperationsHand
             return false;
         }
         string command = $"cd \"{_currentRepo.Info.Path}\" && git commit -m \"{commitMessage}\"";
-        return _fileOperationsHandler.ExecuteCmd(command, out errorMessage);
+        return fileOperationsHandler.ExecuteCmd(command, out errorMessage);
     }
 
     public bool UploadChanges(out string? errorMessage)
@@ -124,7 +126,7 @@ public class GitVersionControlHandler(IFileOperationsHandler _fileOperationsHand
             return false;
         }
         string command = $"cd \"{_currentRepo.Info.Path}\" && git push";
-        return _fileOperationsHandler.ExecuteCmd(command, out errorMessage);
+        return fileOperationsHandler.ExecuteCmd(command, out errorMessage);
     }
 
     public void Dispose() => _currentRepo?.Dispose();
