@@ -142,7 +142,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     {
         try
         {
-            FileSystem.DeleteDirectory(
+            FileSystem.DeleteFile(
                 filePath,
                 UIOption.OnlyErrorDialogs,
                 RecycleOption.SendToRecycleBin
@@ -161,7 +161,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     {
         try
         {
-            FileSystem.DeleteFile(
+            FileSystem.DeleteDirectory(
                 dirPath,
                 UIOption.OnlyErrorDialogs,
                 RecycleOption.SendToRecycleBin
