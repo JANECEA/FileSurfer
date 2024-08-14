@@ -1,24 +1,35 @@
-﻿using Avalonia.Threading;
-using FileSurfer.UndoableFileOperations;
-using FileSurfer.Views;
-using ReactiveUI;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
+using Avalonia.Threading;
+using FileSurfer.UndoableFileOperations;
+using FileSurfer.Views;
+using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
+
+enum SortBy
+{
+    Name,
+    Date,
+    Type
+}
 
 #pragma warning disable CA1822 // Mark members as static
 public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
-    private readonly IFileOperationsHandler _fileOperationsHandler =
-        new WindowsFileOperationsHandler();
+    private const int ArraySearchThreshold = 25;
+    private readonly IFileOperationsHandler _fileOpsHandler = new WindowsFileOperationsHandler();
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory = new();
     private readonly UndoRedoHandler<string> _pathHistory = new();
     private readonly IVersionControl _versionControl;
+    private SortBy _sortBy = SortBy.Name;
+    private bool _sortReversed = false;
 
     private readonly ObservableCollection<FileSystemEntry> _selectedFiles = new();
     public ObservableCollection<FileSystemEntry> SelectedFiles => _selectedFiles;
@@ -32,9 +43,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         get => _errorMessage;
         set
         {
-            if (value is not null)
+            this.RaiseAndSetIfChanged(ref _errorMessage, value);
+            if (value is not null && value != string.Empty)
             {
-                this.RaiseAndSetIfChanged(ref _errorMessage, value);
                 Dispatcher.UIThread.InvokeAsync(async () =>
                 {
                     await ShowErrorWindowAsync(value);
@@ -142,7 +153,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public MainWindowViewModel()
     {
-        _versionControl = new GitVersionControlHandler(_fileOperationsHandler);
+        _versionControl = new GitVersionControlHandler(_fileOpsHandler);
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
         ReloadCommand = ReactiveCommand.Create(Reload);
@@ -175,33 +186,73 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public void OpenEntry(FileSystemEntry entry)
     {
         if (entry.IsDirectory)
-        {
             CurrentDir = entry.PathToEntry;
-        }
         else
         {
-            _fileOperationsHandler.OpenFile(entry.PathToEntry, out string? errorMessage);
+            _fileOpsHandler.OpenFile(entry.PathToEntry, out string? errorMessage);
             ErrorMessage = errorMessage;
         }
     }
 
-    public void GoUp()
-    {
-        CurrentDir = Path.GetDirectoryName(CurrentDir) ?? CurrentDir;
-    }
+    public void GoUp() => CurrentDir = Path.GetDirectoryName(CurrentDir) ?? CurrentDir;
 
     private void LoadDirEntries()
     {
-        _fileEntries.Clear();
-        foreach (string dirPath in Directory.GetDirectories(_currentDir))
+        string[] dirPaths = Directory.GetDirectories(_currentDir);
+        FileSystemEntry[] directories = new FileSystemEntry[dirPaths.Length];
+        string[] filePaths = Directory.GetFiles(_currentDir);
+        FileSystemEntry[] files = new FileSystemEntry[filePaths.Length];
+
+        for (int i = 0; i < dirPaths.Length; i++)
+            directories[i] = new FileSystemEntry(dirPaths[i], true, _fileOpsHandler);
+
+        for (int i = 0; i < filePaths.Length; i++)
+            files[i] = new FileSystemEntry(filePaths[i], false, _fileOpsHandler);
+
+        if (_sortReversed || _sortBy != SortBy.Name)
         {
-            DirectoryInfo dirInfo = new(dirPath);
-            _fileEntries.Add(new FileSystemEntry(dirInfo.FullName, true, _fileOperationsHandler));
+            SortInPlaceBy(files, _sortBy);
+
+            if (_sortBy != SortBy.Type)
+                SortInPlaceBy(directories, _sortBy);
         }
-        foreach (string filePath in Directory.GetFiles(_currentDir))
+        _fileEntries.Clear();
+        if (_sortReversed)
         {
-            FileInfo fileInfo = new(filePath);
-            _fileEntries.Add(new FileSystemEntry(fileInfo.FullName, false, _fileOperationsHandler));
+            for (int i = directories.Length - 1; i >= 0; i--)
+                _fileEntries.Add(directories[i]);
+
+            for (int i = files.Length - 1; i >= 0; i--)
+                _fileEntries.Add(files[i]);
+        }
+        else
+        {
+            for (int i = 0; i < directories.Length; i++)
+                _fileEntries.Add(directories[i]);
+
+            for (int i = 0; i < files.Length; i++)
+                _fileEntries.Add(files[i]);
+        }
+    }
+
+    private void SortInPlaceBy(FileSystemEntry[] entries, SortBy sortBy)
+    {
+        switch (sortBy)
+        {
+            case SortBy.Name:
+                Array.Sort(entries, (x, y) => string.Compare(x.Name, y.Name));
+                break;
+
+            case SortBy.Date:
+                Array.Sort(entries, (x, y) => DateTime.Compare(x.LastChanged, y.LastChanged));
+                break;
+
+            case SortBy.Type:
+                Array.Sort(entries, (x, y) => string.Compare(x.Type, y.Type));
+                break;
+
+            default:
+                throw new ArgumentException($"Unsupported sort option: {sortBy}", nameof(sortBy));
         }
     }
 
@@ -214,14 +265,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (previousPath != CurrentDir && previousPath is not null)
         {
             _pathHistory.MoveToPrevious();
+
             if (Path.Exists(previousPath))
-            {
                 CurrentDir = previousPath;
-            }
             else
-            {
                 _pathHistory.RemoveNode(false);
-            }
         }
     }
 
@@ -231,14 +279,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (nextPath != CurrentDir && nextPath is not null)
         {
             _pathHistory.MoveToNext();
+
             if (Path.Exists(nextPath))
-            {
                 CurrentDir = nextPath;
-            }
             else
-            {
                 _pathHistory.RemoveNode(true);
-            }
         }
     }
 
@@ -250,7 +295,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void OpenPowerShell()
     {
-        _fileOperationsHandler.OpenCmdAt(_currentDir, out string? errorMessage);
+        _fileOpsHandler.OpenCmdAt(_currentDir, out string? errorMessage);
         ErrorMessage = errorMessage;
     }
 
@@ -260,13 +305,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void NewFile()
     {
-        string newFileName = _fileOperationsHandler.GetAvailableName(_currentDir, "New File");
-        if (_fileOperationsHandler.NewFileAt(_currentDir, newFileName, out string? errorMessage))
+        string newFileName = _fileOpsHandler.GetAvailableName(_currentDir, "New File");
+        if (_fileOpsHandler.NewFileAt(_currentDir, newFileName, out string? errorMessage))
         {
             Reload();
-            _undoRedoHistory.NewNode(
-                new NewFileAt(_fileOperationsHandler, _currentDir, newFileName)
-            );
+            _undoRedoHistory.NewNode(new NewFileAt(_fileOpsHandler, _currentDir, newFileName));
         }
         else
             ErrorMessage = errorMessage;
@@ -274,11 +317,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void NewDir()
     {
-        string newDirName = _fileOperationsHandler.GetAvailableName(_currentDir, "New Folder");
-        if (_fileOperationsHandler.NewDirAt(_currentDir, newDirName, out string? errorMessage))
+        string newDirName = _fileOpsHandler.GetAvailableName(_currentDir, "New Folder");
+        if (_fileOpsHandler.NewDirAt(_currentDir, newDirName, out string? errorMessage))
         {
             Reload();
-            _undoRedoHistory.NewNode(new NewDirAt(_fileOperationsHandler, _currentDir, newDirName));
+            _undoRedoHistory.NewNode(new NewDirAt(_fileOpsHandler, _currentDir, newDirName));
         }
         else
             ErrorMessage = errorMessage;
@@ -290,17 +333,124 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void Paste() { }
 
-    private void Rename() { }
+    private void Rename()
+    {
+        string? errorMessage = null;
 
-    private void MoveToTrash() { }
+        if (_selectedFiles.Count == 1)
+            RenameOne(out errorMessage);
+        else if (_selectedFiles.Count > 1)
+            RenameMultiple(ref errorMessage);
 
-    private void Delete() { }
+        ErrorMessage = errorMessage;
+        Reload();
+    }
 
-    private void SortByName() { }
+    private void RenameOne(out string? errorMessage)
+    {
+        bool result;
+        if (_selectedFiles[0].IsDirectory)
+        {
+            result = _fileOpsHandler.RenameDirAt(
+                _selectedFiles[0].PathToEntry,
+                "New Name",
+                out errorMessage
+            );
+        }
+        else
+        {
+            result = _fileOpsHandler.RenameFileAt(
+                _selectedFiles[0].PathToEntry,
+                "New Name",
+                out errorMessage
+            );
+        }
 
-    private void SortByDate() { }
+        if (result)
+            _undoRedoHistory.NewNode(new RenameOne(_fileOpsHandler, _selectedFiles[0], "New Name"));
+    }
 
-    private void SortByType() { }
+    private void RenameMultiple(ref string? errorMessage)
+    {
+        bool onlyDirs = _selectedFiles[0].IsDirectory;
+        string extension = onlyDirs
+            ? string.Empty
+            : Path.GetExtension(_selectedFiles[0].PathToEntry);
+
+        foreach (FileSystemEntry entry in _selectedFiles)
+        {
+            if (
+                onlyDirs != entry.IsDirectory
+                || (!onlyDirs && Path.GetExtension(entry.PathToEntry) != extension)
+            )
+            {
+                ErrorMessage = "Selected entries don't have the same extensions or types.";
+                return;
+            }
+        }
+
+        RenameMultiple operation =
+            new(_fileOpsHandler, _selectedFiles.ToArray(), "New Naming Pattern");
+
+        if (operation.Redo(out errorMessage))
+            _undoRedoHistory.NewNode(operation);
+    }
+
+    private void MoveToTrash()
+    {
+        bool errorOccured = false;
+        foreach (FileSystemEntry entry in _selectedFiles)
+        {
+            bool result = entry.IsDirectory
+                ? _fileOpsHandler.MoveDirToTrash(entry.PathToEntry, out string? errorMessage)
+                : _fileOpsHandler.MoveFileToTrash(entry.PathToEntry, out errorMessage);
+
+            errorOccured = result || errorOccured;
+            ErrorMessage = errorMessage;
+        }
+        if (!errorOccured)
+            _undoRedoHistory.NewNode(
+                new MoveFilesToTrash(_fileOpsHandler, _selectedFiles.ToArray())
+            );
+
+        Reload();
+    }
+
+    private void Delete()
+    {
+        foreach (FileSystemEntry entry in _selectedFiles)
+        {
+            string? errorMessage;
+            if (entry.IsDirectory)
+                _fileOpsHandler.DeleteDir(entry.PathToEntry, out errorMessage);
+            else
+                _fileOpsHandler.DeleteFile(entry.PathToEntry, out errorMessage);
+
+            ErrorMessage = errorMessage;
+        }
+        Reload();
+    }
+
+    private void SortByName()
+    {
+        _sortReversed = _sortBy == SortBy.Name && !_sortReversed;
+        _sortBy = SortBy.Name;
+        Reload();
+    }
+
+    private void SortByDate()
+    {
+        _sortReversed = _sortBy == SortBy.Date && !_sortReversed;
+        _sortBy = SortBy.Date;
+        Reload();
+    }
+
+    private void SortByType()
+    {
+        _sortReversed = _sortBy == SortBy.Type && !_sortReversed;
+        _sortBy = SortBy.Type;
+        Reload();
+    }
 
     private void Undo()
     {
@@ -341,11 +491,43 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
-    private void SelectAll() { }
+    private void SelectAll()
+    {
+        _selectedFiles.Clear();
 
-    private void SelectNone() { }
+        foreach (FileSystemEntry entry in _fileEntries)
+            _selectedFiles.Add(entry);
+    }
 
-    private void InvertSelection() { }
+    private void SelectNone() => SelectedFiles.Clear();
+
+    private void InvertSelection()
+    {
+        if (_selectedFiles.Count <= ArraySearchThreshold)
+        {
+            string[] oldSelectionNames = _selectedFiles.Select(entry => entry.Name).ToArray();
+
+            _selectedFiles.Clear();
+            foreach (FileSystemEntry entry in _fileEntries)
+            {
+                if (!oldSelectionNames.Contains(entry.Name))
+                    _selectedFiles.Add(entry);
+            }
+        }
+        else
+        {
+            HashSet<string> oldSelectionNames = _selectedFiles
+                .Select(entry => entry.Name)
+                .ToHashSet();
+
+            _selectedFiles.Clear();
+            foreach (FileSystemEntry entry in _fileEntries)
+            {
+                if (!oldSelectionNames.Contains(entry.Name))
+                    _selectedFiles.Add(entry);
+            }
+        }
+    }
 
     private void Pull()
     {
@@ -354,18 +536,25 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
         if (_versionControl.DownloadChanges(out string? errorMessage))
             Reload();
-        else
-            ErrorMessage = errorMessage;
+
+        ErrorMessage = errorMessage;
     }
 
-    private void Commit() { }
+    private void Commit()
+    {
+        if (!IsVersionControlled)
+            return;
+
+        if (_versionControl.CommitChanges("Propriatery commit message", out string? errorMessage))
+            Reload();
+
+        ErrorMessage = errorMessage;
+    }
 
     private void Push()
     {
-        if (!_versionControl.UploadChanges(out string? errorMessage))
-        {
-            ErrorMessage = errorMessage;
-        }
+        _versionControl.UploadChanges(out string? errorMessage);
+        ErrorMessage = errorMessage;
     }
 }
 #pragma warning restore CA1822 // Mark members as static
