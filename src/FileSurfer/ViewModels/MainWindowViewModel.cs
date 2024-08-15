@@ -30,6 +30,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private readonly IVersionControl _versionControl;
     private SortBy _sortBy = SortBy.Name;
     private bool _sortReversed = false;
+    private bool _isUserInvoked = true;
 
     private readonly ObservableCollection<FileSystemEntry> _selectedFiles = new();
     public ObservableCollection<FileSystemEntry> SelectedFiles => _selectedFiles;
@@ -60,7 +61,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             new ErrorWindow(errorMessage).Show();
         });
 
-    private string _currentDir = "D:/Stažené";
+    private string _currentDir = "D:\\Stažené";
     public string CurrentDir
     {
         get => _currentDir;
@@ -69,9 +70,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             this.RaiseAndSetIfChanged(ref _currentDir, value);
             if (Directory.Exists(value))
             {
-                LoadDirEntries();
-                CheckVC();
-                _pathHistory.NewNode(value);
+                Reload();
+                if (_isUserInvoked)
+                    _pathHistory.NewNode(value);
             }
         }
     }
@@ -261,13 +262,16 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public void GoBack()
     {
-        string? previousPath = _pathHistory.GetPrevious();
-        if (previousPath != CurrentDir && previousPath is not null)
+        if (_pathHistory.GetPrevious() is string previousPath)
         {
             _pathHistory.MoveToPrevious();
 
             if (Path.Exists(previousPath))
+            {
+                _isUserInvoked = false;
                 CurrentDir = previousPath;
+                _isUserInvoked = true;
+            }
             else
                 _pathHistory.RemoveNode(false);
         }
@@ -275,13 +279,16 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public void GoForward()
     {
-        string? nextPath = _pathHistory.GetNext();
-        if (nextPath != CurrentDir && nextPath is not null)
+        if (_pathHistory.GetNext() is string nextPath)
         {
             _pathHistory.MoveToNext();
 
             if (Path.Exists(nextPath))
+            {
+                _isUserInvoked = false;
                 CurrentDir = nextPath;
+                _isUserInvoked = true;
+            }
             else
                 _pathHistory.RemoveNode(true);
         }
