@@ -11,17 +11,11 @@ public interface IFileOperationsHandler
 
     public bool ShowProperties(string filePath, out string? errorMessage);
 
-    public bool IsZipped(string filePath);
-
-    public bool ZipFiles(string[] filePaths, string destinationPath, out string? errorMessage);
-
-    public bool UnzipArchive(string archivePath, string extractPath, out string? errorMessage);
-
     public bool CreateLink(string filePath, out string? errorMessage);
 
-    public string[] GetDirFiles(string dirPath, out string? errorMessage);
+    public string[] GetPathDirs(string path, bool includeHidden, bool includeProtectedByOS);
 
-    public string[] GetDirFolders(string dirPath, out string? errorMessage);
+    public string[] GetPathFiles(string path, bool includeHidden, bool includeProtectedByOS);
 
     public long GetFileSizeB(string path);
 
@@ -35,9 +29,7 @@ public interface IFileOperationsHandler
 
     public bool ExecuteCmd(string command, out string? errorMessage);
 
-    public bool IsHidden(string filePath);
-
-    public string GetAvailableName(string path, string fileName);
+    public bool IsHidden(string path, bool isDirectory);
 
     public bool NewFileAt(string dirPath, string fileName, out string? errorMessage);
 
@@ -59,9 +51,9 @@ public interface IFileOperationsHandler
 
     public bool MoveDirTo(string dirPath, string destinationDir, out string? errorMessage);
 
-    public bool CopyFileTo(string filePath, string destinationDir, out string? errorMessage);
+    public bool CopyFileTo(string filePath, string nameOfCopy, string destinationDir, out string? errorMessage);
 
-    public bool CopyDirTo(string dirPath, string destinationDir, out string? errorMessage);
+    public bool CopyDirTo(string dirPath, string nameOfCopy, string destinationDir, out string? errorMessage);
 
     public bool MoveFileToTrash(string filePath, out string? errorMessage);
 

@@ -1,13 +1,9 @@
+using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualBasic.FileIO;
-using SharpCompress.Archives;
-using SharpCompress.Archives.Zip;
-using SharpCompress.Common;
-using SharpCompress.Writers;
 
 namespace FileSurfer;
 
@@ -62,30 +58,68 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public string[] GetDirFiles(string dirPath, out string? errorMessage)
+    public string[] GetPathFiles(string path, bool includeHidden, bool includeProtectedByOS)
     {
         try
         {
-            errorMessage = null;
-            return Directory.GetFiles(dirPath);
+            string[] files = Directory.GetFiles(path);
+
+            if (!includeHidden)
+            {
+                for (int i = 0; i < files.Length; i++)
+                {
+                    if (IsHidden(files[i], false))
+                        files[i] = string.Empty;
+                }
+            }
+            if (!includeProtectedByOS)
+            {
+                for (int i = 0; i < files.Length; i++)
+                {
+                    if (IsProtected(files[i], false))
+                        files[i] = string.Empty;
+                }
+            }
+
+            if (!includeHidden || !includeProtectedByOS)
+                return files.Where(filePath => filePath != string.Empty).ToArray();
+            return files;
         }
-        catch (Exception ex)
+        catch
         {
-            errorMessage = ex.Message;
             return Array.Empty<string>();
         }
     }
 
-    public string[] GetDirFolders(string dirPath, out string? errorMessage)
+    public string[] GetPathDirs(string path, bool includeHidden, bool includeProtectedByOS)
     {
         try
         {
-            errorMessage = null;
-            return Directory.GetDirectories(dirPath);
+            string[] directories = Directory.GetDirectories(path);
+
+            if (!includeHidden)
+            {
+                for (int i = 0; i < directories.Length; i++)
+                {
+                    if (IsHidden(directories[i], true))
+                        directories[i] = string.Empty;
+                }
+            }
+            if (!includeProtectedByOS)
+            {
+                for (int i = 0; i < directories.Length; i++)
+                {
+                    if (IsProtected(directories[i], true))
+                        directories[i] = string.Empty;
+                }
+            }
+
+            if (!includeHidden || !includeProtectedByOS)
+                return directories.Where(dirPath => dirPath != string.Empty).ToArray();
+            return directories;
         }
-        catch (Exception ex)
+        catch
         {
-            errorMessage = ex.Message;
             return Array.Empty<string>();
         }
     }
@@ -219,15 +253,14 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public bool IsHidden(string filePath)
+    public bool IsHidden(string path, bool isDirectory)
     {
         try
         {
-            if (File.GetAttributes(filePath).HasFlag(FileAttributes.Directory))
-            {
-                return new DirectoryInfo(filePath).Attributes.HasFlag(FileAttributes.Hidden);
-            }
-            return new FileInfo(filePath).Attributes.HasFlag(FileAttributes.Hidden);
+            return
+                isDirectory
+                ? new DirectoryInfo(path).Attributes.HasFlag(FileAttributes.Hidden)
+                : new FileInfo(path).Attributes.HasFlag(FileAttributes.Hidden);
         }
         catch
         {
@@ -235,21 +268,18 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public string GetAvailableName(string path, string fileName)
+    public static bool IsProtected(string path, bool isDirectory)
     {
-        if (!Path.Exists(Path.Combine(path, fileName)))
+        try
         {
-            return fileName;
+            return
+                isDirectory
+                ? new DirectoryInfo(path).Attributes.HasFlag(FileAttributes.System)
+                : new FileInfo(path).Attributes.HasFlag(FileAttributes.System);
         }
-        string nameWOextension = Path.GetFileNameWithoutExtension(fileName);
-        string extension = Path.GetExtension(fileName);
-        for (int index = 1; ; index++)
+        catch
         {
-            string newFileName = $"{nameWOextension} ({index}){extension}";
-            if (!Path.Exists(Path.Combine(path, newFileName)))
-            {
-                return newFileName;
-            }
+            return true;
         }
     }
 
@@ -464,23 +494,12 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public bool CopyFileTo(string filePath, string destinationDir, out string? errorMessage)
+    public bool CopyFileTo(string filePath, string copyName, string destinationDir, out string? errorMessage)
     {
         try
         {
             errorMessage = null;
-            if (Path.GetDirectoryName(filePath) == destinationDir)
-            {
-                string newName =
-                    Path.GetFileNameWithoutExtension(filePath)
-                    + " - copy"
-                    + Path.GetExtension(filePath);
-                newName = GetAvailableName(destinationDir, newName);
-                File.Copy(filePath, Path.Combine(destinationDir, newName));
-                return true;
-            }
-            string fileName = Path.GetFileName(filePath);
-            File.Copy(filePath, Path.Combine(destinationDir, fileName), true);
+            File.Copy(filePath, Path.Combine(destinationDir, copyName));
             return true;
         }
         catch (Exception ex)
@@ -490,19 +509,12 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public bool CopyDirTo(string dirPath, string destinationDir, out string? errorMessage)
+    public bool CopyDirTo(string dirPath, string copyName, string destinationDir, out string? errorMessage)
     {
         try
         {
             errorMessage = null;
-            string dirName = Path.GetFileName(dirPath);
-            if (Path.GetDirectoryName(dirPath) == destinationDir)
-            {
-                string newName = GetAvailableName(destinationDir, dirName + " - copy");
-                FileSystem.CopyDirectory(dirPath, Path.Combine(destinationDir, newName));
-                return true;
-            }
-            FileSystem.CopyDirectory(dirPath, Path.Combine(destinationDir, dirName), true);
+            FileSystem.CopyDirectory(dirPath, Path.Combine(destinationDir, copyName));
             return true;
         }
         catch (Exception ex)
@@ -514,68 +526,6 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
 
     public bool ShowProperties(string filePath, out string? errorMessage) =>
         WindowsFileProperties.ShowFileProperties(filePath, out errorMessage);
-
-    public bool IsZipped(string filePath) =>
-        Path.GetExtension(filePath).ToLowerInvariant() switch
-        {
-            ".zip" => true,
-            ".rar" => true,
-            ".7z" => true,
-            ".gzip" => true,
-            ".tar" => true,
-            _ => false
-        };
-
-    public bool ZipFiles(string[] filePaths, string destinationPath, out string? errorMessage)
-    {
-        try
-        {
-            using ZipArchive archive = ZipArchive.Create();
-            using FileStream zipStream = File.OpenWrite(destinationPath);
-
-            foreach (string filePath in filePaths)
-            {
-                archive.AddEntry(Path.GetFileName(filePath), File.OpenRead(filePath));
-            }
-            archive.SaveTo(zipStream, new WriterOptions(CompressionType.Deflate));
-            errorMessage = null;
-            return true;
-        }
-        catch (Exception ex)
-        {
-            errorMessage = ex.Message;
-            return false;
-        }
-    }
-
-    public bool UnzipArchive(string archivePath, string extractPath, out string? errorMessage)
-    {
-        if (!IsZipped(archivePath))
-        {
-            errorMessage = $"\"{archivePath}\" is not an archive.";
-            return false;
-        }
-        try
-        {
-            string extractName = Path.GetFileNameWithoutExtension(archivePath);
-            Directory.CreateDirectory(Path.Combine(extractPath, extractName));
-            using IArchive archive = ArchiveFactory.Open(archivePath);
-            foreach (IArchiveEntry entry in archive.Entries.Where(entry => !entry.IsDirectory))
-            {
-                entry.WriteToDirectory(
-                    extractPath,
-                    new ExtractionOptions() { ExtractFullPath = true, Overwrite = true }
-                );
-            }
-            errorMessage = null;
-            return true;
-        }
-        catch (Exception ex)
-        {
-            errorMessage = ex.Message;
-            return false;
-        }
-    }
 
     public bool CreateLink(string filePath, out string? errorMessage)
     {

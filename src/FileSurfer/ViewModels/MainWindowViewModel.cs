@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Avalonia.Threading;
+using FileSurfer.UndoableFileOperations;
+using FileSurfer.Views;
+using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -6,10 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
-using Avalonia.Threading;
-using FileSurfer.UndoableFileOperations;
-using FileSurfer.Views;
-using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
 
@@ -199,39 +199,42 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void LoadDirEntries()
     {
-        string[] dirPaths = Directory.GetDirectories(_currentDir);
+        string[] dirPaths = _fileOpsHandler.GetPathDirs(_currentDir, true, false);
         FileSystemEntry[] directories = new FileSystemEntry[dirPaths.Length];
-        string[] filePaths = Directory.GetFiles(_currentDir);
-        FileSystemEntry[] files = new FileSystemEntry[filePaths.Length];
-
         for (int i = 0; i < dirPaths.Length; i++)
             directories[i] = new FileSystemEntry(dirPaths[i], true, _fileOpsHandler);
 
+        string[] filePaths = _fileOpsHandler.GetPathFiles(_currentDir, true, false);
+        FileSystemEntry[] files = new FileSystemEntry[filePaths.Length];
         for (int i = 0; i < filePaths.Length; i++)
             files[i] = new FileSystemEntry(filePaths[i], false, _fileOpsHandler);
 
-        if (_sortReversed || _sortBy != SortBy.Name)
-        {
+        SortAndAdd(directories, files);
+    }
+
+    private void SortAndAdd(FileSystemEntry[] directories, FileSystemEntry[] files)
+    {
+        if (_sortBy is not SortBy.Name)
             SortInPlaceBy(files, _sortBy);
 
-            if (_sortBy != SortBy.Type)
-                SortInPlaceBy(directories, _sortBy);
-        }
-        _fileEntries.Clear();
-        if (_sortReversed)
-        {
-            for (int i = directories.Length - 1; i >= 0; i--)
-                _fileEntries.Add(directories[i]);
+        if (_sortBy is not SortBy.Name and not SortBy.Type)
+            SortInPlaceBy(directories, _sortBy);
 
-            for (int i = files.Length - 1; i >= 0; i--)
-                _fileEntries.Add(files[i]);
-        }
-        else
+        _fileEntries.Clear();
+        if (!_sortReversed)
         {
             for (int i = 0; i < directories.Length; i++)
                 _fileEntries.Add(directories[i]);
 
             for (int i = 0; i < files.Length; i++)
+                _fileEntries.Add(files[i]);
+        }
+        else
+        {
+            for (int i = directories.Length - 1; i >= 0; i--)
+                _fileEntries.Add(directories[i]);
+
+            for (int i = files.Length - 1; i >= 0; i--)
                 _fileEntries.Add(files[i]);
         }
     }
@@ -312,7 +315,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void NewFile()
     {
-        string newFileName = _fileOpsHandler.GetAvailableName(_currentDir, "New File");
+        string newFileName = FileNameGenerator.GetAvailableName(_currentDir, "New File");
         if (_fileOpsHandler.NewFileAt(_currentDir, newFileName, out string? errorMessage))
         {
             Reload();
@@ -324,7 +327,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void NewDir()
     {
-        string newDirName = _fileOpsHandler.GetAvailableName(_currentDir, "New Folder");
+        string newDirName = FileNameGenerator.GetAvailableName(_currentDir, "New Folder");
         if (_fileOpsHandler.NewDirAt(_currentDir, newDirName, out string? errorMessage))
         {
             Reload();
@@ -395,12 +398,13 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                 return;
             }
         }
-
+/*
         RenameMultiple operation =
             new(_fileOpsHandler, _selectedFiles.ToArray(), "New Naming Pattern");
 
         if (operation.Redo(out errorMessage))
             _undoRedoHistory.NewNode(operation);
+*/
     }
 
     private void MoveToTrash()
@@ -412,7 +416,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                 ? _fileOpsHandler.MoveDirToTrash(entry.PathToEntry, out string? errorMessage)
                 : _fileOpsHandler.MoveFileToTrash(entry.PathToEntry, out errorMessage);
 
-            errorOccured = result || errorOccured;
+            errorOccured = !result || errorOccured;
             ErrorMessage = errorMessage;
         }
         if (!errorOccured)
