@@ -1,8 +1,5 @@
-﻿using Avalonia.Threading;
-using FileSurfer.UndoableFileOperations;
-using FileSurfer.Views;
-using ReactiveUI;
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -10,6 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
+using Avalonia.Threading;
+using FileSurfer.UndoableFileOperations;
+using FileSurfer.Views;
+using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
 
@@ -28,9 +29,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory = new();
     private readonly UndoRedoHandler<string> _pathHistory = new();
     private readonly IVersionControl _versionControl;
+    private bool _isUserInvoked = true;
     private SortBy _sortBy = SortBy.Name;
     private bool _sortReversed = false;
-    private bool _isUserInvoked = true;
+    private List<FileSystemEntry> _programClipboard = new();
+    private bool _isCutOperation;
 
     private readonly ObservableCollection<FileSystemEntry> _selectedFiles = new();
     public ObservableCollection<FileSystemEntry> SelectedFiles => _selectedFiles;
@@ -61,7 +64,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             new ErrorWindow(errorMessage).Show();
         });
 
-    private string _currentDir = "D:\\Stažené";
+    private string _currentDir = "D:\\Stažené\\";
     public string CurrentDir
     {
         get => _currentDir;
@@ -179,8 +182,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         PullCommand = ReactiveCommand.Create(Pull);
         CommitCommand = ReactiveCommand.Create(Commit);
         PushCommand = ReactiveCommand.Create(Push);
-        LoadDirEntries();
-        CheckVC();
+        Reload();
         _pathHistory.NewNode(CurrentDir);
     }
 
@@ -195,7 +197,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
-    public void GoUp() => CurrentDir = Path.GetDirectoryName(CurrentDir) ?? CurrentDir;
+    public void GoUp()
+    {
+        if (Path.GetDirectoryName(CurrentDir) is string dirName)
+            CurrentDir = dirName;
+    }
 
     private void LoadDirEntries()
     {
@@ -209,10 +215,10 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         for (int i = 0; i < filePaths.Length; i++)
             files[i] = new FileSystemEntry(filePaths[i], false, _fileOpsHandler);
 
-        SortAndAdd(directories, files);
+        SortAndAddEntries(directories, files);
     }
 
-    private void SortAndAdd(FileSystemEntry[] directories, FileSystemEntry[] files)
+    private void SortAndAddEntries(FileSystemEntry[] directories, FileSystemEntry[] files)
     {
         if (_sortBy is not SortBy.Name)
             SortInPlaceBy(files, _sortBy);
@@ -337,27 +343,82 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             ErrorMessage = errorMessage;
     }
 
-    private void Cut() { }
-
-    private void Copy() { }
-
-    private void Paste() { }
-
-    private void Rename()
+    private void Cut()
     {
-        string? errorMessage = null;
+        if (
+            _fileOpsHandler.CopyToOSClipBoard(
+                _selectedFiles.Select(entry => entry.PathToEntry).ToArray(),
+                out string? errorMessage
+            )
+        )
+        {
+            _isCutOperation = true;
+            _programClipboard = _selectedFiles.ToList();
+        }
+        else
+            ErrorMessage = errorMessage;
+    }
 
-        if (_selectedFiles.Count == 1)
-            RenameOne(out errorMessage);
-        else if (_selectedFiles.Count > 1)
-            RenameMultiple(ref errorMessage);
+    private void Copy()
+    {
+        if (
+            _fileOpsHandler.CopyToOSClipBoard(
+                _selectedFiles.Select(entry => entry.PathToEntry).ToArray(),
+                out string? errorMessage
+            )
+        )
+        {
+            _isCutOperation = false;
+            _programClipboard = _selectedFiles.ToList();
+        }
+        else
+            ErrorMessage = errorMessage;
+    }
 
-        ErrorMessage = errorMessage;
+    private void Paste()
+    {
+        if (!_fileOpsHandler.PasteFromOSClipBoard(_currentDir, out string? errorMessage))
+        {
+            ErrorMessage = errorMessage;
+            _programClipboard.Clear();
+            Reload();
+            return;
+        }
+
+        if (_isCutOperation)
+        {
+            _undoRedoHistory.NewNode(
+                new MoveFilesTo(_fileOpsHandler, _programClipboard.ToArray(), _currentDir)
+            );
+            foreach (FileSystemEntry entry in _programClipboard)
+            {
+                if (entry.IsDirectory)
+                    _fileOpsHandler.DeleteDir(entry.PathToEntry, out errorMessage);
+                else
+                    _fileOpsHandler.DeleteFile(entry.PathToEntry, out errorMessage);
+            }
+            _programClipboard.Clear();
+        }
+        else
+            _undoRedoHistory.NewNode(
+                new CopyFilesTo(_fileOpsHandler, _programClipboard.ToArray(), _currentDir)
+            );
         Reload();
     }
 
-    private void RenameOne(out string? errorMessage)
+    private void Rename()
     {
+        if (_selectedFiles.Count == 1)
+            RenameOne();
+        else if (_selectedFiles.Count > 1)
+            RenameMultiple();
+
+        Reload();
+    }
+
+    public void RenameOne()
+    {
+        string? errorMessage;
         bool result;
         if (_selectedFiles[0].IsDirectory)
         {
@@ -375,36 +436,52 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                 out errorMessage
             );
         }
-
         if (result)
             _undoRedoHistory.NewNode(new RenameOne(_fileOpsHandler, _selectedFiles[0], "New Name"));
+        else
+            ErrorMessage = errorMessage;
     }
 
-    private void RenameMultiple(ref string? errorMessage)
+    public void RenameMultiple()
     {
-        bool onlyDirs = _selectedFiles[0].IsDirectory;
-        string extension = onlyDirs
-            ? string.Empty
-            : Path.GetExtension(_selectedFiles[0].PathToEntry);
+        bool onlyFiles = !_selectedFiles[0].IsDirectory;
+        string extension = onlyFiles
+            ? Path.GetExtension(_selectedFiles[0].PathToEntry)
+            : string.Empty;
 
-        foreach (FileSystemEntry entry in _selectedFiles)
+        if (!FileNameGenerator.CanBeRenamed(_selectedFiles, onlyFiles, extension))
         {
-            if (
-                onlyDirs != entry.IsDirectory
-                || (!onlyDirs && Path.GetExtension(entry.PathToEntry) != extension)
-            )
-            {
-                ErrorMessage = "Selected entries don't have the same extensions or types.";
-                return;
-            }
+            ErrorMessage = "Selected entries aren't of the same type.";
+            return;
         }
-/*
-        RenameMultiple operation =
-            new(_fileOpsHandler, _selectedFiles.ToArray(), "New Naming Pattern");
 
-        if (operation.Redo(out errorMessage))
-            _undoRedoHistory.NewNode(operation);
-*/
+        string[] newNames = FileNameGenerator.GetAvailableNames(
+            _selectedFiles,
+            "New Naming Pattern"
+        );
+        bool errorOccured = false;
+        for (int i = 0; i < _selectedFiles.Count; i++)
+        {
+            bool result = onlyFiles
+                ? _fileOpsHandler.RenameFileAt(
+                    _selectedFiles[i].PathToEntry,
+                    newNames[i],
+                    out string? errorMessage
+                )
+                : _fileOpsHandler.RenameDirAt(
+                    _selectedFiles[i].PathToEntry,
+                    newNames[i],
+                    out errorMessage
+                );
+
+            errorOccured = !result || errorOccured;
+            if (!result)
+                ErrorMessage = errorMessage;
+        }
+        if (!errorOccured)
+            _undoRedoHistory.NewNode(
+                new RenameMultiple(_fileOpsHandler, _selectedFiles.ToArray(), newNames)
+            );
     }
 
     private void MoveToTrash()
@@ -423,7 +500,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             _undoRedoHistory.NewNode(
                 new MoveFilesToTrash(_fileOpsHandler, _selectedFiles.ToArray())
             );
-
         Reload();
     }
 
