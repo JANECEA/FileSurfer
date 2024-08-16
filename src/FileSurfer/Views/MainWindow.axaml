@@ -71,7 +71,7 @@
                 <Rectangle Classes="ButtonSeparator"/>
                 <Button Classes="FileOperationButton" Content="󰆐" HotKey="Ctrl+X" Command="{Binding CutCommand}"/>
                 <Button Classes="FileOperationButton" Content="" HotKey="Ctrl+C" Command="{Binding CopyCommand}"/>
-                <Button Classes="FileOperationButton" Content="󰆒" HotKey="Ctrl+P" Command="{Binding PasteCommand}"/>
+                <Button Classes="FileOperationButton" Content="󰆒" HotKey="Ctrl+V" Command="{Binding PasteCommand}"/>
                 <Button Classes="FileOperationButton" Content="󰑕" HotKey="F2" Command="{Binding RenameCommand}"/>
                 <Button Classes="FileOperationButton" Content="" HotKey="Delete" Command="{Binding MoveToTrashCommand}"/>
                 <Rectangle Classes="ButtonSeparator"/>
