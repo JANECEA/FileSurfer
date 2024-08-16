@@ -132,19 +132,16 @@ public class CopyFilesTo : IUndoableFileOperation
 {
     private readonly IFileOperationsHandler _fileOpsHandler;
     private readonly FileSystemEntry[] _entries;
-    private readonly string[] _copyNames;
     private readonly string _destinationDir;
 
     public CopyFilesTo(
         IFileOperationsHandler fileHandler,
         FileSystemEntry[] entries,
-        string[] copyNames,
         string destinationDir
     )
     {
         _fileOpsHandler = fileHandler;
         _entries = entries;
-        _copyNames = copyNames;
         _destinationDir = destinationDir;
     }
 
@@ -153,28 +150,17 @@ public class CopyFilesTo : IUndoableFileOperation
         bool errorOccured = false;
         string? errMessage;
         errorMessage = "Problems occured copying these files: ";
-        for (int i = 0; i < _entries.Length; i++)
+        foreach (FileSystemEntry entry in _entries)
         {
-            if (_entries[i].IsDirectory)
-                _fileOpsHandler.CopyDirTo(
-                    _entries[i].PathToEntry,
-                    _copyNames[i],
-                    _destinationDir,
-                    out errMessage
-                );
+            if (entry.IsDirectory)
+                _fileOpsHandler.CopyDirTo(entry.PathToEntry, _destinationDir, out errMessage);
             else
-                _fileOpsHandler.CopyFileTo(
-                    _entries[i].PathToEntry,
-                    _copyNames[i],
-                    _destinationDir,
-                    out errMessage
-                );
+                _fileOpsHandler.CopyFileTo(entry.PathToEntry, _destinationDir, out errMessage);
 
             if (errMessage is not null)
             {
                 errorOccured = true;
-                errorMessage += $"\"{_entries[i].PathToEntry}\", ";
-                ;
+                errorMessage += $"\"{entry.PathToEntry}\", ";
             }
         }
         if (!errorOccured)
@@ -204,7 +190,6 @@ public class CopyFilesTo : IUndoableFileOperation
             {
                 errorOccured = true;
                 errorMessage += $"\"{entry.PathToEntry}\", ";
-                ;
             }
         }
         if (!errorOccured)
@@ -221,7 +206,11 @@ public class RenameMultiple : IUndoableFileOperation
     private readonly string _dirName;
     private readonly string? _extension = null;
 
-    public RenameMultiple(IFileOperationsHandler fileHandler, FileSystemEntry[] entries, string[] newNames)
+    public RenameMultiple(
+        IFileOperationsHandler fileHandler,
+        FileSystemEntry[] entries,
+        string[] newNames
+    )
     {
         _fileOpsHandler = fileHandler;
         _entries = entries;

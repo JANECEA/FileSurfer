@@ -35,9 +35,9 @@ public interface IFileOperationsHandler
 
     public bool NewDirAt(string dirPath, string DirName, out string? errorMessage);
 
-    public bool CopyFileToSystemClipBoard(string filePath, out string? errorMessage);
+    public bool CopyToOSClipBoard(string[] paths, out string? errorMessage);
 
-    public bool PasteFileFromClipBoardAt(string filePath, out string? errorMessage);
+    public bool PasteFromOSClipBoard(string filePath, out string? errorMessage);
 
     public bool IsValidFileName(string fileName);
 
@@ -51,9 +51,9 @@ public interface IFileOperationsHandler
 
     public bool MoveDirTo(string dirPath, string destinationDir, out string? errorMessage);
 
-    public bool CopyFileTo(string filePath, string nameOfCopy, string destinationDir, out string? errorMessage);
+    public bool CopyFileTo(string filePath, string destinationDir, out string? errorMessage);
 
-    public bool CopyDirTo(string dirPath, string nameOfCopy, string destinationDir, out string? errorMessage);
+    public bool CopyDirTo(string dirPath, string destinationDir, out string? errorMessage);
 
     public bool MoveFileToTrash(string filePath, out string? errorMessage);
 

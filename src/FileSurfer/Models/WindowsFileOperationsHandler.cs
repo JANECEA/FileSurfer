@@ -1,9 +1,11 @@
-using Microsoft.VisualBasic.FileIO;
 using System;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
+using Microsoft.VisualBasic.FileIO;
 
 namespace FileSurfer;
 
@@ -63,27 +65,18 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         try
         {
             string[] files = Directory.GetFiles(path);
+            if (includeHidden && includeProtectedByOS)
+                return files;
 
-            if (!includeHidden)
+            for (int i = 0; i < files.Length; i++)
             {
-                for (int i = 0; i < files.Length; i++)
-                {
-                    if (IsHidden(files[i], false))
-                        files[i] = string.Empty;
-                }
+                if (
+                    (!includeHidden && IsHidden(files[i], false))
+                    || !includeProtectedByOS && IsProtected(files[i], false)
+                )
+                    files[i] = string.Empty;
             }
-            if (!includeProtectedByOS)
-            {
-                for (int i = 0; i < files.Length; i++)
-                {
-                    if (IsProtected(files[i], false))
-                        files[i] = string.Empty;
-                }
-            }
-
-            if (!includeHidden || !includeProtectedByOS)
-                return files.Where(filePath => filePath != string.Empty).ToArray();
-            return files;
+            return files.Where(filePath => filePath != string.Empty).ToArray();
         }
         catch
         {
@@ -96,27 +89,18 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         try
         {
             string[] directories = Directory.GetDirectories(path);
+            if (includeHidden && includeProtectedByOS)
+                return directories;
 
-            if (!includeHidden)
+            for (int i = 0; i < directories.Length; i++)
             {
-                for (int i = 0; i < directories.Length; i++)
-                {
-                    if (IsHidden(directories[i], true))
-                        directories[i] = string.Empty;
-                }
+                if (
+                    (!includeHidden && IsHidden(directories[i], true))
+                    || !includeProtectedByOS && IsProtected(directories[i], true)
+                )
+                    directories[i] = string.Empty;
             }
-            if (!includeProtectedByOS)
-            {
-                for (int i = 0; i < directories.Length; i++)
-                {
-                    if (IsProtected(directories[i], true))
-                        directories[i] = string.Empty;
-                }
-            }
-
-            if (!includeHidden || !includeProtectedByOS)
-                return directories.Where(dirPath => dirPath != string.Empty).ToArray();
-            return directories;
+            return directories.Where(dirPath => dirPath != string.Empty).ToArray();
         }
         catch
         {
@@ -257,8 +241,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     {
         try
         {
-            return
-                isDirectory
+            return isDirectory
                 ? new DirectoryInfo(path).Attributes.HasFlag(FileAttributes.Hidden)
                 : new FileInfo(path).Attributes.HasFlag(FileAttributes.Hidden);
         }
@@ -272,8 +255,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     {
         try
         {
-            return
-                isDirectory
+            return isDirectory
                 ? new DirectoryInfo(path).Attributes.HasFlag(FileAttributes.System)
                 : new FileInfo(path).Attributes.HasFlag(FileAttributes.System);
         }
@@ -325,48 +307,50 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public bool CopyFileToSystemClipBoard(string filePath, out string? errorMessage)
+    [STAThread]
+    public bool CopyToOSClipBoard(string[] paths, out string? errorMessage)
     {
-        string command = $"Set-Clipboard -Path {filePath}";
-        return PowerShellCommand(command, out errorMessage);
-    }
-
-    public bool PasteFileFromClipBoardAt(string filePath, out string? errorMessage)
-    {
-        string command =
-            "foreach ($file in Get-Clipboard -Format FileDropList) { $destFile = Join-Path"
-            + filePath
-            + "(Split-Path $file -Leaf) Copy-Item -Path $file -Destination $destFile }";
-        return PowerShellCommand(command, out errorMessage);
-    }
-
-    private static bool PowerShellCommand(string command, out string? errorMessage)
-    {
-        using Process process =
-            new()
-            {
-                StartInfo = new ProcessStartInfo()
-                {
-                    FileName = "powershell.exe",
-                    Arguments = "/c " + command,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
-        process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
-        process.WaitForExit();
-
-        if (process.ExitCode == 0)
+        try
         {
+            StringCollection fileCollection = new();
+            fileCollection.AddRange(paths);
+            Clipboard.SetFileDropList(fileCollection);
             errorMessage = null;
             return true;
         }
-        errorMessage = process.StandardError.ReadToEnd();
-        return false;
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
+    }
+
+    [STAThread]
+    public bool PasteFromOSClipBoard(string destinationPath, out string? errorMessage)
+    {
+        errorMessage = null;
+        if (!Clipboard.ContainsFileDropList())
+            return true;
+
+        try
+        {
+            StringCollection fileCollection = Clipboard.GetFileDropList();
+            foreach (string? filePath in fileCollection)
+            {
+                if (filePath is null)
+                    throw new ArgumentNullException(filePath);
+
+                string fileName = Path.GetFileName(filePath);
+                string destPath = Path.Combine(destinationPath, fileName);
+                File.Copy(filePath, destPath);
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
     }
 
     public bool ExecuteCmd(string command, out string? errorMessage)
@@ -389,21 +373,18 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         process.BeginErrorReadLine();
         process.WaitForExit();
 
-        if (process.ExitCode == 0)
-        {
-            errorMessage = null;
-            return true;
-        }
-        errorMessage = process.StandardError.ReadToEnd();
-        return false;
+        errorMessage = null;
+        return process.ExitCode == 0;
     }
 
     public bool IsValidFileName(string fileName)
     {
-        char[] invalidChars = Path.GetInvalidFileNameChars();
-        foreach (char c in fileName)
+        if (string.IsNullOrWhiteSpace(fileName))
+            return false;
+
+        foreach (char c in Path.GetInvalidFileNameChars())
         {
-            if (invalidChars.Contains(c))
+            if (fileName.Contains(c))
                 return false;
         }
         return true;
@@ -411,10 +392,12 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
 
     public bool IsValidDirName(string dirName)
     {
-        char[] invalidChars = Path.GetInvalidPathChars();
-        foreach (char c in dirName)
+        if (string.IsNullOrWhiteSpace(dirName))
+            return false;
+
+        foreach (char c in Path.GetInvalidPathChars())
         {
-            if (invalidChars.Contains(c))
+            if (dirName.Contains(c))
                 return false;
         }
         return true;
@@ -494,12 +477,12 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public bool CopyFileTo(string filePath, string copyName, string destinationDir, out string? errorMessage)
+    public bool CopyFileTo(string filePath, string destinationDir, out string? errorMessage)
     {
         try
         {
             errorMessage = null;
-            File.Copy(filePath, Path.Combine(destinationDir, copyName));
+            File.Copy(filePath, Path.Combine(destinationDir, Path.GetFileName(filePath)));
             return true;
         }
         catch (Exception ex)
@@ -509,12 +492,15 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public bool CopyDirTo(string dirPath, string copyName, string destinationDir, out string? errorMessage)
+    public bool CopyDirTo(string dirPath, string destinationDir, out string? errorMessage)
     {
         try
         {
             errorMessage = null;
-            FileSystem.CopyDirectory(dirPath, Path.Combine(destinationDir, copyName));
+            FileSystem.CopyDirectory(
+                dirPath,
+                Path.Combine(destinationDir, Path.GetFileName(dirPath))
+            );
             return true;
         }
         catch (Exception ex)
