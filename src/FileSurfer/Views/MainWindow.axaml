@@ -9,6 +9,7 @@
         x:Class="FileSurfer.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         PointerPressed="MouseButtonPressed"
+        KeyDown="KeyPressed"
         Icon="/Assets/FileSurfer-logo.ico"
         Title="FileSurfer">
 

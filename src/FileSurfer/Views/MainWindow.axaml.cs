@@ -19,7 +19,10 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        if (Resources["ListViewTemplate"] is not DataTemplate listViewTemplate || Resources["IconViewTemplate"] is not DataTemplate iconViewTemplate)
+        if (
+            Resources["ListViewTemplate"] is not DataTemplate listViewTemplate
+            || Resources["IconViewTemplate"] is not DataTemplate iconViewTemplate
+        )
             throw new ArgumentNullException();
 
         _listViewTemplate = listViewTemplate;
@@ -88,7 +91,7 @@ public partial class MainWindow : Window
         FileDisplay.ItemTemplate = _iconViewTemplate;
     }
 
-    private WrapPanel? FindWrapPanel(Control parent)    
+    private WrapPanel? FindWrapPanel(Control parent)
     {
         if (parent == null)
             return null;
@@ -109,6 +112,20 @@ public partial class MainWindow : Window
         }
         return null;
     }
+
+    private void KeyPressed(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+            OnEnterPressed(e);
+    }
+
+    private void OnEnterPressed(KeyEventArgs e)
+    {
+        e.Handled = true;
+        if (DataContext is not MainWindowViewModel viewModel)
+            return;
+
+        if (viewModel.SelectedFiles.Count == 1)
+            viewModel.OpenEntry(viewModel.SelectedFiles[0]);
+    }
 }
-
-
