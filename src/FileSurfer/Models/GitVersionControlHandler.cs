@@ -1,18 +1,18 @@
-using LibGit2Sharp;
 using System;
 using System.IO;
 using System.Linq;
+using LibGit2Sharp;
 
 namespace FileSurfer;
 
 public class GitVersionControlHandler : IVersionControl, IDisposable
 {
     private const string MissingRepoMessage = "No git repository found";
-    private readonly IFileOperationsHandler fileOperationsHandler;
+    private readonly IFileOperationsHandler _fileOpsHandler;
     private Repository? _currentRepo = null;
 
     public GitVersionControlHandler(IFileOperationsHandler _fileOperationsHandler) =>
-        fileOperationsHandler = _fileOperationsHandler;
+        _fileOpsHandler = _fileOperationsHandler;
 
     public bool IsVersionControlled(string directoryPath)
     {
@@ -52,7 +52,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         if (_currentRepo is not null)
         {
             string command = $"cd \"{_currentRepo.Info.Path}\" && git pull";
-            return fileOperationsHandler.ExecuteCmd(command, out errorMessage);
+            return _fileOpsHandler.ExecuteCmd(command, out errorMessage);
         }
         errorMessage = MissingRepoMessage;
         return false;
@@ -61,10 +61,10 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
     public string GetCurrentBranchName() =>
         _currentRepo is null ? string.Empty : _currentRepo.Head.FriendlyName;
 
-    public string[] GetBranches() => 
-        _currentRepo is null ? 
-        Array.Empty<string>() : 
-        _currentRepo.Branches.Where(b => !b.IsRemote).Select(b => b.FriendlyName).ToArray();
+    public string[] GetBranches() =>
+        _currentRepo is null
+            ? Array.Empty<string>()
+            : _currentRepo.Branches.Where(b => !b.IsRemote).Select(b => b.FriendlyName).ToArray();
 
     public bool SwitchBranches(string branchName, out string? errorMessage)
     {
@@ -115,7 +115,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
             return false;
         }
         string command = $"cd \"{_currentRepo.Info.Path}\" && git commit -m \"{commitMessage}\"";
-        return fileOperationsHandler.ExecuteCmd(command, out errorMessage);
+        return _fileOpsHandler.ExecuteCmd(command, out errorMessage);
     }
 
     public bool UploadChanges(out string? errorMessage)
@@ -126,7 +126,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
             return false;
         }
         string command = $"cd \"{_currentRepo.Info.Path}\" && git push";
-        return fileOperationsHandler.ExecuteCmd(command, out errorMessage);
+        return _fileOpsHandler.ExecuteCmd(command, out errorMessage);
     }
 
     public void Dispose() => _currentRepo?.Dispose();
