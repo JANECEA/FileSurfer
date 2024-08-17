@@ -69,6 +69,32 @@ public partial class MainWindow : Window
             viewModel.GoForward();
     }
 
+    private void OnRenameClicked(object sender, RoutedEventArgs e)
+    {
+        if (
+            DataContext is not MainWindowViewModel viewModel 
+            || viewModel.SelectedFiles.Count < 1
+        )
+            return;
+
+        NameInputBox.Focus();
+        viewModel.RenameRelay();
+        NameInputBox.SelectionStart = 0;
+        NameInputBox.SelectionEnd = viewModel.GetSelectedNameEndIndex();
+    }
+
+    private void OnCommitClicked(object sender, RoutedEventArgs e)
+    {
+        if (
+            DataContext is not MainWindowViewModel viewModel 
+            || viewModel.SelectedFiles.Count < 1
+        )
+            return;
+
+        CommitInputBox.Focus();
+        viewModel.CommitMessageRequired = true;
+    }
+
     private void ListView(object sender, RoutedEventArgs e)
     {
         WrapPanel? wrapPanel = _filePanel ?? FindWrapPanel(FileDisplay);
@@ -117,6 +143,9 @@ public partial class MainWindow : Window
     {
         if (e.Key == Key.Enter)
             OnEnterPressed(e);
+
+        if (e.Key == Key.Escape)
+            OnEscapePressed(e);
     }
 
     private void OnEnterPressed(KeyEventArgs e)
@@ -127,5 +156,10 @@ public partial class MainWindow : Window
 
         if (viewModel.SelectedFiles.Count == 1)
             viewModel.OpenEntry(viewModel.SelectedFiles[0]);
+    }
+
+    private void OnEscapePressed(EventArgs e)
+    {
+
     }
 }

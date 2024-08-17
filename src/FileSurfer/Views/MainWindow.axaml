@@ -56,7 +56,7 @@
             <Button Classes="TopLeftButton" Content="" HotKey="F12" Command="{Binding OpenPowerShellCommand}"/>
 
             <Grid ColumnDefinitions="* 250">
-                <TextBox Classes="PathBox TopTextBox" Grid.Column="0" Text="{Binding CurrentDir, Mode=TwoWay}" TextChanged=""/>
+                <TextBox Classes="PathBox TopTextBox" Grid.Column="0" Text="{Binding CurrentDir, Mode=TwoWay}"/>
                 <Grid Grid.Column="1">
                     <TextBox Classes="SearchBox TopTextBox" Text="{Binding SearchQuery}"/>
                     <Button Classes="CancelSearchButton" Content="" Command="{Binding CancelSearchCommand}"/>
@@ -73,7 +73,7 @@
                 <Button Classes="FileOperationButton" Content="󰆐" HotKey="Ctrl+X" Command="{Binding CutCommand}"/>
                 <Button Classes="FileOperationButton" Content="" HotKey="Ctrl+C" Command="{Binding CopyCommand}"/>
                 <Button Classes="FileOperationButton" Content="󰆒" HotKey="Ctrl+V" Command="{Binding PasteCommand}"/>
-                <Button Classes="FileOperationButton" Content="󰑕" HotKey="F2" Command="{Binding RenameCommand}"/>
+                <Button Classes="FileOperationButton" Content="󰑕" HotKey="F2" Click="OnRenameClicked"/>
                 <Button Classes="FileOperationButton" Content="" HotKey="Delete" Command="{Binding MoveToTrashCommand}"/>
                 <Rectangle Classes="ButtonSeparator"/>
                 <Button Classes="MenuButton" Width="80" Content=" Sort">
@@ -101,7 +101,7 @@
                 </Button>
                     
                 <Button Classes="GitButton GitButtonHover" Content="PUSH" Command="{Binding PushCommand}" IsVisible="{Binding IsVersionControlled}"/>
-                <Button Classes="GitButton GitButtonHover" Content="COMMIT" Command="{Binding CommitCommand}" IsVisible="{Binding IsVersionControlled}"/>
+                <Button Classes="GitButton GitButtonHover" Content="COMMIT" Click="OnCommitClicked" IsVisible="{Binding IsVersionControlled}"/>
                 <Button Classes="GitButton GitButtonHover" Content="PULL" Command="{Binding PullCommand}" IsVisible="{Binding IsVersionControlled}"/>
                 <ComboBox Classes="BranchComboBox" ItemsSource="{Binding Branches}" SelectedItem="{Binding CurrentBranch}" IsVisible="{Binding IsVersionControlled}"/>
             </DockPanel>
@@ -126,8 +126,8 @@
 
                 <GridSplitter Classes="GridSplitter" Grid.Column="1"/>
 
-                <DockPanel Grid.Column="2">
-                    <StackPanel x:Name="LabelsPanel" DockPanel.Dock="Top" Margin="55 0 0 0" Orientation="Horizontal" Height="30">
+                <Grid Grid.Column="2" RowDefinitions="Auto Auto * Auto Auto">
+                    <StackPanel Grid.Row="0" x:Name="LabelsPanel" Margin="55 0 0 0" Orientation="Horizontal" Height="30">
                         <Border Classes="LabelBorder" Width="350" >
                             <Label Classes="InfoLabel" Content="Name"/>
                         </Border>
@@ -142,9 +142,9 @@
                         </Border>
                     </StackPanel>
 
-                    <Label Classes="DirEmptyLabel" DockPanel.Dock="Top" Content="This directory is empty" IsVisible="{Binding DirectoryEmpty}"/>
+                    <Label Grid.Row="1" Classes="DirEmptyLabel" Content="This directory is empty" IsVisible="{Binding DirectoryEmpty}"/>
 
-                    <ListBox x:Name="FileDisplay" Classes="FileDisplay" DockPanel.Dock="Top" SelectionMode="Multiple" Tapped="FilesTapped"
+                    <ListBox Grid.Row="2" x:Name="FileDisplay" Classes="FileDisplay" SelectionMode="Multiple" Tapped="FilesTapped"
                              ItemsSource="{Binding FileEntries}" SelectedItems="{Binding SelectedFiles}" DoubleTapped="FilesDoubleTapped">
                         <ListBox.Styles>
                             <Style Selector="ListBoxItem">
@@ -161,7 +161,21 @@
                             <StaticResource ResourceKey="ListViewTemplate"/>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                </DockPanel>
+
+                    <Border Classes="InputBorder" Grid.Row="3" IsVisible="{Binding NewNameRequired}">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Classes="InputLabel" Content="New name: "/>
+                            <TextBox x:Name="NameInputBox" Classes="InputBox" Text="{Binding NewNameBox}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Classes="InputBorder" Grid.Row="4" IsVisible="{Binding CommitMessageRequired}">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Classes="InputLabel" Content="Commit message: "/>
+                            <TextBox x:Name="CommitInputBox" Classes="InputBox" Text="{Binding CommitMessageBox}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
             </Grid>
 
             <Border Grid.Row="2" BorderThickness="0 1 0 0" BorderBrush="{DynamicResource SecondaryColor}">

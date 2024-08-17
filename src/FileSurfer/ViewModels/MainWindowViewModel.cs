@@ -26,6 +26,7 @@ enum SortBy
 public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
     private const int ArraySearchThreshold = 25;
+
     private readonly IFileOperationsHandler _fileOpsHandler = new WindowsFileOperationsHandler();
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory = new();
     private readonly UndoRedoHandler<string> _pathHistory = new();
@@ -88,6 +89,34 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         set => this.RaiseAndSetIfChanged(ref _directoryEmpty, value);
     }
 
+    private bool _newNameRequired = false;
+    public bool NewNameRequired
+    {
+        get => _newNameRequired;
+        set => this.RaiseAndSetIfChanged(ref _newNameRequired, value);
+    }
+
+    private bool _commitMessageRequired = false;
+    public bool CommitMessageRequired
+    {
+        get => _commitMessageRequired;
+        set => this.RaiseAndSetIfChanged(ref _commitMessageRequired, value);
+    }
+
+    private string _newNameBox = string.Empty;
+    public string NewNameBox
+    {
+        get => _newNameBox;
+        set => this.RaiseAndSetIfChanged(ref _newNameBox, value);
+    }
+
+    private string _commitMessageBox = string.Empty;
+    public string CommitMessageBox
+    {
+        get => _commitMessageBox;
+        set => this.RaiseAndSetIfChanged(ref _commitMessageBox, value);
+    }
+
     private string _searchQuery = string.Empty;
     public string SearchQuery
     {
@@ -124,18 +153,18 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
-    private string _selectionInfo = string.Empty;
-    public string SelectionInfo
-    {
-        get => _selectionInfo;
-        set => this.RaiseAndSetIfChanged(ref _selectionInfo, value);
-    }
-
     private bool _isVersionControlled = false;
     public bool IsVersionControlled
     {
         get => _isVersionControlled;
         set => this.RaiseAndSetIfChanged(ref _isVersionControlled, value);
+    }
+
+    private string _selectionInfo = string.Empty;
+    public string SelectionInfo
+    {
+        get => _selectionInfo;
+        set => this.RaiseAndSetIfChanged(ref _selectionInfo, value);
     }
 
     public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
@@ -148,7 +177,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public ReactiveCommand<Unit, Unit> CutCommand { get; }
     public ReactiveCommand<Unit, Unit> CopyCommand { get; }
     public ReactiveCommand<Unit, Unit> PasteCommand { get; }
-    public ReactiveCommand<Unit, Unit> RenameCommand { get; }
     public ReactiveCommand<Unit, Unit> MoveToTrashCommand { get; }
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
     public ReactiveCommand<Unit, Unit> SortByNameCommand { get; }
@@ -160,7 +188,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public ReactiveCommand<Unit, Unit> SelectNoneCommand { get; }
     public ReactiveCommand<Unit, Unit> InvertSelectionCommand { get; }
     public ReactiveCommand<Unit, Unit> PullCommand { get; }
-    public ReactiveCommand<Unit, Unit> CommitCommand { get; }
     public ReactiveCommand<Unit, Unit> PushCommand { get; }
 
     public MainWindowViewModel()
@@ -177,7 +204,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         CutCommand = ReactiveCommand.Create(Cut);
         CopyCommand = ReactiveCommand.Create(Copy);
         PasteCommand = ReactiveCommand.Create(Paste);
-        RenameCommand = ReactiveCommand.Create(Rename);
         MoveToTrashCommand = ReactiveCommand.Create(MoveToTrash);
         DeleteCommand = ReactiveCommand.Create(Delete);
         SortByNameCommand = ReactiveCommand.Create(SortByName);
@@ -189,25 +215,36 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         SelectNoneCommand = ReactiveCommand.Create(SelectNone);
         InvertSelectionCommand = ReactiveCommand.Create(InvertSelection);
         PullCommand = ReactiveCommand.Create(Pull);
-        CommitCommand = ReactiveCommand.Create(Commit);
         PushCommand = ReactiveCommand.Create(Push);
         Reload();
-        UpdateSelectionInfo();
         _pathHistory.NewNode(CurrentDir);
     }
 
+    private void Reload()
+    {
+        LoadDirEntries();
+        CheckDirectoryEmpty();
+        UpdateSelectionInfo();
+        CheckVersionContol();
+    }
+
+    public int GetSelectedNameEndIndex() => 
+        _selectedFiles.Count > 0
+        ? Path.GetFileNameWithoutExtension(_selectedFiles[0].PathToEntry).Length
+        : 0;
+
     private void UpdateSelectionInfo(object? sender = null, NotifyCollectionChangedEventArgs? e = null)
     {
-        string info = _fileEntries.Count == 1
+        string selectionInfo = _fileEntries.Count == 1
             ? "1 item"
             :$"{_fileEntries.Count} items";
 
         if (_selectedFiles.Count == 1)
-            info += $"  |  1 item selected";
+            selectionInfo += $"  |  1 item selected";
         else if (_selectedFiles.Count > 1)
-            info += $"  |  {_selectedFiles.Count} items selected";
+            selectionInfo += $"  |  {_selectedFiles.Count} items selected";
 
-        bool displaySize = true;
+        bool displaySize = _selectedFiles.Count >= 1;
         long sizeSum = 0;
         foreach (FileSystemEntry entry in _selectedFiles)
         {
@@ -221,9 +258,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                 sizeSum += sizeKiB;
         }
         if (displaySize)
-            info += $"  {sizeSum} KiB";
+            selectionInfo += $"  {sizeSum} KiB";
 
-        SelectionInfo = info;
+        SelectionInfo = selectionInfo;
     }
 
     public void OpenEntry(FileSystemEntry entry)
@@ -261,10 +298,10 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private void SortAndAddEntries(FileSystemEntry[] directories, FileSystemEntry[] files)
     {
         if (_sortBy is not SortBy.Name)
-            SortInPlaceBy(files, _sortBy);
+            SortInPlace(files, _sortBy);
 
         if (_sortBy is not SortBy.Name and not SortBy.Type)
-            SortInPlaceBy(directories, _sortBy);
+            SortInPlace(directories, _sortBy);
 
         _fileEntries.Clear();
         if (!_sortReversed)
@@ -285,7 +322,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
-    private void SortInPlaceBy(FileSystemEntry[] entries, SortBy sortBy)
+    private void SortInPlace(FileSystemEntry[] entries, SortBy sortBy)
     {
         switch (sortBy)
         {
@@ -306,8 +343,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
-    private void CheckVC() =>
+    private void CheckVersionContol() =>
         IsVersionControlled = _versionControl.IsVersionControlled(_currentDir);
+
+    private void CheckDirectoryEmpty() =>
+        DirectoryEmpty = _fileEntries.Count == 0;
 
     public void GoBack()
     {
@@ -341,14 +381,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             else
                 _pathHistory.RemoveNode(true);
         }
-    }
-
-    private void Reload()
-    {
-        LoadDirEntries();
-        CheckVC();
-        UpdateSelectionInfo();
-        DirectoryEmpty = _fileEntries.Count == 0;
     }
 
     private void OpenPowerShell()
@@ -446,6 +478,15 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                 new CopyFilesTo(_fileOpsHandler, _programClipboard.ToArray(), _currentDir)
             );
         Reload();
+    }
+
+    public void RenameRelay()
+    {
+        if (_selectedFiles.Count == 0)
+            return;
+
+        NewNameRequired = true;
+        NewNameBox = _selectedFiles[0].Name;
     }
 
     private void Rename()
