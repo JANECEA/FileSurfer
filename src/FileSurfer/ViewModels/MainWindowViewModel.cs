@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -123,7 +124,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
-    private string _selectionInfo = "Hello World!";
+    private string _selectionInfo = string.Empty;
     public string SelectionInfo
     {
         get => _selectionInfo;
@@ -164,6 +165,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public MainWindowViewModel()
     {
+        _selectedFiles.CollectionChanged += UpdateSelectionInfo;
         _versionControl = new GitVersionControlHandler(_fileOpsHandler);
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
@@ -190,7 +192,38 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         CommitCommand = ReactiveCommand.Create(Commit);
         PushCommand = ReactiveCommand.Create(Push);
         Reload();
+        UpdateSelectionInfo();
         _pathHistory.NewNode(CurrentDir);
+    }
+
+    private void UpdateSelectionInfo(object? sender = null, NotifyCollectionChangedEventArgs? e = null)
+    {
+        string info = _fileEntries.Count == 1
+            ? "1 item"
+            :$"{_fileEntries.Count} items";
+
+        if (_selectedFiles.Count == 1)
+            info += $"  |  1 item selected";
+        else if (_selectedFiles.Count > 1)
+            info += $"  |  {_selectedFiles.Count} items selected";
+
+        bool displaySize = true;
+        long sizeSum = 0;
+        foreach (FileSystemEntry entry in _selectedFiles)
+        {
+            if (entry.IsDirectory)
+            {
+                displaySize = false;
+                break;
+            }
+
+            if (entry.SizeKib is long sizeKiB)
+                sizeSum += sizeKiB;
+        }
+        if (displaySize)
+            info += $"  {sizeSum} KiB";
+
+        SelectionInfo = info;
     }
 
     public void OpenEntry(FileSystemEntry entry)
@@ -314,6 +347,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         LoadDirEntries();
         CheckVC();
+        UpdateSelectionInfo();
         DirectoryEmpty = _fileEntries.Count == 0;
     }
 

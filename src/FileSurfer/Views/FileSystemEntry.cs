@@ -17,6 +17,7 @@ public class FileSystemEntry
     public DateTime LastChanged { get; }
     public string LastModified { get; }
     public string Size { get; }
+    public long? SizeKib { get; }
     public string Type { get; }
 
     public FileSystemEntry(string path, bool isDirectory, IFileOperationsHandler fileOpsHandler)
@@ -28,17 +29,21 @@ public class FileSystemEntry
         LastChanged = fileOpsHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
         LastModified = SetLastModified(fileOpsHandler);
 
-        Size = isDirectory ?
-            string.Empty :
-            ((fileOpsHandler.GetFileSizeB(path) + 1023) / 1024).ToString() + " KiB";
+        SizeKib = isDirectory 
+            ? null
+            : (fileOpsHandler.GetFileSizeB(path) + 1023) / 1024;
 
-        if (!isDirectory)
+        Size = isDirectory
+            ? string.Empty
+            : SizeKib.ToString() + " KiB";
+
+        if (isDirectory)
+            Type = "Directory";
+        else
         {
             string extension = Path.GetExtension(path).TrimStart('.').ToUpperInvariant();
             Type = extension == string.Empty ? "File" : extension + " File";
         }
-        else
-            Type = "Directory";
     }
 
     private Bitmap? GetIcon(IFileOperationsHandler fileOpsHandler)

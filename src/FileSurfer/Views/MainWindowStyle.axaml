@@ -198,6 +198,7 @@
         <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Margin" Value="10 0"/>
+        <Setter Property="FontSize" Value="12"/>
     </Style>
     
 </Styles>
