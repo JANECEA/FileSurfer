@@ -115,7 +115,13 @@
                     <ColumnDefinition Width="*" MinWidth="200"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
+                    <StackPanel>
+                        
+                    </StackPanel>
                     <Separator IsVisible="False" Background="{DynamicResource SecondaryColor}"/>
+                    <StackPanel>
+                        
+                    </StackPanel>
                 </StackPanel>
 
                 <GridSplitter Classes="GridSplitter" Grid.Column="1"/>
@@ -135,6 +141,8 @@
                             <Label Classes="InfoLabel" Content="Size"/>
                         </Border>
                     </StackPanel>
+
+                    <Label Classes="DirEmptyLabel" DockPanel.Dock="Top" Content="This directory is empty" IsVisible="{Binding DirectoryEmpty}"/>
 
                     <ListBox x:Name="FileDisplay" Classes="FileDisplay" DockPanel.Dock="Top" SelectionMode="Multiple" Tapped="FilesTapped"
                              ItemsSource="{Binding FileEntries}" SelectedItems="{Binding SelectedFiles}" DoubleTapped="FilesDoubleTapped">

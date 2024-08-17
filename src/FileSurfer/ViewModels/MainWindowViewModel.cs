@@ -80,6 +80,13 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
+    private bool _directoryEmpty;
+    public bool DirectoryEmpty
+    {
+        get => _directoryEmpty;
+        set => this.RaiseAndSetIfChanged(ref _directoryEmpty, value);
+    }
+
     private string _searchQuery = string.Empty;
     public string SearchQuery
     {
@@ -307,6 +314,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         LoadDirEntries();
         CheckVC();
+        DirectoryEmpty = _fileEntries.Count == 0;
     }
 
     private void OpenPowerShell()

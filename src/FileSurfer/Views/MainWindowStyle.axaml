@@ -146,6 +146,12 @@
         <Setter Property="Margin" Value="0 0 10 0"/>
     </Style>
 
+    <Style Selector="Label.DirEmptyLabel">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="40"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+    </Style>
+
     <Style Selector="ListBox.FileDisplay">
         <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
