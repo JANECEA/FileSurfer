@@ -165,14 +165,14 @@
                     <Border x:Name="NewNameBar" Classes="InputBorder" Grid.Row="3">
                         <StackPanel Orientation="Horizontal">
                             <Label Classes="InputLabel" Content="New name: "/>
-                            <TextBox x:Name="NameInputBox" Classes="InputBox" LostFocus="OnRenameLostFocus"/>
+                            <TextBox x:Name="NameInputBox" Classes="InputBox" LostFocus="InputBoxLostFocus"/>
                         </StackPanel>
                     </Border>
 
                     <Border x:Name="CommitMessageBar" Classes="InputBorder" Grid.Row="4">
                         <StackPanel Orientation="Horizontal">
                             <Label Classes="InputLabel" Content="Commit message: "/>
-                            <TextBox x:Name="CommitInputBox" Classes="InputBox" LostFocus="OnCommitLostFocus"/>
+                            <TextBox x:Name="CommitInputBox" Classes="InputBox" LostFocus="InputBoxLostFocus"/>
                         </StackPanel>
                     </Border>
                 </Grid>

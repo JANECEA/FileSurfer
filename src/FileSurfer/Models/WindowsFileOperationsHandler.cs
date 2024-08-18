@@ -46,17 +46,15 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public string[] GetDrives(out string? errorMessage)
+    public DriveInfo[] GetDrives()
     {
         try
         {
-            errorMessage = null;
-            return Directory.GetLogicalDrives();
+            return DriveInfo.GetDrives();
         }
-        catch (Exception ex)
+        catch
         {
-            errorMessage = ex.Message;
-            return Array.Empty<string>();
+            return Array.Empty<DriveInfo>();
         }
     }
 
@@ -377,7 +375,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         return process.ExitCode == 0;
     }
 
-    public bool IsValidFileName(string fileName)
+    private static bool IsValidFileName(string fileName)
     {
         if (string.IsNullOrWhiteSpace(fileName))
             return false;
@@ -390,7 +388,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         return true;
     }
 
-    public bool IsValidDirName(string dirName)
+    private static bool IsValidDirName(string dirName)
     {
         if (string.IsNullOrWhiteSpace(dirName))
             return false;

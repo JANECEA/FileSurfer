@@ -25,6 +25,7 @@ enum SortBy
 public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
     private const int ArraySearchThreshold = 25;
+    private const string ThisComputer = "This PC";
 
     private readonly IFileOperationsHandler _fileOpsHandler = new WindowsFileOperationsHandler();
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory = new();
@@ -65,14 +66,14 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             new ErrorWindow(errorMessage).Show();
         });
 
-    private string _currentDir = "D:\\Stažené";
+    private string _currentDir = ThisComputer;
     public string CurrentDir
     {
         get => _currentDir;
         set
         {
             this.RaiseAndSetIfChanged(ref _currentDir, value);
-            if (Directory.Exists(value))
+            if (value == ThisComputer || Directory.Exists(value))
             {
                 Reload();
                 if (_isUserInvoked)
@@ -188,11 +189,16 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         PullCommand = ReactiveCommand.Create(Pull);
         PushCommand = ReactiveCommand.Create(Push);
         Reload();
-        _pathHistory.NewNode(CurrentDir);
+        _pathHistory.NewNode(_currentDir);
     }
 
     private void Reload()
     {
+        if (_currentDir == ThisComputer)
+        {
+            LoadDrives();
+            return;
+        }
         LoadDirEntries();
         CheckDirectoryEmpty();
         UpdateSelectionInfo();
@@ -250,6 +256,13 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         if (Path.GetDirectoryName(CurrentDir) is string dirName)
             CurrentDir = dirName;
+    }
+
+    private void LoadDrives()
+    {
+        _fileEntries.Clear();
+        foreach (DriveInfo drive in _fileOpsHandler.GetDrives())
+            _fileEntries.Add(new FileSystemEntry(drive.Name, drive.VolumeLabel));
     }
 
     private void LoadDirEntries()
@@ -327,7 +340,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
         _pathHistory.MoveToPrevious();
 
-        if (Path.Exists(previousPath))
+        if (previousPath == ThisComputer || Path.Exists(previousPath))
         {
             _isUserInvoked = false;
             CurrentDir = previousPath;
@@ -344,7 +357,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
         _pathHistory.MoveToNext();
 
-        if (Path.Exists(nextPath))
+        if (nextPath == ThisComputer || Path.Exists(nextPath))
         {
             _isUserInvoked = false;
             CurrentDir = nextPath;

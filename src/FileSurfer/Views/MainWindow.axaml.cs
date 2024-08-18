@@ -117,11 +117,12 @@ public partial class MainWindow : Window
         CommitInputBox.Focus();
     }
 
-    private void OnRenameLostFocus(object sender, RoutedEventArgs e) =>
+    private void InputBoxLostFocus(object sender, RoutedEventArgs e)
+    {
         NewNameBar.IsVisible = false;
-
-    private void OnCommitLostFocus(object sender, RoutedEventArgs e) =>
         CommitMessageBar.IsVisible = false;
+        DeleteButton.HotKey = _deleteGesture;
+    }
 
     private void NameEntered()
     {

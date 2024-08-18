@@ -48,6 +48,18 @@ public class FileSystemEntry
         }
     }
 
+    public FileSystemEntry(string driveName, string volumeLabel)
+    {
+        PathToEntry = driveName;
+        Name = $"{volumeLabel} ({driveName.TrimEnd('\\').TrimEnd('/')})";
+        IsDirectory = true;
+        Type = "Drive";
+        Icon = _folderIcon;
+        LastModified = string.Empty;
+        Size = string.Empty;
+        Opacity = 1;
+    }
+
     private Bitmap? GetIcon(IFileOperationsHandler fileOpsHandler)
     {
         if (fileOpsHandler.GetFileIcon(PathToEntry) is not System.Drawing.Bitmap bitmap)

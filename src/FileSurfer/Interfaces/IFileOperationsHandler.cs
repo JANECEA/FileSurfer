@@ -1,11 +1,12 @@
 using System;
+using System.IO;
 using System.Drawing;
 
 namespace FileSurfer;
 
 public interface IFileOperationsHandler
 {
-    public string[] GetDrives(out string? errorMessage);
+    public DriveInfo[] GetDrives();
 
     public bool OpenFile(string filePath, out string? errorMessage);
 
@@ -38,10 +39,6 @@ public interface IFileOperationsHandler
     public bool CopyToOSClipBoard(string[] paths, out string? errorMessage);
 
     public bool PasteFromOSClipBoard(string filePath, out string? errorMessage);
-
-    public bool IsValidFileName(string fileName);
-
-    public bool IsValidDirName(string dirName);
 
     public bool RenameFileAt(string filePath, string newName, out string? errorMessage);
 
