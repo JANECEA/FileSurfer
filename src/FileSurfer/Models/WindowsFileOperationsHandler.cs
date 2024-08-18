@@ -108,11 +108,11 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public Icon? GetFileIcon(string path)
+    public Bitmap? GetFileIcon(string path)
     {
         try
         {
-            return Icon.ExtractAssociatedIcon(path);
+            return Icon.ExtractAssociatedIcon(path)?.ToBitmap();
         }
         catch
         {

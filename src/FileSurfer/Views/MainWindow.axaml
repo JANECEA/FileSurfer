@@ -74,7 +74,7 @@
                 <Button Classes="FileOperationButton" Content="" HotKey="Ctrl+C" Command="{Binding CopyCommand}"/>
                 <Button Classes="FileOperationButton" Content="󰆒" HotKey="Ctrl+V" Command="{Binding PasteCommand}"/>
                 <Button Classes="FileOperationButton" Content="󰑕" HotKey="F2" Click="OnRenameClicked"/>
-                <Button Classes="FileOperationButton" Content="" HotKey="Delete" Command="{Binding MoveToTrashCommand}"/>
+                <Button x:Name="DeleteButton" Classes="FileOperationButton" Content="" HotKey="Delete" Command="{Binding MoveToTrashCommand}"/>
                 <Rectangle Classes="ButtonSeparator"/>
                 <Button Classes="MenuButton" Width="80" Content=" Sort">
                     <Button.Flyout>

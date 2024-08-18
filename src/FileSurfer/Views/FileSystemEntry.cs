@@ -29,6 +29,7 @@ public class FileSystemEntry
         Icon = isDirectory ? _folderIcon : GetIcon(fileOpsHandler);
         LastChanged = fileOpsHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
         LastModified = SetLastModified(fileOpsHandler);
+        Opacity = fileOpsHandler.IsHidden(path, isDirectory) || Name.StartsWith('.') ? 0.4 : 1;
 
         SizeKib = isDirectory 
             ? null
@@ -45,16 +46,13 @@ public class FileSystemEntry
             string extension = Path.GetExtension(path).TrimStart('.').ToUpperInvariant();
             Type = extension == string.Empty ? "File" : extension + " File";
         }
-
-        Opacity = fileOpsHandler.IsHidden(path, isDirectory) ? 0.4 : 1;
     }
 
     private Bitmap? GetIcon(IFileOperationsHandler fileOpsHandler)
     {
-        if (fileOpsHandler.GetFileIcon(PathToEntry) is not Icon icon)
+        if (fileOpsHandler.GetFileIcon(PathToEntry) is not System.Drawing.Bitmap bitmap)
             return null;
 
-        System.Drawing.Bitmap bitmap = icon.ToBitmap();
         using MemoryStream stream = new();
         bitmap.Save(stream, ImageFormat.Png);
         stream.Position = 0;

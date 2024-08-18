@@ -23,7 +23,7 @@ public interface IFileOperationsHandler
 
     public DateTime? GetDirLastModified(string dirPath);
 
-    public Icon? GetFileIcon(string path);
+    public Bitmap? GetFileIcon(string path);
 
     public bool OpenCmdAt(string dirPath, out string? errorMessage);
 

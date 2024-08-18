@@ -14,6 +14,7 @@ public partial class MainWindow : Window
     private WrapPanel? _filePanel;
     private readonly DataTemplate _iconViewTemplate;
     private readonly DataTemplate _listViewTemplate;
+    private readonly KeyGesture _deleteGesture = KeyGesture.Parse("Delete");
 
     public MainWindow()
     {
@@ -101,6 +102,7 @@ public partial class MainWindow : Window
         )
             return;
 
+        DeleteButton.HotKey = null;
         NewNameBar.IsVisible = true;
         NameInputBox.Focus();
         NameInputBox.Text = viewModel.SelectedFiles[^1].Name;
@@ -110,6 +112,7 @@ public partial class MainWindow : Window
 
     private void OnCommitClicked(object sender, RoutedEventArgs e)
     {
+        DeleteButton.HotKey = null;
         CommitMessageBar.IsVisible = true;
         CommitInputBox.Focus();
     }
@@ -127,6 +130,7 @@ public partial class MainWindow : Window
             && NameInputBox.Text is string newName
         )
         {
+            DeleteButton.HotKey = KeyGesture.Parse("Delete");
             viewModel.Rename(newName);
             NewNameBar.IsVisible = false;
         }
@@ -178,14 +182,15 @@ public partial class MainWindow : Window
     private void OnEnterPressed(KeyEventArgs e)
     {
         e.Handled = true;
-        if (NewNameBar.IsVisible)
+        if (NewNameBar.IsVisible || CommitMessageBar.IsVisible)
         {
-            NameEntered();
-            return;
-        }
-        if (CommitMessageBar.IsVisible)
-        {
-            CommitMessageEntered();
+            if (NewNameBar.IsVisible)
+                NameEntered();
+
+            if (CommitMessageBar.IsVisible)
+                CommitMessageEntered();
+
+            DeleteButton.HotKey = _deleteGesture;
             return;
         }
 
