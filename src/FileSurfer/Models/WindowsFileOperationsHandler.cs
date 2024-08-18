@@ -405,6 +405,11 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
 
     public bool RenameFileAt(string filePath, string newName, out string? errorMessage)
     {
+        if (!IsValidFileName(newName))
+        {
+            errorMessage = $"File name: \"{newName}\" is invalid";
+            return false;
+        }
         try
         {
             string? pathToFile = Path.GetDirectoryName(filePath);
@@ -426,6 +431,11 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
 
     public bool RenameDirAt(string dirPath, string newName, out string? errorMessage)
     {
+        if (!IsValidDirName(newName))
+        {
+            errorMessage = $"Directory name: \"{newName}\" is invalid";
+            return false;
+        }
         try
         {
             string? pathToDir = Path.GetDirectoryName(dirPath);

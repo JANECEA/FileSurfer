@@ -1,5 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using Avalonia.Threading;
+using FileSurfer.UndoableFileOperations;
+using FileSurfer.Views;
+using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -8,10 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
-using Avalonia.Threading;
-using FileSurfer.UndoableFileOperations;
-using FileSurfer.Views;
-using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
 
@@ -87,34 +86,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         get => _directoryEmpty;
         set => this.RaiseAndSetIfChanged(ref _directoryEmpty, value);
-    }
-
-    private bool _newNameRequired = false;
-    public bool NewNameRequired
-    {
-        get => _newNameRequired;
-        set => this.RaiseAndSetIfChanged(ref _newNameRequired, value);
-    }
-
-    private bool _commitMessageRequired = false;
-    public bool CommitMessageRequired
-    {
-        get => _commitMessageRequired;
-        set => this.RaiseAndSetIfChanged(ref _commitMessageRequired, value);
-    }
-
-    private string _newNameBox = string.Empty;
-    public string NewNameBox
-    {
-        get => _newNameBox;
-        set => this.RaiseAndSetIfChanged(ref _newNameBox, value);
-    }
-
-    private string _commitMessageBox = string.Empty;
-    public string CommitMessageBox
-    {
-        get => _commitMessageBox;
-        set => this.RaiseAndSetIfChanged(ref _commitMessageBox, value);
     }
 
     private string _searchQuery = string.Empty;
@@ -228,16 +199,17 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         CheckVersionContol();
     }
 
-    public int GetSelectedNameEndIndex() => 
+    public int GetSelectedNameEndIndex() =>
         _selectedFiles.Count > 0
-        ? Path.GetFileNameWithoutExtension(_selectedFiles[0].PathToEntry).Length
-        : 0;
+            ? Path.GetFileNameWithoutExtension(_selectedFiles[0].PathToEntry).Length
+            : 0;
 
-    private void UpdateSelectionInfo(object? sender = null, NotifyCollectionChangedEventArgs? e = null)
+    private void UpdateSelectionInfo(
+        object? sender = null,
+        NotifyCollectionChangedEventArgs? e = null
+    )
     {
-        string selectionInfo = _fileEntries.Count == 1
-            ? "1 item"
-            :$"{_fileEntries.Count} items";
+        string selectionInfo = _fileEntries.Count == 1 ? "1 item" : $"{_fileEntries.Count} items";
 
         if (_selectedFiles.Count == 1)
             selectionInfo += $"  |  1 item selected";
@@ -346,8 +318,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private void CheckVersionContol() =>
         IsVersionControlled = _versionControl.IsVersionControlled(_currentDir);
 
-    private void CheckDirectoryEmpty() =>
-        DirectoryEmpty = _fileEntries.Count == 0;
+    private void CheckDirectoryEmpty() => DirectoryEmpty = _fileEntries.Count == 0;
 
     public void GoBack()
     {
@@ -480,52 +451,30 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         Reload();
     }
 
-    public void RenameRelay()
-    {
-        if (_selectedFiles.Count == 0)
-            return;
-
-        NewNameRequired = true;
-        NewNameBox = _selectedFiles[0].Name;
-    }
-
-    private void Rename()
+    public void Rename(string newName)
     {
         if (_selectedFiles.Count == 1)
-            RenameOne();
+            RenameOne(newName);
         else if (_selectedFiles.Count > 1)
-            RenameMultiple();
+            RenameMultiple(newName);
 
         Reload();
     }
 
-    public void RenameOne()
+    private void RenameOne(string newName)
     {
-        string? errorMessage;
-        bool result;
-        if (_selectedFiles[0].IsDirectory)
-        {
-            result = _fileOpsHandler.RenameDirAt(
-                _selectedFiles[0].PathToEntry,
-                "New Name",
-                out errorMessage
-            );
-        }
-        else
-        {
-            result = _fileOpsHandler.RenameFileAt(
-                _selectedFiles[0].PathToEntry,
-                "New Name",
-                out errorMessage
-            );
-        }
+        FileSystemEntry entry = _selectedFiles[0];
+        bool result = entry.IsDirectory
+            ? _fileOpsHandler.RenameDirAt(entry.PathToEntry, newName, out string? errorMessage)
+            : _fileOpsHandler.RenameFileAt(entry.PathToEntry, newName, out errorMessage);
+
         if (result)
-            _undoRedoHistory.NewNode(new RenameOne(_fileOpsHandler, _selectedFiles[0], "New Name"));
+            _undoRedoHistory.NewNode(new RenameOne(_fileOpsHandler, entry, newName));
         else
             ErrorMessage = errorMessage;
     }
 
-    public void RenameMultiple()
+    private void RenameMultiple(string namingPattern)
     {
         bool onlyFiles = !_selectedFiles[0].IsDirectory;
         string extension = onlyFiles
@@ -538,10 +487,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             return;
         }
 
-        string[] newNames = FileNameGenerator.GetAvailableNames(
-            _selectedFiles,
-            "New Naming Pattern"
-        );
+        string[] newNames = FileNameGenerator.GetAvailableNames(_selectedFiles, namingPattern);
         bool errorOccured = false;
         for (int i = 0; i < _selectedFiles.Count; i++)
         {
@@ -710,12 +656,12 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         ErrorMessage = errorMessage;
     }
 
-    private void Commit()
+    public void Commit(string commitMessage)
     {
         if (!IsVersionControlled)
             return;
 
-        if (_versionControl.CommitChanges("Propriatery commit message", out string? errorMessage))
+        if (_versionControl.CommitChanges(commitMessage, out string? errorMessage))
             Reload();
 
         ErrorMessage = errorMessage;

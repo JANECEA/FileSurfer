@@ -162,17 +162,17 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
 
-                    <Border Classes="InputBorder" Grid.Row="3" IsVisible="{Binding NewNameRequired}">
+                    <Border x:Name="NewNameBar" Classes="InputBorder" Grid.Row="3">
                         <StackPanel Orientation="Horizontal">
                             <Label Classes="InputLabel" Content="New name: "/>
-                            <TextBox x:Name="NameInputBox" Classes="InputBox" Text="{Binding NewNameBox}"/>
+                            <TextBox x:Name="NameInputBox" Classes="InputBox" LostFocus="OnRenameLostFocus"/>
                         </StackPanel>
                     </Border>
 
-                    <Border Classes="InputBorder" Grid.Row="4" IsVisible="{Binding CommitMessageRequired}">
+                    <Border x:Name="CommitMessageBar" Classes="InputBorder" Grid.Row="4">
                         <StackPanel Orientation="Horizontal">
                             <Label Classes="InputLabel" Content="Commit message: "/>
-                            <TextBox x:Name="CommitInputBox" Classes="InputBox" Text="{Binding CommitMessageBox}"/>
+                            <TextBox x:Name="CommitInputBox" Classes="InputBox" LostFocus="OnCommitLostFocus"/>
                         </StackPanel>
                     </Border>
                 </Grid>

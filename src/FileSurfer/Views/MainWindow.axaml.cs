@@ -53,6 +53,8 @@ public partial class MainWindow : Window
                 hitElement = Avalonia.VisualTree.VisualExtensions.GetVisualParent(hitElement);
             }
             viewModel.SelectedFiles.Clear();
+            NewNameBar.IsVisible = false;
+            CommitMessageBar.IsVisible = false;
         }
     }
 
@@ -77,22 +79,47 @@ public partial class MainWindow : Window
         )
             return;
 
+        NewNameBar.IsVisible = true;
         NameInputBox.Focus();
-        viewModel.RenameRelay();
+        NameInputBox.Text = viewModel.SelectedFiles[0].Name;
         NameInputBox.SelectionStart = 0;
         NameInputBox.SelectionEnd = viewModel.GetSelectedNameEndIndex();
     }
 
     private void OnCommitClicked(object sender, RoutedEventArgs e)
     {
-        if (
-            DataContext is not MainWindowViewModel viewModel 
-            || viewModel.SelectedFiles.Count < 1
-        )
-            return;
-
+        CommitMessageBar.IsVisible = true;
         CommitInputBox.Focus();
-        viewModel.CommitMessageRequired = true;
+    }
+
+    private void OnRenameLostFocus(object sender, RoutedEventArgs e) =>
+        NewNameBar.IsVisible = false;
+
+    private void OnCommitLostFocus(object sender, RoutedEventArgs e) =>
+        CommitMessageBar.IsVisible = false;
+
+    private void NameEntered()
+    {
+        if (
+            DataContext is MainWindowViewModel viewModel
+            && NameInputBox.Text is string newName
+        )
+        {
+            NewNameBar.IsVisible = false;
+            viewModel.Rename(newName);
+        }
+    }
+
+    private void CommitMessageEntered()
+    {
+        if (
+            DataContext is MainWindowViewModel viewModel
+            && CommitInputBox.Text is string commitMessage
+        )
+        {
+            CommitMessageBar.IsVisible = false;
+            viewModel.Commit(commitMessage);
+        }
     }
 
     private void ListView(object sender, RoutedEventArgs e)
@@ -151,6 +178,17 @@ public partial class MainWindow : Window
     private void OnEnterPressed(KeyEventArgs e)
     {
         e.Handled = true;
+        if (NewNameBar.IsVisible)
+        {
+            NameEntered();
+            return;
+        }
+        if (CommitMessageBar.IsVisible)
+        {
+            CommitMessageEntered();
+            return;
+        }
+
         if (DataContext is not MainWindowViewModel viewModel)
             return;
 
@@ -160,6 +198,14 @@ public partial class MainWindow : Window
 
     private void OnEscapePressed(EventArgs e)
     {
+        if (NewNameBar.IsVisible || CommitMessageBar.IsVisible)
+        {
+            NewNameBar.IsVisible = false;
+            CommitMessageBar.IsVisible = false;
+            return;
+        }
 
+        if (DataContext is MainWindowViewModel viewModel)
+            viewModel.SelectedFiles.Clear();
     }
 }
