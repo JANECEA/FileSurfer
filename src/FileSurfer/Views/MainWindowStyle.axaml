@@ -51,7 +51,6 @@
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="FontFamily" Value="FiraCode Nerd Font"/>
-        <Setter Property="IsVisible" Value="False"/>
     </Style>
 
     <Style Selector="TextBlock.MagnifyingGlass">

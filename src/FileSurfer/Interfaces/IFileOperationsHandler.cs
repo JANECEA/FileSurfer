@@ -14,9 +14,9 @@ public interface IFileOperationsHandler
 
     public bool CreateLink(string filePath, out string? errorMessage);
 
-    public string[] GetPathDirs(string path, bool includeHidden, bool includeProtectedByOS);
+    public string[] GetPathDirs(string path, bool includeHidden, bool includeOS);
 
-    public string[] GetPathFiles(string path, bool includeHidden, bool includeProtectedByOS);
+    public string[] GetPathFiles(string path, bool includeHidden, bool includeOS);
 
     public long GetFileSizeB(string path);
 

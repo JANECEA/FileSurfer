@@ -26,16 +26,19 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
     private const int ArraySearchThreshold = 25;
     private const string ThisComputer = "This PC";
+    private const string SearchingDirectory = "Search Results";
+    private const string NewFileName = "New File";
+    private const string NewDirName = "New Folder";
 
     private readonly IFileOperationsHandler _fileOpsHandler = new WindowsFileOperationsHandler();
+    private readonly IVersionControl _versionControl;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory = new();
     private readonly UndoRedoHandler<string> _pathHistory = new();
-    private readonly IVersionControl _versionControl;
-    private bool _isUserInvoked = true;
-    private SortBy _sortBy = SortBy.Name;
-    private bool _sortReversed = false;
     private List<FileSystemEntry> _programClipboard = new();
     private bool _isCutOperation;
+    private bool _isUserInvoked = true;
+    private bool _sortReversed = false;
+    private SortBy _sortBy = SortBy.Name;
 
     private readonly ObservableCollection<FileSystemEntry> _selectedFiles = new();
     public ObservableCollection<FileSystemEntry> SelectedFiles => _selectedFiles;
@@ -73,7 +76,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         set
         {
             this.RaiseAndSetIfChanged(ref _currentDir, value);
-            if (value == ThisComputer || Directory.Exists(value))
+            if (IsValidDirectory(value))
             {
                 Reload();
                 if (_isUserInvoked)
@@ -89,18 +92,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         set => this.RaiseAndSetIfChanged(ref _directoryEmpty, value);
     }
 
-    private string _searchQuery = string.Empty;
-    public string SearchQuery
+    private bool _searching;
+    public bool Searching
     {
-        get => _searchQuery;
-        set
-        {
-            _searchQuery = value;
-            if (!string.IsNullOrEmpty(value))
-            {
-                SearchDirectory(_searchQuery);
-            }
-        }
+        get => _searching;
+        set => this.RaiseAndSetIfChanged(ref _searching, value);
     }
 
     private string[] _branches = Array.Empty<string>();
@@ -210,6 +206,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             ? Path.GetFileNameWithoutExtension(entry.PathToEntry).Length
             : 0;
 
+    private bool IsValidDirectory(string path) =>
+        path == ThisComputer || Directory.Exists(path);
+
     private void UpdateSelectionInfo(
         object? sender = null,
         NotifyCollectionChangedEventArgs? e = null
@@ -254,7 +253,10 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public void GoUp()
     {
-        if (Path.GetDirectoryName(CurrentDir) is string dirName)
+        if (Path.GetDirectoryName(CurrentDir) is not string dirName)
+            CurrentDir = ThisComputer;
+
+        else if (CurrentDir != ThisComputer)
             CurrentDir = dirName;
     }
 
@@ -340,7 +342,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
         _pathHistory.MoveToPrevious();
 
-        if (previousPath == ThisComputer || Path.Exists(previousPath))
+        if (IsValidDirectory(previousPath))
         {
             _isUserInvoked = false;
             CurrentDir = previousPath;
@@ -357,7 +359,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
         _pathHistory.MoveToNext();
 
-        if (nextPath == ThisComputer || Path.Exists(nextPath))
+        if (IsValidDirectory(nextPath))
         {
             _isUserInvoked = false;
             CurrentDir = nextPath;
@@ -369,17 +371,48 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void OpenPowerShell()
     {
+        if (_currentDir == ThisComputer)
+            return;
+
         _fileOpsHandler.OpenCmdAt(_currentDir, out string? errorMessage);
         ErrorMessage = errorMessage;
     }
 
-    private void SearchDirectory(string searchQuery) { }
+    public async void SearchRelay(string searchQuerry)
+    {
+        string currentDir = CurrentDir;
+        CurrentDir = SearchingDirectory;
+        _fileEntries.Clear();
+        Searching = true;
+        await SearchDirectoryAsync(currentDir, searchQuerry);
+    }
 
-    private void CancelSearch() { }
+    private async Task SearchDirectoryAsync(string directory ,string searchQuery) 
+    {
+        if (!Searching)
+            return;
+        
+        string[] files = _fileOpsHandler.GetPathFiles(directory, true, false);
+        foreach (string file in files)
+            _fileEntries.Add(new FileSystemEntry(file, false, _fileOpsHandler));
+
+        string[] directories = _fileOpsHandler.GetPathDirs(directory, true, false);
+        foreach (string dir in directories)
+            _fileEntries.Add(new FileSystemEntry(dir, true, _fileOpsHandler));
+
+        foreach (string dir in _fileOpsHandler.GetPathDirs(directory, true, false))
+            await SearchDirectoryAsync(dir, searchQuery);
+    }
+
+    public void CancelSearch()
+    {
+        Searching = false;
+        CurrentDir = _pathHistory.Current ?? ThisComputer;
+    }
 
     private void NewFile()
     {
-        string newFileName = FileNameGenerator.GetAvailableName(_currentDir, "New File");
+        string newFileName = FileNameGenerator.GetAvailableName(_currentDir, NewFileName);
         if (_fileOpsHandler.NewFileAt(_currentDir, newFileName, out string? errorMessage))
         {
             Reload();
@@ -392,7 +425,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void NewDir()
     {
-        string newDirName = FileNameGenerator.GetAvailableName(_currentDir, "New Folder");
+        string newDirName = FileNameGenerator.GetAvailableName(_currentDir, NewDirName);
         if (_fileOpsHandler.NewDirAt(_currentDir, newDirName, out string? errorMessage))
         {
             Reload();

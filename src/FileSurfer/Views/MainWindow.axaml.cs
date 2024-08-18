@@ -94,6 +94,9 @@ public partial class MainWindow : Window
             viewModel.GoForward();
     }
 
+    private void SearchBoxLostFocus(object sender,  RoutedEventArgs e) =>
+        SearchBox.Text = string.Empty;
+
     private void OnRenameClicked(object sender, RoutedEventArgs e)
     {
         if (
@@ -195,24 +198,26 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (DataContext is not MainWindowViewModel viewModel)
-            return;
+        if (DataContext is MainWindowViewModel viewModel)
+        {
+            if (viewModel.SelectedFiles.Count == 1)
+                viewModel.OpenEntry(viewModel.SelectedFiles[0]);
 
-        if (viewModel.SelectedFiles.Count == 1)
-            viewModel.OpenEntry(viewModel.SelectedFiles[0]);
+            if (SearchBox.IsFocused && !string.IsNullOrWhiteSpace(SearchBox.Text))
+                viewModel.SearchRelay(SearchBox.Text);
+        }
     }
 
     private void OnEscapePressed(KeyEventArgs e)
     {
         e.Handled = true;
-        if (NewNameBar.IsVisible || CommitMessageBar.IsVisible)
-        {
-            NewNameBar.IsVisible = false;
-            CommitMessageBar.IsVisible = false;
-            return;
-        }
-
         if (DataContext is MainWindowViewModel viewModel)
+        {
             viewModel.SelectedFiles.Clear();
+
+            if (SearchBox.IsFocused)
+                viewModel.CancelSearch();
+        }
+        FocusManager?.ClearFocus();
     }
 }
