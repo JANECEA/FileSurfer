@@ -1,8 +1,4 @@
-﻿using Avalonia.Threading;
-using FileSurfer.UndoableFileOperations;
-using FileSurfer.Views;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -11,6 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
+using Avalonia.Threading;
+using FileSurfer.UndoableFileOperations;
+using FileSurfer.Views;
+using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
 
@@ -65,7 +65,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             new ErrorWindow(errorMessage).Show();
         });
 
-    private string _currentDir = "D:\\Stažené\\";
+    private string _currentDir = "D:\\Stažené";
     public string CurrentDir
     {
         get => _currentDir;
@@ -199,9 +199,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         CheckVersionContol();
     }
 
-    public int GetSelectedNameEndIndex() =>
+    public int GetNameEndIndex(FileSystemEntry entry) =>
         _selectedFiles.Count > 0
-            ? Path.GetFileNameWithoutExtension(_selectedFiles[0].PathToEntry).Length
+            ? Path.GetFileNameWithoutExtension(entry.PathToEntry).Length
             : 0;
 
     private void UpdateSelectionInfo(
@@ -322,36 +322,36 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public void GoBack()
     {
-        if (_pathHistory.GetPrevious() is string previousPath)
-        {
-            _pathHistory.MoveToPrevious();
+        if (_pathHistory.GetPrevious() is not string previousPath)
+            return;
 
-            if (Path.Exists(previousPath))
-            {
-                _isUserInvoked = false;
-                CurrentDir = previousPath;
-                _isUserInvoked = true;
-            }
-            else
-                _pathHistory.RemoveNode(false);
+        _pathHistory.MoveToPrevious();
+
+        if (Path.Exists(previousPath))
+        {
+            _isUserInvoked = false;
+            CurrentDir = previousPath;
+            _isUserInvoked = true;
         }
+        else
+            _pathHistory.RemoveNode(false);
     }
 
     public void GoForward()
     {
-        if (_pathHistory.GetNext() is string nextPath)
-        {
-            _pathHistory.MoveToNext();
+        if (_pathHistory.GetNext() is not string nextPath)
+            return;
 
-            if (Path.Exists(nextPath))
-            {
-                _isUserInvoked = false;
-                CurrentDir = nextPath;
-                _isUserInvoked = true;
-            }
-            else
-                _pathHistory.RemoveNode(true);
+        _pathHistory.MoveToNext();
+
+        if (Path.Exists(nextPath))
+        {
+            _isUserInvoked = false;
+            CurrentDir = nextPath;
+            _isUserInvoked = true;
         }
+        else
+            _pathHistory.RemoveNode(true);
     }
 
     private void OpenPowerShell()
@@ -371,6 +371,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             Reload();
             _undoRedoHistory.NewNode(new NewFileAt(_fileOpsHandler, _currentDir, newFileName));
+            _selectedFiles.Add(_fileEntries.First(entry => entry.Name == newFileName));
         }
         else
             ErrorMessage = errorMessage;
@@ -383,6 +384,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             Reload();
             _undoRedoHistory.NewNode(new NewDirAt(_fileOpsHandler, _currentDir, newDirName));
+            _selectedFiles.Add(_fileEntries.First(entry => entry.Name == newDirName));
         }
         else
             ErrorMessage = errorMessage;
@@ -457,8 +459,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             RenameOne(newName);
         else if (_selectedFiles.Count > 1)
             RenameMultiple(newName);
-
-        Reload();
     }
 
     private void RenameOne(string newName)
@@ -469,7 +469,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             : _fileOpsHandler.RenameFileAt(entry.PathToEntry, newName, out errorMessage);
 
         if (result)
+        {
             _undoRedoHistory.NewNode(new RenameOne(_fileOpsHandler, entry, newName));
+            Reload();
+            _selectedFiles.Add(_fileEntries.First(entry => entry.Name == newName));
+        }
         else
             ErrorMessage = errorMessage;
     }
@@ -491,17 +495,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         bool errorOccured = false;
         for (int i = 0; i < _selectedFiles.Count; i++)
         {
+            FileSystemEntry entry = _selectedFiles[i];
+            string? errorMessage;
             bool result = onlyFiles
-                ? _fileOpsHandler.RenameFileAt(
-                    _selectedFiles[i].PathToEntry,
-                    newNames[i],
-                    out string? errorMessage
-                )
-                : _fileOpsHandler.RenameDirAt(
-                    _selectedFiles[i].PathToEntry,
-                    newNames[i],
-                    out errorMessage
-                );
+                ? _fileOpsHandler.RenameFileAt(entry.PathToEntry, newNames[i], out errorMessage)
+                : _fileOpsHandler.RenameDirAt(entry.PathToEntry, newNames[i], out errorMessage);
 
             errorOccured = !result || errorOccured;
             if (!result)
@@ -511,6 +509,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             _undoRedoHistory.NewNode(
                 new RenameMultiple(_fileOpsHandler, _selectedFiles.ToArray(), newNames)
             );
+        Reload();
     }
 
     private void MoveToTrash()

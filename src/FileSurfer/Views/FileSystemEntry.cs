@@ -19,6 +19,7 @@ public class FileSystemEntry
     public string Size { get; }
     public long? SizeKib { get; }
     public string Type { get; }
+    public double Opacity { get; }
 
     public FileSystemEntry(string path, bool isDirectory, IFileOperationsHandler fileOpsHandler)
     {
@@ -44,6 +45,8 @@ public class FileSystemEntry
             string extension = Path.GetExtension(path).TrimStart('.').ToUpperInvariant();
             Type = extension == string.Empty ? "File" : extension + " File";
         }
+
+        Opacity = fileOpsHandler.IsHidden(path, isDirectory) ? 0.4 : 1;
     }
 
     private Bitmap? GetIcon(IFileOperationsHandler fileOpsHandler)

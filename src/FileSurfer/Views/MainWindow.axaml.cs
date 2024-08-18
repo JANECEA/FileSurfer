@@ -29,6 +29,28 @@ public partial class MainWindow : Window
         _iconViewTemplate = iconViewTemplate;
     }
 
+    private WrapPanel? FindWrapPanel(Control parent)
+    {
+        if (parent == null)
+            return null;
+
+        foreach (var child in parent.GetVisualChildren())
+        {
+            if (child is WrapPanel panel)
+            {
+                _filePanel = panel;
+                return panel;
+            }
+
+            if (child is Control control)
+            {
+                if (FindWrapPanel(control) is WrapPanel result)
+                    return result;
+            }
+        }
+        return null;
+    }
+
     private void FilesDoubleTapped(object sender, TappedEventArgs e)
     {
         if (sender is ListBox listBox && DataContext is MainWindowViewModel viewModel)
@@ -42,20 +64,20 @@ public partial class MainWindow : Window
 
     private void FilesTapped(object sender, TappedEventArgs e)
     {
-        if (sender is ListBox listBox && DataContext is MainWindowViewModel viewModel)
-        {
-            Visual? hitElement = (Visual?)listBox.InputHitTest(e.GetPosition(listBox));
-            while (hitElement is not null)
-            {
-                if (hitElement is ListBoxItem)
-                    return;
+        if (sender is not ListBox listBox || DataContext is not MainWindowViewModel viewModel)
+            return;
 
-                hitElement = Avalonia.VisualTree.VisualExtensions.GetVisualParent(hitElement);
-            }
-            viewModel.SelectedFiles.Clear();
-            NewNameBar.IsVisible = false;
-            CommitMessageBar.IsVisible = false;
+        Visual? hitElement = (Visual?)listBox.InputHitTest(e.GetPosition(listBox));
+        while (hitElement is not null)
+        {
+            if (hitElement is ListBoxItem)
+                return;
+
+            hitElement = Avalonia.VisualTree.VisualExtensions.GetVisualParent(hitElement);
         }
+        viewModel.SelectedFiles.Clear();
+        NewNameBar.IsVisible = false;
+        CommitMessageBar.IsVisible = false;
     }
 
     private void MouseButtonPressed(object? sender, PointerPressedEventArgs e)
@@ -81,9 +103,9 @@ public partial class MainWindow : Window
 
         NewNameBar.IsVisible = true;
         NameInputBox.Focus();
-        NameInputBox.Text = viewModel.SelectedFiles[0].Name;
+        NameInputBox.Text = viewModel.SelectedFiles[^1].Name;
         NameInputBox.SelectionStart = 0;
-        NameInputBox.SelectionEnd = viewModel.GetSelectedNameEndIndex();
+        NameInputBox.SelectionEnd = viewModel.GetNameEndIndex(viewModel.SelectedFiles[^1]);
     }
 
     private void OnCommitClicked(object sender, RoutedEventArgs e)
@@ -105,8 +127,8 @@ public partial class MainWindow : Window
             && NameInputBox.Text is string newName
         )
         {
-            NewNameBar.IsVisible = false;
             viewModel.Rename(newName);
+            NewNameBar.IsVisible = false;
         }
     }
 
@@ -117,8 +139,8 @@ public partial class MainWindow : Window
             && CommitInputBox.Text is string commitMessage
         )
         {
-            CommitMessageBar.IsVisible = false;
             viewModel.Commit(commitMessage);
+            CommitMessageBar.IsVisible = false;
         }
     }
 
@@ -142,28 +164,6 @@ public partial class MainWindow : Window
         wrapPanel.Orientation = Avalonia.Layout.Orientation.Horizontal;
         LabelsPanel.IsVisible = false;
         FileDisplay.ItemTemplate = _iconViewTemplate;
-    }
-
-    private WrapPanel? FindWrapPanel(Control parent)
-    {
-        if (parent == null)
-            return null;
-
-        foreach (var child in parent.GetVisualChildren())
-        {
-            if (child is WrapPanel found)
-            {
-                _filePanel = found;
-                return found;
-            }
-
-            if (child is Control control)
-            {
-                if (FindWrapPanel(control) is WrapPanel result)
-                    return result;
-            }
-        }
-        return null;
     }
 
     private void KeyPressed(object sender, KeyEventArgs e)
@@ -196,8 +196,9 @@ public partial class MainWindow : Window
             viewModel.OpenEntry(viewModel.SelectedFiles[0]);
     }
 
-    private void OnEscapePressed(EventArgs e)
+    private void OnEscapePressed(KeyEventArgs e)
     {
+        e.Handled = true;
         if (NewNameBar.IsVisible || CommitMessageBar.IsVisible)
         {
             NewNameBar.IsVisible = false;
