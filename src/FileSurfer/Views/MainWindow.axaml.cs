@@ -187,6 +187,18 @@ public partial class MainWindow : Window
 
         if (e.Key == Key.Escape)
             OnEscapePressed(e);
+
+        if (e.Key == Key.F && e.KeyModifiers == KeyModifiers.Control)
+            OnCtrlFPressed(e);
+    }
+
+    private void OnCtrlFPressed(KeyEventArgs e)
+    {
+        e.Handled = true;
+        if (SearchBox.IsFocused)
+            FocusManager?.ClearFocus();
+        else
+            SearchBox.Focus();
     }
 
     private void OnEnterPressed(KeyEventArgs e)
