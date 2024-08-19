@@ -200,11 +200,14 @@ public partial class MainWindow : Window
 
         if (DataContext is MainWindowViewModel viewModel)
         {
+            if (SearchBox.IsFocused && !string.IsNullOrWhiteSpace(SearchBox.Text))
+            {
+                viewModel.SearchRelay(SearchBox.Text);
+                return;
+            }
+
             if (viewModel.SelectedFiles.Count == 1)
                 viewModel.OpenEntry(viewModel.SelectedFiles[0]);
-
-            if (SearchBox.IsFocused && !string.IsNullOrWhiteSpace(SearchBox.Text))
-                viewModel.SearchRelay(SearchBox.Text);
         }
     }
 

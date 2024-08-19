@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
+using System.Threading;
 using Avalonia.Threading;
 using FileSurfer.UndoableFileOperations;
 using FileSurfer.Views;
@@ -24,26 +25,27 @@ enum SortBy
 #pragma warning disable CA1822 // Mark members as static
 public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
-    private const int ArraySearchThreshold = 25;
-    private const string ThisComputer = "This PC";
-    private const string SearchingDirectory = "Search Results";
+    private const string ThisPCLabel = "This PC";
+    private const string SearchingLabel = "Search Results";
     private const string NewFileName = "New File";
     private const string NewDirName = "New Folder";
+    private const int ArraySearchThreshold = 25;
 
     private readonly IFileOperationsHandler _fileOpsHandler = new WindowsFileOperationsHandler();
     private readonly IVersionControl _versionControl;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory = new();
     private readonly UndoRedoHandler<string> _pathHistory = new();
+    private readonly ObservableCollection<FileSystemEntry> _selectedFiles = new();
+    private readonly ObservableCollection<FileSystemEntry> _fileEntries = new();
+
+    private CancellationTokenSource _searchCTS = new();
     private List<FileSystemEntry> _programClipboard = new();
     private bool _isCutOperation;
     private bool _isUserInvoked = true;
     private bool _sortReversed = false;
     private SortBy _sortBy = SortBy.Name;
 
-    private readonly ObservableCollection<FileSystemEntry> _selectedFiles = new();
     public ObservableCollection<FileSystemEntry> SelectedFiles => _selectedFiles;
-
-    private readonly ObservableCollection<FileSystemEntry> _fileEntries = new();
     public ObservableCollection<FileSystemEntry> FileEntries => _fileEntries;
 
     private string? _errorMessage = null;
@@ -53,7 +55,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         set
         {
             this.RaiseAndSetIfChanged(ref _errorMessage, value);
-            if (value is not null && value != string.Empty)
+            if (!string.IsNullOrEmpty(value))
             {
                 Dispatcher.UIThread.InvokeAsync(async () =>
                 {
@@ -69,7 +71,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             new ErrorWindow(errorMessage).Show();
         });
 
-    private string _currentDir = ThisComputer;
+    private string _currentDir = ThisPCLabel;
     public string CurrentDir
     {
         get => _currentDir;
@@ -78,6 +80,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             this.RaiseAndSetIfChanged(ref _currentDir, value);
             if (IsValidDirectory(value))
             {
+                if (Searching)
+                    CancelSearch();
+
                 Reload();
                 if (_isUserInvoked)
                     _pathHistory.NewNode(value);
@@ -90,6 +95,13 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         get => _directoryEmpty;
         set => this.RaiseAndSetIfChanged(ref _directoryEmpty, value);
+    }
+
+    private string _searchWaterMark;
+    public string SearchWaterMark
+    {
+        get => _searchWaterMark;
+        set => this.RaiseAndSetIfChanged(ref _searchWaterMark, value);
     }
 
     private bool _searching;
@@ -190,30 +202,45 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void Reload()
     {
-        if (_currentDir == ThisComputer)
+        if (Searching)
+            return;
+
+        SetSearchWaterMark();
+        if (_currentDir == ThisPCLabel)
         {
             LoadDrives();
+            SetDriveInfo();
             return;
         }
         LoadDirEntries();
-        CheckDirectoryEmpty();
         UpdateSelectionInfo();
+        CheckDirectoryEmpty();
         CheckVersionContol();
     }
 
     public int GetNameEndIndex(FileSystemEntry entry) =>
-        _selectedFiles.Count > 0
-            ? Path.GetFileNameWithoutExtension(entry.PathToEntry).Length
-            : 0;
+        _selectedFiles.Count > 0 ? Path.GetFileNameWithoutExtension(entry.PathToEntry).Length : 0;
 
-    private bool IsValidDirectory(string path) =>
-        path == ThisComputer || Directory.Exists(path);
+    private bool IsValidDirectory(string path) => path == ThisPCLabel || Directory.Exists(path);
+
+    private void SetSearchWaterMark()
+    {
+        string? dirName = Path.GetFileName(CurrentDir);
+        dirName = string.IsNullOrEmpty(dirName) ? Path.GetPathRoot(CurrentDir) : dirName;
+        SearchWaterMark = $"Search {dirName}";
+    }
+
+    private void SetDriveInfo() =>
+        SelectionInfo = _fileEntries.Count == 1 ? "1 drive" : $"{_fileEntries.Count} drives";
 
     private void UpdateSelectionInfo(
         object? sender = null,
         NotifyCollectionChangedEventArgs? e = null
     )
     {
+        if (CurrentDir == ThisPCLabel)
+            return;
+
         string selectionInfo = _fileEntries.Count == 1 ? "1 item" : $"{_fileEntries.Count} items";
 
         if (_selectedFiles.Count == 1)
@@ -231,7 +258,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                 break;
             }
 
-            if (entry.SizeKib is long sizeKiB)
+            if (entry.SizeB is long sizeKiB)
                 sizeSum += sizeKiB;
         }
         if (displaySize)
@@ -254,9 +281,8 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public void GoUp()
     {
         if (Path.GetDirectoryName(CurrentDir) is not string dirName)
-            CurrentDir = ThisComputer;
-
-        else if (CurrentDir != ThisComputer)
+            CurrentDir = ThisPCLabel;
+        else if (CurrentDir != ThisPCLabel)
             CurrentDir = dirName;
     }
 
@@ -264,7 +290,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         _fileEntries.Clear();
         foreach (DriveInfo drive in _fileOpsHandler.GetDrives())
-            _fileEntries.Add(new FileSystemEntry(drive.Name, drive.VolumeLabel));
+            _fileEntries.Add(new FileSystemEntry(drive.Name, drive.VolumeLabel, drive.TotalSize));
     }
 
     private void LoadDirEntries()
@@ -337,6 +363,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public void GoBack()
     {
+        if (Searching)
+            CancelSearch();
+
         if (_pathHistory.GetPrevious() is not string previousPath)
             return;
 
@@ -354,6 +383,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public void GoForward()
     {
+        if (Searching)
+            CancelSearch();
+
         if (_pathHistory.GetNext() is not string nextPath)
             return;
 
@@ -371,7 +403,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void OpenPowerShell()
     {
-        if (_currentDir == ThisComputer)
+        if (_currentDir == ThisPCLabel || Searching)
             return;
 
         _fileOpsHandler.OpenCmdAt(_currentDir, out string? errorMessage);
@@ -380,34 +412,74 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public async void SearchRelay(string searchQuerry)
     {
-        string currentDir = CurrentDir;
-        CurrentDir = SearchingDirectory;
+        if (_searchCTS.IsCancellationRequested)
+            _searchCTS = new();
+
+        string currentDir = _pathHistory.Current ?? ThisPCLabel;
+        CurrentDir = SearchingLabel;
         _fileEntries.Clear();
         Searching = true;
-        await SearchDirectoryAsync(currentDir, searchQuerry);
+
+        if (currentDir != ThisPCLabel)
+            await SearchDirectoryAsync(currentDir, searchQuerry, _searchCTS.Token);
+        else
+        {
+            foreach (DriveInfo drive in _fileOpsHandler.GetDrives())
+                await SearchDirectoryAsync(drive.Name, searchQuerry, _searchCTS.Token);
+        }
     }
 
-    private async Task SearchDirectoryAsync(string directory ,string searchQuery) 
+    private async Task SearchDirectoryAsync(string directory, string searchQuery, CancellationToken searchCTS)
     {
-        if (!Searching)
-            return;
-        
-        string[] files = _fileOpsHandler.GetPathFiles(directory, true, false);
-        foreach (string file in files)
-            _fileEntries.Add(new FileSystemEntry(file, false, _fileOpsHandler));
+        await Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            foreach (string file in await GetPathFilesAsync(directory, true, false, searchQuery))
+                if (!searchCTS.IsCancellationRequested)
+                    _fileEntries.Add(new FileSystemEntry(file, false, _fileOpsHandler));
 
-        string[] directories = _fileOpsHandler.GetPathDirs(directory, true, false);
-        foreach (string dir in directories)
-            _fileEntries.Add(new FileSystemEntry(dir, true, _fileOpsHandler));
+            foreach (string dir in await GetPathDirsAsync(directory, true, false, searchQuery))
+                if (!searchCTS.IsCancellationRequested)
+                    _fileEntries.Add(new FileSystemEntry(dir, true, _fileOpsHandler));
+        });
 
-        foreach (string dir in _fileOpsHandler.GetPathDirs(directory, true, false))
-            await SearchDirectoryAsync(dir, searchQuery);
+        foreach (string dir in await GetPathDirsAsync(directory, true, false))
+            if (!searchCTS.IsCancellationRequested)
+                await SearchDirectoryAsync(dir, searchQuery, searchCTS);
+    }
+
+    private async Task<IEnumerable<string>> GetPathFilesAsync(
+        string directory,
+        bool includeHidden,
+        bool includeOS,
+        string searchQuery
+    )
+    {
+        IEnumerable<string> entries = await Task.Run(
+            () => _fileOpsHandler.GetPathFiles(directory, includeHidden, includeOS)
+        );
+        return entries.Where(name => Path.GetFileName(name).Contains(searchQuery));
+    }
+
+    private async Task<IEnumerable<string>> GetPathDirsAsync(
+        string directory,
+        bool includeHidden,
+        bool includeOS,
+        string? searchQuery = null
+    )
+    {
+        IEnumerable<string> entries = await Task.Run(
+            () => _fileOpsHandler.GetPathDirs(directory, includeHidden, includeOS)
+        );
+        return searchQuery is null
+            ? entries
+            : entries.Where(name => Path.GetFileName(name).Contains(searchQuery));
     }
 
     public void CancelSearch()
     {
+        _searchCTS.Cancel();
         Searching = false;
-        CurrentDir = _pathHistory.Current ?? ThisComputer;
+        CurrentDir = _pathHistory.Current ?? ThisPCLabel;
     }
 
     private void NewFile()
@@ -666,7 +738,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         if (_selectedFiles.Count <= ArraySearchThreshold)
         {
-            string[] oldSelectionNames = _selectedFiles.Select(entry => entry.Name).ToArray();
+            string[] oldSelectionNames = new string[_selectedFiles.Count];
+            for (int i = 0; i < _selectedFiles.Count; i++)
+                oldSelectionNames[i] = _selectedFiles[i].Name;
 
             _selectedFiles.Clear();
             foreach (FileSystemEntry entry in _fileEntries)
