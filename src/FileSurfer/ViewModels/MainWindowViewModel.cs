@@ -97,7 +97,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         set => this.RaiseAndSetIfChanged(ref _directoryEmpty, value);
     }
 
-    private string _searchWaterMark;
+    private string _searchWaterMark = string.Empty;
     public string SearchWaterMark
     {
         get => _searchWaterMark;
@@ -205,23 +205,26 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (Searching)
             return;
 
-        SetSearchWaterMark();
         if (_currentDir == ThisPCLabel)
         {
             LoadDrives();
             SetDriveInfo();
-            return;
+        } 
+        else
+        {
+            LoadDirEntries();
+            UpdateSelectionInfo();
         }
-        LoadDirEntries();
-        UpdateSelectionInfo();
         CheckDirectoryEmpty();
+        SetSearchWaterMark();
         CheckVersionContol();
     }
 
     public int GetNameEndIndex(FileSystemEntry entry) =>
         _selectedFiles.Count > 0 ? Path.GetFileNameWithoutExtension(entry.PathToEntry).Length : 0;
 
-    private bool IsValidDirectory(string path) => path == ThisPCLabel || Directory.Exists(path);
+    private bool IsValidDirectory(string path) => 
+        path == ThisPCLabel || (!string.IsNullOrEmpty(path) && Directory.Exists(path));
 
     private void SetSearchWaterMark()
     {
@@ -258,11 +261,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                 break;
             }
 
-            if (entry.SizeB is long sizeKiB)
-                sizeSum += sizeKiB;
+            if (entry.SizeB is long sizeB)
+                sizeSum += sizeB;
         }
         if (displaySize)
-            selectionInfo += $"  {sizeSum} KiB";
+            selectionInfo += "  " + FileSystemEntry.GetSizeString(sizeSum);
 
         SelectionInfo = selectionInfo;
     }
@@ -290,7 +293,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         _fileEntries.Clear();
         foreach (DriveInfo drive in _fileOpsHandler.GetDrives())
-            _fileEntries.Add(new FileSystemEntry(drive.Name, drive.VolumeLabel, drive.TotalSize));
+            _fileEntries.Add(new FileSystemEntry(drive));
     }
 
     private void LoadDirEntries()
@@ -357,7 +360,8 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     }
 
     private void CheckVersionContol() =>
-        IsVersionControlled = _versionControl.IsVersionControlled(_currentDir);
+        IsVersionControlled =
+            Directory.Exists(CurrentDir) && _versionControl.IsVersionControlled(_currentDir);
 
     private void CheckDirectoryEmpty() => DirectoryEmpty = _fileEntries.Count == 0;
 

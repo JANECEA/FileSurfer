@@ -94,8 +94,17 @@ public partial class MainWindow : Window
             viewModel.GoForward();
     }
 
-    private void SearchBoxLostFocus(object sender,  RoutedEventArgs e) =>
+    private void TextBoxGotFocus(object? sender = null, GotFocusEventArgs? e = null) =>
+        DeleteButton.HotKey = null;
+
+    private void TextBoxLostFocus(object? sender = null, RoutedEventArgs? e = null) =>
+        DeleteButton.HotKey = _deleteGesture;
+
+    private void SearchBoxLostFocus(object sender, RoutedEventArgs e)
+    {
         SearchBox.Text = string.Empty;
+        TextBoxLostFocus();
+    }
 
     private void OnRenameClicked(object sender, RoutedEventArgs e)
     {
@@ -105,7 +114,6 @@ public partial class MainWindow : Window
         )
             return;
 
-        DeleteButton.HotKey = null;
         NewNameBar.IsVisible = true;
         NameInputBox.Focus();
         NameInputBox.Text = viewModel.SelectedFiles[^1].Name;
@@ -115,7 +123,6 @@ public partial class MainWindow : Window
 
     private void OnCommitClicked(object sender, RoutedEventArgs e)
     {
-        DeleteButton.HotKey = null;
         CommitMessageBar.IsVisible = true;
         CommitInputBox.Focus();
     }
@@ -124,7 +131,7 @@ public partial class MainWindow : Window
     {
         NewNameBar.IsVisible = false;
         CommitMessageBar.IsVisible = false;
-        DeleteButton.HotKey = _deleteGesture;
+        TextBoxLostFocus();
     }
 
     private void NameEntered()
@@ -134,7 +141,6 @@ public partial class MainWindow : Window
             && NameInputBox.Text is string newName
         )
         {
-            DeleteButton.HotKey = KeyGesture.Parse("Delete");
             viewModel.Rename(newName);
             NewNameBar.IsVisible = false;
         }
@@ -190,11 +196,14 @@ public partial class MainWindow : Window
         {
             if (NewNameBar.IsVisible)
                 NameEntered();
-
             if (CommitMessageBar.IsVisible)
                 CommitMessageEntered();
+            return;
+        }
 
-            DeleteButton.HotKey = _deleteGesture;
+        if (PathBox.IsFocused)
+        {
+            FocusManager?.ClearFocus();
             return;
         }
 

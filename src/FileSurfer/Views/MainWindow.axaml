@@ -56,10 +56,10 @@
             <Button Classes="TopLeftButton" Content="" HotKey="F12" Command="{Binding OpenPowerShellCommand}"/>
 
             <Grid ColumnDefinitions="* 250">
-                <TextBox Classes="PathBox TopTextBox" Grid.Column="0" Text="{Binding CurrentDir, Mode=TwoWay}"/>
+                <TextBox x:Name="PathBox" Classes="PathBox TopTextBox" Grid.Column="0" Text="{Binding CurrentDir, Mode=TwoWay}" GotFocus="TextBoxGotFocus" LostFocus="TextBoxLostFocus"/>
 
                 <Grid Grid.Column="1">
-                    <TextBox x:Name="SearchBox" Classes="SearchBox TopTextBox" Watermark="{Binding SearchWaterMark}" LostFocus="SearchBoxLostFocus"/>
+                    <TextBox x:Name="SearchBox" Classes="SearchBox TopTextBox" Watermark="{Binding SearchWaterMark}" LostFocus="SearchBoxLostFocus" GotFocus="TextBoxGotFocus"/>
                     <Button Classes="CancelSearchButton" Content="" Command="{Binding CancelSearchCommand}" IsVisible="{Binding Searching}"/>
                     <TextBlock Classes="MagnifyingGlass" Text="" IsVisible="{Binding !Searching}"/>
                 </Grid>
@@ -166,14 +166,14 @@
                     <Border x:Name="NewNameBar" Classes="InputBorder" Grid.Row="3">
                         <StackPanel Orientation="Horizontal">
                             <Label Classes="InputLabel" Content="New name: "/>
-                            <TextBox x:Name="NameInputBox" Classes="InputBox" LostFocus="InputBoxLostFocus"/>
+                            <TextBox x:Name="NameInputBox" Classes="InputBox" GotFocus="TextBoxGotFocus" LostFocus="InputBoxLostFocus"/>
                         </StackPanel>
                     </Border>
 
                     <Border x:Name="CommitMessageBar" Classes="InputBorder" Grid.Row="4">
                         <StackPanel Orientation="Horizontal">
                             <Label Classes="InputLabel" Content="Commit message: "/>
-                            <TextBox x:Name="CommitInputBox" Classes="InputBox" LostFocus="InputBoxLostFocus"/>
+                            <TextBox x:Name="CommitInputBox" Classes="InputBox" GotFocus="TextBoxGotFocus" LostFocus="InputBoxLostFocus"/>
                         </StackPanel>
                     </Border>
                 </Grid>

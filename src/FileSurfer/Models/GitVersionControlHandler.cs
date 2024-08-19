@@ -23,7 +23,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
             string gitDir = Path.Combine(repoPath, ".git");
             if (!Directory.Exists(gitDir))
             {
-                repoPath = Directory.GetParent(repoPath)?.FullName;
+                repoPath = Path.GetDirectoryName(repoPath);
                 continue;
             }
             try

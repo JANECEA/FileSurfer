@@ -47,15 +47,15 @@ public class FileSystemEntry
         }
     }
 
-    public FileSystemEntry(string driveName, string volumeLabel, long size)
+    public FileSystemEntry(DriveInfo drive)
     {
-        PathToEntry = driveName;
-        Name = $"{volumeLabel} ({driveName.TrimEnd(Path.DirectorySeparatorChar)})";
+        PathToEntry = drive.Name;
+        Name = $"{drive.VolumeLabel} ({drive.Name.TrimEnd(Path.DirectorySeparatorChar)})";
         IsDirectory = true;
         Type = "Drive";
         Icon = _driveIcon;
         LastModified = string.Empty;
-        Size = GetSizeString(size);
+        Size = GetSizeString(drive.TotalSize);
         Opacity = 1;
     }
 
@@ -82,7 +82,7 @@ public class FileSystemEntry
         return new Bitmap(stream);
     }
 
-    private static string GetSizeString(long sizeInB)
+    public static string GetSizeString(long sizeInB)
     {
         long size = sizeInB;
         foreach (string notation in _sizes)
