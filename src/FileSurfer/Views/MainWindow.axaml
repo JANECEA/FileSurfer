@@ -83,6 +83,7 @@
                             <MenuItem Classes="MenuOption" Header="Name" Command="{Binding SortByNameCommand}"/>
                             <MenuItem Classes="MenuOption" Header="Date" Command="{Binding SortByDateCommand}"/>
                             <MenuItem Classes="MenuOption" Header="Type" Command="{Binding SortByTypeCommand}"/>
+                            <MenuItem Classes="MenuOption" Header="Size" Command="{Binding SortBySizeCommand}"/>
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>

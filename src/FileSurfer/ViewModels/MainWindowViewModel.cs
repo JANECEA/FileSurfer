@@ -19,7 +19,8 @@ enum SortBy
 {
     Name,
     Date,
-    Type
+    Type,
+    Size
 }
 
 #pragma warning disable CA1822 // Mark members as static
@@ -162,6 +163,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public ReactiveCommand<Unit, Unit> SortByNameCommand { get; }
     public ReactiveCommand<Unit, Unit> SortByDateCommand { get; }
     public ReactiveCommand<Unit, Unit> SortByTypeCommand { get; }
+    public ReactiveCommand<Unit, Unit> SortBySizeCommand { get; }
     public ReactiveCommand<Unit, Unit> UndoCommand { get; }
     public ReactiveCommand<Unit, Unit> RedoCommand { get; }
     public ReactiveCommand<Unit, Unit> SelectAllCommand { get; }
@@ -189,6 +191,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         SortByNameCommand = ReactiveCommand.Create(SortByName);
         SortByDateCommand = ReactiveCommand.Create(SortByDate);
         SortByTypeCommand = ReactiveCommand.Create(SortByType);
+        SortBySizeCommand = ReactiveCommand.Create(SortBySize);
         UndoCommand = ReactiveCommand.Create(Undo);
         RedoCommand = ReactiveCommand.Create(Redo);
         SelectAllCommand = ReactiveCommand.Create(SelectAll);
@@ -205,7 +208,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (Searching)
             return;
 
-        if (_currentDir == ThisPCLabel)
+        if (CurrentDir == ThisPCLabel)
         {
             LoadDrives();
             SetDriveInfo();
@@ -221,7 +224,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     }
 
     public int GetNameEndIndex(FileSystemEntry entry) =>
-        _selectedFiles.Count > 0 ? Path.GetFileNameWithoutExtension(entry.PathToEntry).Length : 0;
+        SelectedFiles.Count > 0 ? Path.GetFileNameWithoutExtension(entry.PathToEntry).Length : 0;
 
     private bool IsValidDirectory(string path) => 
         path == ThisPCLabel || (!string.IsNullOrEmpty(path) && Directory.Exists(path));
@@ -234,7 +237,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     }
 
     private void SetDriveInfo() =>
-        SelectionInfo = _fileEntries.Count == 1 ? "1 drive" : $"{_fileEntries.Count} drives";
+        SelectionInfo = FileEntries.Count == 1 ? "1 drive" : $"{FileEntries.Count} drives";
 
     private void UpdateSelectionInfo(
         object? sender = null,
@@ -244,16 +247,16 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (CurrentDir == ThisPCLabel)
             return;
 
-        string selectionInfo = _fileEntries.Count == 1 ? "1 item" : $"{_fileEntries.Count} items";
+        string selectionInfo = FileEntries.Count == 1 ? "1 item" : $"{FileEntries.Count} items";
 
-        if (_selectedFiles.Count == 1)
+        if (SelectedFiles.Count == 1)
             selectionInfo += $"  |  1 item selected";
-        else if (_selectedFiles.Count > 1)
-            selectionInfo += $"  |  {_selectedFiles.Count} items selected";
+        else if (SelectedFiles.Count > 1)
+            selectionInfo += $"  |  {SelectedFiles.Count} items selected";
 
-        bool displaySize = _selectedFiles.Count >= 1;
+        bool displaySize = SelectedFiles.Count >= 1;
         long sizeSum = 0;
-        foreach (FileSystemEntry entry in _selectedFiles)
+        foreach (FileSystemEntry entry in SelectedFiles)
         {
             if (entry.IsDirectory)
             {
@@ -291,19 +294,19 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void LoadDrives()
     {
-        _fileEntries.Clear();
+        FileEntries.Clear();
         foreach (DriveInfo drive in _fileOpsHandler.GetDrives())
-            _fileEntries.Add(new FileSystemEntry(drive));
+            FileEntries.Add(new FileSystemEntry(drive));
     }
 
     private void LoadDirEntries()
     {
-        string[] dirPaths = _fileOpsHandler.GetPathDirs(_currentDir, true, false);
+        string[] dirPaths = _fileOpsHandler.GetPathDirs(CurrentDir, true, false);
         FileSystemEntry[] directories = new FileSystemEntry[dirPaths.Length];
         for (int i = 0; i < dirPaths.Length; i++)
             directories[i] = new FileSystemEntry(dirPaths[i], true, _fileOpsHandler);
 
-        string[] filePaths = _fileOpsHandler.GetPathFiles(_currentDir, true, false);
+        string[] filePaths = _fileOpsHandler.GetPathFiles(CurrentDir, true, false);
         FileSystemEntry[] files = new FileSystemEntry[filePaths.Length];
         for (int i = 0; i < filePaths.Length; i++)
             files[i] = new FileSystemEntry(filePaths[i], false, _fileOpsHandler);
@@ -316,26 +319,24 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (_sortBy is not SortBy.Name)
             SortInPlace(files, _sortBy);
 
-        if (_sortBy is not SortBy.Name and not SortBy.Type)
+        if (_sortBy is not SortBy.Name and not SortBy.Type and not SortBy.Size)
             SortInPlace(directories, _sortBy);
 
-        _fileEntries.Clear();
-        if (!_sortReversed)
-        {
+        FileEntries.Clear();
+
+        if (!_sortReversed || _sortBy is SortBy.Type or SortBy.Size)
             for (int i = 0; i < directories.Length; i++)
-                _fileEntries.Add(directories[i]);
-
-            for (int i = 0; i < files.Length; i++)
-                _fileEntries.Add(files[i]);
-        }
+                FileEntries.Add(directories[i]);
         else
-        {
             for (int i = directories.Length - 1; i >= 0; i--)
-                _fileEntries.Add(directories[i]);
+                FileEntries.Add(directories[i]);
 
+        if (!_sortReversed)
+            for (int i = 0; i < files.Length; i++)
+                FileEntries.Add(files[i]);
+        else
             for (int i = files.Length - 1; i >= 0; i--)
-                _fileEntries.Add(files[i]);
-        }
+                FileEntries.Add(files[i]);
     }
 
     private void SortInPlace(FileSystemEntry[] entries, SortBy sortBy)
@@ -347,11 +348,15 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                 break;
 
             case SortBy.Date:
-                Array.Sort(entries, (x, y) => DateTime.Compare(x.LastChanged, y.LastChanged));
+                Array.Sort(entries, (x, y) => DateTime.Compare(y.LastChanged, x.LastChanged));
                 break;
 
             case SortBy.Type:
                 Array.Sort(entries, (x, y) => string.Compare(x.Type, y.Type));
+                break;
+
+            case SortBy.Size:
+                Array.Sort(entries, (x, y) => (y.SizeB ?? 0).CompareTo(x.SizeB ?? 0));
                 break;
 
             default:
@@ -361,9 +366,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void CheckVersionContol() =>
         IsVersionControlled =
-            Directory.Exists(CurrentDir) && _versionControl.IsVersionControlled(_currentDir);
+            Directory.Exists(CurrentDir) && _versionControl.IsVersionControlled(CurrentDir);
 
-    private void CheckDirectoryEmpty() => DirectoryEmpty = _fileEntries.Count == 0;
+    private void CheckDirectoryEmpty() => DirectoryEmpty = FileEntries.Count == 0;
 
     public void GoBack()
     {
@@ -407,10 +412,10 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void OpenPowerShell()
     {
-        if (_currentDir == ThisPCLabel || Searching)
+        if (CurrentDir == ThisPCLabel || Searching)
             return;
 
-        _fileOpsHandler.OpenCmdAt(_currentDir, out string? errorMessage);
+        _fileOpsHandler.OpenCmdAt(CurrentDir, out string? errorMessage);
         ErrorMessage = errorMessage;
     }
 
@@ -421,7 +426,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
         string currentDir = _pathHistory.Current ?? ThisPCLabel;
         CurrentDir = SearchingLabel;
-        _fileEntries.Clear();
+        FileEntries.Clear();
         Searching = true;
 
         if (currentDir != ThisPCLabel)
@@ -439,11 +444,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             foreach (string file in await GetPathFilesAsync(directory, true, false, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
-                    _fileEntries.Add(new FileSystemEntry(file, false, _fileOpsHandler));
+                    FileEntries.Add(new FileSystemEntry(file, false, _fileOpsHandler));
 
             foreach (string dir in await GetPathDirsAsync(directory, true, false, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
-                    _fileEntries.Add(new FileSystemEntry(dir, true, _fileOpsHandler));
+                    FileEntries.Add(new FileSystemEntry(dir, true, _fileOpsHandler));
         });
 
         foreach (string dir in await GetPathDirsAsync(directory, true, false))
@@ -488,12 +493,12 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void NewFile()
     {
-        string newFileName = FileNameGenerator.GetAvailableName(_currentDir, NewFileName);
-        if (_fileOpsHandler.NewFileAt(_currentDir, newFileName, out string? errorMessage))
+        string newFileName = FileNameGenerator.GetAvailableName(CurrentDir, NewFileName);
+        if (_fileOpsHandler.NewFileAt(CurrentDir, newFileName, out string? errorMessage))
         {
             Reload();
-            _undoRedoHistory.NewNode(new NewFileAt(_fileOpsHandler, _currentDir, newFileName));
-            _selectedFiles.Add(_fileEntries.First(entry => entry.Name == newFileName));
+            _undoRedoHistory.NewNode(new NewFileAt(_fileOpsHandler, CurrentDir, newFileName));
+            SelectedFiles.Add(FileEntries.First(entry => entry.Name == newFileName));
         }
         else
             ErrorMessage = errorMessage;
@@ -501,12 +506,12 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void NewDir()
     {
-        string newDirName = FileNameGenerator.GetAvailableName(_currentDir, NewDirName);
-        if (_fileOpsHandler.NewDirAt(_currentDir, newDirName, out string? errorMessage))
+        string newDirName = FileNameGenerator.GetAvailableName(CurrentDir, NewDirName);
+        if (_fileOpsHandler.NewDirAt(CurrentDir, newDirName, out string? errorMessage))
         {
             Reload();
-            _undoRedoHistory.NewNode(new NewDirAt(_fileOpsHandler, _currentDir, newDirName));
-            _selectedFiles.Add(_fileEntries.First(entry => entry.Name == newDirName));
+            _undoRedoHistory.NewNode(new NewDirAt(_fileOpsHandler, CurrentDir, newDirName));
+            SelectedFiles.Add(FileEntries.First(entry => entry.Name == newDirName));
         }
         else
             ErrorMessage = errorMessage;
@@ -516,13 +521,13 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         if (
             _fileOpsHandler.CopyToOSClipBoard(
-                _selectedFiles.Select(entry => entry.PathToEntry).ToArray(),
+                SelectedFiles.Select(entry => entry.PathToEntry).ToArray(),
                 out string? errorMessage
             )
         )
         {
             _isCutOperation = true;
-            _programClipboard = _selectedFiles.ToList();
+            _programClipboard = SelectedFiles.ToList();
         }
         else
             ErrorMessage = errorMessage;
@@ -532,13 +537,13 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         if (
             _fileOpsHandler.CopyToOSClipBoard(
-                _selectedFiles.Select(entry => entry.PathToEntry).ToArray(),
+                SelectedFiles.Select(entry => entry.PathToEntry).ToArray(),
                 out string? errorMessage
             )
         )
         {
             _isCutOperation = false;
-            _programClipboard = _selectedFiles.ToList();
+            _programClipboard = SelectedFiles.ToList();
         }
         else
             ErrorMessage = errorMessage;
@@ -546,7 +551,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void Paste()
     {
-        if (!_fileOpsHandler.PasteFromOSClipBoard(_currentDir, out string? errorMessage))
+        if (!_fileOpsHandler.PasteFromOSClipBoard(CurrentDir, out string? errorMessage))
         {
             ErrorMessage = errorMessage;
             _programClipboard.Clear();
@@ -557,7 +562,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (_isCutOperation)
         {
             _undoRedoHistory.NewNode(
-                new MoveFilesTo(_fileOpsHandler, _programClipboard.ToArray(), _currentDir)
+                new MoveFilesTo(_fileOpsHandler, _programClipboard.ToArray(), CurrentDir)
             );
             foreach (FileSystemEntry entry in _programClipboard)
             {
@@ -570,22 +575,22 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
         else
             _undoRedoHistory.NewNode(
-                new CopyFilesTo(_fileOpsHandler, _programClipboard.ToArray(), _currentDir)
+                new CopyFilesTo(_fileOpsHandler, _programClipboard.ToArray(), CurrentDir)
             );
         Reload();
     }
 
     public void Rename(string newName)
     {
-        if (_selectedFiles.Count == 1)
+        if (SelectedFiles.Count == 1)
             RenameOne(newName);
-        else if (_selectedFiles.Count > 1)
+        else if (SelectedFiles.Count > 1)
             RenameMultiple(newName);
     }
 
     private void RenameOne(string newName)
     {
-        FileSystemEntry entry = _selectedFiles[0];
+        FileSystemEntry entry = SelectedFiles[0];
         bool result = entry.IsDirectory
             ? _fileOpsHandler.RenameDirAt(entry.PathToEntry, newName, out string? errorMessage)
             : _fileOpsHandler.RenameFileAt(entry.PathToEntry, newName, out errorMessage);
@@ -594,7 +599,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             _undoRedoHistory.NewNode(new RenameOne(_fileOpsHandler, entry, newName));
             Reload();
-            _selectedFiles.Add(_fileEntries.First(entry => entry.Name == newName));
+            SelectedFiles.Add(FileEntries.First(entry => entry.Name == newName));
         }
         else
             ErrorMessage = errorMessage;
@@ -602,22 +607,22 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void RenameMultiple(string namingPattern)
     {
-        bool onlyFiles = !_selectedFiles[0].IsDirectory;
+        bool onlyFiles = !SelectedFiles[0].IsDirectory;
         string extension = onlyFiles
-            ? Path.GetExtension(_selectedFiles[0].PathToEntry)
+            ? Path.GetExtension(SelectedFiles[0].PathToEntry)
             : string.Empty;
 
-        if (!FileNameGenerator.CanBeRenamed(_selectedFiles, onlyFiles, extension))
+        if (!FileNameGenerator.CanBeRenamed(SelectedFiles, onlyFiles, extension))
         {
             ErrorMessage = "Selected entries aren't of the same type.";
             return;
         }
 
-        string[] newNames = FileNameGenerator.GetAvailableNames(_selectedFiles, namingPattern);
+        string[] newNames = FileNameGenerator.GetAvailableNames(SelectedFiles, namingPattern);
         bool errorOccured = false;
-        for (int i = 0; i < _selectedFiles.Count; i++)
+        for (int i = 0; i < SelectedFiles.Count; i++)
         {
-            FileSystemEntry entry = _selectedFiles[i];
+            FileSystemEntry entry = SelectedFiles[i];
             string? errorMessage;
             bool result = onlyFiles
                 ? _fileOpsHandler.RenameFileAt(entry.PathToEntry, newNames[i], out errorMessage)
@@ -629,7 +634,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
         if (!errorOccured)
             _undoRedoHistory.NewNode(
-                new RenameMultiple(_fileOpsHandler, _selectedFiles.ToArray(), newNames)
+                new RenameMultiple(_fileOpsHandler, SelectedFiles.ToArray(), newNames)
             );
         Reload();
     }
@@ -637,7 +642,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private void MoveToTrash()
     {
         bool errorOccured = false;
-        foreach (FileSystemEntry entry in _selectedFiles)
+        foreach (FileSystemEntry entry in SelectedFiles)
         {
             bool result = entry.IsDirectory
                 ? _fileOpsHandler.MoveDirToTrash(entry.PathToEntry, out string? errorMessage)
@@ -648,14 +653,14 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
         if (!errorOccured)
             _undoRedoHistory.NewNode(
-                new MoveFilesToTrash(_fileOpsHandler, _selectedFiles.ToArray())
+                new MoveFilesToTrash(_fileOpsHandler, SelectedFiles.ToArray())
             );
         Reload();
     }
 
     private void Delete()
     {
-        foreach (FileSystemEntry entry in _selectedFiles)
+        foreach (FileSystemEntry entry in SelectedFiles)
         {
             string? errorMessage;
             if (entry.IsDirectory)
@@ -686,6 +691,13 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         _sortReversed = _sortBy == SortBy.Type && !_sortReversed;
         _sortBy = SortBy.Type;
+        Reload();
+    }
+
+    private void SortBySize()
+    {
+        _sortReversed = _sortBy == SortBy.Size && !_sortReversed;
+        _sortBy = SortBy.Size;
         Reload();
     }
 
@@ -730,40 +742,40 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void SelectAll()
     {
-        _selectedFiles.Clear();
+        SelectedFiles.Clear();
 
-        foreach (FileSystemEntry entry in _fileEntries)
-            _selectedFiles.Add(entry);
+        foreach (FileSystemEntry entry in FileEntries)
+            SelectedFiles.Add(entry);
     }
 
     private void SelectNone() => SelectedFiles.Clear();
 
     private void InvertSelection()
     {
-        if (_selectedFiles.Count <= ArraySearchThreshold)
+        if (SelectedFiles.Count <= ArraySearchThreshold)
         {
-            string[] oldSelectionNames = new string[_selectedFiles.Count];
-            for (int i = 0; i < _selectedFiles.Count; i++)
-                oldSelectionNames[i] = _selectedFiles[i].Name;
+            string[] oldSelectionNames = new string[SelectedFiles.Count];
+            for (int i = 0; i < SelectedFiles.Count; i++)
+                oldSelectionNames[i] = SelectedFiles[i].Name;
 
-            _selectedFiles.Clear();
-            foreach (FileSystemEntry entry in _fileEntries)
+            SelectedFiles.Clear();
+            foreach (FileSystemEntry entry in FileEntries)
             {
                 if (!oldSelectionNames.Contains(entry.Name))
-                    _selectedFiles.Add(entry);
+                    SelectedFiles.Add(entry);
             }
         }
         else
         {
-            HashSet<string> oldSelectionNames = _selectedFiles
+            HashSet<string> oldSelectionNames = SelectedFiles
                 .Select(entry => entry.Name)
                 .ToHashSet();
 
-            _selectedFiles.Clear();
-            foreach (FileSystemEntry entry in _fileEntries)
+            SelectedFiles.Clear();
+            foreach (FileSystemEntry entry in FileEntries)
             {
                 if (!oldSelectionNames.Contains(entry.Name))
-                    _selectedFiles.Add(entry);
+                    SelectedFiles.Add(entry);
             }
         }
     }
