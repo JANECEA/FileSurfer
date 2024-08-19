@@ -1,4 +1,3 @@
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System;
@@ -8,8 +7,13 @@ namespace FileSurfer;
 
 public class FileSystemEntry
 {
+    private const int SizeLimit = 4096;
     private readonly static Bitmap _folderIcon =
         new(Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/FolderIcon.png")));
+    private readonly static Bitmap _driveIcon =
+        new(Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/DriveIcon.png")));
+    private readonly static string[] _sizes = new string[] { "B", "KiB", "MiB", "GiB", "TiB", "PiB" };
+
     public readonly string PathToEntry;
     public readonly bool IsDirectory;
     public Bitmap? Icon { get; }
@@ -17,7 +21,7 @@ public class FileSystemEntry
     public DateTime LastChanged { get; }
     public string LastModified { get; }
     public string Size { get; }
-    public long? SizeKib { get; }
+    public long? SizeB { get; }
     public string Type { get; }
     public double Opacity { get; }
 
@@ -26,18 +30,13 @@ public class FileSystemEntry
         PathToEntry = path;
         IsDirectory = isDirectory;
         Name = Path.GetFileName(path);
-        Icon = isDirectory ? _folderIcon : GetIcon(fileOpsHandler);
+        Icon = isDirectory ? _folderIcon : GetIcon(fileOpsHandler, path);
         LastChanged = fileOpsHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
-        LastModified = SetLastModified(fileOpsHandler);
+        LastModified = GetLastModified(fileOpsHandler);
         Opacity = fileOpsHandler.IsHidden(path, isDirectory) || Name.StartsWith('.') ? 0.4 : 1;
 
-        SizeKib = isDirectory 
-            ? null
-            : (fileOpsHandler.GetFileSizeB(path) + 1023) / 1024;
-
-        Size = isDirectory
-            ? string.Empty
-            : SizeKib.ToString() + " KiB";
+        SizeB = isDirectory ? null : fileOpsHandler.GetFileSizeB(path); 
+        Size = SizeB is long NotNullSize ? GetSizeString(NotNullSize) : string.Empty;
 
         if (isDirectory)
             Type = "Directory";
@@ -48,30 +47,19 @@ public class FileSystemEntry
         }
     }
 
-    public FileSystemEntry(string driveName, string volumeLabel)
+    public FileSystemEntry(string driveName, string volumeLabel, long size)
     {
         PathToEntry = driveName;
-        Name = $"{volumeLabel} ({driveName.TrimEnd('\\').TrimEnd('/')})";
+        Name = $"{volumeLabel} ({driveName.TrimEnd(Path.DirectorySeparatorChar)})";
         IsDirectory = true;
         Type = "Drive";
-        Icon = _folderIcon;
+        Icon = _driveIcon;
         LastModified = string.Empty;
-        Size = string.Empty;
+        Size = GetSizeString(size);
         Opacity = 1;
     }
 
-    private Bitmap? GetIcon(IFileOperationsHandler fileOpsHandler)
-    {
-        if (fileOpsHandler.GetFileIcon(PathToEntry) is not System.Drawing.Bitmap bitmap)
-            return null;
-
-        using MemoryStream stream = new();
-        bitmap.Save(stream, ImageFormat.Png);
-        stream.Position = 0;
-        return new Bitmap(stream);
-    }
-
-    private string SetLastModified(IFileOperationsHandler fileOpsHandler)
+    private string GetLastModified(IFileOperationsHandler fileOpsHandler)
     {
         DateTime? time = IsDirectory ?
             fileOpsHandler.GetDirLastModified(PathToEntry) :
@@ -81,5 +69,29 @@ public class FileSystemEntry
             return notNullTime.ToShortDateString() + " " + notNullTime.ToShortTimeString();
 
         return "Error";
+    }
+
+    private static Bitmap? GetIcon(IFileOperationsHandler fileOpsHandler, string path)
+    {
+        if (fileOpsHandler.GetFileIcon(path) is not System.Drawing.Bitmap bitmap)
+            return null;
+
+        using MemoryStream stream = new();
+        bitmap.Save(stream, ImageFormat.Png);
+        stream.Position = 0;
+        return new Bitmap(stream);
+    }
+
+    private static string GetSizeString(long sizeInB)
+    {
+        long size = sizeInB;
+        foreach (string notation in _sizes)
+        {
+            if (size > SizeLimit)
+                size = (size + 1023) / 1024;
+            else
+                return size.ToString() + " " + notation;
+        }
+        return (size * 1024).ToString() + " " + _sizes[^1];
     }
 }
