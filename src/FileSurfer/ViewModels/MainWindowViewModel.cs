@@ -72,7 +72,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             new ErrorWindow(errorMessage).Show();
         });
 
-    private string _currentDir = ThisPCLabel;
+    private string _currentDir = "D:\\Stažené\\testing";
     public string CurrentDir
     {
         get => _currentDir;
@@ -82,10 +82,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             if (IsValidDirectory(value))
             {
                 if (Searching)
-                    CancelSearch();
+                    CancelSearch(value);
 
                 Reload();
-                if (_isUserInvoked)
+
+                if (_isUserInvoked && value != _pathHistory.Current)
                     _pathHistory.NewNode(value);
             }
         }
@@ -286,10 +287,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public void GoUp()
     {
-        if (Path.GetDirectoryName(CurrentDir) is not string dirName)
+        if (Path.GetDirectoryName(CurrentDir) is not string parentDir)
             CurrentDir = ThisPCLabel;
+
         else if (CurrentDir != ThisPCLabel)
-            CurrentDir = dirName;
+            CurrentDir = parentDir;
     }
 
     private void LoadDrives()
@@ -489,6 +491,13 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         _searchCTS.Cancel();
         Searching = false;
         CurrentDir = _pathHistory.Current ?? ThisPCLabel;
+    }
+
+    public void CancelSearch(string directory)
+    {
+        _searchCTS.Cancel();
+        Searching = false;
+        CurrentDir = directory;
     }
 
     private void NewFile()

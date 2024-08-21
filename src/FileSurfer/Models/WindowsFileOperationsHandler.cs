@@ -2,6 +2,7 @@ using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -11,6 +12,10 @@ namespace FileSurfer;
 
 class WindowsFileOperationsHandler : IFileOperationsHandler
 {
+    // 250 MiB
+    private const int ShowDialogLimit = 262144000;
+    private const string NewImgName = "Image.png";
+
     public bool DeleteFile(string filePath, out string? errorMessage)
     {
         try
@@ -35,7 +40,12 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     {
         try
         {
-            Directory.Delete(dirPath);
+            if (!Directory.Exists(dirPath))
+            {
+                errorMessage = $"Could not find directory: \"{dirPath}\"";
+                return false;
+            }
+            Directory.Delete(dirPath, true);
             errorMessage = null;
             return true;
         }
@@ -158,12 +168,14 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
 
     public bool MoveFileToTrash(string filePath, out string? errorMessage)
     {
+        bool showDialog = GetFileSizeB(filePath) > ShowDialogLimit;
         try
         {
             FileSystem.DeleteFile(
                 filePath,
-                UIOption.OnlyErrorDialogs,
-                RecycleOption.SendToRecycleBin
+                showDialog ? UIOption.AllDialogs : UIOption.OnlyErrorDialogs,
+                RecycleOption.SendToRecycleBin,
+                UICancelOption.ThrowException
             );
             errorMessage = null;
             return true;
@@ -181,8 +193,9 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         {
             FileSystem.DeleteDirectory(
                 dirPath,
-                UIOption.OnlyErrorDialogs,
-                RecycleOption.SendToRecycleBin
+                UIOption.AllDialogs,
+                RecycleOption.SendToRecycleBin,
+                UICancelOption.ThrowException
             );
             errorMessage = null;
             return true;
@@ -202,6 +215,11 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
 
     public bool NewFileAt(string dirPath, string fileName, out string? errorMessage)
     {
+        if (!IsValidFileName(fileName))
+        {
+            errorMessage = $"File name: \"{fileName}\" is invalid.";
+            return false;
+        }
         try
         {
             string filePath = Path.Combine(dirPath, fileName);
@@ -224,9 +242,20 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
 
     public bool NewDirAt(string dirPath, string dirName, out string? errorMessage)
     {
+        if (!IsValidDirName(dirName))
+        {
+            errorMessage = $"Directory name: \"{dirName}\" is invalid.";
+            return false;
+        }
         try
         {
-            Directory.CreateDirectory(Path.Combine(dirPath, dirName));
+            string newDirPath = Path.Combine(dirPath, dirName);
+            if (Directory.Exists(newDirPath))
+            {
+                errorMessage = $"Directory: \"{newDirPath}\" already exists";
+                return false;
+            }
+            Directory.CreateDirectory(newDirPath);
             errorMessage = null;
             return true;
         }
@@ -251,7 +280,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public static bool IsOSProtected(string path, bool isDirectory)
+    private static bool IsOSProtected(string path, bool isDirectory)
     {
         try
         {
@@ -329,6 +358,11 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     public bool PasteFromOSClipBoard(string destinationPath, out string? errorMessage)
     {
         errorMessage = null;
+        if (Clipboard.ContainsImage())
+        {
+            SaveImageToPath(destinationPath, out errorMessage);
+            return false;
+        }
         if (!Clipboard.ContainsFileDropList())
             return true;
 
@@ -340,9 +374,10 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
                 if (filePath is null)
                     throw new ArgumentNullException(filePath);
 
-                string fileName = Path.GetFileName(filePath);
-                string destPath = Path.Combine(destinationPath, fileName);
-                File.Copy(filePath, destPath);
+                if (File.Exists(filePath))
+                    CopyFileTo(filePath, destinationPath, out errorMessage);
+                else if (Directory.Exists(filePath))
+                    CopyDirTo(filePath, destinationPath, out errorMessage);
             }
             return true;
         }
@@ -351,6 +386,25 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             errorMessage = ex.Message;
             return false;
         }
+    }
+
+    [STAThread]
+    private static void SaveImageToPath(string destinationPath, out string? errorMessage)
+    {
+        errorMessage = null;
+        if (Clipboard.GetImage() is not Image image)
+            return;
+
+        string imgName = FileNameGenerator.GetAvailableName(destinationPath, NewImgName);
+        try
+        {
+            image.Save(Path.Combine(destinationPath, imgName), ImageFormat.Png);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        image.Dispose();
     }
 
     public bool ExecuteCmd(string command, out string? errorMessage)
@@ -407,7 +461,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     {
         if (!IsValidFileName(newName))
         {
-            errorMessage = $"File name: \"{newName}\" is invalid";
+            errorMessage = $"File name: \"{newName}\" is invalid.";
             return false;
         }
         try
@@ -433,7 +487,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     {
         if (!IsValidDirName(newName))
         {
-            errorMessage = $"Directory name: \"{newName}\" is invalid";
+            errorMessage = $"Directory name: \"{newName}\" is invalid.";
             return false;
         }
         try
@@ -457,10 +511,16 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
 
     public bool MoveFileTo(string filePath, string destinationDir, out string? errorMessage)
     {
+        bool showDialog = GetFileSizeB(filePath) > ShowDialogLimit;
         try
         {
             string newFilePath = Path.Combine(destinationDir, Path.GetFileName(filePath));
-            File.Move(filePath, newFilePath);
+            FileSystem.MoveFile(
+                filePath,
+                newFilePath,
+                showDialog ? UIOption.AllDialogs : UIOption.OnlyErrorDialogs,
+                UICancelOption.ThrowException
+            );
             errorMessage = null;
             return true;
         }
@@ -476,7 +536,12 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         try
         {
             string newDirPath = Path.Combine(destinationDir, Path.GetFileName(dirPath));
-            Directory.Move(dirPath, newDirPath);
+            FileSystem.MoveDirectory(
+                dirPath,
+                newDirPath,
+                UIOption.AllDialogs,
+                UICancelOption.ThrowException
+            );
             errorMessage = null;
             return true;
         }
@@ -489,10 +554,17 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
 
     public bool CopyFileTo(string filePath, string destinationDir, out string? errorMessage)
     {
+        bool showDialog = GetFileSizeB(filePath) > ShowDialogLimit;
         try
         {
             errorMessage = null;
-            File.Copy(filePath, Path.Combine(destinationDir, Path.GetFileName(filePath)));
+            string newFilePath = Path.Combine(destinationDir, Path.GetFileName(filePath));
+            FileSystem.CopyFile(
+                filePath,
+                newFilePath,
+                showDialog ? UIOption.AllDialogs : UIOption.OnlyErrorDialogs,
+                UICancelOption.ThrowException
+            );
             return true;
         }
         catch (Exception ex)
@@ -507,9 +579,12 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         try
         {
             errorMessage = null;
+            string newDirPath = Path.Combine(destinationDir, Path.GetFileName(dirPath));
             FileSystem.CopyDirectory(
                 dirPath,
-                Path.Combine(destinationDir, Path.GetFileName(dirPath))
+                newDirPath,
+                UIOption.AllDialogs,
+                UICancelOption.ThrowException
             );
             return true;
         }

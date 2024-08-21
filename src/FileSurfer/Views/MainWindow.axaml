@@ -71,9 +71,9 @@
                 <Button Classes="FileOperationButton" Content="" HotKey="Ctrl+N" Command="{Binding NewFileCommand}"/>
                 <Button Classes="FileOperationButton" Content="" HotKey="Ctrl+Shift+N" Command="{Binding NewDirCommand}"/>
                 <Rectangle Classes="ButtonSeparator"/>
-                <Button Classes="FileOperationButton" Content="󰆐" HotKey="Ctrl+X" Command="{Binding CutCommand}"/>
-                <Button Classes="FileOperationButton" Content="" HotKey="Ctrl+C" Command="{Binding CopyCommand}"/>
-                <Button Classes="FileOperationButton" Content="󰆒" HotKey="Ctrl+V" Command="{Binding PasteCommand}"/>
+                <Button x:Name="CutButton" Classes="FileOperationButton" Content="󰆐" HotKey="Ctrl+X" Command="{Binding CutCommand}"/>
+                <Button x:Name="CopyButton" Classes="FileOperationButton" Content="" HotKey="Ctrl+C" Command="{Binding CopyCommand}"/>
+                <Button x:Name="PasteButton" Classes="FileOperationButton" Content="󰆒" HotKey="Ctrl+V" Command="{Binding PasteCommand}"/>
                 <Button Classes="FileOperationButton" Content="󰑕" HotKey="F2" Click="OnRenameClicked"/>
                 <Button x:Name="DeleteButton" Classes="FileOperationButton" Content="" HotKey="Delete" Command="{Binding MoveToTrashCommand}"/>
                 <Rectangle Classes="ButtonSeparator"/>

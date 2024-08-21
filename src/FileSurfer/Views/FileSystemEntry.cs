@@ -12,7 +12,7 @@ public class FileSystemEntry
         new(Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/FolderIcon.png")));
     private readonly static Bitmap _driveIcon =
         new(Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/DriveIcon.png")));
-    private readonly static string[] _sizes = new string[] { "B", "KiB", "MiB", "GiB", "TiB", "PiB" };
+    private readonly static string[] _byteUnits = new string[] { "B", "KiB", "MiB", "GiB", "TiB", "PiB" };
 
     public readonly string PathToEntry;
     public readonly bool IsDirectory;
@@ -85,13 +85,13 @@ public class FileSystemEntry
     public static string GetSizeString(long sizeInB)
     {
         long size = sizeInB;
-        foreach (string notation in _sizes)
+        foreach (string notation in _byteUnits)
         {
-            if (size > SizeLimit)
-                size = (size + 1023) / 1024;
-            else
+            if (size <= SizeLimit)
                 return size.ToString() + " " + notation;
+            else
+                size = (size + 1023) / 1024;
         }
-        return (size * 1024).ToString() + " " + _sizes[^1];
+        return (size * 1024).ToString() + " " + _byteUnits[^1];
     }
 }

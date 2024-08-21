@@ -6,6 +6,7 @@ using Avalonia.Markup.Xaml.Templates;
 using Avalonia.VisualTree;
 using FileSurfer.ViewModels;
 using System;
+using System.Linq;
 
 namespace FileSurfer.Views;
 
@@ -14,7 +15,11 @@ public partial class MainWindow : Window
     private WrapPanel? _filePanel;
     private readonly DataTemplate _iconViewTemplate;
     private readonly DataTemplate _listViewTemplate;
+    private readonly KeyBinding _selectAllKB;
     private readonly KeyGesture _deleteGesture = KeyGesture.Parse("Delete");
+    private readonly KeyGesture _cutGesture = KeyGesture.Parse("Ctrl+X");
+    private readonly KeyGesture _copyGesture = KeyGesture.Parse("Ctrl+C");
+    private readonly KeyGesture _pasteGesture = KeyGesture.Parse("Ctrl+V");
 
     public MainWindow()
     {
@@ -28,6 +33,7 @@ public partial class MainWindow : Window
 
         _listViewTemplate = listViewTemplate;
         _iconViewTemplate = iconViewTemplate;
+        _selectAllKB = KeyBindings.First(kb => kb is not null && kb.Gesture.KeyModifiers == KeyModifiers.Control && kb.Gesture.Key == Key.A);
     }
 
     private WrapPanel? FindWrapPanel(Control parent)
@@ -94,11 +100,23 @@ public partial class MainWindow : Window
             viewModel.GoForward();
     }
 
-    private void TextBoxGotFocus(object? sender = null, GotFocusEventArgs? e = null) =>
+    private void TextBoxGotFocus(object? sender = null, GotFocusEventArgs? e = null)
+    {
         DeleteButton.HotKey = null;
+        CutButton.HotKey = null;
+        CopyButton.HotKey = null;
+        PasteButton.HotKey = null;
+        KeyBindings.Remove(_selectAllKB);
+    }
 
-    private void TextBoxLostFocus(object? sender = null, RoutedEventArgs? e = null) =>
+    private void TextBoxLostFocus(object? sender = null, RoutedEventArgs? e = null)
+    {
         DeleteButton.HotKey = _deleteGesture;
+        CutButton.HotKey = _cutGesture;
+        CopyButton.HotKey = _copyGesture;
+        PasteButton.HotKey = _pasteGesture;
+        KeyBindings.Add(_selectAllKB);
+    }
 
     private void SearchBoxLostFocus(object sender, RoutedEventArgs e)
     {
