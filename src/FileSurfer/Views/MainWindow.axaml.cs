@@ -228,6 +228,8 @@ public partial class MainWindow : Window
                 NameEntered();
             if (CommitMessageBar.IsVisible)
                 CommitMessageEntered();
+
+            FocusManager?.ClearFocus();
             return;
         }
 

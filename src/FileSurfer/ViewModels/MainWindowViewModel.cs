@@ -72,7 +72,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             new ErrorWindow(errorMessage).Show();
         });
 
-    private string _currentDir = "D:\\Stažené\\testing";
+    private string _currentDir = ThisPCLabel;
     public string CurrentDir
     {
         get => _currentDir;
@@ -621,7 +621,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             ? Path.GetExtension(SelectedFiles[0].PathToEntry)
             : string.Empty;
 
-        if (!FileNameGenerator.CanBeRenamed(SelectedFiles, onlyFiles, extension))
+        if (!FileNameGenerator.CanBeRenamedCollectively(SelectedFiles, onlyFiles, extension))
         {
             ErrorMessage = "Selected entries aren't of the same type.";
             return;

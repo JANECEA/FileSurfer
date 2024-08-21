@@ -29,9 +29,8 @@ static class ArchiveManager
             using FileStream zipStream = File.OpenWrite(destinationPath);
 
             foreach (string filePath in filePaths)
-            {
                 archive.AddEntry(Path.GetFileName(filePath), File.OpenRead(filePath));
-            }
+
             archive.SaveTo(zipStream, new WriterOptions(CompressionType.Deflate));
             errorMessage = null;
             return true;

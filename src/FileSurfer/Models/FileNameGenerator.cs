@@ -34,7 +34,7 @@ static class FileNameGenerator
         return GetAvailableName(directory, copyName + " - Copy" + extension);
     }
 
-    public static bool CanBeRenamed(
+    public static bool CanBeRenamedCollectively(
         IEnumerable<FileSystemEntry> entries,
         bool onlyFiles,
         string extension
@@ -53,17 +53,31 @@ static class FileNameGenerator
 
     public static string[] GetAvailableNames(
         IEnumerable<FileSystemEntry> entries,
-        string namePattern
+        string namingPattern
     )
     {
         string[] newNames = new string[entries.Count()];
+        string extension = Path.GetExtension(namingPattern);
+        string nameWOextension = Path.GetFileNameWithoutExtension(namingPattern);
         string directory =
             Path.GetDirectoryName(entries.First().PathToEntry)
             ?? throw new ArgumentException(entries.First().PathToEntry);
 
+        int lastIndex = 1;
         for (int i = 0; i < newNames.Length; i++)
-            newNames[i] = GetAvailableName(directory, namePattern, i);
+        {
+            for (int index = lastIndex; ; index++)
+            {
+                string newFileName = $"{nameWOextension} ({index}){extension}";
+                lastIndex++;
 
+                if (!Path.Exists(Path.Combine(directory, newFileName)))
+                {
+                    newNames[i] = newFileName;
+                    break;
+                }
+            }
+        }
         return newNames;
     }
 }
