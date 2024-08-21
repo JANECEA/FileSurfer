@@ -337,6 +337,9 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     }
 
     [STAThread]
+    public void ClearOSClipBoard() => Clipboard.Clear();
+
+    [STAThread]
     public bool CopyToOSClipBoard(string[] paths, out string? errorMessage)
     {
         try
@@ -595,8 +598,58 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public bool ShowProperties(string filePath, out string? errorMessage) =>
-        WindowsFileProperties.ShowFileProperties(filePath, out errorMessage);
+    public bool DuplicateFile(string filePath, string copyName, out string? errorMessage)
+    {
+        bool showDialog = GetFileSizeB(filePath) > ShowDialogLimit;
+        try
+        {
+            errorMessage = null;
+            if (Path.GetDirectoryName(filePath) is not string parentDir)
+            {
+                errorMessage = "Can't duplicate a root diretory.";
+                return false;   
+            }
+            string newFilePath = Path.Combine(parentDir, copyName);
+            FileSystem.CopyFile(
+                filePath,
+                newFilePath,
+                showDialog ? UIOption.AllDialogs : UIOption.OnlyErrorDialogs,
+                UICancelOption.ThrowException
+            );
+            return true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
+    }
+
+    public bool DuplicateDir(string dirPath, string copyName, out string? errorMessage)
+    {
+        try
+        {
+            errorMessage = null;
+            if (Path.GetDirectoryName(dirPath) is not string parentDir)
+            {
+                errorMessage = "Can't duplicate a root diretory.";
+                return false;   
+            }
+            string newDirPath = Path.Combine(parentDir, copyName);
+            FileSystem.CopyDirectory(
+                dirPath,
+                newDirPath,
+                UIOption.AllDialogs,
+                UICancelOption.ThrowException
+            );
+            return true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
+    }
 
     public bool CreateLink(string filePath, out string? errorMessage)
     {

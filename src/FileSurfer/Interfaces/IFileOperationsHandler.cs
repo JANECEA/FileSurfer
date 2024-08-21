@@ -10,8 +10,6 @@ public interface IFileOperationsHandler
 
     public bool OpenFile(string filePath, out string? errorMessage);
 
-    public bool ShowProperties(string filePath, out string? errorMessage);
-
     public bool CreateLink(string filePath, out string? errorMessage);
 
     public string[] GetPathDirs(string path, bool includeHidden, bool includeOS);
@@ -40,6 +38,8 @@ public interface IFileOperationsHandler
 
     public bool PasteFromOSClipBoard(string filePath, out string? errorMessage);
 
+    public void ClearOSClipBoard();
+
     public bool RenameFileAt(string filePath, string newName, out string? errorMessage);
 
     public bool RenameDirAt(string dirPath, string newName, out string? errorMessage);
@@ -51,6 +51,10 @@ public interface IFileOperationsHandler
     public bool CopyFileTo(string filePath, string destinationDir, out string? errorMessage);
 
     public bool CopyDirTo(string dirPath, string destinationDir, out string? errorMessage);
+
+    public bool DuplicateFile(string filePath, string copyName, out string? errorMessage);
+
+    public bool DuplicateDir(string dirPath, string copyName, out string? errorMessage);
 
     public bool MoveFileToTrash(string filePath, out string? errorMessage);
 
