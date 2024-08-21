@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 
 namespace FileSurfer.UndoableFileOperations;
 
@@ -66,16 +67,19 @@ public class MoveFilesTo : IUndoableFileOperation
     private readonly IFileOperationsHandler _fileOpsHandler;
     private readonly FileSystemEntry[] _entries;
     private readonly string _destinationDir;
+    private readonly string _originalDir;
 
     public MoveFilesTo(
-        IFileOperationsHandler fileHandler,
+        IFileOperationsHandler fileOpsHandler,
         FileSystemEntry[] entries,
         string destinationDir
     )
     {
         _entries = entries;
-        _fileOpsHandler = fileHandler;
+        _fileOpsHandler = fileOpsHandler;
         _destinationDir = destinationDir;
+        _originalDir = Path.GetDirectoryName(entries[0].PathToEntry) ??
+            throw new InvalidOperationException();
     }
 
     public bool Redo(out string? errorMessage)
@@ -94,7 +98,6 @@ public class MoveFilesTo : IUndoableFileOperation
             {
                 errorOccured = true;
                 errorMessage += $"\"{entry.PathToEntry}\", ";
-                ;
             }
         }
         if (!errorOccured)
@@ -111,15 +114,14 @@ public class MoveFilesTo : IUndoableFileOperation
         {
             string newPath = Path.Combine(_destinationDir, entry.Name);
             if (entry.IsDirectory)
-                _fileOpsHandler.MoveDirTo(newPath, entry.PathToEntry, out errMessage);
+                _fileOpsHandler.MoveDirTo(newPath, _originalDir, out errMessage);
             else
-                _fileOpsHandler.MoveFileTo(newPath, entry.PathToEntry, out errMessage);
+                _fileOpsHandler.MoveFileTo(newPath, _originalDir, out errMessage);
 
             if (errMessage is not null)
             {
                 errorOccured = true;
                 errorMessage += $"\"{newPath}\", ";
-                ;
             }
         }
         if (!errorOccured)
