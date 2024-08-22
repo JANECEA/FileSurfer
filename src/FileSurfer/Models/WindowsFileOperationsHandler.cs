@@ -205,10 +205,10 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
     }
 
     public bool RestoreFile(string ogFilePath, out string? errorMessage) =>
-        WindowsFileRestorer.RestoreFile(ogFilePath, out errorMessage);
+        WindowsFileRestorer.RestoreEntry(ogFilePath, out errorMessage);
 
     public bool RestoreDir(string ogDirPath, out string? errorMessage) =>
-        WindowsFileRestorer.RestoreDir(ogDirPath, out errorMessage);
+        WindowsFileRestorer.RestoreEntry(ogDirPath, out errorMessage);
 
     public bool NewFileAt(string dirPath, string fileName, out string? errorMessage)
     {
@@ -333,7 +333,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public bool ExecuteCmd(string command, out string? errorMessage)
+    public bool ExecuteCmd(string command)
     {
         using Process process =
             new()
@@ -349,11 +349,8 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
                 }
             };
         process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
         process.WaitForExit();
 
-        errorMessage = null;
         return process.ExitCode == 0;
     }
 

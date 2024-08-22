@@ -1,8 +1,7 @@
+using Shell32;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
-using Shell32;
 
 namespace FileSurfer;
 
@@ -13,13 +12,14 @@ static class WindowsFileRestorer
     private const int PathColumn = 1;
     private const string RestoreVerb = "ESTORE";
 
-    public static bool RestoreFile(string originalPath, out string? errorMessage)
+    public static bool RestoreEntry(string originalPath, out string? errorMessage)
     {
         Shell shell = new();
         errorMessage = null;
+        Folder bin = shell.NameSpace(BinFolderID);
+        bool entryFound = false;
         try
         {
-            Folder bin = shell.NameSpace(BinFolderID);
             foreach (FolderItem item in bin.Items())
             {
                 string itemName = bin.GetDetailsOf(item, NameColumn);
@@ -28,49 +28,19 @@ static class WindowsFileRestorer
                 if (Path.Combine(itemPath, itemName) == originalPath)
                 {
                     DoVerb(item, RestoreVerb);
-                    Marshal.FinalReleaseComObject(shell);
-                    return true;
+                    entryFound = true;
+                    break;
                 }
             }
-            Marshal.FinalReleaseComObject(shell);
-            errorMessage = $"file: \"{originalPath}\" not found";
-            return false;
+            errorMessage = entryFound ? null : $"Entry: \"{originalPath}\" not found.";
         }
         catch (Exception ex)
         {
             errorMessage = ex.Message;
         }
-        finally
-        {
-            Marshal.FinalReleaseComObject(shell);
-        }
-        return false;
-    }
-
-    public static bool RestoreDir(string originalPath, out string? errorMessage)
-    {
-        Shell shell = new();
-        Folder recycleBin = shell.NameSpace(BinFolderID);
-        StringBuilder errors = new();
-        foreach (FolderItem item in recycleBin.Items())
-        {
-            try
-            {
-                string itemPath = recycleBin.GetDetailsOf(item, PathColumn);
-
-                if (itemPath.StartsWith(originalPath))
-                {
-                    DoVerb(item, RestoreVerb);
-                }
-            }
-            catch
-            {
-                errors.Append(recycleBin.GetDetailsOf(item, NameColumn));
-            }
-        }
+        Marshal.FinalReleaseComObject(bin);
         Marshal.FinalReleaseComObject(shell);
-        errorMessage = errors.Length == 0 ? null : $"Error processing these files: {errors}";
-        return errors.Length == 0;
+        return entryFound;
     }
 
     private static void DoVerb(FolderItem item, string verb)
