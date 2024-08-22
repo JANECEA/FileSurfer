@@ -10,6 +10,7 @@
         x:DataType="vm:MainWindowViewModel"
         Title="Unexpected error"
         Icon="/Assets/FileSurfer-logo.ico"
+        KeyDown="KeyPressed"
         Background="{DynamicResource PrimaryColor}">
 
     <Window.Styles>

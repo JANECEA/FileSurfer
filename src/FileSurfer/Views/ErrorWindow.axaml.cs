@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 
 namespace FileSurfer.Views;
@@ -12,4 +13,16 @@ public partial class ErrorWindow : Window
     }
 
     private void CloseWindow(object sender, RoutedEventArgs args) => Close();
+
+    private void KeyPressed(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+            OnEnterPressed(e);
+    }
+
+    private void OnEnterPressed(KeyEventArgs e)
+    {
+        e.Handled = true;
+        Close();
+    }
 }
