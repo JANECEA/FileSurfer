@@ -75,7 +75,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             new ErrorWindow(errorMessage).Show();
         });
 
-    private string _currentDir = ThisPCLabel;
+    private string _currentDir = "D:\\Stažené\\testing";
     public string CurrentDir
     {
         get => _currentDir;
@@ -109,6 +109,13 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         set => this.RaiseAndSetIfChanged(ref _searchWaterMark, value);
     }
 
+    private string _selectionInfo = string.Empty;
+    public string SelectionInfo
+    {
+        get => _selectionInfo;
+        set => this.RaiseAndSetIfChanged(ref _selectionInfo, value);
+    }
+
     private bool _searching;
     public bool Searching
     {
@@ -116,12 +123,8 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         set => this.RaiseAndSetIfChanged(ref _searching, value);
     }
 
-    private string[] _branches = Array.Empty<string>();
-    public string[] Branches
-    {
-        get => _branches;
-        set => this.RaiseAndSetIfChanged(ref _branches, value);
-    }
+    private readonly ObservableCollection<string> _branches = new();
+    public ObservableCollection<string> Branches => _branches;
 
     private string? _currentBranch;
     public string? CurrentBranch
@@ -129,7 +132,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         get => _currentBranch;
         set
         {
-            if (!string.IsNullOrEmpty(value))
+            if (!string.IsNullOrEmpty(value) && Branches.Contains(value))
             {
                 _versionControl.SwitchBranches(value, out string? errorMessage);
                 ErrorMessage = errorMessage;
@@ -138,18 +141,18 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
+    private int _currentBranchIndex = -1;
+    public int CurrentBranchIndex
+    {
+        get => _currentBranchIndex;
+        set => this.RaiseAndSetIfChanged(ref _currentBranchIndex, value);
+    }
+
     private bool _isVersionControlled = false;
     public bool IsVersionControlled
     {
         get => _isVersionControlled;
         set => this.RaiseAndSetIfChanged(ref _isVersionControlled, value);
-    }
-
-    private string _selectionInfo = string.Empty;
-    public string SelectionInfo
-    {
-        get => _selectionInfo;
-        set => this.RaiseAndSetIfChanged(ref _selectionInfo, value);
     }
 
     public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
@@ -205,7 +208,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         PullCommand = ReactiveCommand.Create(Pull);
         PushCommand = ReactiveCommand.Create(Push);
         Reload();
-        _pathHistory.AddNewNode(_currentDir);
+        _pathHistory.AddNewNode(CurrentDir);
     }
 
     private void Reload()
@@ -368,9 +371,20 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
-    private void CheckVersionContol() =>
+    private void CheckVersionContol()
+    {
         IsVersionControlled =
             Directory.Exists(CurrentDir) && _versionControl.IsVersionControlled(CurrentDir);
+
+        Branches.Clear();
+        if (IsVersionControlled)
+        {
+            foreach (string branch in _versionControl.GetBranches())
+                Branches.Add(branch);
+
+            CurrentBranchIndex = Branches.IndexOf(_versionControl.GetCurrentBranchName());
+        }
+    }
 
     private void CheckDirectoryEmpty() => DirectoryEmpty = FileEntries.Count == 0;
 

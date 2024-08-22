@@ -26,7 +26,7 @@ public interface IFileOperationsHandler
 
     public bool OpenCmdAt(string dirPath, out string? errorMessage);
 
-    public bool ExecuteCmd(string command, out string? errorMessage);
+    public bool ExecuteCmd(string command);
 
     public bool IsHidden(string path, bool isDirectory);
 

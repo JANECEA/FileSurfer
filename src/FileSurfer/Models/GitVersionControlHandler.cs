@@ -51,8 +51,9 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
     {
         if (_currentRepo is not null)
         {
-            string command = $"cd \"{_currentRepo.Info.Path}\" && git pull";
-            return _fileOpsHandler.ExecuteCmd(command, out errorMessage);
+            string command = $"cd \"{_currentRepo.Info.Path}\\..\" && git pull";
+            errorMessage = null;
+            return _fileOpsHandler.ExecuteCmd(command);
         }
         errorMessage = MissingRepoMessage;
         return false;
@@ -114,8 +115,9 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
             errorMessage = MissingRepoMessage;
             return false;
         }
-        string command = $"cd \"{_currentRepo.Info.Path}\" && git commit -m \"{commitMessage}\"";
-        return _fileOpsHandler.ExecuteCmd(command, out errorMessage);
+        string command = $"cd \"{_currentRepo.Info.Path}\\..\" && git commit -m \"{commitMessage}\"";
+        errorMessage = null;
+        return _fileOpsHandler.ExecuteCmd(command);
     }
 
     public bool UploadChanges(out string? errorMessage)
@@ -125,8 +127,9 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
             errorMessage = MissingRepoMessage;
             return false;
         }
-        string command = $"cd \"{_currentRepo.Info.Path}\" && git push";
-        return _fileOpsHandler.ExecuteCmd(command, out errorMessage);
+        string command = $"cd \"{_currentRepo.Info.Path}\\..\" && git push";
+        errorMessage = null;
+        return _fileOpsHandler.ExecuteCmd(command);
     }
 
     public void Dispose() => _currentRepo?.Dispose();
