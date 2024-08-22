@@ -71,8 +71,8 @@ public class MoveFilesTo : IUndoableFileOperation
         _entries = entries;
         _fileOpsHandler = fileOpsHandler;
         _destinationDir = destinationDir;
-        _originalDir = Path.GetDirectoryName(entries[0].PathToEntry) ??
-            throw new InvalidOperationException();
+        _originalDir =
+            Path.GetDirectoryName(entries[0].PathToEntry) ?? throw new InvalidOperationException();
     }
 
     public bool Redo(out string? errorMessage)
@@ -192,8 +192,8 @@ public class DuplicateFiles : IUndoableFileOperation
         _fileOpsHandler = fileOpsHandler;
         _entries = entries;
         _copyNames = copyNames;
-        _parentDir = Path.GetDirectoryName(entries[0].PathToEntry) ??
-            throw new InvalidOperationException();
+        _parentDir =
+            Path.GetDirectoryName(entries[0].PathToEntry) ?? throw new InvalidOperationException();
     }
 
     public bool Redo(out string? errorMessage)
@@ -203,8 +203,8 @@ public class DuplicateFiles : IUndoableFileOperation
         for (int i = 0; i < _entries.Length; i++)
         {
             bool result = _entries[i].IsDirectory
-                ? _fileOpsHandler.DuplicateDir(_entries[i].PathToEntry, _parentDir, out _)
-                : _fileOpsHandler.DuplicateFile(_entries[i].PathToEntry, _parentDir, out _);
+                ? _fileOpsHandler.DuplicateDir(_entries[i].PathToEntry, _copyNames[i], out _)
+                : _fileOpsHandler.DuplicateFile(_entries[i].PathToEntry, _copyNames[i], out _);
 
             errorOccured = !result || errorOccured;
             if (!result)
@@ -222,7 +222,7 @@ public class DuplicateFiles : IUndoableFileOperation
         errorMessage = "Problems occured deleting these files:";
         for (int i = 0; i < _entries.Length; i++)
         {
-            bool result = _entries[i].IsDirectory 
+            bool result = _entries[i].IsDirectory
                 ? _fileOpsHandler.DeleteDir(Path.Combine(_parentDir, _copyNames[i]), out _)
                 : _fileOpsHandler.DeleteFile(Path.Combine(_parentDir, _copyNames[i]), out _);
 
