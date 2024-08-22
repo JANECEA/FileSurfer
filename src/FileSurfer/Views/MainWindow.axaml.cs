@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -5,8 +7,6 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.VisualTree;
 using FileSurfer.ViewModels;
-using System;
-using System.Linq;
 
 namespace FileSurfer.Views;
 
@@ -33,7 +33,11 @@ public partial class MainWindow : Window
 
         _listViewTemplate = listViewTemplate;
         _iconViewTemplate = iconViewTemplate;
-        _selectAllKB = KeyBindings.First(kb => kb is not null && kb.Gesture.KeyModifiers == KeyModifiers.Control && kb.Gesture.Key == Key.A);
+        _selectAllKB = KeyBindings.First(keyBinding =>
+            keyBinding is not null
+            && keyBinding.Gesture.KeyModifiers == KeyModifiers.Control
+            && keyBinding.Gesture.Key == Key.A
+        );
     }
 
     private WrapPanel? FindWrapPanel(Control parent)
@@ -126,10 +130,7 @@ public partial class MainWindow : Window
 
     private void OnRenameClicked(object sender, RoutedEventArgs e)
     {
-        if (
-            DataContext is not MainWindowViewModel viewModel 
-            || viewModel.SelectedFiles.Count < 1
-        )
+        if (DataContext is not MainWindowViewModel viewModel || viewModel.SelectedFiles.Count == 0)
             return;
 
         NewNameBar.IsVisible = true;
@@ -154,10 +155,7 @@ public partial class MainWindow : Window
 
     private void NameEntered()
     {
-        if (
-            DataContext is MainWindowViewModel viewModel
-            && NameInputBox.Text is string newName
-        )
+        if (DataContext is MainWindowViewModel viewModel && NameInputBox.Text is string newName)
         {
             viewModel.Rename(newName);
             NewNameBar.IsVisible = false;

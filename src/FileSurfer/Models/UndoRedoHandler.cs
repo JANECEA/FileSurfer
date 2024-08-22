@@ -36,7 +36,7 @@ class UndoRedoHandler<T>
         _current = _head;
     }
 
-    public void NewNode(T data)
+    public void AddNewNode(T data)
     {
         if (_current == _tail)
             MoveToPrevious();
@@ -48,9 +48,9 @@ class UndoRedoHandler<T>
 
     public bool IsHead() => _current == _head;
 
-    public T? GetPrevious() => _current.Previous is null ? default : _current.Previous.Data;
+    public T? GetPrevious() => _current.Previous is T ? _current.Previous.Data : default;
 
-    public T? GetNext() => _current.Next is null ? default : _current.Next.Data;
+    public T? GetNext() => _current.Next is T ? _current.Next.Data : default;
 
     public void MoveToPrevious() => _current = _current.Previous ?? _current;
 
@@ -64,9 +64,8 @@ class UndoRedoHandler<T>
             || _current == _head
             || _current == _tail
         )
-        {
-            throw new DataMisalignedException(nameof(_current));
-        }
+            throw new InvalidOperationException(nameof(_current));
+
         _current.Previous.Next = _current.Next;
         _current.Next.Previous = _current.Previous;
         _current = goToPrevious ? _current.Previous : _current.Next;

@@ -1,6 +1,6 @@
+using System;
 using System.Drawing.Imaging;
 using System.IO;
-using System;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace FileSurfer;
@@ -8,11 +8,23 @@ namespace FileSurfer;
 public class FileSystemEntry
 {
     private const int SizeLimit = 4096;
-    private readonly static Bitmap _folderIcon =
-        new(Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/FolderIcon.png")));
-    private readonly static Bitmap _driveIcon =
-        new(Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/DriveIcon.png")));
-    private readonly static string[] _byteUnits = new string[] { "B", "KiB", "MiB", "GiB", "TiB", "PiB" };
+    private static readonly Bitmap _folderIcon =
+        new(
+            Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/FolderIcon.png"))
+        );
+    private static readonly Bitmap _driveIcon =
+        new(
+            Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/DriveIcon.png"))
+        );
+    private static readonly string[] _byteUnits = new string[]
+    {
+        "B",
+        "KiB",
+        "MiB",
+        "GiB",
+        "TiB",
+        "PiB"
+    };
 
     public readonly string PathToEntry;
     public readonly bool IsDirectory;
@@ -35,7 +47,7 @@ public class FileSystemEntry
         LastModified = GetLastModified(fileOpsHandler);
         Opacity = fileOpsHandler.IsHidden(path, isDirectory) || Name.StartsWith('.') ? 0.4 : 1;
 
-        SizeB = isDirectory ? null : fileOpsHandler.GetFileSizeB(path); 
+        SizeB = isDirectory ? null : fileOpsHandler.GetFileSizeB(path);
         Size = SizeB is long NotNullSize ? GetSizeString(NotNullSize) : string.Empty;
 
         if (isDirectory)
@@ -61,9 +73,9 @@ public class FileSystemEntry
 
     private string GetLastModified(IFileOperationsHandler fileOpsHandler)
     {
-        DateTime? time = IsDirectory ?
-            fileOpsHandler.GetDirLastModified(PathToEntry) :
-            fileOpsHandler.GetFileLastModified(PathToEntry);
+        DateTime? time = IsDirectory
+            ? fileOpsHandler.GetDirLastModified(PathToEntry)
+            : fileOpsHandler.GetFileLastModified(PathToEntry);
 
         if (time is DateTime notNullTime)
             return notNullTime.ToShortDateString() + " " + notNullTime.ToShortTimeString();
