@@ -1,20 +1,17 @@
 using System;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 using Microsoft.VisualBasic.FileIO;
 
 namespace FileSurfer;
 
 class WindowsFileOperationsHandler : IFileOperationsHandler
 {
-    // 250 MiB
-    private const int ShowDialogLimit = 262144000;
-    private const string NewImgName = "Image.png";
+    private readonly long _showDialogLimit;
+
+    public WindowsFileOperationsHandler(long showDialogLimit) => _showDialogLimit = showDialogLimit;
 
     public bool DeleteFile(string filePath, out string? errorMessage)
     {
@@ -168,7 +165,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
 
     public bool MoveFileToTrash(string filePath, out string? errorMessage)
     {
-        bool showDialog = GetFileSizeB(filePath) > ShowDialogLimit;
+        bool showDialog = GetFileSizeB(filePath) > _showDialogLimit;
         try
         {
             FileSystem.DeleteFile(
@@ -336,80 +333,6 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    [STAThread]
-    public void ClearOSClipBoard() => Clipboard.Clear();
-
-    [STAThread]
-    public bool CopyToOSClipBoard(string[] paths, out string? errorMessage)
-    {
-        try
-        {
-            StringCollection fileCollection = new();
-            fileCollection.AddRange(paths);
-            Clipboard.SetFileDropList(fileCollection);
-            errorMessage = null;
-            return true;
-        }
-        catch (Exception ex)
-        {
-            errorMessage = ex.Message;
-            return false;
-        }
-    }
-
-    [STAThread]
-    public bool PasteFromOSClipBoard(string destinationPath, out string? errorMessage)
-    {
-        errorMessage = null;
-        if (Clipboard.ContainsImage())
-        {
-            SaveImageToPath(destinationPath, out errorMessage);
-            return false;
-        }
-        if (!Clipboard.ContainsFileDropList())
-            return true;
-
-        try
-        {
-            StringCollection fileCollection = Clipboard.GetFileDropList();
-            foreach (string? filePath in fileCollection)
-            {
-                if (filePath is null)
-                    throw new ArgumentNullException(filePath);
-
-                if (File.Exists(filePath))
-                    CopyFileTo(filePath, destinationPath, out errorMessage);
-                else if (Directory.Exists(filePath))
-                    CopyDirTo(filePath, destinationPath, out errorMessage);
-            }
-            return true;
-        }
-        catch (Exception ex)
-        {
-            errorMessage = ex.Message;
-            return false;
-        }
-    }
-
-    [STAThread]
-    private static void SaveImageToPath(string destinationPath, out string? errorMessage)
-    {
-        errorMessage = null;
-        if (Clipboard.GetImage() is not Image image)
-            return;
-
-        string imgName = FileNameGenerator.GetAvailableName(destinationPath, NewImgName);
-        try
-        {
-            image.Save(Path.Combine(destinationPath, imgName), ImageFormat.Png);
-        }
-        catch (Exception ex)
-        {
-            errorMessage = ex.Message;
-        }
-        image.Dispose();
-    }
-
     public bool ExecuteCmd(string command, out string? errorMessage)
     {
         using Process process =
@@ -514,7 +437,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
 
     public bool MoveFileTo(string filePath, string destinationDir, out string? errorMessage)
     {
-        bool showDialog = GetFileSizeB(filePath) > ShowDialogLimit;
+        bool showDialog = GetFileSizeB(filePath) > _showDialogLimit;
         try
         {
             string newFilePath = Path.Combine(destinationDir, Path.GetFileName(filePath));
@@ -557,7 +480,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
 
     public bool CopyFileTo(string filePath, string destinationDir, out string? errorMessage)
     {
-        bool showDialog = GetFileSizeB(filePath) > ShowDialogLimit;
+        bool showDialog = GetFileSizeB(filePath) > _showDialogLimit;
         try
         {
             errorMessage = null;
@@ -600,14 +523,14 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
 
     public bool DuplicateFile(string filePath, string copyName, out string? errorMessage)
     {
-        bool showDialog = GetFileSizeB(filePath) > ShowDialogLimit;
+        bool showDialog = GetFileSizeB(filePath) > _showDialogLimit;
         try
         {
             errorMessage = null;
             if (Path.GetDirectoryName(filePath) is not string parentDir)
             {
                 errorMessage = "Can't duplicate a root diretory.";
-                return false;   
+                return false;
             }
             string newFilePath = Path.Combine(parentDir, copyName);
             FileSystem.CopyFile(
@@ -633,7 +556,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             if (Path.GetDirectoryName(dirPath) is not string parentDir)
             {
                 errorMessage = "Can't duplicate a root diretory.";
-                return false;   
+                return false;
             }
             string newDirPath = Path.Combine(parentDir, copyName);
             FileSystem.CopyDirectory(

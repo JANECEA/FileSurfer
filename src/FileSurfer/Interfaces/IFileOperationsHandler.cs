@@ -34,12 +34,6 @@ public interface IFileOperationsHandler
 
     public bool NewDirAt(string dirPath, string DirName, out string? errorMessage);
 
-    public bool CopyToOSClipBoard(string[] paths, out string? errorMessage);
-
-    public bool PasteFromOSClipBoard(string filePath, out string? errorMessage);
-
-    public void ClearOSClipBoard();
-
     public bool RenameFileAt(string filePath, string newName, out string? errorMessage);
 
     public bool RenameDirAt(string dirPath, string newName, out string? errorMessage);

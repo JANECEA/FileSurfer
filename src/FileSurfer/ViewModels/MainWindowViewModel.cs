@@ -6,8 +6,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using Avalonia.Threading;
 using FileSurfer.UndoableFileOperations;
 using FileSurfer.Views;
@@ -30,25 +30,26 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private const string SearchingLabel = "Search Results";
     private const string NewFileName = "New File";
     private const string NewDirName = "New Folder";
+    private const string NewImageName = "New Image.png";
+    private const long ShowDialogLimitB = 262144000; // 250 MiB
     private const int ArraySearchThreshold = 25;
 
-    private readonly IFileOperationsHandler _fileOpsHandler = new WindowsFileOperationsHandler();
+    private readonly IFileOperationsHandler _fileOpsHandler = new WindowsFileOperationsHandler(
+        ShowDialogLimitB
+    );
     private readonly IVersionControl _versionControl;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory = new();
     private readonly UndoRedoHandler<string> _pathHistory = new();
-    private readonly ObservableCollection<FileSystemEntry> _selectedFiles = new();
-    private readonly ObservableCollection<FileSystemEntry> _fileEntries = new();
+    private readonly ClipboardManager _clipboardManager;
 
     private CancellationTokenSource _searchCTS = new();
     private bool _isUserInvoked = true;
     private bool _sortReversed = false;
     private SortBy _sortBy = SortBy.Name;
 
-    private List<FileSystemEntry> _programClipboard = new();
-    private bool _isCutOperation;
-    private string _copyFromDir = string.Empty;
-
+    private readonly ObservableCollection<FileSystemEntry> _selectedFiles = new();
     public ObservableCollection<FileSystemEntry> SelectedFiles => _selectedFiles;
+    private readonly ObservableCollection<FileSystemEntry> _fileEntries = new();
     public ObservableCollection<FileSystemEntry> FileEntries => _fileEntries;
 
     private string? _errorMessage = null;
@@ -179,6 +180,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         _selectedFiles.CollectionChanged += UpdateSelectionInfo;
         _versionControl = new GitVersionControlHandler(_fileOpsHandler);
+        _clipboardManager = new ClipboardManager(_fileOpsHandler, NewImageName);
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
         ReloadCommand = ReactiveCommand.Create(Reload);
@@ -215,7 +217,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             LoadDrives();
             SetDriveInfo();
-        } 
+        }
         else
         {
             LoadDirEntries();
@@ -229,7 +231,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public int GetNameEndIndex(FileSystemEntry entry) =>
         SelectedFiles.Count > 0 ? Path.GetFileNameWithoutExtension(entry.PathToEntry).Length : 0;
 
-    private bool IsValidDirectory(string path) => 
+    private bool IsValidDirectory(string path) =>
         path == ThisPCLabel || (!string.IsNullOrEmpty(path) && Directory.Exists(path));
 
     private void SetSearchWaterMark()
@@ -266,7 +268,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                 displaySize = false;
                 break;
             }
-
             if (entry.SizeB is long sizeB)
                 sizeSum += sizeB;
         }
@@ -291,7 +292,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         if (Path.GetDirectoryName(CurrentDir) is not string parentDir)
             CurrentDir = ThisPCLabel;
-
         else if (CurrentDir != ThisPCLabel)
             CurrentDir = parentDir;
     }
@@ -442,7 +442,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
-    private async Task SearchDirectoryAsync(string directory, string searchQuery, CancellationToken searchCTS)
+    private async Task SearchDirectoryAsync(
+        string directory,
+        string searchQuery,
+        CancellationToken searchCTS
+    )
     {
         await Dispatcher.UIThread.InvokeAsync(async () =>
         {
@@ -530,92 +534,43 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void Cut()
     {
-        if (
-            _fileOpsHandler.CopyToOSClipBoard(
-                SelectedFiles.Select(entry => entry.PathToEntry).ToArray(),
-                out string? errorMessage
-            )
-        )
-        {
-            _copyFromDir = CurrentDir;
-            _isCutOperation = true;
-            _programClipboard = SelectedFiles.ToList();
-        }
-        else
-            ErrorMessage = errorMessage;
+        _clipboardManager.Cut(SelectedFiles.ToList(), CurrentDir, out string? errorMessage);
+        ErrorMessage = errorMessage;
     }
 
     private void Copy()
     {
-        if (
-            _fileOpsHandler.CopyToOSClipBoard(
-                SelectedFiles.Select(entry => entry.PathToEntry).ToArray(),
-                out string? errorMessage
-            )
-        )
-        {
-            _copyFromDir = CurrentDir;
-            _isCutOperation = false;
-            _programClipboard = SelectedFiles.ToList();
-        }
-        else
-            ErrorMessage = errorMessage;
+        _clipboardManager.Copy(SelectedFiles.ToList(), CurrentDir, out string? errorMessage);
+        ErrorMessage = errorMessage;
     }
 
     private void Paste()
     {
         string? errorMessage;
-        if (!_isCutOperation && _copyFromDir == CurrentDir && _programClipboard.Count != 0)
+        if (_clipboardManager.IsDuplicateOperation(CurrentDir))
         {
-            _fileOpsHandler.ClearOSClipBoard();
-            string[] copyNames = new string[_programClipboard.Count];
-            bool errorOccured = false;
-            for (int i = 0; i < _programClipboard.Count; i++)
-            {
-                FileSystemEntry entry = _programClipboard[i];
-                copyNames[i] = FileNameGenerator.GetCopyName(CurrentDir, entry);
-
-                bool result = entry.IsDirectory
-                    ? _fileOpsHandler.DuplicateDir(entry.PathToEntry, copyNames[i], out errorMessage)
-                    : _fileOpsHandler.DuplicateFile(entry.PathToEntry, copyNames[i], out errorMessage);
-
-                errorOccured = !result || errorOccured;
-                ErrorMessage = errorMessage;
-            }
-            if (!errorOccured)
+            if (_clipboardManager.Duplicate(CurrentDir, out string[] copyNames, out errorMessage))
                 _undoRedoHistory.AddNewNode(
-                    new DuplicateFiles(_fileOpsHandler, _programClipboard.ToArray(), copyNames)
+                    new DuplicateFiles(_fileOpsHandler, _clipboardManager.GetClipboard(), copyNames)
                 );
-            Reload();
-            return;
         }
 
-        if (!_fileOpsHandler.PasteFromOSClipBoard(CurrentDir, out errorMessage))
+        else if (_clipboardManager.IsCutOperation)
         {
-            ErrorMessage = errorMessage;
-            _programClipboard.Clear();
-            Reload();
-            return;
-        }
-
-        if (_isCutOperation)
-        {
-            _undoRedoHistory.AddNewNode(
-                new MoveFilesTo(_fileOpsHandler, _programClipboard.ToArray(), CurrentDir)
-            );
-            foreach (FileSystemEntry entry in _programClipboard)
-            {
-                if (entry.IsDirectory)
-                    _fileOpsHandler.DeleteDir(entry.PathToEntry, out errorMessage);
-                else
-                    _fileOpsHandler.DeleteFile(entry.PathToEntry, out errorMessage);
-            }
-            _programClipboard.Clear();
+            FileSystemEntry[] clipBoard = _clipboardManager.GetClipboard();
+            if (_clipboardManager.Paste(CurrentDir, out errorMessage))
+                _undoRedoHistory.AddNewNode(
+                    new MoveFilesTo(_fileOpsHandler, clipBoard, CurrentDir)
+                );
         }
         else
-            _undoRedoHistory.AddNewNode(
-                new CopyFilesTo(_fileOpsHandler, _programClipboard.ToArray(), CurrentDir)
-            );
+        {
+            if ( _clipboardManager.Paste(CurrentDir, out errorMessage))
+                _undoRedoHistory.AddNewNode(
+                    new CopyFilesTo(_fileOpsHandler, _clipboardManager.GetClipboard(), CurrentDir)
+                );
+        }
+        ErrorMessage = errorMessage;
         Reload();
     }
 
