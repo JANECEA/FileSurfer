@@ -32,12 +32,13 @@
 
     <Window.Resources>
         <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type local:FileSystemEntry}">
-            <Grid ColumnDefinitions="30 360 160 130 90" Height="30">
+            <Grid ColumnDefinitions="30 360 160 130 90 70" Height="30">
                 <Image Source="{Binding Icon}" Grid.Column="0" Width="20" Height="20" Margin="0 0 12 0" Opacity="{Binding Opacity}"/>
                 <TextBlock Classes="FileInfo" Grid.Column="1" Text="{Binding Name}" FontFamily="Arial"/>
                 <TextBlock Classes="FileInfo" Grid.Column="2" Text="{Binding LastModified}"/> 
                 <TextBlock Classes="FileInfo" Grid.Column="3" Text="{Binding Type}"/>
                 <TextBlock Classes="FileInfo" Grid.Column="4" Text="{Binding Size}" TextAlignment="Right"/>
+                <CheckBox Classes="StagedCheckbox" Grid.Column="5" IsVisible="{Binding VersionControlled}" IsChecked="{Binding Staged}" Click="StagedToggle"/> 
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="IconViewTemplate" x:DataType="{x:Type local:FileSystemEntry}">
@@ -141,6 +142,9 @@
                         </Border>
                         <Border Classes="LabelBorder" Width="100">
                             <Label Classes="InfoLabel" Content="Size"/>
+                        </Border>
+                        <Border Classes="LabelBorder" Width="100" IsVisible="{Binding IsVersionControlled}">
+                            <Label Classes="InfoLabel" Content="Staged"/>
                         </Border>
                     </StackPanel>
 

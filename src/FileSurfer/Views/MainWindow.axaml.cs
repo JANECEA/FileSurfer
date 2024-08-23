@@ -1,4 +1,5 @@
 using System;
+using System.IO.Enumeration;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
@@ -66,6 +67,15 @@ public partial class MainWindow : Window
     {
         if (sender is ListBox listBox && DataContext is MainWindowViewModel viewModel)
         {
+            Visual? hitElement = (Visual?)listBox.InputHitTest(e.GetPosition(listBox));
+            while (hitElement is not null)
+            {
+                if (hitElement is CheckBox)
+                    return;
+
+                hitElement = Avalonia.VisualTree.VisualExtensions.GetVisualParent(hitElement);
+            }
+
             if (listBox.SelectedItem is FileSystemEntry entry)
                 viewModel.OpenEntry(entry);
             else
@@ -102,6 +112,10 @@ public partial class MainWindow : Window
 
         if (properties.IsXButton2Pressed)
             viewModel.GoForward();
+
+        if (properties.IsMiddleButtonPressed)
+        // opens file in its directory (during searching)
+        { }
     }
 
     private void TextBoxGotFocus(object? sender = null, GotFocusEventArgs? e = null)
@@ -171,6 +185,21 @@ public partial class MainWindow : Window
         {
             viewModel.Commit(commitMessage);
             CommitMessageBar.IsVisible = false;
+        }
+    }
+
+    private void StagedToggle(object sender, RoutedEventArgs e)
+    {
+        if (
+            sender is CheckBox checkBox
+            && checkBox.DataContext is FileSystemEntry entry
+            && DataContext is MainWindowViewModel viewModel
+        )
+        {
+            if (checkBox.IsChecked is true)
+                viewModel.StageFile(entry);
+            else
+                viewModel.UnstageFile(entry);
         }
     }
 

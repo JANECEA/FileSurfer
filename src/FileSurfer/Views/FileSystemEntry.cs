@@ -5,6 +5,13 @@ using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace FileSurfer;
 
+public enum VCStatus
+{
+    NotVersionControlled,
+    Staged,
+    Unstaged,
+}
+
 public class FileSystemEntry
 {
     private const int SizeLimit = 4096;
@@ -35,9 +42,16 @@ public class FileSystemEntry
     public string Size { get; }
     public long? SizeB { get; }
     public string Type { get; }
-    public double Opacity { get; }
+    public double Opacity { get; } = 1;
+    public bool VersionControlled { get; } = false;
+    public bool Staged { get; } = false;
 
-    public FileSystemEntry(string path, bool isDirectory, IFileOperationsHandler fileOpsHandler)
+    public FileSystemEntry(
+        IFileOperationsHandler fileOpsHandler,
+        string path,
+        bool isDirectory,
+        VCStatus status = VCStatus.NotVersionControlled
+    )
     {
         PathToEntry = path;
         IsDirectory = isDirectory;
@@ -46,6 +60,9 @@ public class FileSystemEntry
         LastChanged = fileOpsHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
         LastModified = GetLastModified(fileOpsHandler);
         Opacity = fileOpsHandler.IsHidden(path, isDirectory) || Name.StartsWith('.') ? 0.4 : 1;
+
+        VersionControlled = status is not VCStatus.NotVersionControlled;
+        Staged = status is VCStatus.Staged;
 
         SizeB = isDirectory ? null : fileOpsHandler.GetFileSizeB(path);
         Size = SizeB is long NotNullSize ? GetSizeString(NotNullSize) : string.Empty;
@@ -68,7 +85,6 @@ public class FileSystemEntry
         Icon = _driveIcon;
         LastModified = string.Empty;
         Size = GetSizeString(drive.TotalSize);
-        Opacity = 1;
     }
 
     private string GetLastModified(IFileOperationsHandler fileOpsHandler)

@@ -163,6 +163,15 @@
         <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
     </Style>
 
+    <Style Selector="CheckBox.StagedCheckbox">
+        <Setter Property="Margin" Value="20 0 0 0"/>
+    </Style>
+
+    <Style Selector="CheckBox.StagedCheckbox:checked /template/ Border#NormalRectangle">
+        <Setter Property="Background" Value="{DynamicResource GitColor}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
     <Style Selector="TextBlock.FileInfo">
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>

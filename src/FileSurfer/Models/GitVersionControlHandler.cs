@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp;
@@ -10,13 +11,13 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
     private const string MissingRepoMessage = "No git repository found";
     private readonly IFileOperationsHandler _fileOpsHandler;
     private Repository? _currentRepo = null;
+    private readonly Dictionary<string, VCStatus> _statusDict = new();
 
     public GitVersionControlHandler(IFileOperationsHandler _fileOperationsHandler) =>
         _fileOpsHandler = _fileOperationsHandler;
 
     public bool IsVersionControlled(string directoryPath)
     {
-        _currentRepo?.Dispose();
         string? repoPath = directoryPath;
         while (repoPath is not null)
         {
@@ -28,7 +29,12 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
             }
             try
             {
-                _currentRepo = new Repository(gitDir);
+                if (_currentRepo?.Info.Path != gitDir)
+                {
+                    _currentRepo?.Dispose();
+                    _currentRepo = new Repository(gitDir);
+                    SetFileStates();
+                }
                 return true;
             }
             catch
@@ -36,16 +42,10 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
                 break;
             }
         }
+        _currentRepo?.Dispose();
         _currentRepo = null;
         return false;
     }
-
-    public string[] GetUnstagedFiles() =>
-        _currentRepo
-            .RetrieveStatus()
-            .Where(entry => entry.State.HasFlag(FileStatus.ModifiedInWorkdir))
-            .Select(entry => entry.FilePath)
-            .ToArray();
 
     public bool DownloadChanges(out string? errorMessage)
     {
@@ -87,6 +87,63 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         return true;
     }
 
+    private void SetFileStates()
+    {
+        if (_currentRepo is null)
+            return;
+
+        RepositoryStatus repoStatus = _currentRepo.RetrieveStatus(
+            new StatusOptions
+            {
+                IncludeUntracked = true,
+                RecurseUntrackedDirs = true,
+                DisablePathSpecMatch = true
+            }
+        );
+        _statusDict.Clear();
+        foreach (StatusEntry? entry in repoStatus)
+        {
+            string absolutePath = Path.Combine(_currentRepo.Info.WorkingDirectory, entry.FilePath).Replace('\\', '/');
+            _statusDict[absolutePath] = ConvertToVCStatus(entry.State);
+        }
+    }
+
+    private static VCStatus ConvertToVCStatus(FileStatus status)
+    {
+        if (status is FileStatus.Ignored or FileStatus.Nonexistent or FileStatus.Unaltered)
+            return VCStatus.NotVersionControlled;
+
+        if (
+            status.HasFlag(FileStatus.NewInIndex)
+            || status.HasFlag(FileStatus.ModifiedInIndex)
+            || status.HasFlag(FileStatus.DeletedFromIndex)
+            || status.HasFlag(FileStatus.RenamedInIndex)
+            || status.HasFlag(FileStatus.TypeChangeInIndex)
+        )
+            return VCStatus.Staged;
+
+        if (
+            status.HasFlag(FileStatus.NewInWorkdir)
+            || status.HasFlag(FileStatus.ModifiedInWorkdir)
+            || status.HasFlag(FileStatus.DeletedFromWorkdir)
+            || status.HasFlag(FileStatus.RenamedInWorkdir)
+            || status.HasFlag(FileStatus.TypeChangeInWorkdir)
+        )
+            return VCStatus.Unstaged;
+
+        return VCStatus.NotVersionControlled;
+    }
+
+    public VCStatus ConsolidateStatus(string path)
+    {
+        if (_currentRepo is null)
+            return VCStatus.NotVersionControlled;
+
+        return _statusDict.TryGetValue(path.Replace('\\', '/'), out VCStatus status)
+            ? status
+            : VCStatus.NotVersionControlled;
+    }
+
     public bool StageChange(string filePath, out string? errorMessage)
     {
         try
@@ -96,8 +153,30 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
                 errorMessage = MissingRepoMessage;
                 return false;
             }
-            _currentRepo.Index.Add(filePath);
+            string relativePath = Path.GetRelativePath(_currentRepo.Info.WorkingDirectory, filePath);
+            _currentRepo.Index.Add(relativePath);
             _currentRepo.Index.Write();
+            errorMessage = null;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
+    }
+
+    public bool UnstageChange(string filePath, out string? errorMessage)
+    {
+        try
+        {
+            if (_currentRepo is null)
+            {
+                errorMessage = MissingRepoMessage;
+                return false;
+            }
+            string relativePath = Path.GetRelativePath(_currentRepo.Info.WorkingDirectory, filePath);
+            Commands.Unstage(_currentRepo, relativePath);
             errorMessage = null;
             return true;
         }
@@ -115,7 +194,8 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
             errorMessage = MissingRepoMessage;
             return false;
         }
-        string command = $"cd \"{_currentRepo.Info.Path}\\..\" && git commit -m \"{commitMessage}\"";
+        string command =
+            $"cd \"{_currentRepo.Info.Path}\\..\" && git commit -m \"{commitMessage}\"";
         errorMessage = null;
         return _fileOpsHandler.ExecuteCmd(command);
     }

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using FileSurfer.UndoableFileOperations;
 using FileSurfer.Views;
@@ -75,7 +76,8 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             new ErrorWindow(errorMessage).Show();
         });
 
-    private string _currentDir = "D:\\Stažené\\testing";
+    private string _currentDir =
+        "D:\\MATFYZ\\2024_letni\\2024_letni_code\\Programovani_2\\GitLab\\student-janecea\\src\\FileSurfer";
     public string CurrentDir
     {
         get => _currentDir;
@@ -216,6 +218,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (Searching)
             return;
 
+        CheckVersionContol();
         if (CurrentDir == ThisPCLabel)
         {
             LoadDrives();
@@ -228,7 +231,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
         CheckDirectoryEmpty();
         SetSearchWaterMark();
-        CheckVersionContol();
     }
 
     public int GetNameEndIndex(FileSystemEntry entry) =>
@@ -311,14 +313,27 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         string[] dirPaths = _fileOpsHandler.GetPathDirs(CurrentDir, true, false);
         FileSystemEntry[] directories = new FileSystemEntry[dirPaths.Length];
         for (int i = 0; i < dirPaths.Length; i++)
-            directories[i] = new FileSystemEntry(dirPaths[i], true, _fileOpsHandler);
+            directories[i] = new FileSystemEntry(_fileOpsHandler, dirPaths[i], true);
 
         string[] filePaths = _fileOpsHandler.GetPathFiles(CurrentDir, true, false);
         FileSystemEntry[] files = new FileSystemEntry[filePaths.Length];
         for (int i = 0; i < filePaths.Length; i++)
-            files[i] = new FileSystemEntry(filePaths[i], false, _fileOpsHandler);
+            files[i] = new FileSystemEntry(
+                _fileOpsHandler,
+                filePaths[i],
+                false,
+                GetVCState(filePaths[i])
+            );
 
         SortAndAddEntries(directories, files);
+    }
+
+    private VCStatus GetVCState(string path)
+    {
+        if (!IsVersionControlled)
+            return VCStatus.NotVersionControlled;
+
+        return _versionControl.ConsolidateStatus(path);
     }
 
     private void SortAndAddEntries(FileSystemEntry[] directories, FileSystemEntry[] files)
@@ -466,11 +481,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             foreach (string file in await GetPathFilesAsync(directory, true, false, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
-                    FileEntries.Add(new FileSystemEntry(file, false, _fileOpsHandler));
+                    FileEntries.Add(new FileSystemEntry(_fileOpsHandler, file, false));
 
             foreach (string dir in await GetPathDirsAsync(directory, true, false, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
-                    FileEntries.Add(new FileSystemEntry(dir, true, _fileOpsHandler));
+                    FileEntries.Add(new FileSystemEntry(_fileOpsHandler, dir, true));
         });
 
         foreach (string dir in await GetPathDirsAsync(directory, true, false))
@@ -568,7 +583,6 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                     new DuplicateFiles(_fileOpsHandler, _clipboardManager.GetClipboard(), copyNames)
                 );
         }
-
         else if (_clipboardManager.IsCutOperation)
         {
             FileSystemEntry[] clipBoard = _clipboardManager.GetClipboard();
@@ -579,7 +593,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
         else
         {
-            if ( _clipboardManager.Paste(CurrentDir, out errorMessage))
+            if (_clipboardManager.Paste(CurrentDir, out errorMessage))
                 _undoRedoHistory.AddNewNode(
                     new CopyFilesTo(_fileOpsHandler, _clipboardManager.GetClipboard(), CurrentDir)
                 );
@@ -786,6 +800,18 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                     SelectedFiles.Add(entry);
             }
         }
+    }
+
+    public void StageFile(FileSystemEntry entry)
+    {
+        _versionControl.StageChange(entry.PathToEntry, out string? errorMessage);
+        ErrorMessage = errorMessage;
+    }
+
+    public void UnstageFile(FileSystemEntry entry)
+    {
+        _versionControl.UnstageChange(entry.PathToEntry, out string? errorMessage);
+        ErrorMessage = errorMessage;
     }
 
     private void Pull()
