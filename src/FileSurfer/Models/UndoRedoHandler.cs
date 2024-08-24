@@ -48,9 +48,9 @@ class UndoRedoHandler<T>
 
     public bool IsHead() => _current == _head;
 
-    public T? GetPrevious() => _current.Previous is T ? _current.Previous.Data : default;
+    public T? GetPrevious() => _current.Previous is null ? default : _current.Previous.Data;
 
-    public T? GetNext() => _current.Next is T ? _current.Next.Data : default;
+    public T? GetNext() => _current.Next is null ? default : _current.Next.Data;
 
     public void MoveToPrevious() => _current = _current.Previous ?? _current;
 

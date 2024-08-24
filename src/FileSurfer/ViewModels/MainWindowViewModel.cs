@@ -293,6 +293,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
+    public void OpenEntryLocation(FileSystemEntry entry) =>
+        CurrentDir = Path.GetDirectoryName(entry.PathToEntry) ?? ThisPCLabel;
+
     public void GoUp()
     {
         if (Path.GetDirectoryName(CurrentDir) is not string parentDir)

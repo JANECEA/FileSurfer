@@ -1,5 +1,4 @@
 using System;
-using System.IO.Enumeration;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
@@ -7,6 +6,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.VisualTree;
+using DynamicData;
 using FileSurfer.ViewModels;
 
 namespace FileSurfer.Views;
@@ -113,9 +113,19 @@ public partial class MainWindow : Window
         if (properties.IsXButton2Pressed)
             viewModel.GoForward();
 
-        if (properties.IsMiddleButtonPressed)
-        // opens file in its directory (during searching)
-        { }
+        if (properties.IsMiddleButtonPressed && viewModel.Searching)
+        {
+            Visual? hitElement = (Visual?)FileDisplay.InputHitTest(e.GetPosition(FileDisplay));
+            while (hitElement is not null)
+            {
+                if (hitElement is ListBoxItem item && item.DataContext is FileSystemEntry entry)
+                {
+                    viewModel.OpenEntryLocation(entry);
+                    return;
+                }
+                hitElement = Avalonia.VisualTree.VisualExtensions.GetVisualParent(hitElement);
+            }
+        }
     }
 
     private void TextBoxGotFocus(object? sender = null, GotFocusEventArgs? e = null)
@@ -273,7 +283,6 @@ public partial class MainWindow : Window
                 viewModel.SearchRelay(SearchBox.Text);
                 return;
             }
-
             if (viewModel.SelectedFiles.Count == 1)
                 viewModel.OpenEntry(viewModel.SelectedFiles[0]);
         }
