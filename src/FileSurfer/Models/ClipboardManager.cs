@@ -49,7 +49,7 @@ class ClipboardManager
     private bool PasteFromOSClipboard(string destinationPath, out string? errorMessage)
     {
         errorMessage = null;
-        if (Clipboard.ContainsImage())
+        if (FileSurferSettings.AllowImagePastingFromClipboard && Clipboard.ContainsImage())
         {
             SaveImageToPath(destinationPath, out errorMessage);
             return false;

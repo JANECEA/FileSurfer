@@ -14,7 +14,7 @@ public enum VCStatus
 
 public class FileSystemEntry
 {
-    private const int SizeLimit = 4096;
+    private static readonly int SizeLimit = FileSurferSettings.FileSizeDisplayLimit;
     private static readonly Bitmap _folderIcon =
         new(
             Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/FolderIcon.png"))
@@ -37,8 +37,8 @@ public class FileSystemEntry
     public readonly bool IsDirectory;
     public Bitmap? Icon { get; }
     public string Name { get; }
-    public DateTime LastChanged { get; }
     public string LastModified { get; }
+    public DateTime LastModTime { get; }
     public string Size { get; }
     public long? SizeB { get; }
     public string Type { get; }
@@ -57,9 +57,13 @@ public class FileSystemEntry
         IsDirectory = isDirectory;
         Name = Path.GetFileName(path);
         Icon = isDirectory ? _folderIcon : GetIcon(fileOpsHandler, path);
-        LastChanged = fileOpsHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
+        LastModTime = fileOpsHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
         LastModified = GetLastModified(fileOpsHandler);
-        Opacity = fileOpsHandler.IsHidden(path, isDirectory) || Name.StartsWith('.') ? 0.4 : 1;
+        Opacity =
+            fileOpsHandler.IsHidden(path, isDirectory)
+            || (FileSurferSettings.TreatDotFilesAsHidden && Name.StartsWith('.'))
+                ? 0.45
+                : 1;
 
         VersionControlled = status is not VCStatus.NotVersionControlled;
         Staged = status is VCStatus.Staged;

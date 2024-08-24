@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using Avalonia.Threading;
 using FileSurfer.UndoableFileOperations;
 using FileSurfer.Views;
@@ -16,42 +15,50 @@ using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
 
-enum SortBy
-{
-    Name,
-    Date,
-    Type,
-    Size
-}
-
 #pragma warning disable CA1822 // Mark members as static
 public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
-    private const string ThisPCLabel = "This PC";
     private const string SearchingLabel = "Search Results";
-    private const string NewFileName = "New File";
-    private const string NewDirName = "New Folder";
-    private const string NewImageName = "New Image.png";
     private const long ShowDialogLimitB = 262144000; // 250 MiB
     private const int ArraySearchThreshold = 25;
+    private readonly string ThisPCLabel = FileSurferSettings.ThisPCLabel;
+    private readonly string NewFileName = FileSurferSettings.NewFileName;
+    private readonly string NewDirName = FileSurferSettings.NewDirectoryName;
+    private readonly string NewImageName = FileSurferSettings.NewImageName + ".png";
 
-    private readonly IFileOperationsHandler _fileOpsHandler = new WindowsFileOperationsHandler(
-        ShowDialogLimitB
-    );
     private readonly IVersionControl _versionControl;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory = new();
     private readonly UndoRedoHandler<string> _pathHistory = new();
     private readonly ClipboardManager _clipboardManager;
+    private readonly IFileOperationsHandler _fileOpsHandler = new WindowsFileOperationsHandler(
+        ShowDialogLimitB
+    );
 
     private CancellationTokenSource _searchCTS = new();
     private bool _isUserInvoked = true;
-    private bool _sortReversed = false;
-    private SortBy _sortBy = SortBy.Name;
+    private bool SortReversed
+    {
+        get => FileSurferSettings.SortReversed;
+        set => FileSurferSettings.SortReversed = value;
+    }
+    private SortBy SortBy
+    {
+        get => FileSurferSettings.DefaultSort;
+        set => FileSurferSettings.DefaultSort = value;
+    }
 
-    private readonly ObservableCollection<FileSystemEntry> _selectedFiles = new();
-    public ObservableCollection<FileSystemEntry> SelectedFiles => _selectedFiles;
     private readonly ObservableCollection<FileSystemEntry> _fileEntries = new();
+    private readonly ObservableCollection<FileSystemEntry> _selectedFiles = new();
+    private readonly ObservableCollection<FileSystemEntry> _quickAccess = new();
+    private readonly ObservableCollection<FileSystemEntry> _specialFolders = new();
+    private readonly ObservableCollection<FileSystemEntry> _drives = new();
     public ObservableCollection<FileSystemEntry> FileEntries => _fileEntries;
+    public ObservableCollection<FileSystemEntry> SelectedFiles => _selectedFiles;
+    public ObservableCollection<FileSystemEntry> QuickAccess => _quickAccess;
+    public ObservableCollection<FileSystemEntry> SpecialFolders => _specialFolders;
+    public ObservableCollection<FileSystemEntry> Drives => _drives;
+
+    public bool ShowSpecialFolders { get; } = FileSurferSettings.ShowSpecialFolders;
 
     private string? _errorMessage = null;
     public string? ErrorMessage
@@ -76,8 +83,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             new ErrorWindow(errorMessage).Show();
         });
 
-    private string _currentDir =
-        "D:\\MATFYZ\\2024_letni\\2024_letni_code\\Programovani_2\\GitLab\\student-janecea\\src\\FileSurfer";
+    private string _currentDir = string.Empty;
     public string CurrentDir
     {
         get => _currentDir;
@@ -86,6 +92,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             this.RaiseAndSetIfChanged(ref _currentDir, value);
             if (IsValidDirectory(value))
             {
+                if (FileSurferSettings.OpenInLastLocation)
+                    FileSurferSettings.OpenIn = value;
+
                 if (Searching)
                     CancelSearch(value);
 
@@ -209,7 +218,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         InvertSelectionCommand = ReactiveCommand.Create(InvertSelection);
         PullCommand = ReactiveCommand.Create(Pull);
         PushCommand = ReactiveCommand.Create(Push);
-        Reload();
+
+        LoadDrives();
+        CurrentDir = IsValidDirectory(FileSurferSettings.OpenIn)
+            ? FileSurferSettings.OpenIn
+            : ThisPCLabel;
         _pathHistory.AddNewNode(CurrentDir);
     }
 
@@ -221,7 +234,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         CheckVersionContol();
         if (CurrentDir == ThisPCLabel)
         {
-            LoadDrives();
+            ShowDrives();
             SetDriveInfo();
         }
         else
@@ -247,7 +260,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     }
 
     private void SetDriveInfo() =>
-        SelectionInfo = FileEntries.Count == 1 ? "1 drive" : $"{FileEntries.Count} drives";
+        SelectionInfo = Drives.Count == 1 ? "1 drive" : $"{FileEntries.Count} drives";
 
     private void UpdateSelectionInfo(
         object? sender = null,
@@ -306,20 +319,38 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void LoadDrives()
     {
+        foreach (DriveInfo driveInfo in _fileOpsHandler.GetDrives())
+            Drives.Add(new FileSystemEntry(driveInfo));
+    }
+
+    private void ShowDrives()
+    {
         FileEntries.Clear();
-        foreach (DriveInfo drive in _fileOpsHandler.GetDrives())
-            FileEntries.Add(new FileSystemEntry(drive));
+        foreach (FileSystemEntry drive in Drives)
+            FileEntries.Add(drive);
     }
 
     private void LoadDirEntries()
     {
-        string[] dirPaths = _fileOpsHandler.GetPathDirs(CurrentDir, true, false);
+        string[] dirPaths = _fileOpsHandler.GetPathDirs(
+            CurrentDir,
+            FileSurferSettings.ShowHiddenFiles,
+            FileSurferSettings.ShowProtectedFiles
+        );
+        string[] filePaths = _fileOpsHandler.GetPathFiles(
+            CurrentDir,
+            FileSurferSettings.ShowHiddenFiles,
+            FileSurferSettings.ShowProtectedFiles
+        );
+        if (FileSurferSettings.TreatDotFilesAsHidden && !FileSurferSettings.ShowHiddenFiles)
+            RemoveDotFiles(ref dirPaths, ref filePaths);
+
         FileSystemEntry[] directories = new FileSystemEntry[dirPaths.Length];
+        FileSystemEntry[] files = new FileSystemEntry[filePaths.Length];
+
         for (int i = 0; i < dirPaths.Length; i++)
             directories[i] = new FileSystemEntry(_fileOpsHandler, dirPaths[i], true);
 
-        string[] filePaths = _fileOpsHandler.GetPathFiles(CurrentDir, true, false);
-        FileSystemEntry[] files = new FileSystemEntry[filePaths.Length];
         for (int i = 0; i < filePaths.Length; i++)
             files[i] = new FileSystemEntry(
                 _fileOpsHandler,
@@ -329,6 +360,12 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             );
 
         SortAndAddEntries(directories, files);
+    }
+
+    private void RemoveDotFiles(ref string[] dirPaths, ref string[] filePaths)
+    {
+        dirPaths = dirPaths.Where(path => !Path.GetFileName(path).StartsWith('.')).ToArray();
+        filePaths = filePaths.Where(path => !Path.GetFileName(path).StartsWith('.')).ToArray();
     }
 
     private VCStatus GetVCState(string path)
@@ -341,22 +378,22 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void SortAndAddEntries(FileSystemEntry[] directories, FileSystemEntry[] files)
     {
-        if (_sortBy is not SortBy.Name)
-            SortInPlace(files, _sortBy);
+        if (SortBy is not SortBy.Name)
+            SortInPlace(files, SortBy);
 
-        if (_sortBy is not SortBy.Name and not SortBy.Type and not SortBy.Size)
-            SortInPlace(directories, _sortBy);
+        if (SortBy is not SortBy.Name and not SortBy.Type and not SortBy.Size)
+            SortInPlace(directories, SortBy);
 
         FileEntries.Clear();
 
-        if (!_sortReversed || _sortBy is SortBy.Type or SortBy.Size)
+        if (!SortReversed || SortBy is SortBy.Type or SortBy.Size)
             for (int i = 0; i < directories.Length; i++)
                 FileEntries.Add(directories[i]);
         else
             for (int i = directories.Length - 1; i >= 0; i--)
                 FileEntries.Add(directories[i]);
 
-        if (!_sortReversed)
+        if (!SortReversed)
             for (int i = 0; i < files.Length; i++)
                 FileEntries.Add(files[i]);
         else
@@ -373,7 +410,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                 break;
 
             case SortBy.Date:
-                Array.Sort(entries, (x, y) => DateTime.Compare(y.LastChanged, x.LastChanged));
+                Array.Sort(entries, (x, y) => DateTime.Compare(y.LastModTime, x.LastModTime));
                 break;
 
             case SortBy.Type:
@@ -392,7 +429,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private void CheckVersionContol()
     {
         IsVersionControlled =
-            Directory.Exists(CurrentDir) && _versionControl.IsVersionControlled(CurrentDir);
+            FileSurferSettings.GitIntegration
+            && Directory.Exists(CurrentDir)
+            && _versionControl.IsVersionControlled(CurrentDir);
 
         Branches.Clear();
         if (IsVersionControlled)
@@ -482,46 +521,52 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         await Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            foreach (string file in await GetPathFilesAsync(directory, true, false, searchQuery))
+            foreach (string file in await GetPathFilesAsync(directory, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
                     FileEntries.Add(new FileSystemEntry(_fileOpsHandler, file, false));
 
-            foreach (string dir in await GetPathDirsAsync(directory, true, false, searchQuery))
+            foreach (string dir in await GetPathDirsAsync(directory, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
                     FileEntries.Add(new FileSystemEntry(_fileOpsHandler, dir, true));
         });
 
-        foreach (string dir in await GetPathDirsAsync(directory, true, false))
+        foreach (string dir in await GetPathDirsAsync(directory))
             if (!searchCTS.IsCancellationRequested)
                 await SearchDirectoryAsync(dir, searchQuery, searchCTS);
     }
 
-    private async Task<IEnumerable<string>> GetPathFilesAsync(
-        string directory,
-        bool includeHidden,
-        bool includeOS,
-        string searchQuery
-    )
+    private async Task<IEnumerable<string>> GetPathFilesAsync(string directory, string query)
     {
         IEnumerable<string> entries = await Task.Run(
-            () => _fileOpsHandler.GetPathFiles(directory, includeHidden, includeOS)
+            () =>
+                _fileOpsHandler.GetPathFiles(
+                    directory,
+                    FileSurferSettings.ShowHiddenFiles,
+                    FileSurferSettings.ShowProtectedFiles
+                )
         );
-        return entries.Where(name => Path.GetFileName(name).Contains(searchQuery));
+        if (!FileSurferSettings.ShowHiddenFiles && FileSurferSettings.TreatDotFilesAsHidden)
+            entries = entries.Where(path => Path.GetFileName(path).StartsWith('.'));
+
+        return entries.Where(name => Path.GetFileName(name).Contains(query));
     }
 
-    private async Task<IEnumerable<string>> GetPathDirsAsync(
-        string directory,
-        bool includeHidden,
-        bool includeOS,
-        string? searchQuery = null
-    )
+    private async Task<IEnumerable<string>> GetPathDirsAsync(string directory, string? query = null)
     {
         IEnumerable<string> entries = await Task.Run(
-            () => _fileOpsHandler.GetPathDirs(directory, includeHidden, includeOS)
+            () =>
+                _fileOpsHandler.GetPathDirs(
+                    directory,
+                    FileSurferSettings.ShowHiddenFiles,
+                    FileSurferSettings.ShowProtectedFiles
+                )
         );
-        return searchQuery is null
+        if (!FileSurferSettings.ShowHiddenFiles && FileSurferSettings.TreatDotFilesAsHidden)
+            entries = entries.Where(path => Path.GetFileName(path).StartsWith('.'));
+
+        return query is null
             ? entries
-            : entries.Where(name => Path.GetFileName(name).Contains(searchQuery));
+            : entries.Where(name => Path.GetFileName(name).Contains(query));
     }
 
     public void CancelSearch()
@@ -700,29 +745,29 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void SortByName()
     {
-        _sortReversed = _sortBy == SortBy.Name && !_sortReversed;
-        _sortBy = SortBy.Name;
+        SortReversed = SortBy == SortBy.Name && !SortReversed;
+        SortBy = SortBy.Name;
         Reload();
     }
 
     private void SortByDate()
     {
-        _sortReversed = _sortBy == SortBy.Date && !_sortReversed;
-        _sortBy = SortBy.Date;
+        SortReversed = SortBy == SortBy.Date && !SortReversed;
+        SortBy = SortBy.Date;
         Reload();
     }
 
     private void SortByType()
     {
-        _sortReversed = _sortBy == SortBy.Type && !_sortReversed;
-        _sortBy = SortBy.Type;
+        SortReversed = SortBy == SortBy.Type && !SortReversed;
+        SortBy = SortBy.Type;
         Reload();
     }
 
     private void SortBySize()
     {
-        _sortReversed = _sortBy == SortBy.Size && !_sortReversed;
-        _sortBy = SortBy.Size;
+        SortReversed = SortBy == SortBy.Size && !SortReversed;
+        SortBy = SortBy.Size;
         Reload();
     }
 
@@ -744,8 +789,10 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
         else
         {
+            if (FileSurferSettings.ShowUndoRedoErrorDialogs)
+                ErrorMessage = errorMessage;
+
             _undoRedoHistory.RemoveNode(true);
-            ErrorMessage = errorMessage;
         }
     }
 
@@ -760,8 +807,10 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             Reload();
         else
         {
+            if (FileSurferSettings.ShowUndoRedoErrorDialogs)
+                ErrorMessage = errorMessage;
+
             _undoRedoHistory.RemoveNode(true);
-            ErrorMessage = errorMessage;
         }
     }
 

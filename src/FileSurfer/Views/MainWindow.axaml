@@ -11,6 +11,7 @@
         PointerPressed="MouseButtonPressed"
         KeyDown="KeyPressed"
         Icon="/Assets/FileSurfer-logo.ico"
+        Closing="OnClosing"
         Title="FileSurfer">
 
     <Design.DataContext>
@@ -118,13 +119,13 @@
                     <ColumnDefinition Width="*" MinWidth="200"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                    <StackPanel>
-                    </StackPanel>
+                    <ListBox ItemsSource="{Binding QuickAccess}"/>
 
                     <Separator IsVisible="False" Background="{DynamicResource SecondaryColor}"/>
+                    <ListBox ItemsSource="{Binding SpecialFolders}"/>
+                    <Separator IsVisible="False" Background="{DynamicResource SecondaryColor}"/>
 
-                    <StackPanel>
-                    </StackPanel>
+                    <ListBox ItemsSource="{Binding Drives}"/>
                 </StackPanel>
 
                 <GridSplitter Classes="GridSplitter" Grid.Column="1"/>
@@ -160,7 +161,7 @@
                         </ListBox.Styles>
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Vertical"/>
+                                <WrapPanel Orientation="Vertical" Loaded="WrapPanelLoaded"/>
                             </ItemsPanelTemplate>
                         </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>

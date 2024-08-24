@@ -6,7 +6,6 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.VisualTree;
-using DynamicData;
 using FileSurfer.ViewModels;
 
 namespace FileSurfer.Views;
@@ -39,6 +38,12 @@ public partial class MainWindow : Window
             && keyBinding.Gesture.KeyModifiers == KeyModifiers.Control
             && keyBinding.Gesture.Key == Key.A
         );
+    }
+
+    private void WrapPanelLoaded(object sender, RoutedEventArgs e)
+    {
+        if (FileSurferSettings.DisplayMode is DisplayModeEnum.IconView)
+            IconView();
     }
 
     private WrapPanel? FindWrapPanel(Control parent)
@@ -213,7 +218,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private void ListView(object sender, RoutedEventArgs e)
+    private void ListView(object? sender = null, RoutedEventArgs? e = null)
     {
         WrapPanel? wrapPanel = _filePanel ?? FindWrapPanel(FileDisplay);
         if (wrapPanel is null)
@@ -222,9 +227,10 @@ public partial class MainWindow : Window
         wrapPanel.Orientation = Avalonia.Layout.Orientation.Vertical;
         LabelsPanel.IsVisible = true;
         FileDisplay.ItemTemplate = _listViewTemplate;
+        FileSurferSettings.DisplayMode = DisplayModeEnum.ListView;
     }
 
-    private void IconView(object sender, RoutedEventArgs e)
+    private void IconView(object? sender = null, RoutedEventArgs? e = null)
     {
         WrapPanel? wrapPanel = _filePanel ?? FindWrapPanel(FileDisplay);
         if (wrapPanel is null)
@@ -233,6 +239,7 @@ public partial class MainWindow : Window
         wrapPanel.Orientation = Avalonia.Layout.Orientation.Horizontal;
         LabelsPanel.IsVisible = false;
         FileDisplay.ItemTemplate = _iconViewTemplate;
+        FileSurferSettings.DisplayMode = DisplayModeEnum.IconView;
     }
 
     private void KeyPressed(object sender, KeyEventArgs e)
@@ -300,4 +307,7 @@ public partial class MainWindow : Window
         }
         FocusManager?.ClearFocus();
     }
+
+    private void OnClosing(object sender, WindowClosingEventArgs e) =>
+        FileSurferSettings.SaveSettings();
 }
