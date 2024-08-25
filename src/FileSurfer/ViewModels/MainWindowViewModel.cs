@@ -9,8 +9,8 @@ using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
-using FileSurfer.UndoableFileOperations;
-using FileSurfer.Views;
+using FileSurfer.Models;
+using FileSurfer.Models.UndoableFileOperations;
 using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
@@ -76,7 +76,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private async Task ShowErrorWindowAsync(string errorMessage) =>
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
-            new ErrorWindow(errorMessage).Show();
+            new Views.ErrorWindow(errorMessage).Show();
         });
 
     private string _currentDir = string.Empty;
@@ -183,6 +183,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public ReactiveCommand<Unit, Unit> SelectAllCommand { get; }
     public ReactiveCommand<Unit, Unit> SelectNoneCommand { get; }
     public ReactiveCommand<Unit, Unit> InvertSelectionCommand { get; }
+    public ReactiveCommand<Unit, Unit> OpenSettingsCommand { get; }
     public ReactiveCommand<Unit, Unit> PullCommand { get; }
     public ReactiveCommand<Unit, Unit> PushCommand { get; }
 
@@ -212,6 +213,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         SelectAllCommand = ReactiveCommand.Create(SelectAll);
         SelectNoneCommand = ReactiveCommand.Create(SelectNone);
         InvertSelectionCommand = ReactiveCommand.Create(InvertSelection);
+        OpenSettingsCommand = ReactiveCommand.Create(OpenSettings);
         PullCommand = ReactiveCommand.Create(Pull);
         PushCommand = ReactiveCommand.Create(Push);
 
@@ -245,6 +247,12 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
         CheckDirectoryEmpty();
         SetSearchWaterMark();
+    }
+
+    private void OpenSettings()
+    {
+        _fileOpsHandler.OpenFile(FileSurferSettings.SettingsFilePath, out string? errorMessage);
+        ErrorMessage = errorMessage;
     }
 
     public int GetNameEndIndex(FileSystemEntry entry) =>
