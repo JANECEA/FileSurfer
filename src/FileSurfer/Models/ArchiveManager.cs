@@ -6,7 +6,7 @@ using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
 using SharpCompress.Writers;
 
-namespace FileSurfer;
+namespace FileSurfer.Models;
 
 static class ArchiveManager
 {

@@ -1,16 +1,10 @@
 using System;
 using System.Drawing.Imaging;
 using System.IO;
+using FileSurfer.Models;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace FileSurfer;
-
-public enum VCStatus
-{
-    NotVersionControlled,
-    Staged,
-    Unstaged,
-}
 
 public class FileSystemEntry
 {

@@ -233,6 +233,7 @@ public partial class MainWindow : Window
         {
             viewModel.Commit(commitMessage);
             CommitMessageBar.IsVisible = false;
+            CommitInputBox.Text = string.Empty;
         }
     }
 

@@ -4,7 +4,14 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp;
 
-namespace FileSurfer;
+namespace FileSurfer.Models;
+
+public enum VCStatus
+{
+    NotVersionControlled,
+    Staged,
+    Unstaged,
+}
 
 public class GitVersionControlHandler : IVersionControl, IDisposable
 {

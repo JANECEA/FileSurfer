@@ -2,7 +2,7 @@ using System;
 using System.Drawing;
 using System.IO;
 
-namespace FileSurfer;
+namespace FileSurfer.Models;
 
 public interface IFileOperationsHandler
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace FileSurfer;
+namespace FileSurfer.Models;
 
 static class FileNameGenerator
 {
@@ -44,7 +44,7 @@ static class FileNameGenerator
         {
             if (
                 onlyFiles != !entry.IsDirectory
-                || (onlyFiles && Path.GetExtension(entry.PathToEntry) != extension)
+                || onlyFiles && Path.GetExtension(entry.PathToEntry) != extension
             )
                 return false;
         }

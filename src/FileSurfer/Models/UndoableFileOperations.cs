@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace FileSurfer.UndoableFileOperations;
+namespace FileSurfer.Models.UndoableFileOperations;
 
 public class MoveFilesToTrash : IUndoableFileOperation
 {

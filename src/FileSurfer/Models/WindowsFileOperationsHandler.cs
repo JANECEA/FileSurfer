@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.VisualBasic.FileIO;
 
-namespace FileSurfer;
+namespace FileSurfer.Models;
 
 class WindowsFileOperationsHandler : IFileOperationsHandler
 {
@@ -98,7 +98,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             for (int i = 0; i < files.Length; i++)
             {
                 if (
-                    (!includeHidden && IsHidden(files[i], false))
+                    !includeHidden && IsHidden(files[i], false)
                     || !includeOS && IsOSProtected(files[i], false)
                 )
                     files[i] = string.Empty;
@@ -123,7 +123,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
             for (int i = 0; i < directories.Length; i++)
             {
                 if (
-                    (!includeHidden && IsHidden(directories[i], true))
+                    !includeHidden && IsHidden(directories[i], true)
                     || !includeOS && IsOSProtected(directories[i], true)
                 )
                     directories[i] = string.Empty;

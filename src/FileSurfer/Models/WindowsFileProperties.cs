@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 
-namespace FileSurfer;
+namespace FileSurfer.Models;
 
 static class WindowsFileProperties
 {

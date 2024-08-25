@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Shell32;
 
-namespace FileSurfer;
+namespace FileSurfer.Models;
 
 static class WindowsFileRestorer
 {

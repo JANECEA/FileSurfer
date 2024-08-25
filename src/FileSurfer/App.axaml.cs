@@ -24,10 +24,7 @@ public partial class App : Application
             else
                 RequestedThemeVariant = ThemeVariant.Light;
 
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = new MainWindowViewModel(),
-            };
+            desktop.MainWindow = new MainWindow { DataContext = new MainWindowViewModel() };
         }
         base.OnFrameworkInitializationCompleted();
     }

@@ -1,6 +1,6 @@
 using System;
 
-namespace FileSurfer;
+namespace FileSurfer.Models;
 
 class UndoRedoHandler<T>
 {

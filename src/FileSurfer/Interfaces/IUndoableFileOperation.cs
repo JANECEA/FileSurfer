@@ -1,4 +1,4 @@
-namespace FileSurfer;
+namespace FileSurfer.Models;
 
 public interface IUndoableFileOperation
 {
