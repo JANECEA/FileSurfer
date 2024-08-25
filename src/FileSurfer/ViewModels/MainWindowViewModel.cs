@@ -50,15 +50,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private readonly ObservableCollection<FileSystemEntry> _fileEntries = new();
     private readonly ObservableCollection<FileSystemEntry> _selectedFiles = new();
     private readonly ObservableCollection<FileSystemEntry> _quickAccess = new();
-    private readonly ObservableCollection<FileSystemEntry> _specialFolders = new();
-    private readonly ObservableCollection<FileSystemEntry> _drives = new();
     public ObservableCollection<FileSystemEntry> FileEntries => _fileEntries;
     public ObservableCollection<FileSystemEntry> SelectedFiles => _selectedFiles;
     public ObservableCollection<FileSystemEntry> QuickAccess => _quickAccess;
-    public ObservableCollection<FileSystemEntry> SpecialFolders => _specialFolders;
-    public ObservableCollection<FileSystemEntry> Drives => _drives;
-
-    public bool ShowSpecialFolders { get; } = FileSurferSettings.ShowSpecialFolders;
+    public FileSystemEntry[] SpecialFolders { get; }
+    public FileSystemEntry[] Drives { get; }
 
     private string? _errorMessage = null;
     public string? ErrorMessage
@@ -219,7 +215,12 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         PullCommand = ReactiveCommand.Create(Pull);
         PushCommand = ReactiveCommand.Create(Push);
 
-        LoadDrives();
+        LoadQuickAccess();
+        Drives = GetDrives();
+        SpecialFolders = FileSurferSettings.ShowSpecialFolders
+            ? GetSpecialFolders()
+            : Array.Empty<FileSystemEntry>();
+
         CurrentDir = IsValidDirectory(FileSurferSettings.OpenIn)
             ? FileSurferSettings.OpenIn
             : ThisPCLabel;
@@ -260,7 +261,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     }
 
     private void SetDriveInfo() =>
-        SelectionInfo = Drives.Count == 1 ? "1 drive" : $"{FileEntries.Count} drives";
+        SelectionInfo = Drives.Length == 1 ? "1 drive" : $"{FileEntries.Count} drives";
 
     private void UpdateSelectionInfo(
         object? sender = null,
@@ -317,10 +318,25 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             CurrentDir = parentDir;
     }
 
-    private void LoadDrives()
+    private FileSystemEntry[] GetDrives() =>
+        _fileOpsHandler.GetDrives().Select(driveInfo => new FileSystemEntry(driveInfo)).ToArray();
+
+    private FileSystemEntry[] GetSpecialFolders() =>
+        _fileOpsHandler
+            .GetSpecialFolders()
+            .Where(dirPath => !string.IsNullOrEmpty(dirPath))
+            .Select(dirPath => new FileSystemEntry(_fileOpsHandler, dirPath, true))
+            .ToArray();
+
+    private void LoadQuickAccess()
     {
-        foreach (DriveInfo driveInfo in _fileOpsHandler.GetDrives())
-            Drives.Add(new FileSystemEntry(driveInfo));
+        foreach (string path in FileSurferSettings.QuickAccess)
+        {
+            if (Directory.Exists(path))
+                QuickAccess.Add(new FileSystemEntry(_fileOpsHandler, path, true));
+            else if (File.Exists(path))
+                QuickAccess.Add(new FileSystemEntry(_fileOpsHandler, path, false));
+        }
     }
 
     private void ShowDrives()
@@ -692,11 +708,10 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         bool errorOccured = false;
         for (int i = 0; i < SelectedFiles.Count; i++)
         {
-            FileSystemEntry entry = SelectedFiles[i];
-            string? errorMessage;
+            string path = SelectedFiles[i].PathToEntry;
             bool result = onlyFiles
-                ? _fileOpsHandler.RenameFileAt(entry.PathToEntry, newNames[i], out errorMessage)
-                : _fileOpsHandler.RenameDirAt(entry.PathToEntry, newNames[i], out errorMessage);
+                ? _fileOpsHandler.RenameFileAt(path, newNames[i], out string? errorMessage)
+                : _fileOpsHandler.RenameDirAt(path, newNames[i], out errorMessage);
 
             errorOccured = !result || errorOccured;
             if (!result)

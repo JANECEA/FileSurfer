@@ -68,6 +68,24 @@ public partial class MainWindow : Window
         return null;
     }
 
+    private void OnQuickAccessChanged(object sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (DataContext is MainWindowViewModel viewModel && viewModel.QuickAccess.Count > 0)
+        {
+            FirstSeparator.IsVisible = true;
+            QuickAccessListBox.IsVisible = true;
+        }
+    }
+
+    private void OnSpecialsChanged(object sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (DataContext is MainWindowViewModel viewModel && viewModel.SpecialFolders.Length > 0)
+        {
+            SecondSeparator.IsVisible = true;
+            SpecialsListBox.IsVisible = true;
+        }
+    }
+
     private void FilesDoubleTapped(object sender, TappedEventArgs e)
     {
         if (sender is ListBox listBox && DataContext is MainWindowViewModel viewModel)
@@ -104,6 +122,21 @@ public partial class MainWindow : Window
         viewModel.SelectedFiles.Clear();
         NewNameBar.IsVisible = false;
         CommitMessageBar.IsVisible = false;
+    }
+
+    private void SideBarEntryClicked(object sender, TappedEventArgs e)
+    {
+        if (
+            DataContext is MainWindowViewModel viewModel
+            && sender is ListBox listBox
+            && listBox.SelectedItem is FileSystemEntry entry
+        )
+        {
+            viewModel.OpenEntry(entry);
+            SpecialsListBox.SelectedItems?.Clear();
+            QuickAccessListBox.SelectedItems?.Clear();
+            DrivesListBox.SelectedItems?.Clear();
+        }
     }
 
     private void MouseButtonPressed(object? sender, PointerPressedEventArgs e)

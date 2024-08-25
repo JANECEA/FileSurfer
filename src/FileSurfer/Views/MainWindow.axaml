@@ -17,14 +17,14 @@
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
-    
+
     <Window.Styles>
         <StyleInclude Source="avares://FileSurfer/Views/MainWindowStyle.axaml"/>
     </Window.Styles>
 
     <Window.KeyBindings>
         <KeyBinding Gesture="Shift+Delete" Command="{Binding DeleteCommand}"/>
-        <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}"/> 
+        <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}"/>
         <KeyBinding Gesture="Ctrl+Y" Command="{Binding RedoCommand}"/>
         <KeyBinding Gesture="Ctrl+A" Command="{Binding SelectAllCommand}"/>
         <KeyBinding Gesture="Ctrl+Shift+L" Command="{Binding SelectNoneCommand}"/>
@@ -36,10 +36,10 @@
             <Grid ColumnDefinitions="30 360 160 130 90 70" Height="30">
                 <Image Source="{Binding Icon}" Grid.Column="0" Width="20" Height="20" Margin="0 0 12 0" Opacity="{Binding Opacity}"/>
                 <TextBlock Classes="FileInfo" Grid.Column="1" Text="{Binding Name}" FontFamily="Arial"/>
-                <TextBlock Classes="FileInfo" Grid.Column="2" Text="{Binding LastModified}"/> 
+                <TextBlock Classes="FileInfo" Grid.Column="2" Text="{Binding LastModified}"/>
                 <TextBlock Classes="FileInfo" Grid.Column="3" Text="{Binding Type}"/>
                 <TextBlock Classes="FileInfo" Grid.Column="4" Text="{Binding Size}" TextAlignment="Right"/>
-                <CheckBox Classes="StagedCheckbox" Grid.Column="5" IsVisible="{Binding VersionControlled}" IsChecked="{Binding Staged}" Click="StagedToggle"/> 
+                <CheckBox Classes="StagedCheckbox" Grid.Column="5" IsVisible="{Binding VersionControlled}" IsChecked="{Binding Staged}" Click="StagedToggle"/>
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="IconViewTemplate" x:DataType="{x:Type local:FileSystemEntry}">
@@ -48,12 +48,18 @@
                 <TextBlock Classes="IconViewInfo" Text="{Binding Name}"/>
             </StackPanel>
         </DataTemplate>
+        <DataTemplate x:Key="SideBarTemplate" x:DataType="{x:Type local:FileSystemEntry}">
+            <Grid ColumnDefinitions="Auto *" Height="25">
+                <Image Source="{Binding Icon}" Grid.Column="0" Width="18" Height="18" Margin="20 0 12 0"/>
+                <TextBlock Classes="FileInfo" Grid.Column="1" Text="{Binding Name}" FontFamily="Arial"/>
+            </Grid>
+        </DataTemplate>
     </Window.Resources>
 
     <DockPanel Background="{DynamicResource PrimaryColor}">
         <DockPanel DockPanel.Dock="Top" Height="50" Margin="10 0">
             <Button Classes="TopLeftButton" Content="" HotKey="Alt+Left" Command="{Binding GoBackCommand}"/>
-            <Button Classes="TopLeftButton" Content="" HotKey="Alt+Right" Command="{Binding GoForwardCommand}"/> 
+            <Button Classes="TopLeftButton" Content="" HotKey="Alt+Right" Command="{Binding GoForwardCommand}"/>
             <Button Classes="TopLeftButton" Content="" HotKey="F5" Command="{Binding ReloadCommand}"/>
             <Button Classes="TopLeftButton" Content="" HotKey="F12" Command="{Binding OpenPowerShellCommand}"/>
 
@@ -103,7 +109,7 @@
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
-                    
+
                 <Button Classes="GitButton GitButtonHover" Content="PUSH" Command="{Binding PushCommand}" IsVisible="{Binding IsVersionControlled}"/>
                 <Button Classes="GitButton GitButtonHover" Content="COMMIT" Click="OnCommitClicked" IsVisible="{Binding IsVersionControlled}"/>
                 <Button Classes="GitButton GitButtonHover" Content="PULL" Command="{Binding PullCommand}" IsVisible="{Binding IsVersionControlled}"/>
@@ -118,15 +124,38 @@
                     <ColumnDefinition Width="9"/>
                     <ColumnDefinition Width="*" MinWidth="200"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0">
-                    <ListBox ItemsSource="{Binding QuickAccess}"/>
 
-                    <Separator IsVisible="False" Background="{DynamicResource SecondaryColor}"/>
-                    <ListBox ItemsSource="{Binding SpecialFolders}"/>
-                    <Separator IsVisible="False" Background="{DynamicResource SecondaryColor}"/>
+                <ScrollViewer>
+                    <StackPanel Orientation="Vertical" Grid.Column="0">
+                        <ListBox x:Name="QuickAccessListBox" IsVisible="False" Classes="SideBarListBox" ItemsSource="{Binding QuickAccess}" PropertyChanged="OnQuickAccessChanged" Tapped="SideBarEntryClicked" ItemTemplate="{StaticResource SideBarTemplate}">
+                            <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Padding" Value="10 3 10 3"/>
+                                </Style>
+                            </ListBox.Styles>
+                        </ListBox>
 
-                    <ListBox ItemsSource="{Binding Drives}"/>
-                </StackPanel>
+                        <Separator x:Name="FirstSeparator" IsVisible="False" Background="{DynamicResource SecondaryColor}"/>
+
+                        <ListBox x:Name="SpecialsListBox" IsVisible="False" Classes="SideBarListBox" ItemsSource="{Binding SpecialFolders}" PropertyChanged="OnSpecialsChanged" Background="{DynamicResource PrimaryColor}" Tapped="SideBarEntryClicked" ItemTemplate="{StaticResource SideBarTemplate}">
+                            <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Padding" Value="10 3 10 3"/>
+                                </Style>
+                            </ListBox.Styles>
+                        </ListBox>
+
+                        <Separator x:Name="SecondSeparator" IsVisible="False" Background="{DynamicResource SecondaryColor}"/>
+
+                        <ListBox x:Name="DrivesListBox" Classes="SideBarListBox" ItemsSource="{Binding Drives}" Tapped="SideBarEntryClicked" ItemTemplate="{StaticResource SideBarTemplate}">
+                            <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Padding" Value="10 3 10 3"/>
+                                </Style>
+                            </ListBox.Styles>
+                        </ListBox>
+                    </StackPanel>
+                </ScrollViewer>
 
                 <GridSplitter Classes="GridSplitter" Grid.Column="1"/>
 
@@ -195,5 +224,5 @@
             </Border>
         </Grid>
     </DockPanel>
-    
+
 </Window>

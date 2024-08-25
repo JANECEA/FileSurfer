@@ -1,12 +1,14 @@
 using System;
-using System.IO;
 using System.Drawing;
+using System.IO;
 
 namespace FileSurfer;
 
 public interface IFileOperationsHandler
 {
     public DriveInfo[] GetDrives();
+
+    public string[] GetSpecialFolders();
 
     public bool OpenFile(string filePath, out string? errorMessage);
 

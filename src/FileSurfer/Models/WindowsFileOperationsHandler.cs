@@ -65,6 +65,28 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
+    public string[] GetSpecialFolders()
+    {
+        try
+        {
+            return new string[]
+            {
+                Environment.GetFolderPath(Environment.SpecialFolder.MyComputer),
+                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Downloads",
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
+                Environment.GetFolderPath(Environment.SpecialFolder.MyMusic),
+                Environment.GetFolderPath(Environment.SpecialFolder.MyVideos),
+            };
+        }
+        catch
+        {
+            return Array.Empty<string>();
+        }
+    }
+
     public string[] GetPathFiles(string path, bool includeHidden, bool includeOS)
     {
         try
@@ -302,8 +324,8 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
                     FileName = "powershell.exe",
                     WorkingDirectory = dirPath,
                     Arguments = "-NoExit",
-                    UseShellExecute = true
-                }
+                    UseShellExecute = true,
+                },
             }.Start();
             errorMessage = null;
             return true;
@@ -321,7 +343,7 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         {
             new Process
             {
-                StartInfo = new ProcessStartInfo(filePath) { UseShellExecute = true }
+                StartInfo = new ProcessStartInfo(filePath) { UseShellExecute = true },
             }.Start();
             errorMessage = null;
             return true;
@@ -345,8 +367,8 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
-                    CreateNoWindow = true
-                }
+                    CreateNoWindow = true,
+                },
             };
         process.Start();
         process.WaitForExit();
