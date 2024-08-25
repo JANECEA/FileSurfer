@@ -21,26 +21,27 @@ public enum SortBy
 
 static class FileSurferSettings
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "JSON naming convention")]
     internal record SettingsRecord(
-        bool UseDarkMode,
-        bool OpenInLastLocation,
-        string OpenIn,
-        int FileSizeDisplayLimit,
-        string DisplayMode,
-        string DefaultSort,
-        bool SortReversed,
-        bool ShowSpecialFolders,
-        bool ShowProtectedFiles,
-        bool ShowHiddenFiles,
-        bool TreatDotFilesAsHidden,
-        bool GitIntegration,
-        bool ShowUndoRedoErrorDialogs,
-        bool AllowImagePastingFromClipboard,
-        string NewImageName,
-        string NewFileName,
-        string NewDirectoryName,
-        string ThisPCLabel,
-        List<string> QuickAccess
+        bool useDarkMode,
+        bool openInLastLocation,
+        string openIn,
+        int fileSizeDisplayLimit,
+        string displayMode,
+        string defaultSort,
+        bool sortReversed,
+        bool showSpecialFolders,
+        bool showProtectedFiles,
+        bool showHiddenFiles,
+        bool treatDotFilesAsHidden,
+        bool gitIntegration,
+        bool showUndoRedoErrorDialogs,
+        bool allowImagePastingFromClipboard,
+        string newImageName,
+        string newFileName,
+        string newDirectoryName,
+        string thisPCLabel,
+        List<string> quickAccess
     );
 
     private static readonly JsonSerializerOptions serializerOptions =
@@ -77,32 +78,32 @@ static class FileSurferSettings
 
         _previousSettingsjson = File.ReadAllText(SettingsFilePath);
 
-        SettingsRecord settings =
-            JsonSerializer.Deserialize<SettingsRecord>(_previousSettingsjson)
-            ?? throw new NullReferenceException();
-
         try
         {
-            UseDarkMode = settings.UseDarkMode;
-            OpenInLastLocation = settings.OpenInLastLocation;
-            OpenIn = settings.OpenIn;
-            FileSizeDisplayLimit = settings.FileSizeDisplayLimit;
+            SettingsRecord settings =
+                JsonSerializer.Deserialize<SettingsRecord>(_previousSettingsjson)
+                ?? throw new NullReferenceException();
+
+            UseDarkMode = settings.useDarkMode;
+            OpenInLastLocation = settings.openInLastLocation;
+            OpenIn = settings.openIn;
+            FileSizeDisplayLimit = settings.fileSizeDisplayLimit;
             DisplayMode = (DisplayModeEnum)
-                Enum.Parse(typeof(DisplayModeEnum), settings.DisplayMode);
-            DefaultSort = (SortBy)Enum.Parse(typeof(SortBy), settings.DefaultSort);
-            SortReversed = settings.SortReversed;
-            ShowSpecialFolders = settings.ShowSpecialFolders;
-            ShowProtectedFiles = settings.ShowProtectedFiles;
-            ShowHiddenFiles = settings.ShowHiddenFiles;
-            TreatDotFilesAsHidden = settings.TreatDotFilesAsHidden;
-            GitIntegration = settings.GitIntegration;
-            ShowUndoRedoErrorDialogs = settings.ShowUndoRedoErrorDialogs;
-            AllowImagePastingFromClipboard = settings.AllowImagePastingFromClipboard;
-            NewImageName = settings.NewImageName;
-            NewFileName = settings.NewFileName;
-            NewDirectoryName = settings.NewDirectoryName;
-            ThisPCLabel = settings.ThisPCLabel;
-            QuickAccess = settings.QuickAccess;
+                Enum.Parse(typeof(DisplayModeEnum), settings.displayMode);
+            DefaultSort = (SortBy)Enum.Parse(typeof(SortBy), settings.defaultSort);
+            SortReversed = settings.sortReversed;
+            ShowSpecialFolders = settings.showSpecialFolders;
+            ShowProtectedFiles = settings.showProtectedFiles;
+            ShowHiddenFiles = settings.showHiddenFiles;
+            TreatDotFilesAsHidden = settings.treatDotFilesAsHidden;
+            GitIntegration = settings.gitIntegration;
+            ShowUndoRedoErrorDialogs = settings.showUndoRedoErrorDialogs;
+            AllowImagePastingFromClipboard = settings.allowImagePastingFromClipboard;
+            NewImageName = settings.newImageName;
+            NewFileName = settings.newFileName;
+            NewDirectoryName = settings.newDirectoryName;
+            ThisPCLabel = settings.thisPCLabel;
+            QuickAccess = settings.quickAccess;
         }
         catch
         {
