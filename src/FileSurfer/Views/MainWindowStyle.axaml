@@ -135,7 +135,7 @@
         <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/> 
         <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
         <Setter Property="SelectionMode" Value="Single"/>
-        <Setter Property="Margin" Value="5 10 -2 5"/>
+        <Setter Property="Margin" Value="0 10 0 10"/>
     </Style>
 
     <Style Selector="GridSplitter.GridSplitter">

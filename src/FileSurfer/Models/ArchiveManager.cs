@@ -1,10 +1,10 @@
+using System;
+using System.IO;
+using System.Linq;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
 using SharpCompress.Writers;
-using System;
-using System.IO;
-using System.Linq;
 
 namespace FileSurfer;
 
@@ -18,10 +18,14 @@ static class ArchiveManager
             ".7z" => true,
             ".gzip" => true,
             ".tar" => true,
-            _ => false
+            _ => false,
         };
 
-    public static bool ZipFiles(string[] filePaths, string destinationPath, out string? errorMessage)
+    public static bool ZipFiles(
+        string[] filePaths,
+        string destinationPath,
+        out string? errorMessage
+    )
     {
         try
         {
@@ -42,7 +46,11 @@ static class ArchiveManager
         }
     }
 
-    public static bool UnzipArchive(string archivePath, string extractPath, out string? errorMessage)
+    public static bool UnzipArchive(
+        string archivePath,
+        string extractPath,
+        out string? errorMessage
+    )
     {
         if (!IsZipped(archivePath))
         {

@@ -125,7 +125,7 @@
                     <ColumnDefinition Width="*" MinWidth="200"/>
                 </Grid.ColumnDefinitions>
 
-                <ScrollViewer>
+                <ScrollViewer Padding="4 3 0 3">
                     <StackPanel Orientation="Vertical" Grid.Column="0">
                         <ListBox x:Name="QuickAccessListBox" IsVisible="False" Classes="SideBarListBox" ItemsSource="{Binding QuickAccess}" PropertyChanged="OnQuickAccessChanged" Tapped="SideBarEntryClicked" ItemTemplate="{StaticResource SideBarTemplate}">
                             <ListBox.Styles>

@@ -97,13 +97,14 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
             {
                 IncludeUntracked = true,
                 RecurseUntrackedDirs = true,
-                DisablePathSpecMatch = true
+                DisablePathSpecMatch = true,
             }
         );
         _statusDict.Clear();
         foreach (StatusEntry? entry in repoStatus)
         {
-            string absolutePath = Path.Combine(_currentRepo.Info.WorkingDirectory, entry.FilePath).Replace('\\', '/');
+            string absolutePath = Path.Combine(_currentRepo.Info.WorkingDirectory, entry.FilePath)
+                .Replace('\\', '/');
             _statusDict[absolutePath] = ConvertToVCStatus(entry.State);
         }
     }
@@ -153,7 +154,10 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
                 errorMessage = MissingRepoMessage;
                 return false;
             }
-            string relativePath = Path.GetRelativePath(_currentRepo.Info.WorkingDirectory, filePath);
+            string relativePath = Path.GetRelativePath(
+                _currentRepo.Info.WorkingDirectory,
+                filePath
+            );
             _currentRepo.Index.Add(relativePath);
             _currentRepo.Index.Write();
             errorMessage = null;
@@ -175,7 +179,10 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
                 errorMessage = MissingRepoMessage;
                 return false;
             }
-            string relativePath = Path.GetRelativePath(_currentRepo.Info.WorkingDirectory, filePath);
+            string relativePath = Path.GetRelativePath(
+                _currentRepo.Info.WorkingDirectory,
+                filePath
+            );
             Commands.Unstage(_currentRepo, relativePath);
             errorMessage = null;
             return true;

@@ -71,7 +71,6 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         {
             return new string[]
             {
-                Environment.GetFolderPath(Environment.SpecialFolder.MyComputer),
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Downloads",
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),

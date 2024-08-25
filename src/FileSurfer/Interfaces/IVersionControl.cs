@@ -4,7 +4,7 @@ public interface IVersionControl
 {
     public bool IsVersionControlled(string directoryPath);
 
-    public VCStatus ConsolidateStatus(string path); 
+    public VCStatus ConsolidateStatus(string path);
 
     public bool DownloadChanges(out string? errorMessage);
 
@@ -22,4 +22,3 @@ public interface IVersionControl
 
     public bool UploadChanges(out string? errorMessage);
 }
-

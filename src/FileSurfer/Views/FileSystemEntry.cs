@@ -30,7 +30,7 @@ public class FileSystemEntry
         "MiB",
         "GiB",
         "TiB",
-        "PiB"
+        "PiB",
     };
 
     public readonly string PathToEntry;

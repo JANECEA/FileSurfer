@@ -204,4 +204,3 @@ class ClipboardManager
         return !errorOccured;
     }
 }
-
