@@ -226,5 +226,9 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         return _fileOpsHandler.ExecuteCmd(command);
     }
 
-    public void Dispose() => _currentRepo?.Dispose();
+    public void Dispose()
+    {
+        _currentRepo?.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

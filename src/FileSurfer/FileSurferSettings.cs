@@ -42,6 +42,8 @@ static class FileSurferSettings
         bool treatDotFilesAsHidden,
         bool gitIntegration,
         bool showUndoRedoErrorDialogs,
+        bool automaticRefresh,
+        int automaticRefreshInterval,
         bool allowImagePastingFromClipboard,
         string newImageName,
         string newFileName,
@@ -74,6 +76,8 @@ static class FileSurferSettings
     public static bool TreatDotFilesAsHidden { get; set; } = true;
     public static bool GitIntegration { get; set; } = true;
     public static bool ShowUndoRedoErrorDialogs { get; set; } = true;
+    public static bool AutomaticRefresh { get; set; } = true;
+    public static int AutomaticRefreshInterval { get; set; } = 3000;
     public static bool AllowImagePastingFromClipboard { get; set; } = true;
     public static string NewImageName { get; set; } = "New Image";
     public static string NewFileName { get; set; } = "New File";
@@ -110,6 +114,8 @@ static class FileSurferSettings
             TreatDotFilesAsHidden = settings.treatDotFilesAsHidden;
             GitIntegration = settings.gitIntegration;
             ShowUndoRedoErrorDialogs = settings.showUndoRedoErrorDialogs;
+            AutomaticRefresh = settings.automaticRefresh;
+            AutomaticRefreshInterval = settings.automaticRefreshInterval;
             AllowImagePastingFromClipboard = settings.allowImagePastingFromClipboard;
             NewImageName = settings.newImageName;
             NewFileName = settings.newFileName;
@@ -144,6 +150,8 @@ static class FileSurferSettings
                 TreatDotFilesAsHidden,
                 GitIntegration,
                 ShowUndoRedoErrorDialogs,
+                AutomaticRefresh,
+                AutomaticRefreshInterval,
                 AllowImagePastingFromClipboard,
                 NewImageName,
                 NewFileName,

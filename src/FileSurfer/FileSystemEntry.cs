@@ -29,7 +29,7 @@ public class FileSystemEntry
 
     public readonly string PathToEntry;
     public bool IsDirectory { get; }
-    public Bitmap? Icon { get; }
+    public Bitmap? Icon { get; set; }
     public string Name { get; }
     public DateTime LastModTime { get; }
     public string LastModified { get; }
@@ -50,7 +50,11 @@ public class FileSystemEntry
     {
         PathToEntry = path;
         IsDirectory = isDirectory;
-        Icon = isDirectory ? _folderIcon : GetIcon(fileOpsHandler, path);
+        if (IsDirectory)
+            Icon = _folderIcon;
+        else
+            SetIcon(fileOpsHandler, path);
+
         Name = Path.GetFileName(path);
         LastModTime = fileOpsHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
         LastModified = GetLastModified(fileOpsHandler);
@@ -99,15 +103,16 @@ public class FileSystemEntry
         return "Error";
     }
 
-    private static Bitmap? GetIcon(IFileOperationsHandler fileOpsHandler, string path)
+    private void SetIcon(IFileOperationsHandler fileOpsHandler, string path)
     {
-        if (fileOpsHandler.GetFileIcon(path) is not System.Drawing.Bitmap bitmap)
-            return null;
+        using System.Drawing.Bitmap? bitmap = fileOpsHandler.GetFileIcon(path);
+        if (bitmap is null)
+            return;
 
         using MemoryStream stream = new();
         bitmap.Save(stream, ImageFormat.Png);
         stream.Position = 0;
-        return new Bitmap(stream);
+        Icon = new Bitmap(stream);
     }
 
     public static string GetSizeString(long sizeInB)

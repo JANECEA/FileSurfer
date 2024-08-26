@@ -26,16 +26,17 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private readonly string NewDirName = FileSurferSettings.NewDirectoryName;
     private readonly string NewImageName = FileSurferSettings.NewImageName + ".png";
 
+    private readonly IFileOperationsHandler _fileOpsHandler;
     private readonly IVersionControl _versionControl;
-    private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory = new();
-    private readonly UndoRedoHandler<string> _pathHistory = new();
+    private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
+    private readonly UndoRedoHandler<string> _pathHistory;
     private readonly ClipboardManager _clipboardManager;
-    private readonly IFileOperationsHandler _fileOpsHandler = new WindowsFileOperationsHandler(
-        ShowDialogLimitB
-    );
+    private readonly DispatcherTimer? _refreshTimer;
 
     private CancellationTokenSource _searchCTS = new();
     private bool _isUserInvoked = true;
+    private DateTime _lastModified;
+
     private bool SortReversed
     {
         get => FileSurferSettings.SortReversed;
@@ -99,6 +100,8 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                 if (_isUserInvoked && value != _pathHistory.Current)
                     _pathHistory.AddNewNode(value);
             }
+            if (Directory.Exists(value))
+                _lastModified = Directory.GetLastWriteTime(value);
         }
     }
 
@@ -189,9 +192,12 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public MainWindowViewModel()
     {
-        _selectedFiles.CollectionChanged += UpdateSelectionInfo;
+        _fileOpsHandler = new WindowsFileOperationsHandler(ShowDialogLimitB);
         _versionControl = new GitVersionControlHandler(_fileOpsHandler);
         _clipboardManager = new ClipboardManager(_fileOpsHandler, NewImageName);
+        _undoRedoHistory = new();
+        _pathHistory = new();
+        _selectedFiles.CollectionChanged += UpdateSelectionInfo;
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
         ReloadCommand = ReactiveCommand.Create(Reload);
@@ -227,6 +233,30 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             ? FileSurferSettings.OpenIn
             : ThisPCLabel;
         _pathHistory.AddNewNode(CurrentDir);
+
+        if (FileSurferSettings.AutomaticRefresh)
+        {
+            _refreshTimer = new()
+            {
+                Interval = TimeSpan.FromMilliseconds(FileSurferSettings.AutomaticRefreshInterval),
+            };
+            _lastModified = Directory.GetLastWriteTime(CurrentDir);
+            _refreshTimer.Tick += CheckForUpdates;
+            _refreshTimer.Start();
+        }
+    }
+
+    private void CheckForUpdates(object? sender, EventArgs e)
+    {
+        if (!Directory.Exists(CurrentDir))
+            return;
+
+        DateTime latestModified = Directory.GetLastWriteTime(CurrentDir);
+        if (latestModified > _lastModified)
+        {
+            _lastModified = latestModified;
+            Reload();
+        }
     }
 
     private void Reload()
@@ -567,8 +597,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public async void SearchRelay(string searchQuerry)
     {
         if (_searchCTS.IsCancellationRequested)
-            _searchCTS = new();
-
+        {
+            CancellationTokenSource oldCTS = _searchCTS;
+            _searchCTS = new CancellationTokenSource();
+            oldCTS.Dispose();
+        }
         string currentDir = _pathHistory.Current ?? ThisPCLabel;
         CurrentDir = SearchingLabel;
         FileEntries.Clear();
@@ -1014,6 +1047,13 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         _versionControl.UploadChanges(out string? errorMessage);
         ErrorMessage = errorMessage;
+    }
+
+    public void DisposeResources()
+    {
+        _versionControl.Dispose();
+        _searchCTS.Dispose();
+        _refreshTimer?.Stop();
     }
 }
 #pragma warning restore CA1822 // Mark members as static

@@ -1,6 +1,8 @@
+using System;
+
 namespace FileSurfer.Models;
 
-public interface IVersionControl
+public interface IVersionControl : IDisposable
 {
     public bool IsVersionControlled(string directoryPath);
 

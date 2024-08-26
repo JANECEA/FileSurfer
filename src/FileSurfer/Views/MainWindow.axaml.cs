@@ -390,7 +390,10 @@ public partial class MainWindow : Window
     private void OnClosing(object sender, WindowClosingEventArgs e)
     {
         if (_viewModel is not null)
+        {
             FileSurferSettings.UpdateQuickAccess(_viewModel.QuickAccess);
+            _viewModel.DisposeResources();
+        }
         FileSurferSettings.SaveSettings();
     }
 }
