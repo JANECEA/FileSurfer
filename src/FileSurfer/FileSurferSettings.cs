@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Text.Json;
 
 namespace FileSurfer;
@@ -21,7 +23,11 @@ public enum SortBy
 
 static class FileSurferSettings
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "JSON naming convention")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Style",
+        "IDE1006:Naming Styles",
+        Justification = "JSON naming convention"
+    )]
     internal record SettingsRecord(
         bool useDarkMode,
         bool openInLastLocation,
@@ -41,11 +47,16 @@ static class FileSurferSettings
         string newFileName,
         string newDirectoryName,
         string thisPCLabel,
+        string notepadApp,
         List<string> quickAccess
     );
 
     private static readonly JsonSerializerOptions serializerOptions =
-        new() { WriteIndented = true };
+        new()
+        {
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            WriteIndented = true,
+        };
     private static readonly string _settingsFileDir =
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\FileSurfer";
     public static readonly string SettingsFilePath = _settingsFileDir + "\\settings.json";
@@ -68,6 +79,7 @@ static class FileSurferSettings
     public static string NewFileName { get; set; } = "New File";
     public static string NewDirectoryName { get; set; } = "New Folder";
     public static string ThisPCLabel { get; set; } = "This PC";
+    public static string NotePadApp { get; set; } = "notepad.exe";
     public static string OpenIn { get; set; } = ThisPCLabel;
     public static List<string> QuickAccess { get; set; } = new List<string>();
 
@@ -76,7 +88,7 @@ static class FileSurferSettings
         if (!File.Exists(SettingsFilePath))
             SaveSettings();
 
-        _previousSettingsjson = File.ReadAllText(SettingsFilePath);
+        _previousSettingsjson = File.ReadAllText(SettingsFilePath, Encoding.UTF8);
 
         try
         {
@@ -103,6 +115,7 @@ static class FileSurferSettings
             NewFileName = settings.newFileName;
             NewDirectoryName = settings.newDirectoryName;
             ThisPCLabel = settings.thisPCLabel;
+            NotePadApp = settings.notepadApp;
             QuickAccess = settings.quickAccess;
         }
         catch
@@ -110,6 +123,9 @@ static class FileSurferSettings
             SaveSettings();
         }
     }
+
+    public static void UpdateQuickAccess(IEnumerable<FileSystemEntry> quickAccess) =>
+        QuickAccess = quickAccess.Select(entry => entry.PathToEntry).ToList();
 
     public static void SaveSettings()
     {
@@ -133,6 +149,7 @@ static class FileSurferSettings
                 NewFileName,
                 NewDirectoryName,
                 ThisPCLabel,
+                NotePadApp,
                 QuickAccess
             );
         string settingsJson = JsonSerializer.Serialize(settings, serializerOptions);
@@ -141,6 +158,6 @@ static class FileSurferSettings
             Directory.CreateDirectory(_settingsFileDir);
 
         if (_previousSettingsjson != settingsJson)
-            File.WriteAllText(SettingsFilePath, settingsJson);
+            File.WriteAllText(SettingsFilePath, settingsJson, Encoding.UTF8);
     }
 }
