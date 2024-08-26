@@ -162,6 +162,12 @@ public partial class MainWindow : Window
             _viewModel?.ShowProperties(entry);
     }
 
+    private void OpenAs(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem item && item.DataContext is FileSystemEntry entry)
+            _viewModel?.OpenAs(entry);
+    }
+
     private void FilesTapped(object sender, TappedEventArgs e)
     {
         if (sender is not ListBox listBox)

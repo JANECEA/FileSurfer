@@ -320,6 +320,15 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
     }
 
+    public void OpenAs(FileSystemEntry entry)
+    {
+        if (!entry.IsDirectory)
+        {
+            WindowsFileProperties.ShowOpenAsDialog(entry.PathToEntry, out string? errorMessage);
+            ErrorMessage = errorMessage;
+        }
+    }
+
     public void OpenEntries()
     {
         if (SelectedFiles.Count > 1)
@@ -331,7 +340,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                 )
                     return;
         }
-        // To prevent collection changing while iterating
+        // To prevent collection changing during iteration
         foreach (FileSystemEntry entry in SelectedFiles.ToArray())
             OpenEntry(entry);
     }

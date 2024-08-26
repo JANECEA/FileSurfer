@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace FileSurfer.Models;
@@ -51,9 +52,23 @@ static class WindowsFileProperties
         bool result = ShellExecuteEx(ref info);
         errorMessage = null;
         if (!result)
-        {
             errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
-        }
+
         return result;
+    }
+
+    public static bool ShowOpenAsDialog(string filePath, out string? errorMessage)
+    {
+        try
+        {
+            Process.Start("rundll32.exe", "shell32.dll,OpenAs_RunDLL " + filePath);
+            errorMessage = null;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
     }
 }
