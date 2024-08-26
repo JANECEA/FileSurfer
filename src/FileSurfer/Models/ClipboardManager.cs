@@ -60,17 +60,29 @@ class ClipboardManager
         try
         {
             StringCollection fileCollection = Clipboard.GetFileDropList();
-            foreach (string? filePath in fileCollection)
+            errorMessage = "Problems occured pasting these files:";
+            bool errorOccured = false;
+            foreach (string? path in fileCollection)
             {
-                if (filePath is null)
-                    throw new ArgumentNullException(filePath);
+                if (path is null)
+                    throw new ArgumentNullException(path);
 
-                if (File.Exists(filePath))
-                    _fileOpsHandler.CopyFileTo(filePath, destinationPath, out errorMessage);
-                else if (Directory.Exists(filePath))
-                    _fileOpsHandler.CopyDirTo(filePath, destinationPath, out errorMessage);
+                bool result =
+                    Directory.Exists(path)
+                        && _fileOpsHandler.CopyDirTo(path, destinationPath, out errorMessage)
+                    || File.Exists(path)
+                        && _fileOpsHandler.CopyFileTo(path, destinationPath, out errorMessage);
+
+                errorOccured = !result || errorOccured;
+                if (!result)
+                    errorMessage += $" \"{path}\",";
             }
-            return true;
+            if (errorOccured)
+                errorMessage = errorMessage?.TrimEnd(',');
+            else
+                errorMessage = null;
+
+            return !errorOccured;
         }
         catch (Exception ex)
         {
@@ -97,6 +109,9 @@ class ClipboardManager
         }
         image.Dispose();
     }
+
+    [STAThread]
+    public void CopyPathToFile(string filePath) => Clipboard.SetText(filePath);
 
     public FileSystemEntry[] GetClipboard() => _programClipboard.ToArray();
 
