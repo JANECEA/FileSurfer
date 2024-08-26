@@ -308,12 +308,49 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         if (entry.IsDirectory)
             CurrentDir = entry.PathToEntry;
+        else if (_fileOpsHandler.IsLinkedToDirectory(entry.PathToEntry, out string? directory))
+        {
+            if (directory is not null)
+                CurrentDir = directory;
+        }
         else
         {
             _fileOpsHandler.OpenFile(entry.PathToEntry, out string? errorMessage);
             ErrorMessage = errorMessage;
         }
     }
+
+    public void OpenEntries()
+    {
+        if (SelectedFiles.Count > 1)
+        {
+            foreach (FileSystemEntry entry in SelectedFiles)
+                if (
+                    entry.IsDirectory
+                    || _fileOpsHandler.IsLinkedToDirectory(entry.PathToEntry, out _)
+                )
+                    return;
+        }
+        // To prevent collection changing while iterating
+        foreach (FileSystemEntry entry in SelectedFiles.ToArray())
+            OpenEntry(entry);
+    }
+
+    public void OpenInNotepad()
+    {
+        foreach (FileSystemEntry entry in SelectedFiles)
+        {
+            if (!entry.IsDirectory)
+            {
+                _fileOpsHandler.OpenInNotepad(entry.PathToEntry, out string? errorMessage);
+                ErrorMessage = errorMessage;
+            }
+        }
+    }
+
+    public void AddToQuickAccess(FileSystemEntry entry) => QuickAccess.Add(entry);
+
+    public void RemoveFromQuickAccess(FileSystemEntry entry) => QuickAccess.Remove(entry);
 
     public void OpenEntryLocation(FileSystemEntry entry) =>
         CurrentDir = Path.GetDirectoryName(entry.PathToEntry) ?? ThisPCLabel;
@@ -572,7 +609,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (!FileSurferSettings.ShowHiddenFiles && FileSurferSettings.TreatDotFilesAsHidden)
             entries = entries.Where(path => Path.GetFileName(path).StartsWith('.'));
 
-        return entries.Where(name => Path.GetFileName(name).Contains(query));
+        return entries.Where(name =>
+            Path.GetFileName(name).Contains(query, StringComparison.CurrentCultureIgnoreCase)
+        );
     }
 
     private async Task<IEnumerable<string>> GetPathDirsAsync(string directory, string? query = null)
@@ -590,7 +629,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
         return query is null
             ? entries
-            : entries.Where(name => Path.GetFileName(name).Contains(query));
+            : entries.Where(name =>
+                Path.GetFileName(name).Contains(query, StringComparison.CurrentCultureIgnoreCase)
+            );
     }
 
     public void CancelSearch()
@@ -633,13 +674,49 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             ErrorMessage = errorMessage;
     }
 
-    private void Cut()
+    public void AddToArchive()
+    {
+        if (!Directory.Exists(CurrentDir))
+            return;
+
+        string fileName = Path.GetFileNameWithoutExtension(SelectedFiles[^1].Name) + ".zip";
+        ArchiveManager.ZipFiles(
+            SelectedFiles.Select(entry => entry.PathToEntry).ToArray(),
+            CurrentDir,
+            FileNameGenerator.GetAvailableName(CurrentDir, fileName),
+            out string? errorMessage
+        );
+        Reload();
+        ErrorMessage = errorMessage;
+    }
+
+    public void ExtractArchive()
+    {
+        if (!Directory.Exists(CurrentDir))
+            return;
+
+        foreach (FileSystemEntry entry in SelectedFiles)
+            if (!ArchiveManager.IsZipped(entry.PathToEntry))
+                return;
+
+        foreach (FileSystemEntry entry in SelectedFiles)
+        {
+            ArchiveManager.UnzipArchive(entry.PathToEntry, CurrentDir, out string? errorMessage);
+            ErrorMessage = errorMessage;
+        }
+        Reload();
+    }
+
+    public void CopyPath(FileSystemEntry entry) =>
+        _clipboardManager.CopyPathToFile(entry.PathToEntry);
+
+    public void Cut()
     {
         _clipboardManager.Cut(SelectedFiles.ToList(), CurrentDir, out string? errorMessage);
         ErrorMessage = errorMessage;
     }
 
-    private void Copy()
+    public void Copy()
     {
         _clipboardManager.Copy(SelectedFiles.ToList(), CurrentDir, out string? errorMessage);
         ErrorMessage = errorMessage;
@@ -672,6 +749,19 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
         ErrorMessage = errorMessage;
         Reload();
+    }
+
+    public void CreateShortcut(FileSystemEntry entry)
+    {
+        _fileOpsHandler.CreateLink(entry.PathToEntry, out string? errorMessage);
+        ErrorMessage = errorMessage;
+        Reload();
+    }
+
+    public void ShowProperties(FileSystemEntry entry)
+    {
+        WindowsFileProperties.ShowFileProperties(entry.PathToEntry, out string? errorMessage);
+        ErrorMessage = errorMessage;
     }
 
     public void Rename(string newName)
@@ -732,7 +822,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         Reload();
     }
 
-    private void MoveToTrash()
+    public void MoveToTrash()
     {
         bool errorOccured = false;
         foreach (FileSystemEntry entry in SelectedFiles)
@@ -751,7 +841,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         Reload();
     }
 
-    private void Delete()
+    public void Delete()
     {
         foreach (FileSystemEntry entry in SelectedFiles)
         {

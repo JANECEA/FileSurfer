@@ -354,6 +354,28 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
+    public bool OpenInNotepad(string filePath, out string? errorMessage)
+    {
+        try
+        {
+            Process.Start(
+                new ProcessStartInfo
+                {
+                    FileName = FileSurferSettings.NotePadApp,
+                    Arguments = filePath,
+                    UseShellExecute = true,
+                }
+            );
+            errorMessage = null;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
+    }
+
     public bool ExecuteCmd(string command)
     {
         using Process process =
@@ -615,6 +637,33 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         catch (Exception e)
         {
             errorMessage = e.Message;
+            return false;
+        }
+    }
+
+    public bool IsLinkedToDirectory(string linkPath, out string? directory)
+    {
+        directory = null;
+        if (
+            !Path.GetExtension(linkPath).Equals(".lnk", StringComparison.InvariantCultureIgnoreCase)
+        )
+            return false;
+
+        try
+        {
+            IWshRuntimeLibrary.WshShell shell = new();
+            IWshRuntimeLibrary.IWshShortcut shortcut = (IWshRuntimeLibrary.IWshShortcut)
+                shell.CreateShortcut(linkPath);
+
+            if (Directory.Exists(shortcut.TargetPath))
+            {
+                directory = shortcut.TargetPath;
+                return true;
+            }
+            return false;
+        }
+        catch
+        {
             return false;
         }
     }

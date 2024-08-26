@@ -11,6 +11,7 @@
         PointerPressed="MouseButtonPressed"
         KeyDown="KeyPressed"
         Icon="/Assets/FileSurfer-logo.ico"
+        DataContextChanged="ViewModelLoaded"
         Closing="OnClosing"
         Title="FileSurfer">
 
@@ -33,7 +34,7 @@
 
     <Window.Resources>
         <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type local:FileSystemEntry}">
-            <Grid ColumnDefinitions="30 360 160 130 90 70" Height="30">
+            <Grid ColumnDefinitions="30 360 160 130 90 Auto" Height="30">
                 <Image Source="{Binding Icon}" Grid.Column="0" Width="20" Height="20" Margin="0 0 12 0" Opacity="{Binding Opacity}"/>
                 <TextBlock Classes="FileInfo" Grid.Column="1" Text="{Binding Name}" FontFamily="Arial"/>
                 <TextBlock Classes="FileInfo" Grid.Column="2" Text="{Binding LastModified}"/>
@@ -125,19 +126,26 @@
                     <ColumnDefinition Width="*" MinWidth="200"/>
                 </Grid.ColumnDefinitions>
 
-                <ScrollViewer Padding="4 3 0 3">
+                <ScrollViewer Padding="4 10 0 3">
                     <StackPanel Orientation="Vertical" Grid.Column="0">
                         <ListBox x:Name="QuickAccessListBox" IsVisible="False" Classes="SideBarListBox" ItemsSource="{Binding QuickAccess}" PropertyChanged="OnQuickAccessChanged" Tapped="SideBarEntryClicked" ItemTemplate="{StaticResource SideBarTemplate}">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
                                     <Setter Property="Padding" Value="10 3 10 3"/>
+                                    <Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu x:DataType="local:FileSystemEntry">
+                                                <MenuItem Classes="ContextMenuItem" Header="Remove from quick access" Click="RemoveFromQuickAccess"/>
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
                                 </Style>
                             </ListBox.Styles>
                         </ListBox>
 
                         <Separator x:Name="FirstSeparator" IsVisible="False" Background="{DynamicResource SecondaryColor}"/>
 
-                        <ListBox x:Name="SpecialsListBox" IsVisible="False" Classes="SideBarListBox" ItemsSource="{Binding SpecialFolders}" PropertyChanged="OnSpecialsChanged" Background="{DynamicResource PrimaryColor}" Tapped="SideBarEntryClicked" ItemTemplate="{StaticResource SideBarTemplate}">
+                        <ListBox x:Name="SpecialsListBox" IsVisible="False" Classes="SideBarListBox" ItemsSource="{Binding SpecialFolders}" Background="{DynamicResource PrimaryColor}" Tapped="SideBarEntryClicked" ItemTemplate="{StaticResource SideBarTemplate}">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
                                     <Setter Property="Padding" Value="10 3 10 3"/>
@@ -180,12 +188,35 @@
 
                     <Label Grid.Row="1" Classes="DirEmptyLabel" Content="This directory is empty" IsVisible="{Binding DirectoryEmpty}"/>
 
-                    <ListBox Grid.Row="2" x:Name="FileDisplay" Classes="FileDisplay" SelectionMode="Multiple" Tapped="FilesTapped"
+                    <ListBox Grid.Row="2" x:Name="FileDisplay" Classes="FileDisplay" SelectionMode="Multiple" Tapped="FilesTapped" ItemTemplate="{StaticResource ListViewTemplate}"
                              ItemsSource="{Binding FileEntries}" SelectedItems="{Binding SelectedFiles}" DoubleTapped="FilesDoubleTapped">
                         <ListBox.Styles>
                             <Style Selector="ListBoxItem">
                                 <Setter Property="Padding" Value="10 0 10 0"/>
                                 <Setter Property="Margin" Value="0 0 4 4"/>
+                                <Setter Property="ContextMenu">
+                                    <Setter.Value>
+                                        <ContextMenu Classes="FileContextMenu" x:DataType="local:FileSystemEntry">
+                                            <MenuItem Classes="ContextMenuItem" Header="Open" Click="OpenClicked"/>
+                                            <MenuItem Classes="ContextMenuItem" Header="Open in Notepad" IsVisible="{Binding !IsDirectory}" Click="OpenInNotepad"/>
+                                            <MenuItem Classes="ContextMenuItem" Header="Add to quick access" Click="PinToQuickAccess"/>
+                                            <Separator Classes="ContextMenuSeparator"/>
+                                            <MenuItem Classes="ContextMenuItem" Header="Add to archive" Click="AddToArchive"/>
+                                            <MenuItem Classes="ContextMenuItem" Header="Extract archive" IsVisible="{Binding IsArchived}" Click="ExtractArchive"/>
+                                            <Separator Classes="ContextMenuSeparator"/>
+                                            <MenuItem Classes="ContextMenuItem" Header="Copy path" Click="CopyPath"/>
+                                            <MenuItem Classes="ContextMenuItem" Header="Cut" Click="Cut"/>
+                                            <MenuItem Classes="ContextMenuItem" Header="Copy" Click="Copy"/>
+                                            <MenuItem Classes="ContextMenuItem" Header="Create shortcut" Click="CreateShortcut"/>
+                                            <Separator Classes="ContextMenuSeparator"/>
+                                            <MenuItem Classes="ContextMenuItem" Header="Delete" Click="Delete"/>
+                                            <MenuItem Classes="ContextMenuItem" Header="Delete permanently" Click="DeletePermanently"/>
+                                            <MenuItem Classes="ContextMenuItem" Header="Rename" Click="OnRenameClicked"/>
+                                            <Separator Classes="ContextMenuSeparator"/>
+                                            <MenuItem Classes="ContextMenuItem" Header="Properties" Click="ShowProperties"/>
+                                        </ContextMenu>
+                                    </Setter.Value>
+                                </Setter>
                             </Style>
                         </ListBox.Styles>
                         <ListBox.ItemsPanel>
@@ -193,9 +224,6 @@
                                 <WrapPanel Orientation="Vertical" Loaded="WrapPanelLoaded"/>
                             </ItemsPanelTemplate>
                         </ListBox.ItemsPanel>
-                        <ListBox.ItemTemplate>
-                            <StaticResource ResourceKey="ListViewTemplate"/>
-                        </ListBox.ItemTemplate>
                     </ListBox>
 
                     <Border x:Name="NewNameBar" Classes="InputBorder" Grid.Row="3">

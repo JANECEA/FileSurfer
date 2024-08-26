@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using SharpCompress.Archives;
@@ -22,15 +23,16 @@ static class ArchiveManager
         };
 
     public static bool ZipFiles(
-        string[] filePaths,
+        IEnumerable<string> filePaths,
         string destinationPath,
+        string archiveName,
         out string? errorMessage
     )
     {
         try
         {
             using ZipArchive archive = ZipArchive.Create();
-            using FileStream zipStream = File.OpenWrite(destinationPath);
+            using FileStream zipStream = File.OpenWrite(Path.Combine(destinationPath, archiveName));
 
             foreach (string filePath in filePaths)
                 archive.AddEntry(Path.GetFileName(filePath), File.OpenRead(filePath));
@@ -48,7 +50,7 @@ static class ArchiveManager
 
     public static bool UnzipArchive(
         string archivePath,
-        string extractPath,
+        string destinationPath,
         out string? errorMessage
     )
     {
@@ -60,12 +62,13 @@ static class ArchiveManager
         try
         {
             string extractName = Path.GetFileNameWithoutExtension(archivePath);
-            Directory.CreateDirectory(Path.Combine(extractPath, extractName));
+            string extractTo = Path.Combine(destinationPath, extractName);
+            Directory.CreateDirectory(extractTo);
             using IArchive archive = ArchiveFactory.Open(archivePath);
             foreach (IArchiveEntry entry in archive.Entries.Where(entry => !entry.IsDirectory))
             {
                 entry.WriteToDirectory(
-                    extractPath,
+                    extractTo,
                     new ExtractionOptions() { ExtractFullPath = true, Overwrite = true }
                 );
             }

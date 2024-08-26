@@ -12,7 +12,11 @@ public interface IFileOperationsHandler
 
     public bool OpenFile(string filePath, out string? errorMessage);
 
+    public bool OpenInNotepad(string filePath, out string? errorMessage);
+
     public bool CreateLink(string filePath, out string? errorMessage);
+
+    public bool IsLinkedToDirectory(string linkPath, out string? directory);
 
     public string[] GetPathDirs(string path, bool includeHidden, bool includeOS);
 

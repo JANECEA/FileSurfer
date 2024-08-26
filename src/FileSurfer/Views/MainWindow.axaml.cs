@@ -12,6 +12,7 @@ namespace FileSurfer.Views;
 
 public partial class MainWindow : Window
 {
+    private MainWindowViewModel? _viewModel;
     private WrapPanel? _filePanel;
     private readonly DataTemplate _iconViewTemplate;
     private readonly DataTemplate _listViewTemplate;
@@ -38,6 +39,24 @@ public partial class MainWindow : Window
             && keyBinding.Gesture.KeyModifiers == KeyModifiers.Control
             && keyBinding.Gesture.Key == Key.A
         );
+    }
+
+    private void ViewModelLoaded(object? sender, EventArgs e)
+    {
+        if (DataContext is MainWindowViewModel viewModel && _viewModel is null)
+        {
+            _viewModel = viewModel;
+            SpecialFoldersLoaded(viewModel);
+        }
+    }
+
+    private void SpecialFoldersLoaded(MainWindowViewModel viewModel)
+    {
+        if (viewModel.SpecialFolders.Length > 0)
+        {
+            SecondSeparator.IsVisible = true;
+            SpecialsListBox.IsVisible = true;
+        }
     }
 
     private void WrapPanelLoaded(object sender, RoutedEventArgs e)
@@ -70,25 +89,16 @@ public partial class MainWindow : Window
 
     private void OnQuickAccessChanged(object sender, AvaloniaPropertyChangedEventArgs e)
     {
-        if (DataContext is MainWindowViewModel viewModel && viewModel.QuickAccess.Count > 0)
+        if (_viewModel?.QuickAccess.Count > 0)
         {
             FirstSeparator.IsVisible = true;
             QuickAccessListBox.IsVisible = true;
         }
     }
 
-    private void OnSpecialsChanged(object sender, AvaloniaPropertyChangedEventArgs e)
-    {
-        if (DataContext is MainWindowViewModel viewModel && viewModel.SpecialFolders.Length > 0)
-        {
-            SecondSeparator.IsVisible = true;
-            SpecialsListBox.IsVisible = true;
-        }
-    }
-
     private void FilesDoubleTapped(object sender, TappedEventArgs e)
     {
-        if (sender is ListBox listBox && DataContext is MainWindowViewModel viewModel)
+        if (sender is ListBox listBox)
         {
             Visual? hitElement = (Visual?)listBox.InputHitTest(e.GetPosition(listBox));
             while (hitElement is not null)
@@ -100,15 +110,61 @@ public partial class MainWindow : Window
             }
 
             if (listBox.SelectedItem is FileSystemEntry entry)
-                viewModel.OpenEntry(entry);
+                _viewModel?.OpenEntry(entry);
             else
-                viewModel.GoUp();
+                _viewModel?.GoUp();
         }
+    }
+
+    private void OpenClicked(object sender, RoutedEventArgs e) => _viewModel?.OpenEntries();
+
+    private void OpenInNotepad(object sender, RoutedEventArgs e) => _viewModel?.OpenInNotepad();
+
+    private void PinToQuickAccess(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem item && item.DataContext is FileSystemEntry entry)
+            _viewModel?.AddToQuickAccess(entry);
+    }
+
+    private void RemoveFromQuickAccess(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem item && item.DataContext is FileSystemEntry entry)
+            _viewModel?.RemoveFromQuickAccess(entry);
+    }
+
+    private void AddToArchive(object sender, RoutedEventArgs e) => _viewModel?.AddToArchive();
+
+    private void ExtractArchive(object sender, RoutedEventArgs e) => _viewModel?.ExtractArchive();
+
+    private void CopyPath(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem item && item.DataContext is FileSystemEntry entry)
+            _viewModel?.CopyPath(entry);
+    }
+
+    private void Cut(object sender, RoutedEventArgs e) => _viewModel?.Cut();
+
+    private void Copy(object sender, RoutedEventArgs e) => _viewModel?.Copy();
+
+    private void CreateShortcut(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem item && item.DataContext is FileSystemEntry entry)
+            _viewModel?.CreateShortcut(entry);
+    }
+
+    private void Delete(object sender, RoutedEventArgs e) => _viewModel?.MoveToTrash();
+
+    private void DeletePermanently(object sender, RoutedEventArgs e) => _viewModel?.Delete();
+
+    private void ShowProperties(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem item && item.DataContext is FileSystemEntry entry)
+            _viewModel?.ShowProperties(entry);
     }
 
     private void FilesTapped(object sender, TappedEventArgs e)
     {
-        if (sender is not ListBox listBox || DataContext is not MainWindowViewModel viewModel)
+        if (sender is not ListBox listBox)
             return;
 
         Visual? hitElement = (Visual?)listBox.InputHitTest(e.GetPosition(listBox));
@@ -119,46 +175,39 @@ public partial class MainWindow : Window
 
             hitElement = Avalonia.VisualTree.VisualExtensions.GetVisualParent(hitElement);
         }
-        viewModel.SelectedFiles.Clear();
+        _viewModel?.SelectedFiles.Clear();
         NewNameBar.IsVisible = false;
         CommitMessageBar.IsVisible = false;
     }
 
     private void SideBarEntryClicked(object sender, TappedEventArgs e)
     {
-        if (
-            DataContext is MainWindowViewModel viewModel
-            && sender is ListBox listBox
-            && listBox.SelectedItem is FileSystemEntry entry
-        )
+        if (sender is ListBox listBox && listBox.SelectedItem is FileSystemEntry entry)
         {
-            viewModel.OpenEntry(entry);
+            _viewModel?.OpenEntry(entry);
             SpecialsListBox.SelectedItems?.Clear();
             QuickAccessListBox.SelectedItems?.Clear();
             DrivesListBox.SelectedItems?.Clear();
         }
     }
 
-    private void MouseButtonPressed(object? sender, PointerPressedEventArgs e)
+    private void MouseButtonPressed(object sender, PointerPressedEventArgs e)
     {
-        if (DataContext is not MainWindowViewModel viewModel)
-            return;
-
         PointerPointProperties properties = e.GetCurrentPoint(this).Properties;
         if (properties.IsXButton1Pressed)
-            viewModel.GoBack();
+            _viewModel?.GoBack();
 
         if (properties.IsXButton2Pressed)
-            viewModel.GoForward();
+            _viewModel?.GoForward();
 
-        if (properties.IsMiddleButtonPressed && viewModel.Searching)
+        if (_viewModel is not null && _viewModel.Searching && properties.IsMiddleButtonPressed)
         {
             Visual? hitElement = (Visual?)FileDisplay.InputHitTest(e.GetPosition(FileDisplay));
             while (hitElement is not null)
             {
                 if (hitElement is ListBoxItem item && item.DataContext is FileSystemEntry entry)
                 {
-                    viewModel.OpenEntryLocation(entry);
+                    this._viewModel?.OpenEntryLocation(entry);
                     return;
                 }
                 hitElement = Avalonia.VisualTree.VisualExtensions.GetVisualParent(hitElement);
@@ -192,14 +241,14 @@ public partial class MainWindow : Window
 
     private void OnRenameClicked(object sender, RoutedEventArgs e)
     {
-        if (DataContext is not MainWindowViewModel viewModel || viewModel.SelectedFiles.Count == 0)
+        if (_viewModel is null || _viewModel.SelectedFiles.Count == 0)
             return;
 
         NewNameBar.IsVisible = true;
         NameInputBox.Focus();
-        NameInputBox.Text = viewModel.SelectedFiles[^1].Name;
+        NameInputBox.Text = _viewModel.SelectedFiles[^1].Name;
         NameInputBox.SelectionStart = 0;
-        NameInputBox.SelectionEnd = viewModel.GetNameEndIndex(viewModel.SelectedFiles[^1]);
+        NameInputBox.SelectionEnd = _viewModel.GetNameEndIndex(_viewModel.SelectedFiles[^1]);
     }
 
     private void OnCommitClicked(object sender, RoutedEventArgs e)
@@ -217,21 +266,18 @@ public partial class MainWindow : Window
 
     private void NameEntered()
     {
-        if (DataContext is MainWindowViewModel viewModel && NameInputBox.Text is string newName)
+        if (NameInputBox.Text is string newName)
         {
-            viewModel.Rename(newName);
+            _viewModel?.Rename(newName);
             NewNameBar.IsVisible = false;
         }
     }
 
     private void CommitMessageEntered()
     {
-        if (
-            DataContext is MainWindowViewModel viewModel
-            && CommitInputBox.Text is string commitMessage
-        )
+        if (CommitInputBox.Text is string commitMessage)
         {
-            viewModel.Commit(commitMessage);
+            _viewModel?.Commit(commitMessage);
             CommitMessageBar.IsVisible = false;
             CommitInputBox.Text = string.Empty;
         }
@@ -239,16 +285,12 @@ public partial class MainWindow : Window
 
     private void StagedToggle(object sender, RoutedEventArgs e)
     {
-        if (
-            sender is CheckBox checkBox
-            && checkBox.DataContext is FileSystemEntry entry
-            && DataContext is MainWindowViewModel viewModel
-        )
+        if (sender is CheckBox checkBox && checkBox.DataContext is FileSystemEntry entry)
         {
             if (checkBox.IsChecked is true)
-                viewModel.StageFile(entry);
+                _viewModel?.StageFile(entry);
             else
-                viewModel.UnstageFile(entry);
+                _viewModel?.UnstageFile(entry);
         }
     }
 
@@ -317,31 +359,32 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (DataContext is MainWindowViewModel viewModel)
+        if (_viewModel is not null)
         {
             if (SearchBox.IsFocused && !string.IsNullOrWhiteSpace(SearchBox.Text))
             {
-                viewModel.SearchRelay(SearchBox.Text);
+                _viewModel?.SearchRelay(SearchBox.Text);
                 return;
             }
-            if (viewModel.SelectedFiles.Count == 1)
-                viewModel.OpenEntry(viewModel.SelectedFiles[0]);
+            if (_viewModel.SelectedFiles.Count == 1)
+                _viewModel?.OpenEntry(_viewModel.SelectedFiles[0]);
         }
     }
 
     private void OnEscapePressed(KeyEventArgs e)
     {
         e.Handled = true;
-        if (DataContext is MainWindowViewModel viewModel)
-        {
-            viewModel.SelectedFiles.Clear();
+        _viewModel?.SelectedFiles.Clear();
+        if (SearchBox.IsFocused)
+            _viewModel?.CancelSearch();
 
-            if (SearchBox.IsFocused)
-                viewModel.CancelSearch();
-        }
         FocusManager?.ClearFocus();
     }
 
-    private void OnClosing(object sender, WindowClosingEventArgs e) =>
+    private void OnClosing(object sender, WindowClosingEventArgs e)
+    {
+        if (_viewModel is not null)
+            FileSurferSettings.UpdateQuickAccess(_viewModel.QuickAccess);
         FileSurferSettings.SaveSettings();
+    }
 }

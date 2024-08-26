@@ -28,17 +28,18 @@ public class FileSystemEntry
     };
 
     public readonly string PathToEntry;
-    public readonly bool IsDirectory;
+    public bool IsDirectory { get; }
     public Bitmap? Icon { get; }
     public string Name { get; }
-    public string LastModified { get; }
     public DateTime LastModTime { get; }
-    public string Size { get; }
+    public string LastModified { get; }
     public long? SizeB { get; }
+    public string Size { get; }
     public string Type { get; }
     public double Opacity { get; } = 1;
     public bool VersionControlled { get; } = false;
     public bool Staged { get; } = false;
+    public bool IsArchived { get; } = false;
 
     public FileSystemEntry(
         IFileOperationsHandler fileOpsHandler,
@@ -49,19 +50,10 @@ public class FileSystemEntry
     {
         PathToEntry = path;
         IsDirectory = isDirectory;
-        Name = Path.GetFileName(path);
         Icon = isDirectory ? _folderIcon : GetIcon(fileOpsHandler, path);
+        Name = Path.GetFileName(path);
         LastModTime = fileOpsHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
         LastModified = GetLastModified(fileOpsHandler);
-        Opacity =
-            fileOpsHandler.IsHidden(path, isDirectory)
-            || (FileSurferSettings.TreatDotFilesAsHidden && Name.StartsWith('.'))
-                ? 0.45
-                : 1;
-
-        VersionControlled = status is not VCStatus.NotVersionControlled;
-        Staged = status is VCStatus.Staged;
-
         SizeB = isDirectory ? null : fileOpsHandler.GetFileSizeB(path);
         Size = SizeB is long NotNullSize ? GetSizeString(NotNullSize) : string.Empty;
 
@@ -72,13 +64,23 @@ public class FileSystemEntry
             string extension = Path.GetExtension(path).TrimStart('.').ToUpperInvariant();
             Type = extension == string.Empty ? "File" : extension + " File";
         }
+
+        Opacity =
+            fileOpsHandler.IsHidden(path, isDirectory)
+            || (FileSurferSettings.TreatDotFilesAsHidden && Name.StartsWith('.'))
+                ? 0.45
+                : 1;
+
+        VersionControlled = status is not VCStatus.NotVersionControlled;
+        Staged = status is VCStatus.Staged;
+        IsArchived = ArchiveManager.IsZipped(path);
     }
 
     public FileSystemEntry(DriveInfo drive)
     {
         PathToEntry = drive.Name;
-        Name = $"{drive.VolumeLabel} ({drive.Name.TrimEnd(Path.DirectorySeparatorChar)})";
         IsDirectory = true;
+        Name = $"{drive.VolumeLabel} ({drive.Name.TrimEnd(Path.DirectorySeparatorChar)})";
         Type = "Drive";
         Icon = _driveIcon;
         LastModified = string.Empty;

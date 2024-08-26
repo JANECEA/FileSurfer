@@ -165,13 +165,32 @@
         <Setter Property="Margin" Value="15 10 15 15"/>
     </Style>
 
+    <Style Selector="ContextMenu.FileContextMenu">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+        <Setter Property="Width" Value="260"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource TextBlockColor}"/>
+    </Style>
+
+    <Style Selector="MenuItem.ContextMenuItem">
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Height" Value="27"/>
+        <Setter Property="Padding" Value="10 0 10 0"/>
+    </Style>
+
+    <Style Selector="Separator.ContextMenuSeparator">
+        <Setter Property="Background" Value="{DynamicResource TextBlockColor}"/>
+        <Setter Property="Margin" Value="2"/>
+    </Style>
+
     <Style Selector="Label.InfoLabel">
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
     </Style>
 
     <Style Selector="CheckBox.StagedCheckbox">
-        <Setter Property="Margin" Value="20 0 0 0"/>
+        <Setter Property="Margin" Value="20 0 60 0"/>
     </Style>
 
     <Style Selector="CheckBox.StagedCheckbox:checked /template/ Border#NormalRectangle">
