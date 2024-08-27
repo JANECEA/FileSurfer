@@ -59,34 +59,34 @@
 
     <DockPanel Background="{DynamicResource PrimaryColor}">
         <DockPanel DockPanel.Dock="Top" Height="50" Margin="10 0">
-            <Button Classes="TopLeftButton" Content="" HotKey="Alt+Left" Command="{Binding GoBackCommand}"/>
-            <Button Classes="TopLeftButton" Content="" HotKey="Alt+Right" Command="{Binding GoForwardCommand}"/>
-            <Button Classes="TopLeftButton" Content="" HotKey="F5" Command="{Binding ReloadCommand}"/>
-            <Button Classes="TopLeftButton" Content="" HotKey="F12" Command="{Binding OpenPowerShellCommand}"/>
+            <Button Classes="TopLeftButton" Content="&#xF053;" HotKey="Alt+Left" Command="{Binding GoBackCommand}"/>
+            <Button Classes="TopLeftButton" Content="&#xF054;" HotKey="Alt+Right" Command="{Binding GoForwardCommand}"/>
+            <Button Classes="TopLeftButton" Content="&#xF01E;" HotKey="F5" Command="{Binding ReloadCommand}"/>
+            <Button Classes="TopLeftButton" Content="&#xEBC7;" HotKey="F12" Command="{Binding OpenPowerShellCommand}"/>
 
             <Grid ColumnDefinitions="* 250">
                 <TextBox x:Name="PathBox" Classes="PathBox TopTextBox" Grid.Column="0" Text="{Binding CurrentDir, Mode=TwoWay}" GotFocus="TextBoxGotFocus" LostFocus="TextBoxLostFocus"/>
 
                 <Grid Grid.Column="1">
                     <TextBox x:Name="SearchBox" Classes="SearchBox TopTextBox" Watermark="{Binding SearchWaterMark}" LostFocus="SearchBoxLostFocus" GotFocus="TextBoxGotFocus"/>
-                    <Button Classes="CancelSearchButton" Content="" Command="{Binding CancelSearchCommand}" IsVisible="{Binding Searching}"/>
-                    <TextBlock Classes="MagnifyingGlass" Text="" IsVisible="{Binding !Searching}"/>
+                    <Button Classes="CancelSearchButton" Content="&#xF00D;" Command="{Binding CancelSearchCommand}" IsVisible="{Binding Searching}"/>
+                    <TextBlock Classes="MagnifyingGlass" Text="&#xF002;" IsVisible="{Binding !Searching}"/>
                 </Grid>
             </Grid>
         </DockPanel>
 
         <Border Height="55" DockPanel.Dock="Top" Grid.Row="2" BorderThickness="0 1 0 1" BorderBrush="{DynamicResource SecondaryColor}">
             <DockPanel LastChildFill="False" Margin="10 0">
-                <Button Classes="FileOperationButton" Content="" HotKey="Ctrl+N" Command="{Binding NewFileCommand}"/>
-                <Button Classes="FileOperationButton" Content="" HotKey="Ctrl+Shift+N" Command="{Binding NewDirCommand}"/>
+                <Button Classes="FileOperationButton" Content="&#xEA7F;" HotKey="Ctrl+N" Command="{Binding NewFileCommand}"/>
+                <Button Classes="FileOperationButton" Content="&#xEA80;" HotKey="Ctrl+Shift+N" Command="{Binding NewDirCommand}"/>
                 <Rectangle Classes="ButtonSeparator"/>
-                <Button x:Name="CutButton" Classes="FileOperationButton" Content="󰆐" HotKey="Ctrl+X" Command="{Binding CutCommand}"/>
-                <Button x:Name="CopyButton" Classes="FileOperationButton" Content="" HotKey="Ctrl+C" Command="{Binding CopyCommand}"/>
-                <Button x:Name="PasteButton" Classes="FileOperationButton" Content="󰆒" HotKey="Ctrl+V" Command="{Binding PasteCommand}"/>
-                <Button Classes="FileOperationButton" Content="󰑕" HotKey="F2" Click="OnRenameClicked"/>
-                <Button x:Name="DeleteButton" Classes="FileOperationButton" Content="" HotKey="Delete" Command="{Binding MoveToTrashCommand}"/>
+                <Button x:Name="CutButton" Classes="FileOperationButton" Content="&#xF0190;" HotKey="Ctrl+X" Command="{Binding CutCommand}"/>
+                <Button x:Name="CopyButton" Classes="FileOperationButton" Content="&#xF0C5;" HotKey="Ctrl+C" Command="{Binding CopyCommand}"/>
+                <Button x:Name="PasteButton" Classes="FileOperationButton" Content="&#xF0192;" HotKey="Ctrl+V" Command="{Binding PasteCommand}"/>
+                <Button Classes="FileOperationButton" Content="&#xF0455;" HotKey="F2" Click="OnRenameClicked"/>
+                <Button x:Name="DeleteButton" Classes="FileOperationButton" Content="&#xF014;" HotKey="Delete" Command="{Binding MoveToTrashCommand}"/>
                 <Rectangle Classes="ButtonSeparator"/>
-                <Button Classes="MenuButton" Width="80" Content=" Sort">
+                <Button Classes="MenuButton" Width="80" Content="&#xF176;&#xF175; Sort">
                     <Button.Flyout>
                         <MenuFlyout>
                             <MenuItem Classes="MenuOption" Header="Name" Command="{Binding SortByNameCommand}"/>
@@ -96,7 +96,7 @@
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
-                <Button Classes="MenuButton" Content="···" FontWeight="ExtraBold">
+                <Button Classes="MenuButton" Content="&#x00B7;&#x00B7;&#x00B7;" FontWeight="ExtraBold">
                     <Button.Flyout>
                         <MenuFlyout>
                             <MenuItem Classes="MenuOption" Header="Undo" Command="{Binding UndoCommand}"/>
@@ -247,8 +247,8 @@
                 <DockPanel LastChildFill="False">
                     <TextBlock Classes="SelectInfo" Text="{Binding SelectionInfo}"/>
 
-                    <Button Classes="ViewFormatButton" Content="󰕳" Margin="0 0 5 0" Click="IconView"/>
-                    <Button Classes="ViewFormatButton" Content="󰕱" Margin="0 0 3 0" Click="ListView"/>
+                    <Button Classes="ViewFormatButton" Content="&#xF0573;" Margin="0 0 5 0" Click="IconView"/>
+                    <Button Classes="ViewFormatButton" Content="&#xF0571;" Margin="0 0 3 0" Click="ListView"/>
                 </DockPanel>
             </Border>
         </Grid>

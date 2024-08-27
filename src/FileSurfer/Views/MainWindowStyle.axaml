@@ -14,7 +14,7 @@
         <Setter Property="Foreground" Value="{DynamicResource IconColor}"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="FontFamily" Value="FiraCode Nerd Font"/>
+        <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
     </Style>
 
     <Style Selector="TextBox.TopTextBox">
@@ -51,14 +51,14 @@
         <Setter Property="HorizontalAlignment" Value="Right"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="FontFamily" Value="FiraCode Nerd Font"/>
+        <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
     </Style>
 
     <Style Selector="TextBlock.MagnifyingGlass">
         <Setter Property="Margin" Value="0 0 12 0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="HorizontalAlignment" Value="Right"/>
-        <Setter Property="FontFamily" Value="FiraCode Nerd Font"/>
+        <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="Foreground" Value="{DynamicResource IconColor}"/>
     </Style>
@@ -72,7 +72,7 @@
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource IconColor}"/>
-        <Setter Property="FontFamily" Value="FiraCode Nerd Font"/>
+        <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
     </Style>
 
     <Style Selector="Button.MenuButton">
@@ -84,7 +84,7 @@
         <Setter Property="Foreground" Value="{DynamicResource IconColor}"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="FontFamily" Value="FiraCode Nerd Font"/>
+        <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
     </Style>
 
     <Style Selector="MenuItem.MenuOption">
@@ -251,7 +251,7 @@
         <Setter Property="Foreground" Value="{DynamicResource IconColor}"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="FontFamily" Value="FiraCode Nerd Font"/>
+        <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
         <Setter Property="FontSize" Value="14.5"/>
     </Style>
 
