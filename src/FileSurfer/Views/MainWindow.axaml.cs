@@ -126,11 +126,14 @@ public partial class MainWindow : Window
             _viewModel?.AddToQuickAccess(entry);
     }
 
-    private void RemoveFromQuickAccess(object sender, RoutedEventArgs e)
-    {
-        if (sender is MenuItem item && item.DataContext is FileSystemEntry entry)
-            _viewModel?.RemoveFromQuickAccess(entry);
-    }
+    private void MoveUp(object sender, RoutedEventArgs e) =>
+        _viewModel?.MoveUp(QuickAccessListBox.SelectedIndex);
+
+    private void MoveDown(object sender, RoutedEventArgs e) =>
+        _viewModel?.MoveDown(QuickAccessListBox.SelectedIndex);
+
+    private void RemoveFromQuickAccess(object sender, RoutedEventArgs e) =>
+        _viewModel?.RemoveFromQuickAccess(QuickAccessListBox.SelectedIndex);
 
     private void AddToArchive(object sender, RoutedEventArgs e) => _viewModel?.AddToArchive();
 

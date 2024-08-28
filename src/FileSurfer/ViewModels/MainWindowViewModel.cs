@@ -389,7 +389,19 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public void AddToQuickAccess(FileSystemEntry entry) => QuickAccess.Add(entry);
 
-    public void RemoveFromQuickAccess(FileSystemEntry entry) => QuickAccess.Remove(entry);
+    public void MoveUp(int i)
+    {
+        if (i > 0)
+            (QuickAccess[i - 1], QuickAccess[i]) = (QuickAccess[i], QuickAccess[i - 1]);
+    }
+
+    public void MoveDown(int i)
+    {
+        if (i < QuickAccess.Count - 1)
+            (QuickAccess[i], QuickAccess[i + 1]) = (QuickAccess[i + 1], QuickAccess[i]);
+    }
+
+    public void RemoveFromQuickAccess(int index) => QuickAccess.RemoveAt(index);
 
     public void OpenEntryLocation(FileSystemEntry entry) =>
         CurrentDir = Path.GetDirectoryName(entry.PathToEntry) ?? ThisPCLabel;

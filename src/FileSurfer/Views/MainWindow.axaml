@@ -135,6 +135,8 @@
                                     <Setter Property="ContextMenu">
                                         <Setter.Value>
                                             <ContextMenu x:DataType="local:FileSystemEntry">
+                                                <MenuItem Classes="ContextMenuItem" Header="Move up" Click="MoveUp"/>
+                                                <MenuItem Classes="ContextMenuItem" Header="Move down" Click="MoveDown"/>
                                                 <MenuItem Classes="ContextMenuItem" Header="Remove from quick access" Click="RemoveFromQuickAccess"/>
                                             </ContextMenu>
                                         </Setter.Value>
