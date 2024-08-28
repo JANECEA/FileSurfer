@@ -103,7 +103,9 @@ static class FileSurferSettings
             UseDarkMode = settings.useDarkMode;
             OpenInLastLocation = settings.openInLastLocation;
             OpenIn = settings.openIn;
-            FileSizeDisplayLimit = settings.fileSizeDisplayLimit;
+            if (settings.fileSizeDisplayLimit > 0)
+                FileSizeDisplayLimit = settings.fileSizeDisplayLimit;
+
             DisplayMode = (DisplayModeEnum)
                 Enum.Parse(typeof(DisplayModeEnum), settings.displayMode);
             DefaultSort = (SortBy)Enum.Parse(typeof(SortBy), settings.defaultSort);
@@ -115,12 +117,22 @@ static class FileSurferSettings
             GitIntegration = settings.gitIntegration;
             ShowUndoRedoErrorDialogs = settings.showUndoRedoErrorDialogs;
             AutomaticRefresh = settings.automaticRefresh;
-            AutomaticRefreshInterval = settings.automaticRefreshInterval;
+            if (settings.automaticRefreshInterval > 0)
+                AutomaticRefreshInterval = settings.automaticRefreshInterval;
+
             AllowImagePastingFromClipboard = settings.allowImagePastingFromClipboard;
-            NewImageName = settings.newImageName;
-            NewFileName = settings.newFileName;
-            NewDirectoryName = settings.newDirectoryName;
-            ThisPCLabel = settings.thisPCLabel;
+            if (!string.IsNullOrWhiteSpace(settings.newImageName))
+                NewImageName = settings.newImageName;
+
+            if (!string.IsNullOrWhiteSpace(settings.newFileName))
+                NewFileName = settings.newFileName;
+
+            if (!string.IsNullOrWhiteSpace(settings.newDirectoryName))
+                NewDirectoryName = settings.newDirectoryName;
+
+            if (!string.IsNullOrWhiteSpace(settings.thisPCLabel))
+                ThisPCLabel = settings.thisPCLabel;
+
             NotePadApp = settings.notepadApp;
             QuickAccess = settings.quickAccess;
         }
