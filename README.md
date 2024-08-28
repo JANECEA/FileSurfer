@@ -35,9 +35,6 @@ The project also relies on the following COM components:
 
 Ensure these COM components are registered on the system where the application is running. If not, you may need to manually register the corresponding DLLs using `regsvr32 <path/to/dll>`.
 
-### Optional (for Debugging)
-- **Avalonia.Diagnostics**: Included only in Debug builds to assist with debugging Avalonia UI applications.
-
 ### Other
 - [Git for Windows](https://git-scm.com/download/win): for optional Git integration.
 
