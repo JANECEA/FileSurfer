@@ -8,6 +8,7 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <ApplicationIcon>Assets\FileSurfer-logo.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -36,16 +37,22 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.0.10" />
+      <Content Include="Assets\FileSurfer-logo.ico" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.0.10">
+          <TreatAsUsed>true</TreatAsUsed>
+        </PackageReference>
         <PackageReference Include="Avalonia.Desktop" Version="11.0.10" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.10" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.10">
+          <TreatAsUsed>true</TreatAsUsed>
+        </PackageReference>
         <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.10" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.10" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.10" />
         <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
         <PackageReference Include="SharpCompress" Version="0.37.2" />
-        <PackageReference Include="System.Drawing.Common" Version="8.0.7" />
-        <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
     </ItemGroup>
 </Project>
