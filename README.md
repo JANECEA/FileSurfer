@@ -9,17 +9,17 @@ Supports all you'd expect from a modern file explorer, plus some extra quirks:
 - Integration with the Git version control system
 
 
-## Prerequisites
+## Dependencies
 To build and run this project, ensure that the following dependencies are installed:
 
 ### .NET and Frameworks
-- **[.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-8.0.401-windows-x64-installer)**: The target framework
-- **[Visual Studio Build Toos](https://visualstudio.microsoft.com/cs/visual-cpp-build-tools/)**: To build the project
+- **.NET 8.0**
+- **Avalonia UI**
+- **[Visual Studio .NET Build Tools](https://visualstudio.microsoft.com/cs/visual-cpp-build-tools/)**: To build the project
 - **Windows Forms**: The project uses Windows Forms to interact with the system clipboard
 
 ### NuGet Packages
-The following NuGet packages are required:
-- **[Avalonia](https://avaloniaui.net/gettingstarted#installation)**(v11.0.10)
+- **[Avalonia](https://avaloniaui.net/gettingstarted#installation)** (v11.0.10)
 - **Avalonia.Desktop** (v11.0.10)
 - **Avalonia.Themes.Fluent** (v11.0.10)
 - **Avalonia.Fonts.Inter** (v11.0.10)
@@ -29,19 +29,21 @@ The following NuGet packages are required:
 - **SharpCompress** (v0.37.2)
 
 ### COM References
-The project also relies on the following COM components:
 - **Shell32** (GUID: `50a7e9b0-70ef-11d1-b75a-00a0c90564fe`)
 - **IWshRuntimeLibrary** (GUID: `f935dc20-1cf0-11d0-adb9-00c04fd58a0b`)
 
-Ensure these COM components are registered on the system where the application is running. If not, you may need to manually register the corresponding DLLs using `regsvr32 <path/to/dll>`.
+Ensure these COM components are registered on the system where the application is running. If not, you may need to manually register the corresponding DLLs using `regsvr32 "path/to/dll"`.
 
 ### Other
 - [Git for Windows](https://git-scm.com/download/win): for optional Git integration.
 
 
 ## Building from source
-1) Install the .NET build tools using the installer Visual Studio Build Tools Installer.
-2) Run the [build.bat](src/build.bat) file in the src directory.
+1) Install the .NET Build tool using the [Visual Studio Build Tools](https://visualstudio.microsoft.com/cs/visual-cpp-build-tools/) installer.
+2) Open "Developer command prompt for VS 2022"
+3) Run `dotnet restore "path\to\csproject-file\FileSurfer.csproj"`
+4) Run `msbuild "path\to\project\solution\FileSurfer.sln" /t:publish /p:Configuration=Release /p:DeployOnBuild=true`
+5) Find `.\src\FileSurfer\bin\Release\net8.0-windows\FileSurfer.exe` to run the app.
 
 [User Guide](docs/UserGuide.md)
 ---
