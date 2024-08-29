@@ -16,12 +16,12 @@ public enum VCStatus
 public class GitVersionControlHandler : IVersionControl, IDisposable
 {
     private const string MissingRepoMessage = "No git repository found";
-    private readonly IFileOperationsHandler _fileOpsHandler;
+    private readonly IFileIOHandler _fileIOHandler;
     private Repository? _currentRepo = null;
     private readonly Dictionary<string, VCStatus> _statusDict = new();
 
-    public GitVersionControlHandler(IFileOperationsHandler _fileOperationsHandler) =>
-        _fileOpsHandler = _fileOperationsHandler;
+    public GitVersionControlHandler(IFileIOHandler fileIOHandler) =>
+        _fileIOHandler = fileIOHandler;
 
     public bool IsVersionControlled(string directoryPath)
     {
@@ -60,7 +60,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         {
             string command = $"cd \"{_currentRepo.Info.Path}\\..\" && git pull";
             errorMessage = null;
-            return _fileOpsHandler.ExecuteCmd(command);
+            return _fileIOHandler.ExecuteCmd(command);
         }
         errorMessage = MissingRepoMessage;
         return false;
@@ -211,7 +211,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         string command =
             $"cd \"{_currentRepo.Info.Path}\\..\" && git commit -m \"{commitMessage}\"";
         errorMessage = null;
-        return _fileOpsHandler.ExecuteCmd(command);
+        return _fileIOHandler.ExecuteCmd(command);
     }
 
     public bool UploadChanges(out string? errorMessage)
@@ -223,7 +223,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         }
         string command = $"cd \"{_currentRepo.Info.Path}\\..\" && git push";
         errorMessage = null;
-        return _fileOpsHandler.ExecuteCmd(command);
+        return _fileIOHandler.ExecuteCmd(command);
     }
 
     public void Dispose()

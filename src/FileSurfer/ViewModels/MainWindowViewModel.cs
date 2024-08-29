@@ -16,7 +16,7 @@ using ReactiveUI;
 namespace FileSurfer.ViewModels;
 
 #pragma warning disable CA1822 // Mark members as static
-public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
+public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
 {
     private const string SearchingLabel = "Search Results";
     private const long ShowDialogLimitB = 262144000; // 250 MiB
@@ -26,7 +26,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private readonly string NewDirName = FileSurferSettings.NewDirectoryName;
     private readonly string NewImageName = FileSurferSettings.NewImageName + ".png";
 
-    private readonly IFileOperationsHandler _fileOpsHandler;
+    private readonly IFileIOHandler _fileIOHandler;
     private readonly IVersionControl _versionControl;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
     private readonly UndoRedoHandler<string> _pathHistory;
@@ -55,7 +55,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     public ObservableCollection<FileSystemEntry> SelectedFiles => _selectedFiles;
     public ObservableCollection<FileSystemEntry> QuickAccess => _quickAccess;
     public FileSystemEntry[] SpecialFolders { get; }
-    public FileSystemEntry[] Drives { get; }
+    public List<FileSystemEntry> Drives { get; }
 
     private string? _errorMessage = null;
     public string? ErrorMessage
@@ -192,9 +192,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public MainWindowViewModel()
     {
-        _fileOpsHandler = new WindowsFileOperationsHandler(ShowDialogLimitB);
-        _versionControl = new GitVersionControlHandler(_fileOpsHandler);
-        _clipboardManager = new ClipboardManager(_fileOpsHandler, NewImageName);
+        _fileIOHandler = new WindowsFileIOHandler(ShowDialogLimitB);
+        _versionControl = new GitVersionControlHandler(_fileIOHandler);
+        _clipboardManager = new ClipboardManager(_fileIOHandler, NewImageName);
         _undoRedoHistory = new();
         _pathHistory = new();
         _selectedFiles.CollectionChanged += UpdateSelectionInfo;
@@ -281,7 +281,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void OpenSettings()
     {
-        _fileOpsHandler.OpenFile(FileSurferSettings.SettingsFilePath, out string? errorMessage);
+        _fileIOHandler.OpenFile(FileSurferSettings.SettingsFilePath, out string? errorMessage);
         ErrorMessage = errorMessage;
     }
 
@@ -299,7 +299,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     }
 
     private void SetDriveInfo() =>
-        SelectionInfo = Drives.Length == 1 ? "1 drive" : $"{FileEntries.Count} drives";
+        SelectionInfo = Drives.Count == 1 ? "1 drive" : $"{FileEntries.Count} drives";
 
     private void UpdateSelectionInfo(
         object? sender = null,
@@ -338,14 +338,14 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         if (entry.IsDirectory)
             CurrentDir = entry.PathToEntry;
-        else if (_fileOpsHandler.IsLinkedToDirectory(entry.PathToEntry, out string? directory))
+        else if (_fileIOHandler.IsLinkedToDirectory(entry.PathToEntry, out string? directory))
         {
             if (directory is not null)
                 CurrentDir = directory;
         }
         else
         {
-            _fileOpsHandler.OpenFile(entry.PathToEntry, out string? errorMessage);
+            _fileIOHandler.OpenFile(entry.PathToEntry, out string? errorMessage);
             ErrorMessage = errorMessage;
         }
     }
@@ -366,7 +366,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             foreach (FileSystemEntry entry in SelectedFiles)
                 if (
                     entry.IsDirectory
-                    || _fileOpsHandler.IsLinkedToDirectory(entry.PathToEntry, out _)
+                    || _fileIOHandler.IsLinkedToDirectory(entry.PathToEntry, out _)
                 )
                     return;
         }
@@ -381,7 +381,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             if (!entry.IsDirectory)
             {
-                _fileOpsHandler.OpenInNotepad(entry.PathToEntry, out string? errorMessage);
+                _fileIOHandler.OpenInNotepad(entry.PathToEntry, out string? errorMessage);
                 ErrorMessage = errorMessage;
             }
         }
@@ -414,14 +414,25 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             CurrentDir = parentDir;
     }
 
-    private FileSystemEntry[] GetDrives() =>
-        _fileOpsHandler.GetDrives().Select(driveInfo => new FileSystemEntry(driveInfo)).ToArray();
+    private List<FileSystemEntry> GetDrives()
+    {
+        List<FileSystemEntry> drives = new();
+        foreach (DriveInfo driveInfo in _fileIOHandler.GetDrives())
+        {
+            try
+            {
+                drives.Add(new FileSystemEntry(driveInfo));
+            }
+            catch { }
+        }
+        return drives;
+    }
 
     private FileSystemEntry[] GetSpecialFolders() =>
-        _fileOpsHandler
+        _fileIOHandler
             .GetSpecialFolders()
             .Where(dirPath => !string.IsNullOrEmpty(dirPath))
-            .Select(dirPath => new FileSystemEntry(_fileOpsHandler, dirPath, true))
+            .Select(dirPath => new FileSystemEntry(_fileIOHandler, dirPath, true))
             .ToArray();
 
     private void LoadQuickAccess()
@@ -429,9 +440,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         foreach (string path in FileSurferSettings.QuickAccess)
         {
             if (Directory.Exists(path))
-                QuickAccess.Add(new FileSystemEntry(_fileOpsHandler, path, true));
+                QuickAccess.Add(new FileSystemEntry(_fileIOHandler, path, true));
             else if (File.Exists(path))
-                QuickAccess.Add(new FileSystemEntry(_fileOpsHandler, path, false));
+                QuickAccess.Add(new FileSystemEntry(_fileIOHandler, path, false));
         }
     }
 
@@ -444,12 +455,12 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void LoadDirEntries()
     {
-        string[] dirPaths = _fileOpsHandler.GetPathDirs(
+        string[] dirPaths = _fileIOHandler.GetPathDirs(
             CurrentDir,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
-        string[] filePaths = _fileOpsHandler.GetPathFiles(
+        string[] filePaths = _fileIOHandler.GetPathFiles(
             CurrentDir,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
@@ -461,11 +472,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         FileSystemEntry[] files = new FileSystemEntry[filePaths.Length];
 
         for (int i = 0; i < dirPaths.Length; i++)
-            directories[i] = new FileSystemEntry(_fileOpsHandler, dirPaths[i], true);
+            directories[i] = new FileSystemEntry(_fileIOHandler, dirPaths[i], true);
 
         for (int i = 0; i < filePaths.Length; i++)
             files[i] = new FileSystemEntry(
-                _fileOpsHandler,
+                _fileIOHandler,
                 filePaths[i],
                 false,
                 GetVCState(filePaths[i])
@@ -602,7 +613,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         if (CurrentDir == ThisPCLabel || Searching)
             return;
 
-        _fileOpsHandler.OpenCmdAt(CurrentDir, out string? errorMessage);
+        _fileIOHandler.OpenCmdAt(CurrentDir, out string? errorMessage);
         ErrorMessage = errorMessage;
     }
 
@@ -623,7 +634,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             await SearchDirectoryAsync(currentDir, searchQuerry, _searchCTS.Token);
         else
         {
-            foreach (DriveInfo drive in _fileOpsHandler.GetDrives())
+            foreach (DriveInfo drive in _fileIOHandler.GetDrives())
                 await SearchDirectoryAsync(drive.Name, searchQuerry, _searchCTS.Token);
         }
     }
@@ -638,11 +649,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             foreach (string file in await GetPathFilesAsync(directory, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
-                    FileEntries.Add(new FileSystemEntry(_fileOpsHandler, file, false));
+                    FileEntries.Add(new FileSystemEntry(_fileIOHandler, file, false));
 
             foreach (string dir in await GetPathDirsAsync(directory, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
-                    FileEntries.Add(new FileSystemEntry(_fileOpsHandler, dir, true));
+                    FileEntries.Add(new FileSystemEntry(_fileIOHandler, dir, true));
         });
 
         foreach (string dir in await GetPathDirsAsync(directory))
@@ -654,7 +665,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         IEnumerable<string> entries = await Task.Run(
             () =>
-                _fileOpsHandler.GetPathFiles(
+                _fileIOHandler.GetPathFiles(
                     directory,
                     FileSurferSettings.ShowHiddenFiles,
                     FileSurferSettings.ShowProtectedFiles
@@ -672,7 +683,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         IEnumerable<string> entries = await Task.Run(
             () =>
-                _fileOpsHandler.GetPathDirs(
+                _fileIOHandler.GetPathDirs(
                     directory,
                     FileSurferSettings.ShowHiddenFiles,
                     FileSurferSettings.ShowProtectedFiles
@@ -705,10 +716,10 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private void NewFile()
     {
         string newFileName = FileNameGenerator.GetAvailableName(CurrentDir, NewFileName);
-        if (_fileOpsHandler.NewFileAt(CurrentDir, newFileName, out string? errorMessage))
+        if (_fileIOHandler.NewFileAt(CurrentDir, newFileName, out string? errorMessage))
         {
             Reload();
-            _undoRedoHistory.AddNewNode(new NewFileAt(_fileOpsHandler, CurrentDir, newFileName));
+            _undoRedoHistory.AddNewNode(new NewFileAt(_fileIOHandler, CurrentDir, newFileName));
             SelectedFiles.Add(FileEntries.First(entry => entry.Name == newFileName));
         }
         else
@@ -718,10 +729,10 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     private void NewDir()
     {
         string newDirName = FileNameGenerator.GetAvailableName(CurrentDir, NewDirName);
-        if (_fileOpsHandler.NewDirAt(CurrentDir, newDirName, out string? errorMessage))
+        if (_fileIOHandler.NewDirAt(CurrentDir, newDirName, out string? errorMessage))
         {
             Reload();
-            _undoRedoHistory.AddNewNode(new NewDirAt(_fileOpsHandler, CurrentDir, newDirName));
+            _undoRedoHistory.AddNewNode(new NewDirAt(_fileIOHandler, CurrentDir, newDirName));
             SelectedFiles.Add(FileEntries.First(entry => entry.Name == newDirName));
         }
         else
@@ -783,22 +794,20 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             if (_clipboardManager.Duplicate(CurrentDir, out string[] copyNames, out errorMessage))
                 _undoRedoHistory.AddNewNode(
-                    new DuplicateFiles(_fileOpsHandler, _clipboardManager.GetClipboard(), copyNames)
+                    new DuplicateFiles(_fileIOHandler, _clipboardManager.GetClipboard(), copyNames)
                 );
         }
         else if (_clipboardManager.IsCutOperation)
         {
             FileSystemEntry[] clipBoard = _clipboardManager.GetClipboard();
             if (_clipboardManager.Paste(CurrentDir, out errorMessage))
-                _undoRedoHistory.AddNewNode(
-                    new MoveFilesTo(_fileOpsHandler, clipBoard, CurrentDir)
-                );
+                _undoRedoHistory.AddNewNode(new MoveFilesTo(_fileIOHandler, clipBoard, CurrentDir));
         }
         else
         {
             if (_clipboardManager.Paste(CurrentDir, out errorMessage))
                 _undoRedoHistory.AddNewNode(
-                    new CopyFilesTo(_fileOpsHandler, _clipboardManager.GetClipboard(), CurrentDir)
+                    new CopyFilesTo(_fileIOHandler, _clipboardManager.GetClipboard(), CurrentDir)
                 );
         }
         ErrorMessage = errorMessage;
@@ -807,7 +816,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 
     public void CreateShortcut(FileSystemEntry entry)
     {
-        _fileOpsHandler.CreateLink(entry.PathToEntry, out string? errorMessage);
+        _fileIOHandler.CreateLink(entry.PathToEntry, out string? errorMessage);
         ErrorMessage = errorMessage;
         Reload();
     }
@@ -830,12 +839,12 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         FileSystemEntry entry = SelectedFiles[0];
         bool result = entry.IsDirectory
-            ? _fileOpsHandler.RenameDirAt(entry.PathToEntry, newName, out string? errorMessage)
-            : _fileOpsHandler.RenameFileAt(entry.PathToEntry, newName, out errorMessage);
+            ? _fileIOHandler.RenameDirAt(entry.PathToEntry, newName, out string? errorMessage)
+            : _fileIOHandler.RenameFileAt(entry.PathToEntry, newName, out errorMessage);
 
         if (result)
         {
-            _undoRedoHistory.AddNewNode(new RenameOne(_fileOpsHandler, entry, newName));
+            _undoRedoHistory.AddNewNode(new RenameOne(_fileIOHandler, entry, newName));
             Reload();
             SelectedFiles.Add(FileEntries.First(entry => entry.Name == newName));
         }
@@ -862,8 +871,8 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             string path = SelectedFiles[i].PathToEntry;
             bool result = onlyFiles
-                ? _fileOpsHandler.RenameFileAt(path, newNames[i], out string? errorMessage)
-                : _fileOpsHandler.RenameDirAt(path, newNames[i], out errorMessage);
+                ? _fileIOHandler.RenameFileAt(path, newNames[i], out string? errorMessage)
+                : _fileIOHandler.RenameDirAt(path, newNames[i], out errorMessage);
 
             errorOccured = !result || errorOccured;
             if (!result)
@@ -871,7 +880,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         }
         if (!errorOccured)
             _undoRedoHistory.AddNewNode(
-                new RenameMultiple(_fileOpsHandler, SelectedFiles.ToArray(), newNames)
+                new RenameMultiple(_fileIOHandler, SelectedFiles.ToArray(), newNames)
             );
         Reload();
     }
@@ -882,15 +891,15 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         foreach (FileSystemEntry entry in SelectedFiles)
         {
             bool result = entry.IsDirectory
-                ? _fileOpsHandler.MoveDirToTrash(entry.PathToEntry, out string? errorMessage)
-                : _fileOpsHandler.MoveFileToTrash(entry.PathToEntry, out errorMessage);
+                ? _fileIOHandler.MoveDirToTrash(entry.PathToEntry, out string? errorMessage)
+                : _fileIOHandler.MoveFileToTrash(entry.PathToEntry, out errorMessage);
 
             errorOccured = !result || errorOccured;
             ErrorMessage = errorMessage;
         }
         if (!errorOccured)
             _undoRedoHistory.AddNewNode(
-                new MoveFilesToTrash(_fileOpsHandler, SelectedFiles.ToArray())
+                new MoveFilesToTrash(_fileIOHandler, SelectedFiles.ToArray())
             );
         Reload();
     }
@@ -901,9 +910,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         {
             string? errorMessage;
             if (entry.IsDirectory)
-                _fileOpsHandler.DeleteDir(entry.PathToEntry, out errorMessage);
+                _fileIOHandler.DeleteDir(entry.PathToEntry, out errorMessage);
             else
-                _fileOpsHandler.DeleteFile(entry.PathToEntry, out errorMessage);
+                _fileIOHandler.DeleteFile(entry.PathToEntry, out errorMessage);
 
             ErrorMessage = errorMessage;
         }

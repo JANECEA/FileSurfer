@@ -12,15 +12,15 @@ namespace FileSurfer.Models;
 class ClipboardManager
 {
     private readonly string _newImageName;
-    private readonly IFileOperationsHandler _fileOpsHandler;
+    private readonly IFileIOHandler _fileIOHandler;
     private List<FileSystemEntry> _programClipboard = new();
     private string _copyFromDir = string.Empty;
     public bool IsCutOperation { get; private set; }
 
-    public ClipboardManager(IFileOperationsHandler fileOpsHandler, string newImageName)
+    public ClipboardManager(IFileIOHandler fileIOHandler, string newImageName)
     {
         _newImageName = newImageName;
-        _fileOpsHandler = fileOpsHandler;
+        _fileIOHandler = fileIOHandler;
     }
 
     [STAThread]
@@ -69,9 +69,9 @@ class ClipboardManager
 
                 bool result =
                     Directory.Exists(path)
-                        && _fileOpsHandler.CopyDirTo(path, destinationPath, out errorMessage)
+                        && _fileIOHandler.CopyDirTo(path, destinationPath, out errorMessage)
                     || File.Exists(path)
-                        && _fileOpsHandler.CopyFileTo(path, destinationPath, out errorMessage);
+                        && _fileIOHandler.CopyFileTo(path, destinationPath, out errorMessage);
 
                 errorOccured = !result || errorOccured;
                 if (!result)
@@ -176,8 +176,8 @@ class ClipboardManager
             foreach (FileSystemEntry entry in _programClipboard)
             {
                 bool result = entry.IsDirectory
-                    ? _fileOpsHandler.DeleteDir(entry.PathToEntry, out _)
-                    : _fileOpsHandler.DeleteFile(entry.PathToEntry, out _);
+                    ? _fileIOHandler.DeleteDir(entry.PathToEntry, out _)
+                    : _fileIOHandler.DeleteFile(entry.PathToEntry, out _);
 
                 errorOccured = !result || errorOccured;
                 if (!result)
@@ -202,8 +202,8 @@ class ClipboardManager
             copyNames[i] = FileNameGenerator.GetCopyName(currentDir, entry);
 
             bool result = entry.IsDirectory
-                ? _fileOpsHandler.DuplicateDir(entry.PathToEntry, copyNames[i], out _)
-                : _fileOpsHandler.DuplicateFile(entry.PathToEntry, copyNames[i], out _);
+                ? _fileIOHandler.DuplicateDir(entry.PathToEntry, copyNames[i], out _)
+                : _fileIOHandler.DuplicateFile(entry.PathToEntry, copyNames[i], out _);
 
             errorOccured = !result || errorOccured;
             if (!result)
