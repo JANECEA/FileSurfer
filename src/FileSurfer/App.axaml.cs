@@ -14,6 +14,9 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
     }
 
+    /// <summary>
+    /// Invokes <see cref="FileSurferSettings.LoadSettings"/> and sets <see cref="ThemeVariant"/> theme.
+    /// </summary>
     public override void OnFrameworkInitializationCompleted()
     {
         FileSurferSettings.LoadSettings();

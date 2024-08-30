@@ -6,6 +6,12 @@ using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace FileSurfer;
 
+/// <summary>
+/// Represents a displayable file system entry (file, directory, or drive) in the FileSurfer application.
+/// This class manages the properties and behaviors associated with files and directories, such as
+/// their name, size, type, last modification time, and icon. It also accounts for special conditions
+/// like hidden files, version control status, and archive detection within the context of the FileSurfer app.
+/// </summary>
 public class FileSystemEntry
 {
     private static readonly int SizeLimit = FileSurferSettings.FileSizeDisplayLimit;
@@ -41,8 +47,23 @@ public class FileSystemEntry
     public bool Staged { get; } = false;
     public bool IsArchived { get; } = false;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FileSystemEntry"/> class for a file or directory.
+    /// <para>
+    /// Sets up various properties like the name, icon, size, type, and last modified date based on
+    /// the provided path and version control status.
+    /// </para>
+    /// <para>
+    /// Also handles specific conditions such as hidden files and archive detection within the
+    /// context of FileSurfer.
+    /// </para>
+    /// </summary>
+    /// <param name="fileIOHandler">Handler for file operations like retrieving file size and modification time.</param>
+    /// <param name="path">The file or directory path associated with this entry.</param>
+    /// <param name="isDirectory">Indicates whether the path refers to a directory.</param>
+    /// <param name="status">Optional version control status of the entry, defaulting to not version controlled.</param>
     public FileSystemEntry(
-        IFileOperationsHandler fileOpsHandler,
+        IFileIOHandler fileIOHandler,
         string path,
         bool isDirectory,
         VCStatus status = VCStatus.NotVersionControlled
@@ -53,12 +74,12 @@ public class FileSystemEntry
         if (IsDirectory)
             Icon = _folderIcon;
         else
-            SetIcon(fileOpsHandler, path);
+            SetIcon(fileIOHandler, path);
 
         Name = Path.GetFileName(path);
-        LastModTime = fileOpsHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
-        LastModified = GetLastModified(fileOpsHandler);
-        SizeB = isDirectory ? null : fileOpsHandler.GetFileSizeB(path);
+        LastModTime = fileIOHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
+        LastModified = GetLastModified(fileIOHandler);
+        SizeB = isDirectory ? null : fileIOHandler.GetFileSizeB(path);
         Size = SizeB is long NotNullSize ? GetSizeString(NotNullSize) : string.Empty;
 
         if (isDirectory)
@@ -70,7 +91,7 @@ public class FileSystemEntry
         }
 
         Opacity =
-            fileOpsHandler.IsHidden(path, isDirectory)
+            fileIOHandler.IsHidden(path, isDirectory)
             || (FileSurferSettings.TreatDotFilesAsHidden && Name.StartsWith('.'))
                 ? 0.45
                 : 1;
@@ -80,18 +101,33 @@ public class FileSystemEntry
         IsArchived = ArchiveManager.IsZipped(path);
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FileSystemEntry"/> class for a drive.
+    /// <para>
+    /// Configures the properties such as name, type, icon, and total size based on the provided
+    /// <see cref="DriveInfo"/> object.
+    /// </para>
+    /// <para>
+    /// This constructor is specifically used for representing drives within the FileSurfer application.
+    /// </para>
+    /// </summary>
+    /// <param name="drive">The drive information associated with this entry.</param>
     public FileSystemEntry(DriveInfo drive)
     {
         PathToEntry = drive.Name;
         IsDirectory = true;
-        Name = $"{drive.VolumeLabel} ({drive.Name.TrimEnd(Path.DirectorySeparatorChar)})";
+        Name =
+            !string.IsNullOrEmpty(drive.VolumeLabel)
+                ? $"{drive.VolumeLabel} ({drive.Name.TrimEnd(Path.DirectorySeparatorChar)})"
+                : drive.Name.TrimEnd(Path.DirectorySeparatorChar);
+
         Type = "Drive";
         Icon = _driveIcon;
         LastModified = string.Empty;
         Size = GetSizeString(drive.TotalSize);
     }
 
-    private string GetLastModified(IFileOperationsHandler fileOpsHandler)
+    private string GetLastModified(IFileIOHandler fileOpsHandler)
     {
         DateTime? time = IsDirectory
             ? fileOpsHandler.GetDirLastModified(PathToEntry)
@@ -103,7 +139,7 @@ public class FileSystemEntry
         return "Error";
     }
 
-    private void SetIcon(IFileOperationsHandler fileOpsHandler, string path)
+    private void SetIcon(IFileIOHandler fileOpsHandler, string path)
     {
         using System.Drawing.Bitmap? bitmap = fileOpsHandler.GetFileIcon(path);
         if (bitmap is null)
@@ -115,6 +151,11 @@ public class FileSystemEntry
         Icon = new Bitmap(stream);
     }
 
+    /// <summary>
+    /// Converts file size in bytes to a human readable format.
+    /// </summary>
+    /// <param name="sizeInB">Size of the file in bytes</param>
+    /// <returns></returns>
     public static string GetSizeString(long sizeInB)
     {
         long size = sizeInB;
