@@ -37,14 +37,16 @@ Ensure these COM components are registered on the system where the application i
 - [Git for Windows](https://git-scm.com/download/win): for optional Git integration.
 
 
-## Building from source
+## Building from source *
 1) Install the .NET Build tool using the [Visual Studio Build Tools](https://visualstudio.microsoft.com/cs/visual-cpp-build-tools/) installer.
 2) Open "Developer command prompt for VS 2022"
 3) Run `dotnet restore "path\to\csproject-file\FileSurfer.csproj"`
 4) Run `msbuild "path\to\project\solution\FileSurfer.sln" /t:publish /p:Configuration=Release /p:DeployOnBuild=true`
 5) Find `.\src\FileSurfer\bin\Release\net8.0-windows\FileSurfer.exe` to run the app.
 
+\* *You can also compile the project using Visual Studio 2022.*
+
 [User Guide](docs/UserGuide.md)
 ---
-[Programming Documentation](docs/ProgrammingDocumentation.md)
+[Programming Documentation](\docs\ProgrammingDocumentation)
 ---
