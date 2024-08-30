@@ -7,15 +7,27 @@ using FileSurfer.Views;
 
 namespace FileSurfer;
 
+/// <summary>
+/// The App class serves as the entry point for the FileSurfer application, handling application-wide initialization and setup.
+/// <para>
+/// It configures global resources, themes, and the main window, ensuring that the application's settings and appearance are properly applied.
+/// </para>
+/// </summary>
 public partial class App : Application
 {
+    /// <summary>
+    /// Initializes the application by loading XAML resources.
+    /// </summary>
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
     }
 
     /// <summary>
-    /// Invokes <see cref="FileSurferSettings.LoadSettings"/> and sets <see cref="ThemeVariant"/> theme.
+    /// Invokes <see cref="FileSurferSettings.LoadSettings"/> and sets <see cref="Application.RequestedThemeVariant"/> theme.
+    /// <para>
+    /// Configures the main window with the appropriate DataContext.
+    /// </para>
     /// </summary>
     public override void OnFrameworkInitializationCompleted()
     {

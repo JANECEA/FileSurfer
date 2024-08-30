@@ -3,6 +3,9 @@ using System.IO;
 
 namespace FileSurfer.Models.UndoableFileOperations;
 
+/// <summary>
+/// Represents moving the selected files to the system trash.
+/// </summary>
 public class MoveFilesToTrash : IUndoableFileOperation
 {
     private readonly IFileIOHandler _fileIOHandler;
@@ -14,6 +17,7 @@ public class MoveFilesToTrash : IUndoableFileOperation
         _entries = entries;
     }
 
+    /// <inheritdoc/>
     public bool Redo(out string? errorMessage)
     {
         bool errorOccured = false;
@@ -34,6 +38,7 @@ public class MoveFilesToTrash : IUndoableFileOperation
         return !errorOccured;
     }
 
+    /// <inheritdoc/>
     public bool Undo(out string? errorMessage)
     {
         bool errorOccured = false;
@@ -55,6 +60,9 @@ public class MoveFilesToTrash : IUndoableFileOperation
     }
 }
 
+/// <summary>
+/// Represents the moving of files and directories to a specifc directory.
+/// </summary>
 public class MoveFilesTo : IUndoableFileOperation
 {
     private readonly IFileIOHandler _fileIOHandler;
@@ -75,6 +83,7 @@ public class MoveFilesTo : IUndoableFileOperation
             Path.GetDirectoryName(entries[0].PathToEntry) ?? throw new InvalidOperationException();
     }
 
+    /// <inheritdoc/>
     public bool Redo(out string? errorMessage)
     {
         bool errorOccured = false;
@@ -95,6 +104,7 @@ public class MoveFilesTo : IUndoableFileOperation
         return !errorOccured;
     }
 
+    /// <inheritdoc/>
     public bool Undo(out string? errorMessage)
     {
         bool errorOccured = false;
@@ -117,6 +127,9 @@ public class MoveFilesTo : IUndoableFileOperation
     }
 }
 
+/// <summary>
+/// Represents the copying of files and directories to a specifc directory.
+/// </summary>
 public class CopyFilesTo : IUndoableFileOperation
 {
     private readonly IFileIOHandler _fileIOHandler;
@@ -130,6 +143,7 @@ public class CopyFilesTo : IUndoableFileOperation
         _destinationDir = destinationDir;
     }
 
+    /// <inheritdoc/>
     public bool Redo(out string? errorMessage)
     {
         bool errorOccured = false;
@@ -150,6 +164,7 @@ public class CopyFilesTo : IUndoableFileOperation
         return !errorOccured;
     }
 
+    /// <inheritdoc/>
     public bool Undo(out string? errorMessage)
     {
         bool errorOccured = false;
@@ -172,6 +187,9 @@ public class CopyFilesTo : IUndoableFileOperation
     }
 }
 
+/// <summary>
+/// Represents the duplication of files or directories.
+/// </summary>
 public class DuplicateFiles : IUndoableFileOperation
 {
     private readonly IFileIOHandler _fileIOHandler;
@@ -192,6 +210,7 @@ public class DuplicateFiles : IUndoableFileOperation
             Path.GetDirectoryName(entries[0].PathToEntry) ?? throw new InvalidOperationException();
     }
 
+    /// <inheritdoc/>
     public bool Redo(out string? errorMessage)
     {
         bool errorOccured = false;
@@ -212,6 +231,7 @@ public class DuplicateFiles : IUndoableFileOperation
         return !errorOccured;
     }
 
+    /// <inheritdoc/>
     public bool Undo(out string? errorMessage)
     {
         bool errorOccured = false;
@@ -233,6 +253,9 @@ public class DuplicateFiles : IUndoableFileOperation
     }
 }
 
+/// <summary>
+/// Represents the renaming of multiple files or directories.
+/// </summary>
 public class RenameMultiple : IUndoableFileOperation
 {
     private readonly IFileIOHandler _fileIOHandler;
@@ -256,6 +279,7 @@ public class RenameMultiple : IUndoableFileOperation
         }
     }
 
+    /// <inheritdoc/>
     public bool Redo(out string? errorMessage)
     {
         bool errorOccured = false;
@@ -276,6 +300,7 @@ public class RenameMultiple : IUndoableFileOperation
         return !errorOccured;
     }
 
+    /// <inheritdoc/>
     public bool Undo(out string? errorMessage)
     {
         bool errorOccured = false;
@@ -298,6 +323,9 @@ public class RenameMultiple : IUndoableFileOperation
     }
 }
 
+/// <summary>
+/// Represents the renaming of one file or directory.
+/// </summary>
 public class RenameOne : IUndoableFileOperation
 {
     private readonly IFileIOHandler _fileIOHandler;
@@ -315,17 +343,22 @@ public class RenameOne : IUndoableFileOperation
         _newPath = Path.Combine(dirName, newName);
     }
 
+    /// <inheritdoc/>
     public bool Redo(out string? errorMessage) =>
         _entry.IsDirectory
             ? _fileIOHandler.RenameDirAt(_entry.PathToEntry, _newName, out errorMessage)
             : _fileIOHandler.RenameFileAt(_entry.PathToEntry, _newName, out errorMessage);
 
+    /// <inheritdoc/>
     public bool Undo(out string? errorMessage) =>
         _entry.IsDirectory
             ? _fileIOHandler.RenameDirAt(_newPath, _entry.Name, out errorMessage)
             : _fileIOHandler.RenameFileAt(_newPath, _entry.Name, out errorMessage);
 }
 
+/// <summary>
+/// Represents the creation of a new file.
+/// </summary>
 public class NewFileAt : IUndoableFileOperation
 {
     private readonly IFileIOHandler _fileIOHandler;
@@ -339,13 +372,18 @@ public class NewFileAt : IUndoableFileOperation
         _fileName = fileName;
     }
 
+    /// <inheritdoc/>
     public bool Redo(out string? errorMessage) =>
         _fileIOHandler.NewFileAt(_path, _fileName, out errorMessage);
 
+    /// <inheritdoc/>
     public bool Undo(out string? errorMessage) =>
         _fileIOHandler.DeleteFile(Path.Combine(_path, _fileName), out errorMessage);
 }
 
+/// <summary>
+/// Represents the creation of a new directory.
+/// </summary>
 public class NewDirAt : IUndoableFileOperation
 {
     private readonly IFileIOHandler _fileIOHandler;
@@ -359,9 +397,11 @@ public class NewDirAt : IUndoableFileOperation
         _dirName = dirName;
     }
 
+    /// <inheritdoc/>
     public bool Redo(out string? errorMessage) =>
         _fileIOHandler.NewDirAt(_path, _dirName, out errorMessage);
 
+    /// <inheritdoc/>
     public bool Undo(out string? errorMessage) =>
         _fileIOHandler.DeleteDir(Path.Combine(_path, _dirName), out errorMessage);
 }

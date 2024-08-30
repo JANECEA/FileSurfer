@@ -9,8 +9,16 @@ using SharpCompress.Writers;
 
 namespace FileSurfer.Models;
 
+/// <summary>
+/// Handles interactions with archives using <see cref="SharpCompress"/>.
+/// </summary>
 static class ArchiveManager
 {
+    /// <summary>
+    /// Determines if the file is an archive in the context of <see cref="FileSurfer"/>.
+    /// </summary>
+    /// <param name="filePath">Path to the file</param>
+    /// <returns><see langword="true"/> if the file has one of the supported extensions, otherwise <see langword="false"/>.</returns>
     public static bool IsZipped(string filePath) =>
         Path.GetExtension(filePath).ToLowerInvariant() switch
         {
@@ -22,6 +30,10 @@ static class ArchiveManager
             _ => false,
         };
 
+    /// <summary>
+    /// Compresses specified file paths into a new archive.
+    /// </summary>
+    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
     public static bool ZipFiles(
         IEnumerable<string> filePaths,
         string destinationPath,
@@ -48,6 +60,10 @@ static class ArchiveManager
         }
     }
 
+    /// <summary>
+    /// Extraxts an archive, overwriting the already existing files.
+    /// </summary>
+    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
     public static bool UnzipArchive(
         string archivePath,
         string destinationPath,

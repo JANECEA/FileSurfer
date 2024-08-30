@@ -5,8 +5,14 @@ using System.Runtime.InteropServices;
 
 namespace FileSurfer.Models;
 
+/// <summary>
+/// Provides methods to interact with file properties and dialogs using Windows API calls.
+/// </summary>
 static class WindowsFileProperties
 {
+    /// <summary>
+    /// Used for the ShellExecuteEx API function.
+    /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
     struct SHELLEXECUTEINFO
     {
@@ -40,6 +46,10 @@ static class WindowsFileProperties
     [DllImport("shell32.dll", CharSet = CharSet.Auto, SetLastError = true)]
     private static extern bool ShellExecuteEx(ref SHELLEXECUTEINFO lpExecInfo);
 
+    /// <summary>
+    /// Calls the <see cref="ShellExecuteEx(ref SHELLEXECUTEINFO)"/> function to show the properties dialog of the specified <paramref name="filePath"/>.
+    /// </summary>
+    /// <returns><see langword="true"/> if the properties dialog was successfully shown, otherwise <see langword="false"/>.</returns>
     public static bool ShowFileProperties(string filePath, out string? errorMessage)
     {
         SHELLEXECUTEINFO info = new();
@@ -57,6 +67,10 @@ static class WindowsFileProperties
         return result;
     }
 
+    /// <summary>
+    /// Displays the "Open With" dialog for a specified file using <c>rundll32.exe</c>.
+    /// </summary>
+    /// <returns><see langword="true"/> if the "Open With" dialog was successfully shown; otherwise, <see langword="false"/>.</returns>
     public static bool ShowOpenAsDialog(string filePath, out string? errorMessage)
     {
         try

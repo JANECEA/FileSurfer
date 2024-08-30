@@ -5,6 +5,10 @@ using Shell32;
 
 namespace FileSurfer.Models;
 
+/// <summary>
+/// Interacts with the Windows <see cref="Shell"/> and <see cref="System.Runtime.InteropServices"/>
+/// in order to restore files and directories from the system trash.
+/// </summary>
 static class WindowsFileRestorer
 {
     private const int BinFolderID = 10;
@@ -12,6 +16,10 @@ static class WindowsFileRestorer
     private const int PathColumn = 1;
     private const string RestoreVerb = "ESTORE";
 
+    /// <summary>
+    /// Restores a file or a directory based on <paramref name="originalPath"/>.
+    /// </summary>
+    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
     public static bool RestoreEntry(string originalPath, out string? errorMessage)
     {
         Shell shell = new();

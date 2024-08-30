@@ -8,9 +8,9 @@ namespace FileSurfer;
 
 /// <summary>
 /// Represents a displayable file system entry (file, directory, or drive) in the FileSurfer application.
-/// This class manages the properties and behaviors associated with files and directories, such as
-/// their name, size, type, last modification time, and icon. It also accounts for special conditions
-/// like hidden files, version control status, and archive detection within the context of the FileSurfer app.
+/// Manages properties and behaviors associated with files and directories, such as
+/// their name, size, type, last modification time, and icon. Also accounts for special conditions
+/// like hidden files, version control status, and archive detection within the context of FileSurfer.
 /// </summary>
 public class FileSystemEntry
 {
@@ -33,18 +33,69 @@ public class FileSystemEntry
         "PiB",
     };
 
+    /// <summary>
+    /// Path to the file, directory, or drive represented by this <see cref="FileSystemEntry"/>.
+    /// </summary>
     public readonly string PathToEntry;
+
+    /// <summary>
+    /// Specifies if this <see cref="FileSystemEntry"/> is a directory.
+    /// </summary>
     public bool IsDirectory { get; }
+
+    /// <summary>
+    /// Hodls a <see cref="Avalonia.Media.Imaging.Bitmap"/> representing the file.
+    /// </summary>
     public Bitmap? Icon { get; set; }
+
+    /// <summary>
+    /// Holds the name of file, directory, or drive represented by this <see cref="FileSystemEntry"/>.
+    /// </summary>
     public string Name { get; }
+
+    /// <summary>
+    /// Holds the <see cref="DateTime"/> of this entry's last modification date.
+    /// </summary>
     public DateTime LastModTime { get; }
+
+    /// <summary>
+    /// Holds this entry's last modification date as <see cref="string"/>.
+    /// </summary>
     public string LastModified { get; }
+
+    /// <summary>
+    /// Holds this entry's size in bytes.
+    /// </summary>
     public long? SizeB { get; }
+
+    /// <summary>
+    /// Holds this entry's size as human readable <see cref="string"/>.
+    /// </summary>
     public string Size { get; }
+
+    /// <summary>
+    /// Holds this entry's type in the contenxt of <see cref="FileSurfer"/>.
+    /// </summary>
     public string Type { get; }
+
+    /// <summary>
+    /// Holds this <see cref="FileSystemEntry"/>'s opacity in the context of <see cref="Views.MainWindow"/>.
+    /// </summary>
     public double Opacity { get; } = 1;
+
+    /// <summary>
+    /// Specifies if the file represented by this <see cref="FileSystemEntry"/> is part of a repository.
+    /// </summary>
     public bool VersionControlled { get; } = false;
+
+    /// <summary>
+    /// Specifies if the file represented by this <see cref="FileSystemEntry"/> has been staged for the next commit.
+    /// </summary>
     public bool Staged { get; } = false;
+
+    /// <summary>
+    /// Specifies if the file is in an archived format supported by <see cref="FileSurfer"/>.
+    /// </summary>
     public bool IsArchived { get; } = false;
 
     /// <summary>
@@ -116,10 +167,9 @@ public class FileSystemEntry
     {
         PathToEntry = drive.Name;
         IsDirectory = true;
-        Name =
-            !string.IsNullOrEmpty(drive.VolumeLabel)
-                ? $"{drive.VolumeLabel} ({drive.Name.TrimEnd(Path.DirectorySeparatorChar)})"
-                : drive.Name.TrimEnd(Path.DirectorySeparatorChar);
+        Name = !string.IsNullOrEmpty(drive.VolumeLabel)
+            ? $"{drive.VolumeLabel} ({drive.Name.TrimEnd(Path.DirectorySeparatorChar)})"
+            : drive.Name.TrimEnd(Path.DirectorySeparatorChar);
 
         Type = "Drive";
         Icon = _driveIcon;
@@ -155,7 +205,7 @@ public class FileSystemEntry
     /// Converts file size in bytes to a human readable format.
     /// </summary>
     /// <param name="sizeInB">Size of the file in bytes</param>
-    /// <returns></returns>
+    /// <returns>Human readable file size as <see cref="string"/>.</returns>
     public static string GetSizeString(long sizeInB)
     {
         long size = sizeInB;

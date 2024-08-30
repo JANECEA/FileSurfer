@@ -2,8 +2,14 @@ using System;
 
 namespace FileSurfer.Models;
 
+/// <summary>
+/// Generic class for browsing <see cref="FileSurfer"/>'s history, such as file operations and visited directories.
+/// </summary>
 class UndoRedoHandler<T>
 {
+    /// <summary>
+    /// Nested class representing a node in the <see cref="UndoRedoHandler{T}"/> chain.
+    /// </summary>
     class UndoRedoNode
     {
         internal T? Data;
@@ -27,8 +33,15 @@ class UndoRedoHandler<T>
     private readonly UndoRedoNode _head;
     private readonly UndoRedoNode _tail;
     private UndoRedoNode _current;
+
+    /// <summary>
+    /// Returns the data of the current <see cref="UndoRedoNode"/>.
+    /// </summary>
     public T? Current => _current.Data;
 
+    /// <summary>
+    /// Constructs a new <see cref="UndoRedoHandler{T}"/> chain.
+    /// </summary>
     public UndoRedoHandler()
     {
         _head = new(default);
@@ -36,6 +49,9 @@ class UndoRedoHandler<T>
         _current = _head;
     }
 
+    /// <summary>
+    /// Adds a new node at the current position in the chain and cuts of following nodes.
+    /// </summary>
     public void AddNewNode(T data)
     {
         if (_current == _tail)
@@ -44,18 +60,44 @@ class UndoRedoHandler<T>
         _current = new UndoRedoNode(data, _current, _tail);
     }
 
+    /// <summary>
+    /// Determines if the current <see cref="UndoRedoNode"/> is the end of the <see cref="UndoRedoHandler{T}"/> chain.
+    /// </summary>
     public bool IsTail() => _current == _tail;
 
+    /// <summary>
+    /// Determines if the current <see cref="UndoRedoNode"/> is the beginning of the <see cref="UndoRedoHandler{T}"/> chain.
+    /// </summary>
     public bool IsHead() => _current == _head;
 
+    /// <summary>
+    /// Gets the data of the previous <see cref="UndoRedoNode"/> in the <see cref="UndoRedoHandler{T}"/> chain.
+    /// </summary>
     public T? GetPrevious() => _current.Previous is null ? default : _current.Previous.Data;
 
+    /// <summary>
+    /// Gets the data of the next <see cref="UndoRedoNode"/> in the <see cref="UndoRedoHandler{T}"/> chain.
+    /// </summary>
     public T? GetNext() => _current.Next is null ? default : _current.Next.Data;
 
+    /// <summary>
+    /// Moves to the previous <see cref="UndoRedoNode"/> in the <see cref="UndoRedoHandler{T}"/> chain.
+    /// </summary>
     public void MoveToPrevious() => _current = _current.Previous ?? _current;
 
+    /// <summary>
+    /// Moves to the next <see cref="UndoRedoNode"/> in the <see cref="UndoRedoHandler{T}"/> chain.
+    /// </summary>
     public void MoveToNext() => _current = _current.Next ?? _current;
 
+    /// <summary>
+    /// Removes the current <see cref="UndoRedoNode"/> from the <see cref="UndoRedoHandler{T}"/> chain.
+    /// <para>
+    /// Throws <see cref="InvalidOperationException"/> if <see cref="_current"/> is either <see cref="_head"/> or <see cref="_tail"/>.
+    /// </para>
+    /// </summary>
+    /// <param name="goToPrevious"></param>
+    /// <exception cref="InvalidOperationException">Throws exception if <see cref="_current"/> is either <see cref="_head"/> or <see cref="_tail"/>.</exception>
     public void RemoveNode(bool goToPrevious)
     {
         if (

@@ -10,6 +10,9 @@ using FileSurfer.ViewModels;
 
 namespace FileSurfer.Views;
 
+/// <summary>
+/// Represents the main <see cref="FileSurfer"/> window.
+/// </summary>
 public partial class MainWindow : Window
 {
     private MainWindowViewModel? _viewModel;
@@ -17,11 +20,15 @@ public partial class MainWindow : Window
     private readonly DataTemplate _iconViewTemplate;
     private readonly DataTemplate _listViewTemplate;
     private readonly KeyBinding _selectAllKB;
+    private readonly KeyBinding _invertSelection;
     private readonly KeyGesture _deleteGesture = KeyGesture.Parse("Delete");
     private readonly KeyGesture _cutGesture = KeyGesture.Parse("Ctrl+X");
     private readonly KeyGesture _copyGesture = KeyGesture.Parse("Ctrl+C");
     private readonly KeyGesture _pasteGesture = KeyGesture.Parse("Ctrl+V");
 
+    /// <summary>
+    /// Initializes a new <see cref="MainWindow"/>.
+    /// </summary>
     public MainWindow()
     {
         InitializeComponent();
@@ -39,8 +46,15 @@ public partial class MainWindow : Window
             && keyBinding.Gesture.KeyModifiers == KeyModifiers.Control
             && keyBinding.Gesture.Key == Key.A
         );
+        _invertSelection = KeyBindings.First(keyBinding =>
+            keyBinding is not null && keyBinding.Gesture.Key == Key.Multiply
+        );
     }
 
+    /// <summary>
+    /// Sets <see cref="_viewModel"/> after <see cref="MainWindowViewModel"/> has been loaded
+    /// as <see cref="MainWindow"/>'s <see cref="StyledElement.DataContext"/>.
+    /// </summary>
     private void ViewModelLoaded(object? sender, EventArgs e)
     {
         if (DataContext is MainWindowViewModel viewModel && _viewModel is null)
@@ -50,6 +64,9 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Determines if <see cref="SpecialsListBox"/> should be visible after it has been loaded.
+    /// </summary>
     private void SpecialFoldersLoaded(MainWindowViewModel viewModel)
     {
         if (viewModel.SpecialFolders.Length > 0)
@@ -59,12 +76,22 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Determines the current view mode based on <see cref="FileSurferSettings.DisplayMode"/>
+    /// after the <see cref="WrapPanel"/> holding current directory contents has been loaded.
+    /// </summary>
     private void WrapPanelLoaded(object sender, RoutedEventArgs e)
     {
         if (FileSurferSettings.DisplayMode is DisplayModeEnum.IconView)
             IconView();
     }
 
+    /// <summary>
+    /// Recursively finds <see cref="WrapPanel"/> within the visual elements.
+    /// <para>
+    /// This function is necessary because <see cref="_filePanel"/> can't be accessed via <c>x:Name</c>.
+    /// </para>
+    /// </summary>
     private WrapPanel? FindWrapPanel(Control parent)
     {
         if (parent == null)
@@ -87,6 +114,9 @@ public partial class MainWindow : Window
         return null;
     }
 
+    /// <summary>
+    /// Determines the visibility of <see cref="QuickAccessListBox"/> based on its number of items.
+    /// </summary>
     private void OnQuickAccessChanged(object sender, AvaloniaPropertyChangedEventArgs e)
     {
         if (_viewModel?.QuickAccess.Count > 0)
@@ -96,6 +126,9 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Opens the item that was double tapped or goes to the parent directory of the current directory.
+    /// </summary>
     private void FilesDoubleTapped(object sender, TappedEventArgs e)
     {
         if (sender is ListBox listBox)
@@ -171,6 +204,9 @@ public partial class MainWindow : Window
             _viewModel?.OpenAs(entry);
     }
 
+    /// <summary>
+    /// Clears the selection if the user clicks on empty space.
+    /// </summary>
     private void FilesTapped(object sender, TappedEventArgs e)
     {
         if (sender is not ListBox listBox)
@@ -189,6 +225,9 @@ public partial class MainWindow : Window
         CommitMessageBar.IsVisible = false;
     }
 
+    /// <summary>
+    /// Clears the selection if any SideBar item has been clicked.
+    /// </summary>
     private void SideBarEntryClicked(object sender, TappedEventArgs e)
     {
         if (sender is ListBox listBox && listBox.SelectedItem is FileSystemEntry entry)
@@ -200,6 +239,9 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Handles Middle and Side button interactions with <see cref="FileSurfer"/>.
+    /// </summary>
     private void MouseButtonPressed(object sender, PointerPressedEventArgs e)
     {
         PointerPointProperties properties = e.GetCurrentPoint(this).Properties;
@@ -216,7 +258,7 @@ public partial class MainWindow : Window
             {
                 if (hitElement is ListBoxItem item && item.DataContext is FileSystemEntry entry)
                 {
-                    this._viewModel?.OpenEntryLocation(entry);
+                    _viewModel?.OpenEntryLocation(entry);
                     return;
                 }
                 hitElement = Avalonia.VisualTree.VisualExtensions.GetVisualParent(hitElement);
@@ -224,6 +266,9 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Unbinds interfering keybindings when the user starts typing.
+    /// </summary>
     private void TextBoxGotFocus(object? sender = null, GotFocusEventArgs? e = null)
     {
         DeleteButton.HotKey = null;
@@ -231,8 +276,12 @@ public partial class MainWindow : Window
         CopyButton.HotKey = null;
         PasteButton.HotKey = null;
         KeyBindings.Remove(_selectAllKB);
+        KeyBindings.Remove(_invertSelection);
     }
 
+    /// <summary>
+    /// Rebinds interfering keybindings when the user stops typing.
+    /// </summary>
     private void TextBoxLostFocus(object? sender = null, RoutedEventArgs? e = null)
     {
         DeleteButton.HotKey = _deleteGesture;
@@ -240,14 +289,21 @@ public partial class MainWindow : Window
         CopyButton.HotKey = _copyGesture;
         PasteButton.HotKey = _pasteGesture;
         KeyBindings.Add(_selectAllKB);
+        KeyBindings.Add(_invertSelection);
     }
 
+    /// <summary>
+    /// Clears <see cref="SearchBox"/> when it looses focus.
+    /// </summary>
     private void SearchBoxLostFocus(object sender, RoutedEventArgs e)
     {
         SearchBox.Text = string.Empty;
         TextBoxLostFocus();
     }
 
+    /// <summary>
+    /// Shows <see cref="NewNameBar"/> and sets <see cref="NameInputBox"/> properties.
+    /// </summary>
     private void OnRenameClicked(object sender, RoutedEventArgs e)
     {
         if (_viewModel is null || _viewModel.SelectedFiles.Count == 0)
@@ -260,12 +316,21 @@ public partial class MainWindow : Window
         NameInputBox.SelectionEnd = _viewModel.GetNameEndIndex(_viewModel.SelectedFiles[^1]);
     }
 
+    /// <summary>
+    /// Shows <see cref="CommitMessageBar"/> and focuses <see cref="CommitInputBox"/>.
+    /// </summary>
     private void OnCommitClicked(object sender, RoutedEventArgs e)
     {
         CommitMessageBar.IsVisible = true;
         CommitInputBox.Focus();
     }
 
+    /// <summary>
+    /// Hides <see cref="NewNameBar"/> and <see cref="CommitMessageBar"/> when either loose focus.
+    /// <para>
+    /// Invokes <see cref="TextBoxLostFocus(object?, RoutedEventArgs?)"/>.
+    /// </para>
+    /// </summary>
     private void InputBoxLostFocus(object sender, RoutedEventArgs e)
     {
         NewNameBar.IsVisible = false;
@@ -273,6 +338,9 @@ public partial class MainWindow : Window
         TextBoxLostFocus();
     }
 
+    /// <summary>
+    /// Relays the new name to <see cref="_viewModel"/> and hides <see cref="NewNameBar"/>.
+    /// </summary>
     private void NameEntered()
     {
         if (NameInputBox.Text is string newName)
@@ -282,6 +350,11 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Relays the commit message to <see cref="_viewModel"/>,
+    /// hides <see cref="CommitMessageBar"/>,
+    /// and clears <see cref="CommitInputBox"/> text.
+    /// </summary>
     private void CommitMessageEntered()
     {
         if (CommitInputBox.Text is string commitMessage)
@@ -292,6 +365,9 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Invoked after the checkbox is toggled. Relays the action to <see cref="_viewModel"/>.
+    /// </summary>
     private void StagedToggle(object sender, RoutedEventArgs e)
     {
         if (sender is CheckBox checkBox && checkBox.DataContext is FileSystemEntry entry)
@@ -303,6 +379,9 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Switches the display mode to <see cref="DisplayModeEnum.ListView"/>.
+    /// </summary>
     private void ListView(object? sender = null, RoutedEventArgs? e = null)
     {
         WrapPanel? wrapPanel = _filePanel ?? FindWrapPanel(FileDisplay);
@@ -315,6 +394,9 @@ public partial class MainWindow : Window
         FileSurferSettings.DisplayMode = DisplayModeEnum.ListView;
     }
 
+    /// <summary>
+    /// Switches the display mode to <see cref="DisplayModeEnum.IconView"/>.
+    /// </summary>
     private void IconView(object? sender = null, RoutedEventArgs? e = null)
     {
         WrapPanel? wrapPanel = _filePanel ?? FindWrapPanel(FileDisplay);
@@ -327,6 +409,9 @@ public partial class MainWindow : Window
         FileSurferSettings.DisplayMode = DisplayModeEnum.IconView;
     }
 
+    /// <summary>
+    /// Handles key presses without keybindings.
+    /// </summary>
     private void KeyPressed(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)
@@ -339,6 +424,9 @@ public partial class MainWindow : Window
             OnCtrlFPressed(e);
     }
 
+    /// <summary>
+    /// Toggles focus on <see cref="SearchBox"/>.
+    /// </summary>
     private void OnCtrlFPressed(KeyEventArgs e)
     {
         e.Handled = true;
@@ -348,6 +436,9 @@ public partial class MainWindow : Window
             SearchBox.Focus();
     }
 
+    /// <summary>
+    /// Processes currently focused elements and invokes their respective actions.
+    /// </summary>
     private void OnEnterPressed(KeyEventArgs e)
     {
         e.Handled = true;
@@ -380,6 +471,9 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Empties selection, cancels searching and clears focus.
+    /// </summary>
     private void OnEscapePressed(KeyEventArgs e)
     {
         e.Handled = true;
@@ -390,6 +484,13 @@ public partial class MainWindow : Window
         FocusManager?.ClearFocus();
     }
 
+    /// <summary>
+    /// Invokes <see cref="FileSurferSettings.UpdateQuickAccess(System.Collections.Generic.IEnumerable{FileSystemEntry})"/>
+    /// and <see cref="FileSurferSettings.SaveSettings"/>,
+    /// <para>
+    /// and also disposes of <see cref="_viewModel"/>'s resources after the app closes.
+    /// </para>
+    /// </summary>
     private void OnClosing(object sender, WindowClosingEventArgs e)
     {
         if (_viewModel is not null)

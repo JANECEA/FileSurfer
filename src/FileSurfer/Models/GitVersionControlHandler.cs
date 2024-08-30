@@ -6,13 +6,30 @@ using LibGit2Sharp;
 
 namespace FileSurfer.Models;
 
+/// <summary>
+/// Consolidates complex Git file handling.
+/// </summary>
 public enum VCStatus
 {
+    /// <summary>
+    /// File is either ignored or no changes have been made to it from the last commit.
+    /// </summary>
     NotVersionControlled,
+
+    /// <summary>
+    /// File has been staged for the next commit.
+    /// </summary>
     Staged,
+
+    /// <summary>
+    /// File has not been staged for the next commit.
+    /// </summary>
     Unstaged,
 }
 
+/// <summary>
+/// Handles git integration withing <see cref="FileSurfer"/>.
+/// </summary>
 public class GitVersionControlHandler : IVersionControl, IDisposable
 {
     private const string MissingRepoMessage = "No git repository found";
@@ -20,9 +37,12 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
     private Repository? _currentRepo = null;
     private readonly Dictionary<string, VCStatus> _statusDict = new();
 
-    public GitVersionControlHandler(IFileIOHandler fileIOHandler) =>
-        _fileIOHandler = fileIOHandler;
+    /// <summary>
+    /// Initializes a new <see cref="GitVersionControlHandler"/>.
+    /// </summary>
+    public GitVersionControlHandler(IFileIOHandler fileIOHandler) => _fileIOHandler = fileIOHandler;
 
+    /// <inheritdoc/>
     public bool IsVersionControlled(string directoryPath)
     {
         string? repoPath = directoryPath;
@@ -54,6 +74,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         return false;
     }
 
+    /// <inheritdoc/>
     public bool DownloadChanges(out string? errorMessage)
     {
         if (_currentRepo is not null)
@@ -66,14 +87,17 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         return false;
     }
 
+    /// <inheritdoc/>
     public string GetCurrentBranchName() =>
         _currentRepo is null ? string.Empty : _currentRepo.Head.FriendlyName;
 
+    /// <inheritdoc/>
     public string[] GetBranches() =>
         _currentRepo is null
             ? Array.Empty<string>()
             : _currentRepo.Branches.Where(b => !b.IsRemote).Select(b => b.FriendlyName).ToArray();
 
+    /// <inheritdoc/>
     public bool SwitchBranches(string branchName, out string? errorMessage)
     {
         if (_currentRepo is null)
@@ -142,6 +166,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         return VCStatus.NotVersionControlled;
     }
 
+    /// <inheritdoc/>
     public VCStatus ConsolidateStatus(string path)
     {
         if (_currentRepo is null)
@@ -152,6 +177,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
             : VCStatus.NotVersionControlled;
     }
 
+    /// <inheritdoc/>
     public bool StageChange(string filePath, out string? errorMessage)
     {
         try
@@ -177,6 +203,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         }
     }
 
+    /// <inheritdoc/>
     public bool UnstageChange(string filePath, out string? errorMessage)
     {
         try
@@ -201,6 +228,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         }
     }
 
+    /// <inheritdoc/>
     public bool CommitChanges(string commitMessage, out string? errorMessage)
     {
         if (_currentRepo is null)
@@ -214,6 +242,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         return _fileIOHandler.ExecuteCmd(command);
     }
 
+    /// <inheritdoc/>
     public bool UploadChanges(out string? errorMessage)
     {
         if (_currentRepo is null)
@@ -226,6 +255,9 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         return _fileIOHandler.ExecuteCmd(command);
     }
 
+    /// <summary>
+    /// Disposes of <see cref="_currentRepo"/>.
+    /// </summary>
     public void Dispose()
     {
         _currentRepo?.Dispose();

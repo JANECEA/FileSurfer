@@ -7,11 +7,14 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace FileSurfer.Models;
 
-class WindowsFileOperationsHandler : IFileOperationsHandler
+/// <summary>
+/// Handles file IO operations in the Windows enviroment withing the context of <see cref="FileSurfer"/>.
+/// </summary>
+class WindowsFileIOHandler : IFileIOHandler
 {
     private readonly long _showDialogLimit;
 
-    public WindowsFileOperationsHandler(long showDialogLimit) => _showDialogLimit = showDialogLimit;
+    public WindowsFileIOHandler(long showDialogLimit) => _showDialogLimit = showDialogLimit;
 
     public bool DeleteFile(string filePath, out string? errorMessage)
     {
@@ -53,17 +56,22 @@ class WindowsFileOperationsHandler : IFileOperationsHandler
         }
     }
 
-    public DriveInfo[] GetDrives()
-    {
-        try
-        {
-            return DriveInfo.GetDrives();
-        }
-        catch
-        {
-            return Array.Empty<DriveInfo>();
-        }
-    }
+    public DriveInfo[] GetDrives() =>
+        DriveInfo
+            .GetDrives()
+            .Where(drive =>
+            {
+                try
+                {
+                    _ = drive.Name + drive.VolumeLabel + drive.TotalSize.ToString();
+                    return drive.IsReady;
+                }
+                catch
+                {
+                    return false;
+                }
+            })
+            .ToArray();
 
     public string[] GetSpecialFolders()
     {

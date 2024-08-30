@@ -12,7 +12,14 @@ namespace FileSurfer;
 /// </summary>
 public enum DisplayModeEnum
 {
+    /// <summary>
+    /// Displays <see cref="FileSystemEntry"/>s in a list.
+    /// </summary>
     ListView,
+
+    /// <summary>
+    /// Displays <see cref="FileSystemEntry"/>s in a grid with larger icons.
+    /// </summary>
     IconView,
 }
 
@@ -21,9 +28,24 @@ public enum DisplayModeEnum
 /// </summary>
 public enum SortBy
 {
+    /// <summary>
+    /// Sorts <see cref="ViewModels.MainWindowViewModel.FileEntries"/> by <see cref="FileSystemEntry.Name"/>.
+    /// </summary>
     Name,
+
+    /// <summary>
+    /// Sorts <see cref="ViewModels.MainWindowViewModel.FileEntries"/> by <see cref="FileSystemEntry.LastModTime"/>.
+    /// </summary>
     Date,
+
+    /// <summary>
+    /// Sorts <see cref="ViewModels.MainWindowViewModel.FileEntries"/> by <see cref="FileSystemEntry.Type"/>.
+    /// </summary>
     Type,
+
+    /// <summary>
+    /// Sorts <see cref="ViewModels.MainWindowViewModel.FileEntries"/> by <see cref="FileSystemEntry.SizeB"/>.
+    /// </summary>
     Size,
 }
 

@@ -15,6 +15,13 @@ using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
 
+/// <summary>
+/// The MainWindowViewModel is the ViewModel for the main window of the application.
+/// <para>
+/// It serves as the intermediary between the View and the Model
+/// in the MVVM (Model-View-ViewModel) design pattern.
+/// </para>
+/// </summary>
 #pragma warning disable CA1822 // Mark members as static
 public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
 {
@@ -33,10 +40,6 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     private readonly ClipboardManager _clipboardManager;
     private readonly DispatcherTimer? _refreshTimer;
 
-    private CancellationTokenSource _searchCTS = new();
-    private bool _isUserInvoked = true;
-    private DateTime _lastModified;
-
     private bool SortReversed
     {
         get => FileSurferSettings.SortReversed;
@@ -47,17 +50,41 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         get => FileSurferSettings.DefaultSort;
         set => FileSurferSettings.DefaultSort = value;
     }
+    private CancellationTokenSource _searchCTS = new();
+    private bool _isUserInvoked = true;
+    private DateTime _lastModified;
 
-    private readonly ObservableCollection<FileSystemEntry> _fileEntries = new();
-    private readonly ObservableCollection<FileSystemEntry> _selectedFiles = new();
-    private readonly ObservableCollection<FileSystemEntry> _quickAccess = new();
-    public ObservableCollection<FileSystemEntry> FileEntries => _fileEntries;
-    public ObservableCollection<FileSystemEntry> SelectedFiles => _selectedFiles;
-    public ObservableCollection<FileSystemEntry> QuickAccess => _quickAccess;
+    /// <summary>
+    /// Holds <see cref="FileSystemEntry"/>s displayed in the main window.
+    /// </summary>
+    public ObservableCollection<FileSystemEntry> FileEntries { get; } = new();
+
+    /// <summary>
+    /// Holds the currently selected <see cref="FileSystemEntry"/>s.
+    /// </summary>
+    public ObservableCollection<FileSystemEntry> SelectedFiles { get; } = new();
+
+    /// <summary>
+    /// Holds <see cref="FileSystemEntry"/>s displayed in Quick Access.
+    /// </summary>
+    public ObservableCollection<FileSystemEntry> QuickAccess { get; } = new();
+
+    /// <summary>
+    /// Holds the Special Folders <see cref="FileSystemEntry"/>s.
+    /// </summary>
     public FileSystemEntry[] SpecialFolders { get; }
-    public List<FileSystemEntry> Drives { get; }
 
-    private string? _errorMessage = null;
+    /// <summary>
+    /// Holds the Drives <see cref="FileSystemEntry"/>s.
+    /// </summary>
+    public FileSystemEntry[] Drives { get; }
+
+    /// <summary>
+    /// Holds the latest IO error.
+    /// <para>
+    /// Setting this parameter opens a new <see cref="Views.ErrorWindow"/> dialog.
+    /// </para>
+    /// </summary>
     public string? ErrorMessage
     {
         get => _errorMessage;
@@ -73,14 +100,22 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
             }
         }
     }
+    private string? _errorMessage = null;
 
     private async Task ShowErrorWindowAsync(string errorMessage) =>
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
-            new Views.ErrorWindow(errorMessage).Show();
+            new Views.ErrorWindow() { ErrorMessage = errorMessage }.Show();
         });
 
-    private string _currentDir = string.Empty;
+    /// <summary>
+    /// Holds the path to the current directory displayed in FileSufer.
+    /// <para>
+    /// Setting this property triggers a reload.
+    /// Also adds the directory to <see cref="_pathHistory"/>,
+    /// if the action was triggered by the user.
+    /// </para>
+    /// </summary>
     public string CurrentDir
     {
         get => _currentDir;
@@ -104,39 +139,56 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
                 _lastModified = Directory.GetLastWriteTime(value);
         }
     }
+    private string _currentDir = string.Empty;
 
-    private bool _directoryEmpty;
+    /// <summary>
+    /// Indicates whether or not the current directory contains files or directories.
+    /// </summary>
     public bool DirectoryEmpty
     {
         get => _directoryEmpty;
         set => this.RaiseAndSetIfChanged(ref _directoryEmpty, value);
     }
+    private bool _directoryEmpty;
 
-    private string _searchWaterMark = string.Empty;
+    /// <summary>
+    /// Text that will be displayed in the Search bar.
+    /// </summary>
     public string SearchWaterMark
     {
         get => _searchWaterMark;
         set => this.RaiseAndSetIfChanged(ref _searchWaterMark, value);
     }
+    private string _searchWaterMark = string.Empty;
 
-    private string _selectionInfo = string.Empty;
+    /// <summary>
+    /// Info about the current directory and selection. Will be displayed in the Status bar.
+    /// </summary>
     public string SelectionInfo
     {
         get => _selectionInfo;
         set => this.RaiseAndSetIfChanged(ref _selectionInfo, value);
     }
+    private string _selectionInfo = string.Empty;
 
-    private bool _searching;
+    /// <summary>
+    /// Indicates whether or not the app is searching currently.
+    /// </summary>
     public bool Searching
     {
         get => _searching;
         set => this.RaiseAndSetIfChanged(ref _searching, value);
     }
+    private bool _searching;
 
-    private readonly ObservableCollection<string> _branches = new();
-    public ObservableCollection<string> Branches => _branches;
+    /// <summary>
+    /// Contains a list of current repository's branches, displayed in the "Branches" combobox.
+    /// </summary>
+    public ObservableCollection<string> Branches { get; } = new();
 
-    private string? _currentBranch;
+    /// <summary>
+    /// Currently selected branch in the "Branches" combobox.
+    /// </summary>
     public string? CurrentBranch
     {
         get => _currentBranch;
@@ -150,46 +202,151 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
             _currentBranch = value;
         }
     }
+    private string? _currentBranch;
 
-    private int _currentBranchIndex = -1;
+    /// <summary>
+    /// Used for displaying the current branch in the "Branches" combobox.
+    /// </summary>
     public int CurrentBranchIndex
     {
         get => _currentBranchIndex;
         set => this.RaiseAndSetIfChanged(ref _currentBranchIndex, value);
     }
+    private int _currentBranchIndex = 0;
 
-    private bool _isVersionControlled = false;
+    /// <summary>
+    /// Indicates whether or not the current directory is version controlled.
+    /// </summary>
     public bool IsVersionControlled
     {
         get => _isVersionControlled;
         set => this.RaiseAndSetIfChanged(ref _isVersionControlled, value);
     }
+    private bool _isVersionControlled = false;
 
+    /// <summary>
+    /// Invokes <see cref="GoBack"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="GoForward"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> GoForwardCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="Reload"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> ReloadCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="OpenPowerShell"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> OpenPowerShellCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="CancelSearch()"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="NewFile"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> NewFileCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="NewDir"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> NewDirCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="Cut"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> CutCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="Copy"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> CopyCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="Paste"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> PasteCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="MoveToTrash"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> MoveToTrashCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="Delete"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="SortByName"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> SortByNameCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="SortByDate"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> SortByDateCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="SortByType"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> SortByTypeCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="SortBySize"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> SortBySizeCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="Undo"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> UndoCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="Redo"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> RedoCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="SelectAll"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> SelectAllCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="SelectNone"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> SelectNoneCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="InvertSelection"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> InvertSelectionCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="OpenSettings"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> OpenSettingsCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="Pull"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> PullCommand { get; }
+
+    /// <summary>
+    /// Invokes <see cref="Push"/>.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> PushCommand { get; }
 
+    /// <summary>
+    /// Initializes a new <see cref="MainWindowViewModel"/>.
+    /// </summary>
     public MainWindowViewModel()
     {
         _fileIOHandler = new WindowsFileIOHandler(ShowDialogLimitB);
@@ -197,7 +354,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         _clipboardManager = new ClipboardManager(_fileIOHandler, NewImageName);
         _undoRedoHistory = new();
         _pathHistory = new();
-        _selectedFiles.CollectionChanged += UpdateSelectionInfo;
+        SelectedFiles.CollectionChanged += UpdateSelectionInfo;
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
         ReloadCommand = ReactiveCommand.Create(Reload);
@@ -246,6 +403,12 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Compares <see cref="_lastModified"/> to the latest <see cref="Directory.GetLastWriteTime(string)"/>.
+    /// <para>
+    /// Invokes <see cref="Reload"/> if <see cref="Directory.GetLastWriteTime(string)"/> is newer.
+    /// </para>
+    /// </summary>
     private void CheckForUpdates(object? sender, EventArgs e)
     {
         if (!Directory.Exists(CurrentDir))
@@ -259,6 +422,16 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// <para>
+    /// Checks if <see cref="CurrentDir"/> is version controlled.
+    /// </para>
+    /// Reloads the <see cref="CurrentDir"/> directory's contents.
+    /// <para>
+    /// Updates <see cref="SelectionInfo"/>.
+    /// </para>
+    /// Sets <see cref="SearchWaterMark"/>.
+    /// </summary>
     private void Reload()
     {
         if (Searching)
@@ -279,12 +452,19 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         SetSearchWaterMark();
     }
 
+    /// <summary>
+    /// Opens <c>settings.json</c> at <see cref="FileSurferSettings.SettingsFilePath"/> in the associated application.
+    /// </summary>
     private void OpenSettings()
     {
         _fileIOHandler.OpenFile(FileSurferSettings.SettingsFilePath, out string? errorMessage);
         ErrorMessage = errorMessage;
     }
 
+    /// <summary>
+    /// Used for setting the text selection when renaming files.
+    /// </summary>
+    /// <returns>The length of the file name without extension.</returns>
     public int GetNameEndIndex(FileSystemEntry entry) =>
         SelectedFiles.Count > 0 ? Path.GetFileNameWithoutExtension(entry.PathToEntry).Length : 0;
 
@@ -299,8 +479,11 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     }
 
     private void SetDriveInfo() =>
-        SelectionInfo = Drives.Count == 1 ? "1 drive" : $"{FileEntries.Count} drives";
+        SelectionInfo = Drives.Length == 1 ? "1 drive" : $"{FileEntries.Count} drives";
 
+    /// <summary>
+    /// Update <see cref="SelectionInfo"/> based on the current directory and selection in <see cref="SelectedFiles"/>.
+    /// </summary>
     private void UpdateSelectionInfo(
         object? sender = null,
         NotifyCollectionChangedEventArgs? e = null
@@ -334,6 +517,15 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         SelectionInfo = selectionInfo;
     }
 
+    /// <summary>
+    /// Opens the selected entry.
+    /// <para>
+    /// If the entry is a directory or a link to a directory, it changes <see cref="CurrentDir"/> to its path.
+    /// </para>
+    /// <para>
+    /// Otherwise the file is opened in the application preferred by the system.
+    /// </para>
+    /// </summary>
     public void OpenEntry(FileSystemEntry entry)
     {
         if (entry.IsDirectory)
@@ -350,6 +542,9 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Shows the "Open file with" dialog.
+    /// </summary>
     public void OpenAs(FileSystemEntry entry)
     {
         if (!entry.IsDirectory)
@@ -359,6 +554,9 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Opens multiple files at once.
+    /// </summary>
     public void OpenEntries()
     {
         if (SelectedFiles.Count > 1)
@@ -375,6 +573,9 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
             OpenEntry(entry);
     }
 
+    /// <summary>
+    /// Opens the selected files in the notepad app specified in <see cref="FileSurferSettings.NotePadApp"/>
+    /// </summary>
     public void OpenInNotepad()
     {
         foreach (FileSystemEntry entry in SelectedFiles)
@@ -387,25 +588,48 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Adds the selected <see cref="FileSystemEntry"/> to Quick Access.
+    /// </summary>
     public void AddToQuickAccess(FileSystemEntry entry) => QuickAccess.Add(entry);
 
+    /// <summary>
+    /// Moves the <see cref="FileSystemEntry"/> under the index up within the Quick Access list.
+    /// </summary>
     public void MoveUp(int i)
     {
         if (i > 0)
             (QuickAccess[i - 1], QuickAccess[i]) = (QuickAccess[i], QuickAccess[i - 1]);
     }
 
+    /// <summary>
+    /// Moves the <see cref="FileSystemEntry"/> under the index down within the Quick Access list.
+    /// </summary>
     public void MoveDown(int i)
     {
         if (i < QuickAccess.Count - 1)
             (QuickAccess[i], QuickAccess[i + 1]) = (QuickAccess[i + 1], QuickAccess[i]);
     }
 
+    /// <summary>
+    /// Removes the <see cref="FileSystemEntry"/> under the index from the Quick Access list.
+    /// </summary>
     public void RemoveFromQuickAccess(int index) => QuickAccess.RemoveAt(index);
 
+    /// <summary>
+    /// Opens the location of the selected entry during searching.
+    /// </summary>
     public void OpenEntryLocation(FileSystemEntry entry) =>
         CurrentDir = Path.GetDirectoryName(entry.PathToEntry) ?? ThisPCLabel;
 
+    /// <summary>
+    /// Navigates up one directory level from the current directory.
+    /// <para>
+    /// - If the current directory is already at the root level or if the parent directory
+    ///   cannot be determined, it sets the current directory to a special "This PC" label.
+    /// </para>
+    /// - Otherwise, it updates the current directory to its parent directory.
+    /// </summary>
     public void GoUp()
     {
         if (Path.GetDirectoryName(CurrentDir) is not string parentDir)
@@ -414,19 +638,8 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
             CurrentDir = parentDir;
     }
 
-    private List<FileSystemEntry> GetDrives()
-    {
-        List<FileSystemEntry> drives = new();
-        foreach (DriveInfo driveInfo in _fileIOHandler.GetDrives())
-        {
-            try
-            {
-                drives.Add(new FileSystemEntry(driveInfo));
-            }
-            catch { }
-        }
-        return drives;
-    }
+    private FileSystemEntry[] GetDrives() =>
+        _fileIOHandler.GetDrives().Select(driveInfo => new FileSystemEntry(driveInfo)).ToArray();
 
     private FileSystemEntry[] GetSpecialFolders() =>
         _fileIOHandler
@@ -482,7 +695,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
                 GetVCState(filePaths[i])
             );
 
-        SortAndAddEntries(directories, files);
+        AddEntries(directories, files);
     }
 
     private void RemoveDotFiles(ref string[] dirPaths, ref string[] filePaths)
@@ -499,7 +712,10 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         return _versionControl.ConsolidateStatus(path);
     }
 
-    private void SortAndAddEntries(FileSystemEntry[] directories, FileSystemEntry[] files)
+    /// <summary>
+    /// Adds directories and files to <see cref="FileEntries"/>.
+    /// </summary>
+    private void AddEntries(FileSystemEntry[] directories, FileSystemEntry[] files)
     {
         if (SortBy is not SortBy.Name)
             SortInPlace(files, SortBy);
@@ -524,6 +740,9 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
                 FileEntries.Add(files[i]);
     }
 
+    /// <summary>
+    /// Sorts given array of <see cref="FileSystemEntry"/>s based on <see cref="SortBy"/>
+    /// </summary>
     private void SortInPlace(FileSystemEntry[] entries, SortBy sortBy)
     {
         switch (sortBy)
@@ -549,6 +768,9 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Sets <see cref="IsVersionControlled"/> and updates <see cref="Branches"/>.
+    /// </summary>
     private void CheckVersionContol()
     {
         IsVersionControlled =
@@ -566,8 +788,17 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Sets <see cref="DirectoryEmpty"/>.
+    /// </summary>
     private void CheckDirectoryEmpty() => DirectoryEmpty = FileEntries.Count == 0;
 
+    /// <summary>
+    /// Sets the current directory to the previous directory in <see cref="_pathHistory"/>.
+    /// <para>
+    /// Removes the directory from <see cref="_pathHistory"/> in case it's invalid.
+    /// </para>
+    /// </summary>
     public void GoBack()
     {
         if (Searching)
@@ -588,6 +819,12 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
             _pathHistory.RemoveNode(false);
     }
 
+    /// <summary>
+    /// Sets the current directory to the next directory in <see cref="_pathHistory"/>.
+    /// <para>
+    /// Removes the directory from <see cref="_pathHistory"/> in case it's invalid.
+    /// </para>
+    /// </summary>
     public void GoForward()
     {
         if (Searching)
@@ -608,6 +845,9 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
             _pathHistory.RemoveNode(true);
     }
 
+    /// <summary>
+    /// Opens poweshell in <see cref="CurrentDir"/> if possible.
+    /// </summary>
     private void OpenPowerShell()
     {
         if (CurrentDir == ThisPCLabel || Searching)
@@ -617,6 +857,9 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         ErrorMessage = errorMessage;
     }
 
+    /// <summary>
+    /// Prepares the <see cref="_searchCTS"/> cancellation token, updates <see cref="CurrentDir"/>, and starts the search.
+    /// </summary>
     public async void SearchRelay(string searchQuerry)
     {
         if (_searchCTS.IsCancellationRequested)
@@ -639,6 +882,10 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Recursively searches <see cref="CurrentDir"/> and asynchronously
+    /// adds matching <see cref="FileSystemEntry"/>s to <see cref="FileEntries"/>.
+    /// </summary>
     private async Task SearchDirectoryAsync(
         string directory,
         string searchQuery,
@@ -699,6 +946,9 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
             );
     }
 
+    /// <summary>
+    /// Cancels the search and sets <see cref="CurrentDir"/> to the current in <see cref="_pathHistory"/>.
+    /// </summary>
     public void CancelSearch()
     {
         _searchCTS.Cancel();
@@ -706,6 +956,9 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         CurrentDir = _pathHistory.Current ?? ThisPCLabel;
     }
 
+    /// <summary>
+    /// Cancels the search and sets <see cref="CurrentDir"/> to the parameter.
+    /// </summary>
     public void CancelSearch(string directory)
     {
         _searchCTS.Cancel();
@@ -713,6 +966,14 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         CurrentDir = directory;
     }
 
+    /// <summary>
+    /// Creates a new file using <see cref="_fileIOHandler"/> in <see cref="CurrentDir"/>
+    /// with the name specified in <see cref="FileSurferSettings.NewFileName"/>.
+    /// <para>
+    /// Invokes <see cref="Reload"/> and adds a new <see cref="NewFileAt"/> operation
+    /// to <see cref="_undoRedoHistory"/> if it was a success.
+    /// </para>
+    /// </summary>
     private void NewFile()
     {
         string newFileName = FileNameGenerator.GetAvailableName(CurrentDir, NewFileName);
@@ -726,6 +987,14 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
             ErrorMessage = errorMessage;
     }
 
+    /// <summary>
+    /// Creates a new directory using <see cref="_fileIOHandler"/> in <see cref="CurrentDir"/>
+    /// with the name specified in <see cref="FileSurferSettings.NewDirectoryName"/>.
+    /// <para>
+    /// Invokes <see cref="Reload"/> and adds a new <see cref="NewDirAt"/> operation
+    /// to <see cref="_undoRedoHistory"/> if it was a success.
+    /// </para>
+    /// </summary>
     private void NewDir()
     {
         string newDirName = FileNameGenerator.GetAvailableName(CurrentDir, NewDirName);
@@ -739,6 +1008,9 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
             ErrorMessage = errorMessage;
     }
 
+    /// <summary>
+    /// Creates an archive from the <see cref="FileSystemEntry"/>s in <see cref="SelectedFiles"/>.
+    /// </summary>
     public void AddToArchive()
     {
         if (!Directory.Exists(CurrentDir))
@@ -755,6 +1027,9 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         ErrorMessage = errorMessage;
     }
 
+    /// <summary>
+    /// Extracts the archives selected in <see cref="SelectedFiles"/>.
+    /// </summary>
     public void ExtractArchive()
     {
         if (!Directory.Exists(CurrentDir))
@@ -772,21 +1047,37 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         Reload();
     }
 
+    /// <summary>
+    /// Copies the path to the selected <see cref="FileSystemEntry"/> to the system clipboard.
+    /// </summary>
     public void CopyPath(FileSystemEntry entry) =>
         _clipboardManager.CopyPathToFile(entry.PathToEntry);
 
+    /// <summary>
+    /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="_clipboardManager"/>.
+    /// </summary>
     public void Cut()
     {
         _clipboardManager.Cut(SelectedFiles.ToList(), CurrentDir, out string? errorMessage);
         ErrorMessage = errorMessage;
     }
 
+    /// <summary>
+    /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="_clipboardManager"/>.
+    /// </summary>
     public void Copy()
     {
         _clipboardManager.Copy(SelectedFiles.ToList(), CurrentDir, out string? errorMessage);
         ErrorMessage = errorMessage;
     }
 
+    /// <summary>
+    /// Determines the type of paste operation and executes it using <see cref="_clipboardManager"/>.
+    /// <para>
+    /// Adds the appropriate <see cref="IUndoableFileOperation"/> to <see cref="_pathHistory"/> if the operaion was a success.
+    /// </para>
+    /// Invokes <see cref="Reload()"/>.
+    /// </summary>
     private void Paste()
     {
         string? errorMessage;
@@ -814,6 +1105,9 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         Reload();
     }
 
+    /// <summary>
+    /// Relays the operation to <see cref="_fileIOHandler"/> and invokes <see cref="Reload"/>.
+    /// </summary>
     public void CreateShortcut(FileSystemEntry entry)
     {
         _fileIOHandler.CreateLink(entry.PathToEntry, out string? errorMessage);
@@ -821,12 +1115,18 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         Reload();
     }
 
+    /// <summary>
+    /// Relays the operation to <see cref="_fileIOHandler"/>.
+    /// </summary>
     public void ShowProperties(FileSystemEntry entry)
     {
         WindowsFileProperties.ShowFileProperties(entry.PathToEntry, out string? errorMessage);
         ErrorMessage = errorMessage;
     }
 
+    /// <summary>
+    /// Relays the operation to <see cref="RenameOne(string)"/> or <see cref="RenameMultiple(string)"/>.
+    /// </summary>
     public void Rename(string newName)
     {
         if (SelectedFiles.Count == 1)
@@ -885,6 +1185,13 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         Reload();
     }
 
+    /// <summary>
+    /// Moves the <see cref="FileSystemEntry"/>s in <see cref="SelectedFiles"/> to the system trash using <see cref="_fileIOHandler"/>.
+    /// <para>
+    /// Adds the operation to <see cref="_undoRedoHistory"/> if the operation was succesful.
+    /// </para>
+    /// Invokes <see cref="Reload"/>.
+    /// </summary>
     public void MoveToTrash()
     {
         bool errorOccured = false;
@@ -904,6 +1211,12 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         Reload();
     }
 
+    /// <summary>
+    /// Permanently deletes the <see cref="FileSystemEntry"/>s in <see cref="SelectedFiles"/>.
+    /// <para>
+    /// Invokes <see cref="Reload"/>.
+    /// </para>
+    /// </summary>
     public void Delete()
     {
         foreach (FileSystemEntry entry in SelectedFiles)
@@ -919,34 +1232,62 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         Reload();
     }
 
+    /// <summary>
+    /// Sets <see cref="SortBy"/> to <see cref="SortBy.Name"/> and determines <see cref="SortReversed"/>.
+    /// <para>
+    /// Invokes <see cref="Reload"/>.
+    /// </para>
+    /// </summary>
     private void SortByName()
     {
-        SortReversed = SortBy == SortBy.Name && !SortReversed;
+        SortReversed = SortBy is SortBy.Name && !SortReversed;
         SortBy = SortBy.Name;
         Reload();
     }
 
+    /// <summary>
+    /// Sets <see cref="SortBy"/> to <see cref="SortBy.Date"/> and determines <see cref="SortReversed"/>.
+    /// <para>
+    /// Invokes <see cref="Reload"/>.
+    /// </para>
+    /// </summary>
     private void SortByDate()
     {
-        SortReversed = SortBy == SortBy.Date && !SortReversed;
+        SortReversed = SortBy is SortBy.Date && !SortReversed;
         SortBy = SortBy.Date;
         Reload();
     }
 
+    /// <summary>
+    /// Sets <see cref="SortBy"/> to <see cref="SortBy.Type"/> and determines <see cref="SortReversed"/>.
+    /// <para>
+    /// Invokes <see cref="Reload"/>.
+    /// </para>
+    /// </summary>
     private void SortByType()
     {
-        SortReversed = SortBy == SortBy.Type && !SortReversed;
+        SortReversed = SortBy is SortBy.Type && !SortReversed;
         SortBy = SortBy.Type;
         Reload();
     }
 
+    /// <summary>
+    /// Sets <see cref="SortBy"/> to <see cref="SortBy.Size"/> and determines <see cref="SortReversed"/>.
+    /// <para>
+    /// Invokes <see cref="Reload"/>.
+    /// </para>
+    /// </summary>
     private void SortBySize()
     {
-        SortReversed = SortBy == SortBy.Size && !SortReversed;
+        SortReversed = SortBy is SortBy.Size && !SortReversed;
         SortBy = SortBy.Size;
         Reload();
     }
 
+    /// <summary>
+    /// Invokes <see cref="IUndoableFileOperation.Undo(out string?)"/> on the current
+    /// <see cref="IUndoableFileOperation"/> and goes back in <see cref="_undoRedoHistory"/>.
+    /// </summary>
     private void Undo()
     {
         if (_undoRedoHistory.IsTail())
@@ -972,6 +1313,10 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Moves forward in <see cref="_undoRedoHistory"/> and invokes
+    /// <see cref="IUndoableFileOperation.Redo(out string?)"/> on the current <see cref="IUndoableFileOperation"/>.
+    /// </summary>
     private void Redo()
     {
         _undoRedoHistory.MoveToNext();
@@ -990,6 +1335,9 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Adds all <see cref="FileSystemEntry"/>s in <see cref="FileEntries"/> to <see cref="SelectedFiles"/>.
+    /// </summary>
     private void SelectAll()
     {
         SelectedFiles.Clear();
@@ -998,8 +1346,17 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
             SelectedFiles.Add(entry);
     }
 
+    /// <summary>
+    /// Clears <see cref="SelectedFiles"/>.
+    /// </summary>
     private void SelectNone() => SelectedFiles.Clear();
 
+    /// <summary>
+    /// Inverts the current selection in <see cref="SelectedFiles"/> compared to <see cref="FileEntries"/>.
+    /// <para>
+    /// Picks between <see cref="Array"/> and <see cref="HashSet{T}"/> based on the number of items in <see cref="SelectedFiles"/>.
+    /// </para>
+    /// </summary>
     private void InvertSelection()
     {
         if (SelectedFiles.Count <= ArraySearchThreshold)
@@ -1030,46 +1387,73 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Relays the operations to <see cref="_versionControl"/>.
+    /// </summary>
     public void StageFile(FileSystemEntry entry)
     {
-        _versionControl.StageChange(entry.PathToEntry, out string? errorMessage);
-        ErrorMessage = errorMessage;
+        if (IsVersionControlled)
+        {
+            _versionControl.StageChange(entry.PathToEntry, out string? errorMessage);
+            ErrorMessage = errorMessage;
+        }
     }
 
+    /// <summary>
+    /// Relays the operations to <see cref="_versionControl"/>.
+    /// </summary>
     public void UnstageFile(FileSystemEntry entry)
     {
-        _versionControl.UnstageChange(entry.PathToEntry, out string? errorMessage);
-        ErrorMessage = errorMessage;
+        if (IsVersionControlled)
+        {
+            _versionControl.UnstageChange(entry.PathToEntry, out string? errorMessage);
+            ErrorMessage = errorMessage;
+        }
     }
 
+    /// <summary>
+    /// Relays the operations to <see cref="_versionControl"/>.
+    /// </summary>
     private void Pull()
     {
-        if (!IsVersionControlled)
-            return;
+        if (IsVersionControlled)
+        {
+            if (_versionControl.DownloadChanges(out string? errorMessage))
+                Reload();
 
-        if (_versionControl.DownloadChanges(out string? errorMessage))
-            Reload();
-
-        ErrorMessage = errorMessage;
+            ErrorMessage = errorMessage;
+        }
     }
 
+    /// <summary>
+    /// Relays the operations to <see cref="_versionControl"/>.
+    /// </summary>
     public void Commit(string commitMessage)
     {
-        if (!IsVersionControlled)
-            return;
+        if (IsVersionControlled)
+        {
+            if (_versionControl.CommitChanges(commitMessage, out string? errorMessage))
+                Reload();
 
-        if (_versionControl.CommitChanges(commitMessage, out string? errorMessage))
-            Reload();
-
-        ErrorMessage = errorMessage;
+            ErrorMessage = errorMessage;
+        }
     }
 
+    /// <summary>
+    /// Relays the operations to <see cref="_versionControl"/>.
+    /// </summary>
     private void Push()
     {
-        _versionControl.UploadChanges(out string? errorMessage);
-        ErrorMessage = errorMessage;
+        if (IsVersionControlled)
+        {
+            _versionControl.UploadChanges(out string? errorMessage);
+            ErrorMessage = errorMessage;
+        }
     }
 
+    /// <summary>
+    /// Disposes <see cref="MainWindowViewModel"/> resources.
+    /// </summary>
     public void DisposeResources()
     {
         _versionControl.Dispose();

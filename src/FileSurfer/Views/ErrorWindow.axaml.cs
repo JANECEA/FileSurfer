@@ -1,15 +1,35 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using System;
 
 namespace FileSurfer.Views;
 
+/// <summary>
+/// Represents an error dialog in the context of <see cref="FileSurfer"/>
+/// </summary>
 public partial class ErrorWindow : Window
 {
-    public ErrorWindow(string errorMessage)
+    /// <summary>
+    /// Holds text shown in <see cref="ErrorBlock"/>.
+    /// </summary>
+    public string ErrorMessage { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Creates a new <see cref="ErrorWindow"/> error dialog.
+    /// </summary>
+    public ErrorWindow()
     {
         InitializeComponent();
-        ErrorBlock.Text = errorMessage;
+    }
+
+    /// <summary>
+    /// Assigns <see cref="ErrorMessage"/> to <see cref="ErrorBlock"/> before opening.
+    /// </summary>
+    protected override void OnOpened(EventArgs e)
+    {
+        base.OnOpened(e);
+        ErrorBlock.Text = ErrorMessage;
     }
 
     private void CloseWindow(object sender, RoutedEventArgs args) => Close();
