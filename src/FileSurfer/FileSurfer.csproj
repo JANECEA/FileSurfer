@@ -9,7 +9,10 @@
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <ApplicationIcon>Assets\FileSurfer-logo.ico</ApplicationIcon>
+        <GenerateDocumentationFile>False</GenerateDocumentationFile>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'" />
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
