@@ -1,6 +1,6 @@
 # README - FileSurfer
 
-### This is an open-source file explorer for Windows, built with Avalonia UI (and tears).
+## This is an open-source file explorer for Windows, built with Avalonia UI (and tears).
 Supports all you'd expect from a modern file explorer, plus some extra quirks:
 - Image pasting from the system clipboard
 - Treating dotfiles as hidden
@@ -15,7 +15,6 @@ To build and run this project, ensure that the following dependencies are instal
 ### .NET and Frameworks
 - **.NET 8.0**
 - **Avalonia UI**
-- **[Visual Studio .NET Build Tools](https://visualstudio.microsoft.com/cs/visual-cpp-build-tools/)**: To build the project
 - **Windows Forms**: The project uses Windows Forms to interact with the system clipboard
 
 ### NuGet Packages

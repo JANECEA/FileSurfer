@@ -37,10 +37,7 @@ When you open FileSurfer, you will see an interface that is divided into several
    - **Refresh**: Reload the current directory's contents.
    - **Powershell**: Open the current directory in powershell.
    - **Path Bar**: displays the path to the current directory. Is editable.
-   - **Search Bar** (Top-Right):
-      - The search bar allows you to quickly find files and directories by name within the current directory or the entire system. 
-      - After inputting your query, press enter to start searching.
-      - To stop searching click the `X` button which appears in place of the magnifying glass.
+   - **Search Bar** (Top-Right): Allows you to quickly find files and directories within the current directory or the entire system. 
 
 2. **Second toolbar**:
    - **New file** and **New directory**: create a new file or directory in the current directory.
@@ -111,6 +108,11 @@ When you open FileSurfer, you will see an interface that is divided into several
 2. Input the naming pattern.
 3. Press `Enter` to confirm or `Esc` to cancel.
    - Result will be for example: "new_image (1).png, new_image(2).png, new_image (3).png" ... etc.
+
+#### Searching
+1. Input your query into the serach bar.
+2. Press `Enter` to start searching.
+3. Click the `Middle mouse button` on any entry to open its location or click the `X` button to stop searching. 
 
 
 
@@ -195,3 +197,4 @@ Access settings from the ellipsis menu in the toolbar to customize the theme, de
 | **Select all**                           | `Ctrl+A`                                      |
 | **Select none**                          | `Ctrl+Shift+L`                                |
 | **Invert selection**                     | `*`                                           |
+| **Open path**                            | `Middle mouse button`                         |
