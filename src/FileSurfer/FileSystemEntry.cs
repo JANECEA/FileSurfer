@@ -8,9 +8,9 @@ namespace FileSurfer;
 
 /// <summary>
 /// Represents a displayable file system entry (file, directory, or drive) in the FileSurfer application.
-/// Manages properties and behaviors associated with files and directories, such as
-/// their name, size, type, last modification time, and icon. Also accounts for special conditions
-/// like hidden files, version control status, and archive detection within the context of FileSurfer.
+/// Manages properties associated with files and directories, such as
+/// their name, size, type, last modification time, and icon. Also includes data about special conditions
+/// like hidden files, or version control status.
 /// </summary>
 public class FileSystemEntry
 {
@@ -101,12 +101,8 @@ public class FileSystemEntry
     /// <summary>
     /// Initializes a new instance of the <see cref="FileSystemEntry"/> class for a file or directory.
     /// <para>
-    /// Sets up various properties like the name, icon, size, type, and last modified date based on
+    /// Sets up properties like the name, icon, size, type, and last modified date based on
     /// the provided path and version control status.
-    /// </para>
-    /// <para>
-    /// Also handles specific conditions such as hidden files and archive detection within the
-    /// context of FileSurfer.
     /// </para>
     /// </summary>
     /// <param name="fileIOHandler">Handler for file operations like retrieving file size and modification time.</param>
@@ -159,7 +155,7 @@ public class FileSystemEntry
     /// <see cref="DriveInfo"/> object.
     /// </para>
     /// <para>
-    /// This constructor is specifically used for representing drives within the FileSurfer application.
+    /// This constructor is specifically used for representing drives within the <see cref="FileSurfer"/> app.
     /// </para>
     /// </summary>
     /// <param name="drive">The drive information associated with this entry.</param>

@@ -48,5 +48,5 @@ Ensure these COM components are registered on the system where the application i
 
 [User Guide](docs/UserGuide.md)
 ---
-[Programming Documentation](\docs\ProgrammingDocumentation)
+[Programming Documentation](/docs/ProgrammingDocumentation/html.zip)
 ---

@@ -13,7 +13,7 @@ namespace FileSurfer;
 public enum DisplayModeEnum
 {
     /// <summary>
-    /// Displays <see cref="FileSystemEntry"/>s in a list.
+    /// Displays <see cref="FileSystemEntry"/>s as a list.
     /// </summary>
     ListView,
 
@@ -53,8 +53,7 @@ public enum SortBy
 /// <para>
 /// Provides application-wide settings management for the FileSurfer application.
 /// </para>
-/// Handles the loading, saving, and updating of user preferences and settings,
-/// such as UI display modes and file handling options.
+/// Handles the loading, saving, and updating of user preferences and settings.
 /// </summary>
 static class FileSurferSettings
 {

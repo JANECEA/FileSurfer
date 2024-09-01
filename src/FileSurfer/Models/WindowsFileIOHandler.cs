@@ -8,7 +8,7 @@ using Microsoft.VisualBasic.FileIO;
 namespace FileSurfer.Models;
 
 /// <summary>
-/// Handles file IO operations in the Windows enviroment withing the context of <see cref="FileSurfer"/>.
+/// Handles file IO operations in the Windows enviroment within the context of the <see cref="FileSurfer"/> app.
 /// </summary>
 class WindowsFileIOHandler : IFileIOHandler
 {

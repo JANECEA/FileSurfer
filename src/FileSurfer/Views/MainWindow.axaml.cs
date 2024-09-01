@@ -12,6 +12,9 @@ namespace FileSurfer.Views;
 
 /// <summary>
 /// Represents the main <see cref="FileSurfer"/> window.
+/// <para>
+/// Handles various tasks such as resolving key presses and element focus withing the <see cref="FileSurfer"/> app.
+/// </para>
 /// </summary>
 public partial class MainWindow : Window
 {

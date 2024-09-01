@@ -21,6 +21,7 @@ namespace FileSurfer.ViewModels;
 /// It serves as the intermediary between the View and the Model
 /// in the MVVM (Model-View-ViewModel) design pattern.
 /// </para>
+/// Handles data directly bound to the View.
 /// </summary>
 #pragma warning disable CA1822 // Mark members as static
 public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged

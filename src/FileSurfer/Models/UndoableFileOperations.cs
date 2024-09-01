@@ -4,7 +4,7 @@ using System.IO;
 namespace FileSurfer.Models.UndoableFileOperations;
 
 /// <summary>
-/// Represents moving the selected files to the system trash.
+/// Represents the action of moving selected files to the system trash.
 /// </summary>
 public class MoveFilesToTrash : IUndoableFileOperation
 {
@@ -61,7 +61,7 @@ public class MoveFilesToTrash : IUndoableFileOperation
 }
 
 /// <summary>
-/// Represents the moving of files and directories to a specifc directory.
+/// Represents the action of moving files and directories to a specific directory.
 /// </summary>
 public class MoveFilesTo : IUndoableFileOperation
 {
@@ -128,7 +128,7 @@ public class MoveFilesTo : IUndoableFileOperation
 }
 
 /// <summary>
-/// Represents the copying of files and directories to a specifc directory.
+/// Represents the action of copying files and directories to a specific directory.
 /// </summary>
 public class CopyFilesTo : IUndoableFileOperation
 {
@@ -188,7 +188,7 @@ public class CopyFilesTo : IUndoableFileOperation
 }
 
 /// <summary>
-/// Represents the duplication of files or directories.
+/// Represents the action of duplicating files or directories in a specific directory.
 /// </summary>
 public class DuplicateFiles : IUndoableFileOperation
 {
@@ -254,7 +254,7 @@ public class DuplicateFiles : IUndoableFileOperation
 }
 
 /// <summary>
-/// Represents the renaming of multiple files or directories.
+/// Represents the action of renaming multiple files or directories.
 /// </summary>
 public class RenameMultiple : IUndoableFileOperation
 {
@@ -324,7 +324,7 @@ public class RenameMultiple : IUndoableFileOperation
 }
 
 /// <summary>
-/// Represents the renaming of one file or directory.
+/// Represents the action of renaming one file or directory.
 /// </summary>
 public class RenameOne : IUndoableFileOperation
 {
@@ -357,7 +357,7 @@ public class RenameOne : IUndoableFileOperation
 }
 
 /// <summary>
-/// Represents the creation of a new file.
+/// Represents the action of creating a new file.
 /// </summary>
 public class NewFileAt : IUndoableFileOperation
 {
@@ -382,7 +382,7 @@ public class NewFileAt : IUndoableFileOperation
 }
 
 /// <summary>
-/// Represents the creation of a new directory.
+/// Represents the action of creating a new directory.
 /// </summary>
 public class NewDirAt : IUndoableFileOperation
 {

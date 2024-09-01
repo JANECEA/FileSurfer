@@ -3,7 +3,7 @@ using System;
 namespace FileSurfer.Models;
 
 /// <summary>
-/// Defines methods for interacting with a version control system.
+/// Defines methods for interacting with a version control system withing the <see cref="FileSurfer"/> app.
 /// </summary>
 public interface IVersionControl : IDisposable
 {

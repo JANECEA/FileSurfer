@@ -10,7 +10,7 @@ using SharpCompress.Writers;
 namespace FileSurfer.Models;
 
 /// <summary>
-/// Handles interactions with archives using <see cref="SharpCompress"/>.
+/// Handles interactions with archives using the <see cref="SharpCompress"/> package.
 /// </summary>
 static class ArchiveManager
 {

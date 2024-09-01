@@ -6,10 +6,10 @@ namespace FileSurfer.Models;
 /// <summary>
 /// Defines methods for handling file and directory operations.
 /// <para>
-/// Includes functionalities for file and directory management such as creating, moving, copying, deleting,
+/// Includes methods for file and directory management such as creating, moving, copying, deleting,
 /// and retrieving information about files and directories.
 /// </para>
-/// It also provides methods for interacting with special folders,
+/// Provides methods for interacting with special folders,
 /// system drives, and command-line operations.
 /// </summary>
 public interface IFileIOHandler

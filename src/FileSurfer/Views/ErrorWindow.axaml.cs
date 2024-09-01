@@ -6,7 +6,7 @@ using System;
 namespace FileSurfer.Views;
 
 /// <summary>
-/// Represents an error dialog in the context of <see cref="FileSurfer"/>
+/// Represents an error dialog in the context of the <see cref="FileSurfer"/> app.
 /// </summary>
 public partial class ErrorWindow : Window
 {

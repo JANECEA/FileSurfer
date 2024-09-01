@@ -20,7 +20,7 @@ class ClipboardManager
     private string _copyFromDir = string.Empty;
 
     /// <summary>
-    /// Indicates if <see cref="_programClipboard"/>'s contents are meant to be cut or copied.
+    /// Indicates if <see cref="_programClipboard"/>'s contents are meant to be cut or copied from their original location.
     /// </summary>
     public bool IsCutOperation { get; private set; }
 
@@ -126,7 +126,7 @@ class ClipboardManager
     /// <summary>
     /// Gets the contents of <see cref="_programClipboard"/>.
     /// </summary>
-    /// <returns>An array of <see cref="FileSystemEntry"/></returns>
+    /// <returns>An array of <see cref="FileSystemEntry"/>s.</returns>
     public FileSystemEntry[] GetClipboard() => _programClipboard.ToArray();
 
     /// <summary>
@@ -159,7 +159,10 @@ class ClipboardManager
     }
 
     /// <summary>
-    /// 
+    /// Stores the selection of <see cref="FileSystemEntry"/> in <see cref="_programClipboard"/> and the system clipboard.
+    /// <para>
+    /// Sets <see cref="IsCutOperation"/> to <see langword="false"/>.
+    /// </para>
     /// </summary>
     /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
     public bool Copy(
@@ -193,7 +196,7 @@ class ClipboardManager
         !IsCutOperation && _copyFromDir == currentDir && _programClipboard.Count > 0;
 
     /// <summary>
-    /// 
+    /// Pastes the contents of the system clipboard into <paramref name="currentDir"/>.
     /// </summary>
     /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
     public bool Paste(string currentDir, out string? errorMessage)

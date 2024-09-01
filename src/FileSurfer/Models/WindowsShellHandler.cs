@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace FileSurfer.Models;
 
 /// <summary>
-/// Provides methods to interact with file properties and dialogs using Windows API calls.
+/// Provides methods to interact with Windows file properties and dialogs using Windows API calls.
 /// </summary>
 static class WindowsFileProperties
 {

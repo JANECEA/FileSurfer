@@ -7,7 +7,7 @@ using LibGit2Sharp;
 namespace FileSurfer.Models;
 
 /// <summary>
-/// Consolidates complex Git file handling.
+/// Consolidates complex Git file handling for the <see cref="FileSurfer"/> app's UI.
 /// </summary>
 public enum VCStatus
 {
@@ -28,7 +28,7 @@ public enum VCStatus
 }
 
 /// <summary>
-/// Handles git integration withing <see cref="FileSurfer"/>.
+/// Handles git integration within the <see cref="FileSurfer"/> app.
 /// </summary>
 public class GitVersionControlHandler : IVersionControl, IDisposable
 {
