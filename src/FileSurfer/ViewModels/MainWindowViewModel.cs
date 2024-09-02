@@ -451,7 +451,15 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         }
         CheckDirectoryEmpty();
         SetSearchWaterMark();
+
+        if (FileSurferSettings.AutomaticRefresh)
+            UpdateLastModified();
     }
+
+    /// <summary>
+    /// Updates <see cref="_lastModified"/> to suppress unnecessary automatic reloads.
+    /// </summary>
+    private void UpdateLastModified() => _lastModified = DateTime.Now;
 
     /// <summary>
     /// Opens <c>settings.json</c> at <see cref="FileSurferSettings.SettingsFilePath"/> in the associated application.
