@@ -23,7 +23,7 @@ Welcome to the **FileSurfer** User Guide. This guide will help you use the featu
 
 
 ## Installation
-Refer to [README.md](../README.md) for instructions how to build the project from source.
+Refer to [README.md](../README.md) for instructions on how to build the project from source.
 
 
 
@@ -72,7 +72,7 @@ When you open FileSurfer, you will see an interface that is divided into several
 ## Basic Features
 ### Navigating Folders
 - Double clicking a directory or a shortcut to a directory will open it in FileSurfer.
-- Double clicking a file will open it in the application prefered by the system or will prompt you to choose one if the file's extension is unknown.
+- Double clicking a file will open it in the application preferred by the system or will prompt you to choose one if the file's extension is unknown.
    - You can also open files and choose the target application using the file's context menu.
 - Use the **Back** and **Forward** buttons in the toolbar to navigate through your folder history.
 - Double clicking on empty space in the **Main Window** will act as the **Up** button.
@@ -110,7 +110,7 @@ When you open FileSurfer, you will see an interface that is divided into several
    - Result will be for example: "new_image (1).png, new_image(2).png, new_image (3).png" ... etc.
 
 #### Searching
-1. Input your query into the serach bar.
+1. Input your query into the search bar.
 2. Press `Enter` to start searching.
 3. Click the `Middle mouse button` on any entry to open its location or click the `X` button to stop searching. 
 
@@ -118,7 +118,7 @@ When you open FileSurfer, you will see an interface that is divided into several
 
 ## Advanced features
 ### Git Integration
-If `"gitIntegration"` is set to `true` and the current directory is a git repostiory (or a subdirectory of a git repository), new buttons will appear in the second toolbar. 
+If `"gitIntegration"` is set to `true` and the current directory is a git repository (or a subdirectory of a git repository), new buttons will appear in the second toolbar. 
 
 ![FileSurfer Interface](./images/gitIntegration.png)
 1. **Branch combobox**: 
@@ -141,7 +141,7 @@ If `"gitIntegration"` is set to `true` and the current directory is a git repost
    - Displays if the file has been staged for the next commit. 
    - No checkbox means the file is either ignored or no changes have been made to it. (From the latest commit)
    - Ticking the checkbox is equivalent to `git add <file name>`.
-   - Unticking is equivalent to `git restore --staged <file name>`.
+   - Un-ticking is equivalent to `git restore --staged <file name>`.
 
 
 

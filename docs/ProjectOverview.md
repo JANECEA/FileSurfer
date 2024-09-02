@@ -15,7 +15,7 @@ FileSurfer aims to follow the MVVM design pattern familiar to Avalonia UI.
   - **ArchiveManager.cs**
     - Manages interactions with archive files using SharpCompress.
   - **ClipboardManager.cs**
-    - Handles interactions with the Windows clipboard for file operations.
+    - Handles interactions with the Windows and program clipboard.
   - **FileNameGenerator.cs**
     - Provides functionality for file and directory name validation and generation.
   - **GitVersionControlHandler.cs**
