@@ -117,6 +117,20 @@ class ClipboardManager
         image.Dispose();
     }
 
+    [STAThread]
+    private bool CompareClipboards()
+    {
+        if (Clipboard.GetFileDropList() is not StringCollection filePaths)
+            return false;
+
+        foreach (FileSystemEntry entry in _programClipboard)
+        {
+            if (!filePaths.Contains(entry.PathToEntry))
+                return false;
+        }
+        return true;
+    }
+
     /// <summary>
     /// Copies the <paramref name="filePath"/> to the system's clipboard.
     /// </summary>
@@ -207,6 +221,8 @@ class ClipboardManager
             return false;
         }
         errorMessage = "Problems occured moving these files:";
+
+        IsCutOperation = IsCutOperation && CompareClipboards();
         bool errorOccured = false;
         if (IsCutOperation)
         {
@@ -222,6 +238,7 @@ class ClipboardManager
             }
             errorMessage?.TrimEnd(',');
             _programClipboard.Clear();
+            Clipboard.Clear();
         }
         if (!errorOccured)
             errorMessage = null;

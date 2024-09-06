@@ -903,13 +903,15 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     {
         await Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            foreach (string file in await GetPathFilesAsync(directory, searchQuery))
+            foreach (string filePath in await GetPathFilesAsync(directory, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
-                    FileEntries.Add(new FileSystemEntry(_fileIOHandler, file, false));
+                    FileEntries.Add(
+                        new FileSystemEntry(_fileIOHandler, filePath, false, GetVCState(filePath))
+                    );
 
-            foreach (string dir in await GetPathDirsAsync(directory, searchQuery))
+            foreach (string dirPath in await GetPathDirsAsync(directory, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
-                    FileEntries.Add(new FileSystemEntry(_fileIOHandler, dir, true));
+                    FileEntries.Add(new FileSystemEntry(_fileIOHandler, dirPath, true));
         });
 
         foreach (string dir in await GetPathDirsAsync(directory))
@@ -928,7 +930,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
                 )
         );
         if (!FileSurferSettings.ShowHiddenFiles && FileSurferSettings.TreatDotFilesAsHidden)
-            entries = entries.Where(path => Path.GetFileName(path).StartsWith('.'));
+            entries = entries.Where(path => !Path.GetFileName(path).StartsWith('.'));
 
         return entries.Where(name =>
             Path.GetFileName(name).Contains(query, StringComparison.CurrentCultureIgnoreCase)
@@ -946,7 +948,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
                 )
         );
         if (!FileSurferSettings.ShowHiddenFiles && FileSurferSettings.TreatDotFilesAsHidden)
-            entries = entries.Where(path => Path.GetFileName(path).StartsWith('.'));
+            entries = entries.Where(path => !Path.GetFileName(path).StartsWith('.'));
 
         return query is null
             ? entries
