@@ -135,7 +135,7 @@ class ClipboardManager
     /// Copies the <paramref name="filePath"/> to the system's clipboard.
     /// </summary>
     [STAThread]
-    public void CopyPathToFile(string filePath) => Clipboard.SetText(filePath);
+    public void CopyPathToFile(string filePath) => Clipboard.SetText('\"' + filePath + '\"');
 
     /// <summary>
     /// Gets the contents of <see cref="_programClipboard"/>.
