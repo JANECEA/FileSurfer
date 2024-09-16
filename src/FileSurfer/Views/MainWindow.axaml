@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:FileSurfer"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="450"
         MinWidth="860" MinHeight="400"
+        WindowStartupLocation="CenterScreen"
         x:Class="FileSurfer.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         PointerPressed="MouseButtonPressed"
