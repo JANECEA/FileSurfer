@@ -25,7 +25,12 @@ class WindowsFileIOHandler : IFileIOHandler
                 errorMessage = $"Could not find file: \"{filePath}\"";
                 return false;
             }
-            File.Delete(filePath);
+            FileSystem.DeleteFile(
+                filePath,
+                UIOption.OnlyErrorDialogs,
+                RecycleOption.DeletePermanently,
+                UICancelOption.ThrowException
+            );
             errorMessage = null;
             return true;
         }
@@ -45,7 +50,12 @@ class WindowsFileIOHandler : IFileIOHandler
                 errorMessage = $"Could not find directory: \"{dirPath}\"";
                 return false;
             }
-            Directory.Delete(dirPath, true);
+            FileSystem.DeleteDirectory(
+                dirPath,
+                UIOption.OnlyErrorDialogs,
+                RecycleOption.DeletePermanently,
+                UICancelOption.ThrowException
+            );
             errorMessage = null;
             return true;
         }
@@ -194,12 +204,13 @@ class WindowsFileIOHandler : IFileIOHandler
 
     public bool MoveFileToTrash(string filePath, out string? errorMessage)
     {
-        bool showDialog = GetFileSizeB(filePath) > _showDialogLimit;
         try
         {
             FileSystem.DeleteFile(
                 filePath,
-                showDialog ? UIOption.AllDialogs : UIOption.OnlyErrorDialogs,
+                GetFileSizeB(filePath) > _showDialogLimit
+                    ? UIOption.AllDialogs
+                    : UIOption.OnlyErrorDialogs,
                 RecycleOption.SendToRecycleBin,
                 UICancelOption.ThrowException
             );
@@ -446,7 +457,12 @@ class WindowsFileIOHandler : IFileIOHandler
                 errorMessage = $"No parent directory found for \"{filePath}\"";
                 return false;
             }
-            File.Move(filePath, Path.Combine(pathToFile, newName));
+            FileSystem.MoveFile(
+                filePath,
+                Path.Combine(pathToFile, newName),
+                UIOption.AllDialogs,
+                UICancelOption.ThrowException
+            );
             errorMessage = null;
             return true;
         }
@@ -472,7 +488,12 @@ class WindowsFileIOHandler : IFileIOHandler
                 errorMessage = $"\"{dirPath}\" is a root directory";
                 return false;
             }
-            Directory.Move(dirPath, Path.Combine(pathToDir, newName));
+            FileSystem.MoveDirectory(
+                dirPath,
+                Path.Combine(pathToDir, newName),
+                UIOption.AllDialogs,
+                UICancelOption.ThrowException
+            );
             errorMessage = null;
             return true;
         }
@@ -485,14 +506,13 @@ class WindowsFileIOHandler : IFileIOHandler
 
     public bool MoveFileTo(string filePath, string destinationDir, out string? errorMessage)
     {
-        bool showDialog = GetFileSizeB(filePath) > _showDialogLimit;
         try
         {
             string newFilePath = Path.Combine(destinationDir, Path.GetFileName(filePath));
             FileSystem.MoveFile(
                 filePath,
                 newFilePath,
-                showDialog ? UIOption.AllDialogs : UIOption.OnlyErrorDialogs,
+                UIOption.AllDialogs,
                 UICancelOption.ThrowException
             );
             errorMessage = null;
@@ -528,7 +548,6 @@ class WindowsFileIOHandler : IFileIOHandler
 
     public bool CopyFileTo(string filePath, string destinationDir, out string? errorMessage)
     {
-        bool showDialog = GetFileSizeB(filePath) > _showDialogLimit;
         try
         {
             errorMessage = null;
@@ -536,7 +555,7 @@ class WindowsFileIOHandler : IFileIOHandler
             FileSystem.CopyFile(
                 filePath,
                 newFilePath,
-                showDialog ? UIOption.AllDialogs : UIOption.OnlyErrorDialogs,
+                UIOption.AllDialogs,
                 UICancelOption.ThrowException
             );
             return true;
