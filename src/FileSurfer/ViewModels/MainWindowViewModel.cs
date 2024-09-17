@@ -1431,8 +1431,8 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         {
             if (_versionControl.DownloadChanges(out string? errorMessage))
                 Reload();
-
-            ErrorMessage = errorMessage;
+            else
+                ErrorMessage = errorMessage;
         }
     }
 
@@ -1445,8 +1445,8 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         {
             if (_versionControl.CommitChanges(commitMessage, out string? errorMessage))
                 Reload();
-
-            ErrorMessage = errorMessage;
+            else
+                ErrorMessage = errorMessage;
         }
     }
 
@@ -1455,11 +1455,8 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     /// </summary>
     private void Push()
     {
-        if (IsVersionControlled)
-        {
-            _versionControl.UploadChanges(out string? errorMessage);
+        if (IsVersionControlled && !_versionControl.UploadChanges(out string? errorMessage))
             ErrorMessage = errorMessage;
-        }
     }
 
     /// <summary>
