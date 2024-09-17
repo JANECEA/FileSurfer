@@ -59,7 +59,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
                 if (_currentRepo?.Info.Path != gitDir)
                 {
                     _currentRepo?.Dispose();
-                    _currentRepo = new Repository(gitDir);
+                    _currentRepo = new Repository(repoPath);
                     SetFileStates();
                 }
                 return true;
