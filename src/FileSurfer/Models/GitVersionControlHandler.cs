@@ -79,7 +79,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
     {
         if (_currentRepo is not null)
         {
-            string command = $"cd \"{_currentRepo.Info.Path}\\..\" && git pull";
+            string command = $"cd \"{_currentRepo.Info.WorkingDirectory}\" && git pull";
             return _fileIOHandler.ExecuteCmd(command, out errorMessage);
         }
         errorMessage = MissingRepoMessage;
@@ -236,7 +236,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
             return false;
         }
         string command =
-            $"cd \"{_currentRepo.Info.Path}\\..\" && git commit -m \"{commitMessage}\"";
+            $"cd \"{_currentRepo.Info.WorkingDirectory}\" && git commit -m \"{commitMessage}\"";
         return _fileIOHandler.ExecuteCmd(command, out errorMessage);
     }
 
@@ -248,7 +248,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
             errorMessage = MissingRepoMessage;
             return false;
         }
-        string command = $"cd \"{_currentRepo.Info.Path}\\..\" && git push";
+        string command = $"cd \"{_currentRepo.Info.WorkingDirectory}\" && git push";
         return _fileIOHandler.ExecuteCmd(command, out errorMessage);
     }
 
