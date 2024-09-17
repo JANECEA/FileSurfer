@@ -94,7 +94,7 @@ public interface IFileIOHandler
     /// Executes a command in the command prompt.
     /// </summary>
     /// <returns><see langword="true"/> if the command was successfully executed, otherwise <see langword="false"/>.</returns>
-    public bool ExecuteCmd(string command);
+    public bool ExecuteCmd(string command, out string? errorMessage);
 
     /// <summary>
     /// Checks if a path is hidden.

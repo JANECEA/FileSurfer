@@ -395,7 +395,7 @@ class WindowsFileIOHandler : IFileIOHandler
         }
     }
 
-    public bool ExecuteCmd(string command)
+    public bool ExecuteCmd(string command, out string? errorMessage)
     {
         using Process process =
             new()
@@ -412,6 +412,9 @@ class WindowsFileIOHandler : IFileIOHandler
             };
         process.Start();
         process.WaitForExit();
+        errorMessage = process.StandardError.ReadToEnd();
+        if (errorMessage == string.Empty)
+            errorMessage = null;
 
         return process.ExitCode == 0;
     }

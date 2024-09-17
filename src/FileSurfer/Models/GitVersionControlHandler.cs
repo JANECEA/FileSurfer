@@ -80,8 +80,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         if (_currentRepo is not null)
         {
             string command = $"cd \"{_currentRepo.Info.Path}\\..\" && git pull";
-            errorMessage = null;
-            return _fileIOHandler.ExecuteCmd(command);
+            return _fileIOHandler.ExecuteCmd(command, out errorMessage);
         }
         errorMessage = MissingRepoMessage;
         return false;
@@ -238,8 +237,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         }
         string command =
             $"cd \"{_currentRepo.Info.Path}\\..\" && git commit -m \"{commitMessage}\"";
-        errorMessage = null;
-        return _fileIOHandler.ExecuteCmd(command);
+        return _fileIOHandler.ExecuteCmd(command, out errorMessage);
     }
 
     /// <inheritdoc/>
@@ -251,8 +249,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
             return false;
         }
         string command = $"cd \"{_currentRepo.Info.Path}\\..\" && git push";
-        errorMessage = null;
-        return _fileIOHandler.ExecuteCmd(command);
+        return _fileIOHandler.ExecuteCmd(command, out errorMessage);
     }
 
     /// <summary>
