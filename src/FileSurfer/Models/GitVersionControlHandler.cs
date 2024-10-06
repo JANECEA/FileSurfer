@@ -35,7 +35,6 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
     private const string MissingRepoMessage = "No git repository found";
     private readonly IFileIOHandler _fileIOHandler;
     private Repository? _currentRepo = null;
-    private string? _currentRepoRootDir = null;
     private readonly Dictionary<string, VCStatus> _statusDict = new();
 
     /// <summary>
@@ -61,7 +60,6 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
                 {
                     _currentRepo?.Dispose();
                     _currentRepo = new Repository(repoRootDir);
-                    _currentRepoRootDir = repoRootDir;
                     SetFileStates();
                 }
                 return true;
@@ -73,19 +71,18 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         }
         _currentRepo?.Dispose();
         _currentRepo = null;
-        _currentRepoRootDir = null;
         return false;
     }
 
     /// <inheritdoc/>
     public bool DownloadChanges(out string? errorMessage)
     {
-        if (_currentRepo is null || _currentRepoRootDir is null)
+        if (_currentRepo is null)
         {
             errorMessage = MissingRepoMessage;
             return false;
         }
-        string command = $"cd \"{_currentRepoRootDir}\" && git pull";
+        string command = $"cd \"{_currentRepo.Info.WorkingDirectory}\" && git pull";
         return _fileIOHandler.ExecuteCmd(command, out errorMessage);
     }
 
@@ -102,7 +99,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
     /// <inheritdoc/>
     public bool SwitchBranches(string branchName, out string? errorMessage)
     {
-        if (_currentRepo is null || _currentRepoRootDir is null)
+        if (_currentRepo is null)
         {
             errorMessage = MissingRepoMessage;
             return false;
@@ -122,7 +119,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
 
     private void SetFileStates()
     {
-        if (_currentRepo is null || _currentRepoRootDir is null)
+        if (_currentRepo is null)
             return;
 
         RepositoryStatus repoStatus = _currentRepo.RetrieveStatus(
@@ -136,7 +133,7 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         _statusDict.Clear();
         foreach (StatusEntry? entry in repoStatus)
         {
-            string absolutePath = Path.Combine(_currentRepoRootDir, entry.FilePath)
+            string absolutePath = Path.Combine(_currentRepo.Info.WorkingDirectory, entry.FilePath)
                 .Replace('\\', '/');
             _statusDict[absolutePath] = ConvertToVCStatus(entry.State);
         }
@@ -184,12 +181,15 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
     {
         try
         {
-            if (_currentRepo is null || _currentRepoRootDir is null)
+            if (_currentRepo is null)
             {
                 errorMessage = MissingRepoMessage;
                 return false;
             }
-            string relativePath = Path.GetRelativePath(_currentRepoRootDir, filePath);
+            string relativePath = Path.GetRelativePath(
+                _currentRepo.Info.WorkingDirectory,
+                filePath
+            );
             _currentRepo.Index.Add(relativePath);
             _currentRepo.Index.Write();
             errorMessage = null;
@@ -207,13 +207,13 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
     {
         try
         {
-            if (_currentRepo is null || _currentRepoRootDir is null)
+            if (_currentRepo is null)
             {
                 errorMessage = MissingRepoMessage;
                 return false;
             }
             string relativePath = Path.GetRelativePath(
-                _currentRepoRootDir,
+                _currentRepo.Info.WorkingDirectory,
                 filePath
             );
             Commands.Unstage(_currentRepo, relativePath);
@@ -230,25 +230,25 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
     /// <inheritdoc/>
     public bool CommitChanges(string commitMessage, out string? errorMessage)
     {
-        if (_currentRepo is null || _currentRepoRootDir is null)
+        if (_currentRepo is null)
         {
             errorMessage = MissingRepoMessage;
             return false;
         }
         string command =
-            $"cd \"{_currentRepoRootDir}\" && git commit -m \"{commitMessage}\"";
+            $"cd \"{_currentRepo.Info.WorkingDirectory}\" && git commit -m \"{commitMessage}\"";
         return _fileIOHandler.ExecuteCmd(command, out errorMessage);
     }
 
     /// <inheritdoc/>
     public bool UploadChanges(out string? errorMessage)
     {
-        if (_currentRepo is null || _currentRepoRootDir is null)
+        if (_currentRepo is null)
         {
             errorMessage = MissingRepoMessage;
             return false;
         }
-        string command = $"cd \"{_currentRepoRootDir}\" && git push";
+        string command = $"cd \"{_currentRepo.Info.WorkingDirectory}\" && git push";
         return _fileIOHandler.ExecuteCmd(command, out errorMessage);
     }
 
