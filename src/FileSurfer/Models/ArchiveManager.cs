@@ -35,7 +35,7 @@ static class ArchiveManager
     /// </summary>
     /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
     public static bool ZipFiles(
-        IEnumerable<string> filePaths,
+        IEnumerable<FileSystemEntry> entries,
         string destinationPath,
         string archiveName,
         out string? errorMessage
@@ -46,8 +46,11 @@ static class ArchiveManager
             using ZipArchive archive = ZipArchive.Create();
             using FileStream zipStream = File.OpenWrite(Path.Combine(destinationPath, archiveName));
 
-            foreach (string filePath in filePaths)
-                archive.AddEntry(Path.GetFileName(filePath), File.OpenRead(filePath));
+            foreach (FileSystemEntry entry in entries)
+                if (entry.IsDirectory)
+                    archive.AddAllFromDirectory(entry.PathToEntry);
+                else
+                    archive.AddEntry(entry.Name, File.OpenRead(entry.PathToEntry));
 
             archive.SaveTo(zipStream, new WriterOptions(CompressionType.Deflate));
             errorMessage = null;

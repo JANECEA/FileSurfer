@@ -9,6 +9,7 @@ using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
+using DynamicData;
 using FileSurfer.Models;
 using FileSurfer.Models.UndoableFileOperations;
 using ReactiveUI;
@@ -1022,20 +1023,29 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     /// <summary>
     /// Creates an archive from the <see cref="FileSystemEntry"/>s in <see cref="SelectedFiles"/>.
     /// </summary>
-    public void AddToArchive()
+    public async void AddToArchive()
     {
         if (!Directory.Exists(CurrentDir))
             return;
 
         string fileName = Path.GetFileNameWithoutExtension(SelectedFiles[^1].Name) + ".zip";
-        ArchiveManager.ZipFiles(
-            SelectedFiles.Select(entry => entry.PathToEntry).ToArray(),
-            CurrentDir,
-            FileNameGenerator.GetAvailableName(CurrentDir, fileName),
-            out string? errorMessage
-        );
-        Reload();
-        ErrorMessage = errorMessage;
+        if (await ZipFilesWrapperAsync(fileName))
+            Reload();
+    }
+
+    public Task<bool> ZipFilesWrapperAsync(string fileName)
+    {
+        return Task.Run(() =>
+        {
+            bool result = ArchiveManager.ZipFiles(
+                SelectedFiles.ToArray(),
+                CurrentDir,
+                FileNameGenerator.GetAvailableName(CurrentDir, fileName),
+                out string? errorMessage
+            );
+            ErrorMessage = errorMessage;
+            return result;
+        });
     }
 
     /// <summary>
