@@ -87,7 +87,7 @@ class WindowsFileIOHandler : IFileIOHandler
     {
         try
         {
-            return new string[]
+            return new[]
             {
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Downloads",
@@ -397,19 +397,16 @@ class WindowsFileIOHandler : IFileIOHandler
 
     public bool ExecuteCmd(string command, out string? errorMessage)
     {
-        using Process process =
-            new()
-            {
-                StartInfo = new ProcessStartInfo()
-                {
-                    FileName = "cmd.exe",
-                    Arguments = "/c " + command,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                },
-            };
+        using Process process = new();
+        process.StartInfo = new()
+        {
+            FileName = "cmd.exe",
+            Arguments = "/c " + command,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
         process.Start();
         process.WaitForExit();
         errorMessage = process.StandardError.ReadToEnd();

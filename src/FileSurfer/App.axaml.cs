@@ -34,10 +34,9 @@ public partial class App : Application
         FileSurferSettings.LoadSettings();
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            if (FileSurferSettings.UseDarkMode)
-                RequestedThemeVariant = ThemeVariant.Dark;
-            else
-                RequestedThemeVariant = ThemeVariant.Light;
+            RequestedThemeVariant = FileSurferSettings.UseDarkMode
+                ? ThemeVariant.Dark
+                : ThemeVariant.Light;
 
             desktop.MainWindow = new MainWindow { DataContext = new MainWindowViewModel() };
         }

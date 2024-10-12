@@ -84,11 +84,7 @@ class ClipboardManager
                 if (!result)
                     errorMessage += $" \"{path}\",";
             }
-            if (errorOccured)
-                errorMessage = errorMessage?.TrimEnd(',');
-            else
-                errorMessage = null;
-
+            errorMessage = errorOccured ? errorMessage?.TrimEnd(',') : null;
             return !errorOccured;
         }
         catch (Exception ex)
@@ -168,8 +164,7 @@ class ClipboardManager
             _programClipboard = selectedFiles;
             return true;
         }
-        else
-            return false;
+        return false;
     }
 
     /// <summary>
@@ -197,8 +192,7 @@ class ClipboardManager
             _programClipboard = selectedFiles;
             return true;
         }
-        else
-            return false;
+        return false;
     }
 
     /// <summary>
@@ -236,7 +230,7 @@ class ClipboardManager
                 if (!result)
                     errorMessage += $" \"{entry.PathToEntry}\",";
             }
-            errorMessage?.TrimEnd(',');
+            errorMessage = errorMessage.TrimEnd(',');
             _programClipboard.Clear();
             Clipboard.Clear();
         }

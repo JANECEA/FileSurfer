@@ -213,7 +213,7 @@ static class FileSurferSettings
     /// <summary>
     /// List of directories and files added by the user for quick access. Defaults to an empty list.
     /// </summary>
-    public static List<string> QuickAccess { get; set; } = new List<string>();
+    public static List<string> QuickAccess { get; set; } = new();
 
     /// <summary>
     /// <para>

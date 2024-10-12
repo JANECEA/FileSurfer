@@ -45,13 +45,9 @@ public partial class MainWindow : Window
         _listViewTemplate = listViewTemplate;
         _iconViewTemplate = iconViewTemplate;
         _selectAllKB = KeyBindings.First(keyBinding =>
-            keyBinding is not null
-            && keyBinding.Gesture.KeyModifiers == KeyModifiers.Control
-            && keyBinding.Gesture.Key == Key.A
+            keyBinding.Gesture is { KeyModifiers: KeyModifiers.Control, Key: Key.A }
         );
-        _invertSelection = KeyBindings.First(keyBinding =>
-            keyBinding is not null && keyBinding.Gesture.Key == Key.Multiply
-        );
+        _invertSelection = KeyBindings.First(keyBinding => keyBinding.Gesture.Key == Key.Multiply);
     }
 
     /// <summary>
@@ -97,10 +93,7 @@ public partial class MainWindow : Window
     /// </summary>
     private WrapPanel? FindWrapPanel(Control parent)
     {
-        if (parent == null)
-            return null;
-
-        foreach (var child in parent.GetVisualChildren())
+        foreach (Visual child in parent.GetVisualChildren())
         {
             if (child is WrapPanel panel)
             {
@@ -142,7 +135,7 @@ public partial class MainWindow : Window
                 if (hitElement is CheckBox)
                     return;
 
-                hitElement = Avalonia.VisualTree.VisualExtensions.GetVisualParent(hitElement);
+                hitElement = hitElement.GetVisualParent();
             }
 
             if (listBox.SelectedItem is FileSystemEntry entry)
@@ -158,7 +151,7 @@ public partial class MainWindow : Window
 
     private void PinToQuickAccess(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem item && item.DataContext is FileSystemEntry entry)
+        if (sender is MenuItem { DataContext: FileSystemEntry entry })
             _viewModel?.AddToQuickAccess(entry);
     }
 
@@ -177,7 +170,7 @@ public partial class MainWindow : Window
 
     private void CopyPath(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem item && item.DataContext is FileSystemEntry entry)
+        if (sender is MenuItem { DataContext: FileSystemEntry entry })
             _viewModel?.CopyPath(entry);
     }
 
@@ -187,7 +180,7 @@ public partial class MainWindow : Window
 
     private void CreateShortcut(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem item && item.DataContext is FileSystemEntry entry)
+        if (sender is MenuItem { DataContext: FileSystemEntry entry })
             _viewModel?.CreateShortcut(entry);
     }
 
@@ -197,13 +190,13 @@ public partial class MainWindow : Window
 
     private void ShowProperties(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem item && item.DataContext is FileSystemEntry entry)
+        if (sender is MenuItem { DataContext: FileSystemEntry entry })
             _viewModel?.ShowProperties(entry);
     }
 
     private void OpenAs(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem item && item.DataContext is FileSystemEntry entry)
+        if (sender is MenuItem { DataContext: FileSystemEntry entry })
             _viewModel?.OpenAs(entry);
     }
 
@@ -221,7 +214,7 @@ public partial class MainWindow : Window
             if (hitElement is ListBoxItem)
                 return;
 
-            hitElement = Avalonia.VisualTree.VisualExtensions.GetVisualParent(hitElement);
+            hitElement = hitElement.GetVisualParent();
         }
         _viewModel?.SelectedFiles.Clear();
         NewNameBar.IsVisible = false;
@@ -233,7 +226,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void SideBarEntryClicked(object sender, TappedEventArgs e)
     {
-        if (sender is ListBox listBox && listBox.SelectedItem is FileSystemEntry entry)
+        if (sender is ListBox { SelectedItem: FileSystemEntry entry })
         {
             _viewModel?.OpenEntry(entry);
             SpecialsListBox.SelectedItems?.Clear();
@@ -259,12 +252,12 @@ public partial class MainWindow : Window
             Visual? hitElement = (Visual?)FileDisplay.InputHitTest(e.GetPosition(FileDisplay));
             while (hitElement is not null)
             {
-                if (hitElement is ListBoxItem item && item.DataContext is FileSystemEntry entry)
+                if (hitElement is ListBoxItem { DataContext: FileSystemEntry entry })
                 {
                     _viewModel?.OpenEntryLocation(entry);
                     return;
                 }
-                hitElement = Avalonia.VisualTree.VisualExtensions.GetVisualParent(hitElement);
+                hitElement = hitElement.GetVisualParent();
             }
         }
     }
@@ -373,7 +366,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void StagedToggle(object sender, RoutedEventArgs e)
     {
-        if (sender is CheckBox checkBox && checkBox.DataContext is FileSystemEntry entry)
+        if (sender is CheckBox { DataContext: FileSystemEntry entry } checkBox)
         {
             if (checkBox.IsChecked is true)
                 _viewModel?.StageFile(entry);
@@ -423,7 +416,7 @@ public partial class MainWindow : Window
         if (e.Key == Key.Escape)
             OnEscapePressed(e);
 
-        if (e.Key == Key.F && e.KeyModifiers == KeyModifiers.Control)
+        if (e is { Key: Key.F, KeyModifiers: KeyModifiers.Control })
             OnCtrlFPressed(e);
     }
 

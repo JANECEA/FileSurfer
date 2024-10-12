@@ -23,15 +23,7 @@ public class FileSystemEntry
         new(
             Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/DriveIcon.png"))
         );
-    private static readonly string[] ByteUnits = new string[]
-    {
-        "B",
-        "KiB",
-        "MiB",
-        "GiB",
-        "TiB",
-        "PiB",
-    };
+    private static readonly string[] ByteUnits = { "B", "KiB", "MiB", "GiB", "TiB", "PiB" };
 
     /// <summary>
     /// Path to the file, directory, or drive represented by this <see cref="FileSystemEntry"/>.
@@ -209,8 +201,8 @@ public class FileSystemEntry
         {
             if (size <= SizeLimit)
                 return size.ToString() + " " + notation;
-            else
-                size = (size + 1023) / 1024;
+
+            size = (size + 1023) / 1024;
         }
         return (size * 1024).ToString() + " " + ByteUnits[^1];
     }

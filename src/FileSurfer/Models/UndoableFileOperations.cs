@@ -32,9 +32,7 @@ public class MoveFilesToTrash : IUndoableFileOperation
             if (!result)
                 errorMessage += $" \"{entry.PathToEntry}\",";
         }
-        errorMessage?.TrimEnd(',');
-        if (!errorOccured)
-            errorMessage = null;
+        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
         return !errorOccured;
     }
 
@@ -53,9 +51,7 @@ public class MoveFilesToTrash : IUndoableFileOperation
             if (!result)
                 errorMessage += $" \"{entry.PathToEntry}\",";
         }
-        errorMessage?.TrimEnd(',');
-        if (!errorOccured)
-            errorMessage = null;
+        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
         return !errorOccured;
     }
 }
@@ -98,9 +94,7 @@ public class MoveFilesTo : IUndoableFileOperation
             if (!result)
                 errorMessage += $" \"{entry.PathToEntry}\",";
         }
-        errorMessage?.TrimEnd(',');
-        if (!errorOccured)
-            errorMessage = null;
+        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
         return !errorOccured;
     }
 
@@ -120,9 +114,7 @@ public class MoveFilesTo : IUndoableFileOperation
             if (!result)
                 errorMessage += $" \"{entry.PathToEntry}\",";
         }
-        errorMessage?.TrimEnd(',');
-        if (!errorOccured)
-            errorMessage = null;
+        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
         return !errorOccured;
     }
 }
@@ -158,9 +150,7 @@ public class CopyFilesTo : IUndoableFileOperation
             if (!result)
                 errorMessage += $" \"{entry.PathToEntry}\",";
         }
-        errorMessage?.TrimEnd(',');
-        if (!errorOccured)
-            errorMessage = null;
+        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
         return !errorOccured;
     }
 
@@ -180,9 +170,7 @@ public class CopyFilesTo : IUndoableFileOperation
             if (!result)
                 errorMessage += $" \"{entry.PathToEntry}\",";
         }
-        errorMessage?.TrimEnd(',');
-        if (!errorOccured)
-            errorMessage = null;
+        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
         return !errorOccured;
     }
 }
@@ -225,9 +213,7 @@ public class DuplicateFiles : IUndoableFileOperation
             if (!result)
                 errorMessage += $" \"{_entries[i].PathToEntry}\",";
         }
-        errorMessage?.TrimEnd(',');
-        if (!errorOccured)
-            errorMessage = null;
+        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
         return !errorOccured;
     }
 
@@ -246,9 +232,7 @@ public class DuplicateFiles : IUndoableFileOperation
             if (!result)
                 errorMessage += $" \"{_entries[i].PathToEntry}\",";
         }
-        errorMessage?.TrimEnd(',');
-        if (!errorOccured)
-            errorMessage = null;
+        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
         return !errorOccured;
     }
 }
@@ -262,7 +246,6 @@ public class RenameMultiple : IUndoableFileOperation
     private readonly FileSystemEntry[] _entries;
     private readonly string[] _newNames;
     private readonly string _dirName;
-    private readonly string? _extension = null;
 
     public RenameMultiple(IFileIOHandler fileHandler, FileSystemEntry[] entries, string[] newNames)
     {
@@ -271,12 +254,6 @@ public class RenameMultiple : IUndoableFileOperation
         _newNames = newNames;
         _dirName =
             Path.GetDirectoryName(entries[0].PathToEntry) ?? throw new InvalidOperationException();
-
-        if (!entries[0].IsDirectory)
-        {
-            _extension = Path.GetExtension(entries[0].PathToEntry);
-            _extension = _extension == string.Empty ? null : _extension;
-        }
     }
 
     /// <inheritdoc/>
@@ -294,9 +271,7 @@ public class RenameMultiple : IUndoableFileOperation
             if (!result)
                 errorMessage += $" \"{_entries[i].PathToEntry}\",";
         }
-        errorMessage?.TrimEnd(',');
-        if (!errorOccured)
-            errorMessage = null;
+        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
         return !errorOccured;
     }
 
@@ -316,9 +291,7 @@ public class RenameMultiple : IUndoableFileOperation
             if (!result)
                 errorMessage += $" \"{_entries[i].PathToEntry}\",";
         }
-        errorMessage?.TrimEnd(',');
-        if (!errorOccured)
-            errorMessage = null;
+        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
         return !errorOccured;
     }
 }

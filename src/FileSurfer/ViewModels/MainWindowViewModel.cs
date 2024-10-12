@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
-using DynamicData;
 using FileSurfer.Models;
 using FileSurfer.Models.UndoableFileOperations;
 using ReactiveUI;
@@ -25,7 +23,7 @@ namespace FileSurfer.ViewModels;
 /// Handles data directly bound to the View.
 /// </summary>
 #pragma warning disable CA1822 // Mark members as static
-public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
+public class MainWindowViewModel : ReactiveObject 
 {
     private const string SearchingLabel = "Search Results";
     private const long ShowDialogLimitB = 262144000; // 250 MiB
@@ -107,7 +105,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     private async Task ShowErrorWindowAsync(string errorMessage) =>
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
-            new Views.ErrorWindow() { ErrorMessage = errorMessage }.Show();
+            new Views.ErrorWindow { ErrorMessage = errorMessage }.Show();
         });
 
     /// <summary>
@@ -354,8 +352,8 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         _fileIOHandler = new WindowsFileIOHandler(ShowDialogLimitB);
         _versionControl = new GitVersionControlHandler(_fileIOHandler);
         _clipboardManager = new ClipboardManager(_fileIOHandler, NewImageName);
-        _undoRedoHistory = new();
-        _pathHistory = new();
+        _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
+        _pathHistory = new UndoRedoHandler<string>();
         SelectedFiles.CollectionChanged += UpdateSelectionInfo;
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
@@ -395,7 +393,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
 
         if (FileSurferSettings.AutomaticRefresh)
         {
-            _refreshTimer = new()
+            _refreshTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromMilliseconds(FileSurferSettings.AutomaticRefreshInterval),
             };
@@ -505,7 +503,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         string selectionInfo = FileEntries.Count == 1 ? "1 item" : $"{FileEntries.Count} items";
 
         if (SelectedFiles.Count == 1)
-            selectionInfo += $"  |  1 item selected";
+            selectionInfo += "  |  1 item selected";
         else if (SelectedFiles.Count > 1)
             selectionInfo += $"  |  {SelectedFiles.Count} items selected";
 
@@ -714,13 +712,10 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         filePaths = filePaths.Where(path => !Path.GetFileName(path).StartsWith('.')).ToArray();
     }
 
-    private VCStatus GetVCState(string path)
-    {
-        if (!IsVersionControlled)
-            return VCStatus.NotVersionControlled;
-
-        return _versionControl.ConsolidateStatus(path);
-    }
+    private VCStatus GetVCState(string path) =>
+        IsVersionControlled
+            ? _versionControl.ConsolidateStatus(path)
+            : VCStatus.NotVersionControlled;
 
     /// <summary>
     /// Adds directories and files to <see cref="FileEntries"/>.
@@ -758,7 +753,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         switch (sortBy)
         {
             case SortBy.Name:
-                Array.Sort(entries, (x, y) => string.Compare(x.Name, y.Name));
+                Array.Sort(entries, (x, y) => string.CompareOrdinal(x.Name, y.Name));
                 break;
 
             case SortBy.Date:
@@ -766,7 +761,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
                 break;
 
             case SortBy.Type:
-                Array.Sort(entries, (x, y) => string.Compare(x.Type, y.Type));
+                Array.Sort(entries, (x, y) => string.CompareOrdinal(x.Type, y.Type));
                 break;
 
             case SortBy.Size:
@@ -971,7 +966,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     /// <summary>
     /// Cancels the search and sets <see cref="CurrentDir"/> to the parameter.
     /// </summary>
-    public void CancelSearch(string directory)
+    private void CancelSearch(string directory)
     {
         _searchCTS.Cancel();
         Searching = false;
@@ -1033,7 +1028,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
             Reload();
     }
 
-    public Task<bool> ZipFilesWrapperAsync(string fileName)
+    private Task<bool> ZipFilesWrapperAsync(string fileName)
     {
         return Task.Run(() =>
         {
@@ -1167,7 +1162,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         {
             _undoRedoHistory.AddNewNode(new RenameOne(_fileIOHandler, entry, newName));
             Reload();
-            SelectedFiles.Add(FileEntries.First(entry => entry.Name == newName));
+            SelectedFiles.Add(FileEntries.First(e => e.Name == newName));
         }
         else
             ErrorMessage = errorMessage;

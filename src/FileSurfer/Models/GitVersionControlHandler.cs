@@ -30,7 +30,7 @@ public enum VCStatus
 /// <summary>
 /// Handles git integration within the <see cref="FileSurfer"/> app.
 /// </summary>
-public class GitVersionControlHandler : IVersionControl, IDisposable
+public class GitVersionControlHandler : IVersionControl
 {
     private const string MissingRepoMessage = "No git repository found";
     private readonly IFileIOHandler _fileIOHandler;
@@ -171,9 +171,10 @@ public class GitVersionControlHandler : IVersionControl, IDisposable
         if (_currentRepo is null)
             return VCStatus.NotVersionControlled;
 
-        return _statusDict.TryGetValue(path.Replace('\\', '/'), out VCStatus status)
-            ? status
-            : VCStatus.NotVersionControlled;
+        return _statusDict.GetValueOrDefault(
+            path.Replace('\\', '/'),
+            VCStatus.NotVersionControlled
+        );
     }
 
     /// <inheritdoc/>

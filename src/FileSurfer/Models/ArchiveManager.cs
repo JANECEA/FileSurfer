@@ -88,7 +88,7 @@ static class ArchiveManager
             {
                 entry.WriteToDirectory(
                     extractTo,
-                    new ExtractionOptions() { ExtractFullPath = true, Overwrite = true }
+                    new ExtractionOptions { ExtractFullPath = true, Overwrite = true }
                 );
             }
             errorMessage = null;
