@@ -112,7 +112,7 @@ public interface IFileIOHandler
     /// Creates a new directory at the specified path.
     /// </summary>
     /// <returns><see langword="true"/> if the directory was successfully created, otherwise <see langword="false"/>.</returns>
-    public bool NewDirAt(string dirPath, string DirName, out string? errorMessage);
+    public bool NewDirAt(string dirPath, string dirName, out string? errorMessage);
 
     /// <summary>
     /// Renames a file at the specified path.

@@ -90,20 +90,20 @@ static class FileSurferSettings
         List<string> quickAccess
     );
 
-    private static readonly JsonSerializerOptions serializerOptions =
+    private static readonly JsonSerializerOptions SerializerOptions =
         new()
         {
             Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             WriteIndented = true,
         };
-    private static readonly string _settingsFileDir =
+    private static readonly string SettingsFileDir =
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\FileSurfer";
 
     /// <summary>
     /// The full path to settings.json.
     /// </summary>
-    public static readonly string SettingsFilePath = _settingsFileDir + "\\settings.json";
-    private static string _previousSettingsjson = string.Empty;
+    public static readonly string SettingsFilePath = SettingsFileDir + "\\settings.json";
+    private static string _previousSettingsJson = string.Empty;
 
     /// <summary>
     /// Indicates whether the application uses a dark theme. Defaults to <see langword="true"/>.
@@ -226,12 +226,12 @@ static class FileSurferSettings
         if (!File.Exists(SettingsFilePath))
             SaveSettings();
 
-        _previousSettingsjson = File.ReadAllText(SettingsFilePath, Encoding.UTF8);
+        _previousSettingsJson = File.ReadAllText(SettingsFilePath, Encoding.UTF8);
 
         try
         {
             SettingsRecord settings =
-                JsonSerializer.Deserialize<SettingsRecord>(_previousSettingsjson)
+                JsonSerializer.Deserialize<SettingsRecord>(_previousSettingsJson)
                 ?? throw new NullReferenceException();
 
             UseDarkMode = settings.useDarkMode;
@@ -313,12 +313,12 @@ static class FileSurferSettings
                 NotePadApp,
                 QuickAccess
             );
-        string settingsJson = JsonSerializer.Serialize(settings, serializerOptions);
+        string settingsJson = JsonSerializer.Serialize(settings, SerializerOptions);
 
-        if (!Directory.Exists(_settingsFileDir))
-            Directory.CreateDirectory(_settingsFileDir);
+        if (!Directory.Exists(SettingsFileDir))
+            Directory.CreateDirectory(SettingsFileDir);
 
-        if (_previousSettingsjson != settingsJson)
+        if (_previousSettingsJson != settingsJson)
             File.WriteAllText(SettingsFilePath, settingsJson, Encoding.UTF8);
     }
 }

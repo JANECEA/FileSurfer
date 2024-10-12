@@ -81,7 +81,7 @@ static class FileNameGenerator
     {
         string[] newNames = new string[entries.Count()];
         string extension = Path.GetExtension(namingPattern);
-        string nameWOextension = Path.GetFileNameWithoutExtension(namingPattern);
+        string nameWithoutExtension = Path.GetFileNameWithoutExtension(namingPattern);
         string directory =
             Path.GetDirectoryName(entries.First().PathToEntry)
             ?? throw new ArgumentException(entries.First().PathToEntry);
@@ -91,7 +91,7 @@ static class FileNameGenerator
         {
             for (int index = lastIndex; ; index++)
             {
-                string newFileName = $"{nameWOextension} ({index}){extension}";
+                string newFileName = $"{nameWithoutExtension} ({index}){extension}";
                 lastIndex++;
 
                 if (!Path.Exists(Path.Combine(directory, newFileName)))

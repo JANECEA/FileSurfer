@@ -15,15 +15,15 @@ namespace FileSurfer;
 public class FileSystemEntry
 {
     private static readonly int SizeLimit = FileSurferSettings.FileSizeDisplayLimit;
-    private static readonly Bitmap _folderIcon =
+    private static readonly Bitmap FolderIcon =
         new(
             Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/FolderIcon.png"))
         );
-    private static readonly Bitmap _driveIcon =
+    private static readonly Bitmap DriveIcon =
         new(
             Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/DriveIcon.png"))
         );
-    private static readonly string[] _byteUnits = new string[]
+    private static readonly string[] ByteUnits = new string[]
     {
         "B",
         "KiB",
@@ -119,7 +119,7 @@ public class FileSystemEntry
         PathToEntry = path;
         IsDirectory = isDirectory;
         if (IsDirectory)
-            Icon = _folderIcon;
+            Icon = FolderIcon;
         else
             SetIcon(fileIOHandler, path);
 
@@ -127,7 +127,7 @@ public class FileSystemEntry
         LastModTime = fileIOHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
         LastModified = GetLastModified(fileIOHandler);
         SizeB = isDirectory ? null : fileIOHandler.GetFileSizeB(path);
-        Size = SizeB is long NotNullSize ? GetSizeString(NotNullSize) : string.Empty;
+        Size = SizeB is long notNullSize ? GetSizeString(notNullSize) : string.Empty;
 
         if (isDirectory)
             Type = "Directory";
@@ -168,7 +168,7 @@ public class FileSystemEntry
             : drive.Name.TrimEnd(Path.DirectorySeparatorChar);
 
         Type = "Drive";
-        Icon = _driveIcon;
+        Icon = DriveIcon;
         LastModified = string.Empty;
         Size = GetSizeString(drive.TotalSize);
     }
@@ -205,13 +205,13 @@ public class FileSystemEntry
     public static string GetSizeString(long sizeInB)
     {
         long size = sizeInB;
-        foreach (string notation in _byteUnits)
+        foreach (string notation in ByteUnits)
         {
             if (size <= SizeLimit)
                 return size.ToString() + " " + notation;
             else
                 size = (size + 1023) / 1024;
         }
-        return (size * 1024).ToString() + " " + _byteUnits[^1];
+        return (size * 1024).ToString() + " " + ByteUnits[^1];
     }
 }
