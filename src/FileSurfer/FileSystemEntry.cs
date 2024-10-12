@@ -44,7 +44,7 @@ public class FileSystemEntry
     public bool IsDirectory { get; }
 
     /// <summary>
-    /// Hodls a <see cref="Avalonia.Media.Imaging.Bitmap"/> representing the file.
+    /// Holds a <see cref="Avalonia.Media.Imaging.Bitmap"/> representing the file.
     /// </summary>
     public Bitmap? Icon { get; set; }
 
@@ -69,12 +69,12 @@ public class FileSystemEntry
     public long? SizeB { get; }
 
     /// <summary>
-    /// Holds this entry's size as human readable <see cref="string"/>.
+    /// Holds this entry's size as human-readable <see cref="string"/>.
     /// </summary>
     public string Size { get; }
 
     /// <summary>
-    /// Holds this entry's type in the contenxt of <see cref="FileSurfer"/>.
+    /// Holds this entry's type in the context of <see cref="FileSurfer"/>.
     /// </summary>
     public string Type { get; }
 
@@ -198,10 +198,10 @@ public class FileSystemEntry
     }
 
     /// <summary>
-    /// Converts file size in bytes to a human readable format.
+    /// Converts file size in bytes to a human-readable format.
     /// </summary>
     /// <param name="sizeInB">Size of the file in bytes</param>
-    /// <returns>Human readable file size as <see cref="string"/>.</returns>
+    /// <returns>Human-readable file size as <see cref="string"/>.</returns>
     public static string GetSizeString(long sizeInB)
     {
         long size = sizeInB;

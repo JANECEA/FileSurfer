@@ -111,7 +111,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         });
 
     /// <summary>
-    /// Holds the path to the current directory displayed in FileSufer.
+    /// Holds the path to the current directory displayed in FileSurfer.
     /// <para>
     /// Setting this property triggers a reload.
     /// Also adds the directory to <see cref="_pathHistory"/>,
@@ -144,7 +144,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     private string _currentDir = string.Empty;
 
     /// <summary>
-    /// Indicates whether or not the current directory contains files or directories.
+    /// Indicates whether the current directory contains files or directories.
     /// </summary>
     public bool DirectoryEmpty
     {
@@ -174,7 +174,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     private string _selectionInfo = string.Empty;
 
     /// <summary>
-    /// Indicates whether or not the app is searching currently.
+    /// Indicates whether the app is searching currently.
     /// </summary>
     public bool Searching
     {
@@ -217,7 +217,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     private int _currentBranchIndex = 0;
 
     /// <summary>
-    /// Indicates whether or not the current directory is version controlled.
+    /// Indicates whether the current directory is version controlled.
     /// </summary>
     public bool IsVersionControlled
     {
@@ -439,7 +439,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         if (Searching)
             return;
 
-        CheckVersionContol();
+        CheckVersionControl();
         if (CurrentDir == ThisPCLabel)
         {
             ShowDrives();
@@ -533,7 +533,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     /// If the entry is a directory or a link to a directory, it changes <see cref="CurrentDir"/> to its path.
     /// </para>
     /// <para>
-    /// Otherwise the file is opened in the application preferred by the system.
+    /// Otherwise, the file is opened in the application preferred by the system.
     /// </para>
     /// </summary>
     public void OpenEntry(FileSystemEntry entry)
@@ -781,7 +781,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     /// <summary>
     /// Sets <see cref="IsVersionControlled"/> and updates <see cref="Branches"/>.
     /// </summary>
-    private void CheckVersionContol()
+    private void CheckVersionControl()
     {
         IsVersionControlled =
             FileSurferSettings.GitIntegration
@@ -856,7 +856,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Opens poweshell in <see cref="CurrentDir"/> if possible.
+    /// Opens power-shell in <see cref="CurrentDir"/> if possible.
     /// </summary>
     private void OpenPowerShell()
     {
@@ -870,7 +870,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     /// <summary>
     /// Prepares the <see cref="_searchCTS"/> cancellation token, updates <see cref="CurrentDir"/>, and starts the search.
     /// </summary>
-    public async void SearchRelay(string searchQuerry)
+    public async void SearchRelay(string searchQuery)
     {
         if (_searchCTS.IsCancellationRequested)
         {
@@ -884,11 +884,11 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
         Searching = true;
 
         if (currentDir != ThisPCLabel)
-            await SearchDirectoryAsync(currentDir, searchQuerry, _searchCTS.Token);
+            await SearchDirectoryAsync(currentDir, searchQuery, _searchCTS.Token);
         else
         {
             foreach (DriveInfo drive in _fileIOHandler.GetDrives())
-                await SearchDirectoryAsync(drive.Name, searchQuerry, _searchCTS.Token);
+                await SearchDirectoryAsync(drive.Name, searchQuery, _searchCTS.Token);
         }
     }
 
@@ -1095,7 +1095,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     /// <summary>
     /// Determines the type of paste operation and executes it using <see cref="_clipboardManager"/>.
     /// <para>
-    /// Adds the appropriate <see cref="IUndoableFileOperation"/> to <see cref="_pathHistory"/> if the operaion was a success.
+    /// Adds the appropriate <see cref="IUndoableFileOperation"/> to <see cref="_pathHistory"/> if the operation was a success.
     /// </para>
     /// Invokes <see cref="Reload()"/>.
     /// </summary>
@@ -1209,7 +1209,7 @@ public class MainWindowViewModel : ReactiveObject, INotifyPropertyChanged
     /// <summary>
     /// Moves the <see cref="FileSystemEntry"/>s in <see cref="SelectedFiles"/> to the system trash using <see cref="_fileIOHandler"/>.
     /// <para>
-    /// Adds the operation to <see cref="_undoRedoHistory"/> if the operation was succesful.
+    /// Adds the operation to <see cref="_undoRedoHistory"/> if the operation was successful.
     /// </para>
     /// Invokes <see cref="Reload"/>.
     /// </summary>

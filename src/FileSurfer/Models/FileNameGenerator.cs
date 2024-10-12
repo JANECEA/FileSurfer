@@ -22,11 +22,11 @@ static class FileNameGenerator
         if (!Path.Exists(Path.Combine(directory, newName)))
             return newName;
 
-        string nameWOextension = Path.GetFileNameWithoutExtension(newName);
+        string nameWithoutExtension = Path.GetFileNameWithoutExtension(newName);
         string extension = Path.GetExtension(newName);
         for (int index = lastIndex + 1; ; index++)
         {
-            string newFileName = $"{nameWOextension} ({index}){extension}";
+            string newFileName = $"{nameWithoutExtension} ({index}){extension}";
             if (!Path.Exists(Path.Combine(directory, newFileName)))
             {
                 return newFileName;

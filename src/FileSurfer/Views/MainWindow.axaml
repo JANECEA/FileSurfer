@@ -76,7 +76,7 @@
             </Grid>
         </DockPanel>
 
-        <Border Height="55" DockPanel.Dock="Top" Grid.Row="2" BorderThickness="0 1 0 1" BorderBrush="{DynamicResource SecondaryColor}">
+        <Border Height="55" DockPanel.Dock="Top" BorderThickness="0 1 0 1" BorderBrush="{DynamicResource SecondaryColor}">
             <DockPanel LastChildFill="False" Margin="10 0">
                 <Button Classes="FileOperationButton" Content="&#xEA7F;" HotKey="Ctrl+N" Command="{Binding NewFileCommand}"/>
                 <Button Classes="FileOperationButton" Content="&#xEA80;" HotKey="Ctrl+Shift+N" Command="{Binding NewDirCommand}"/>
@@ -112,9 +112,9 @@
                     </Button.Flyout>
                 </Button>
 
-                <Button Classes="GitButton GitButtonHover" Content="PUSH" Command="{Binding PushCommand}" IsVisible="{Binding IsVersionControlled}"/>
-                <Button Classes="GitButton GitButtonHover" Content="COMMIT" Click="OnCommitClicked" IsVisible="{Binding IsVersionControlled}"/>
-                <Button Classes="GitButton GitButtonHover" Content="PULL" Command="{Binding PullCommand}" IsVisible="{Binding IsVersionControlled}"/>
+                <Button Classes="GitButton" Content="PUSH" Command="{Binding PushCommand}" IsVisible="{Binding IsVersionControlled}"/>
+                <Button Classes="GitButton" Content="COMMIT" Click="OnCommitClicked" IsVisible="{Binding IsVersionControlled}"/>
+                <Button Classes="GitButton" Content="PULL" Command="{Binding PullCommand}" IsVisible="{Binding IsVersionControlled}"/>
                 <ComboBox Classes="BranchComboBox" ItemsSource="{Binding Branches}" SelectedItem="{Binding CurrentBranch}" SelectedIndex="{Binding CurrentBranchIndex}" IsVisible="{Binding IsVersionControlled}"/>
             </DockPanel>
         </Border>
@@ -128,7 +128,7 @@
                 </Grid.ColumnDefinitions>
 
                 <ScrollViewer Padding="4 10 0 3">
-                    <StackPanel Orientation="Vertical" Grid.Column="0">
+                    <StackPanel Orientation="Vertical">
                         <ListBox x:Name="QuickAccessListBox" IsVisible="False" Classes="SideBarListBox" ItemsSource="{Binding QuickAccess}" PropertyChanged="OnQuickAccessChanged" Tapped="SideBarEntryClicked" ItemTemplate="{StaticResource SideBarTemplate}">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
@@ -246,7 +246,7 @@
                 </Grid>
             </Grid>
 
-            <Border Grid.Row="2" BorderThickness="0 1 0 0" BorderBrush="{DynamicResource SecondaryColor}">
+            <Border Grid.Row="1" BorderThickness="0 1 0 0" BorderBrush="{DynamicResource SecondaryColor}">
                 <DockPanel LastChildFill="False">
                     <TextBlock Classes="SelectInfo" Text="{Binding SelectionInfo}"/>
 

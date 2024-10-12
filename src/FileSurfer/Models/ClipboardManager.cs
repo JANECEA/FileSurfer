@@ -31,7 +31,7 @@ class ClipboardManager
     }
 
     [STAThread]
-    private static void ClearClipboar() => Clipboard.Clear();
+    private static void ClearClipboard() => Clipboard.Clear();
 
     [STAThread]
     private static bool CopyToOSClipboard(string[] paths, out string? errorMessage)
@@ -149,7 +149,7 @@ class ClipboardManager
     /// Sets <see cref="IsCutOperation"/> to <see langword="true"/>.
     /// </para>
     /// </summary>
-    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool Cut(
         List<FileSystemEntry> selectedFiles,
         string currentDir,
@@ -178,7 +178,7 @@ class ClipboardManager
     /// Sets <see cref="IsCutOperation"/> to <see langword="false"/>.
     /// </para>
     /// </summary>
-    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool Copy(
         List<FileSystemEntry> selectedFiles,
         string currentDir,
@@ -212,7 +212,7 @@ class ClipboardManager
     /// <summary>
     /// Pastes the contents of the system clipboard into <paramref name="currentDir"/>.
     /// </summary>
-    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool Paste(string currentDir, out string? errorMessage)
     {
         if (!PasteFromOSClipboard(currentDir, out errorMessage))
@@ -248,7 +248,7 @@ class ClipboardManager
     /// <summary>
     /// Duplicates the files stored in <see cref="_programClipboard"/>.
     /// </summary>
-    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool Duplicate(string currentDir, out string[] copyNames, out string? errorMessage)
     {
         copyNames = new string[_programClipboard.Count];
@@ -269,7 +269,7 @@ class ClipboardManager
         }
         if (errorOccured)
         {
-            ClearClipboar();
+            ClearClipboard();
             _programClipboard.Clear();
         }
         else

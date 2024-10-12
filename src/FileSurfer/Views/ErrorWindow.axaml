@@ -21,8 +21,8 @@
         <Border Classes="ErrorBlockBorder">
             <TextBlock Classes="ErrorBlock" x:Name="ErrorBlock"/>
         </Border>
-        <Rectangle Classes="BottomRectangle"/>
-        <Button Classes="OKButton" Content="OK" Click="CloseWindow"/>
+        <Rectangle Grid.Row="1" Classes="BottomRectangle"/>
+        <Button Grid.Row="1" Classes="OKButton" Content="OK" Click="CloseWindow"/>
     </Grid>
 
 </Window>

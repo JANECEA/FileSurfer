@@ -8,7 +8,7 @@ using Microsoft.VisualBasic.FileIO;
 namespace FileSurfer.Models;
 
 /// <summary>
-/// Handles file IO operations in the Windows enviroment within the context of the <see cref="FileSurfer"/> app.
+/// Handles file IO operations in the Windows environment within the context of the <see cref="FileSurfer"/> app.
 /// </summary>
 class WindowsFileIOHandler : IFileIOHandler
 {
@@ -599,7 +599,7 @@ class WindowsFileIOHandler : IFileIOHandler
             errorMessage = null;
             if (Path.GetDirectoryName(filePath) is not string parentDir)
             {
-                errorMessage = "Can't duplicate a root diretory.";
+                errorMessage = "Can't duplicate a root directory.";
                 return false;
             }
             string newFilePath = Path.Combine(parentDir, copyName);
@@ -625,7 +625,7 @@ class WindowsFileIOHandler : IFileIOHandler
             errorMessage = null;
             if (Path.GetDirectoryName(dirPath) is not string parentDir)
             {
-                errorMessage = "Can't duplicate a root diretory.";
+                errorMessage = "Can't duplicate a root directory.";
                 return false;
             }
             string newDirPath = Path.Combine(parentDir, copyName);

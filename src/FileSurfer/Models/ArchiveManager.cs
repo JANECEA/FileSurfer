@@ -33,7 +33,7 @@ static class ArchiveManager
     /// <summary>
     /// Compresses specified file paths into a new archive.
     /// </summary>
-    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public static bool ZipFiles(
         IEnumerable<FileSystemEntry> entries,
         string destinationPath,
@@ -64,9 +64,9 @@ static class ArchiveManager
     }
 
     /// <summary>
-    /// Extraxts an archive, overwriting the already existing files.
+    /// Extracts an archive, overwriting the already existing files.
     /// </summary>
-    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public static bool UnzipArchive(
         string archivePath,
         string destinationPath,

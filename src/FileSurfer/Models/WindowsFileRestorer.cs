@@ -19,7 +19,7 @@ static class WindowsFileRestorer
     /// <summary>
     /// Restores a file or a directory based on <paramref name="originalPath"/>.
     /// </summary>
-    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public static bool RestoreEntry(string originalPath, out string? errorMessage)
     {
         Shell shell = new();

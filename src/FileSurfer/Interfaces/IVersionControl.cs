@@ -25,7 +25,7 @@ public interface IVersionControl : IDisposable
     /// Downloads the latest changes from the version control system to the local repository.
     /// </summary>
     /// <param name="errorMessage">An output parameter that will contain an error message if the download fails.</param>
-    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool DownloadChanges(out string? errorMessage);
 
     /// <summary>
@@ -45,7 +45,7 @@ public interface IVersionControl : IDisposable
     /// </summary>
     /// <param name="branchName">The name of the branch to switch to.</param>
     /// <param name="errorMessage">An output parameter that will contain an error message if the switch fails.</param>
-    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool SwitchBranches(string branchName, out string? errorMessage);
 
     /// <summary>
@@ -53,7 +53,7 @@ public interface IVersionControl : IDisposable
     /// </summary>
     /// <param name="filePath">The path of the file to stage.</param>
     /// <param name="errorMessage">An output parameter that will contain an error message if the staging fails.</param>
-    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool StageChange(string filePath, out string? errorMessage);
 
     /// <summary>
@@ -61,7 +61,7 @@ public interface IVersionControl : IDisposable
     /// </summary>
     /// <param name="filePath">The path of the file to unstage.</param>
     /// <param name="errorMessage">An output parameter that will contain an error message if the un-staging fails.</param>
-    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool UnstageChange(string filePath, out string? errorMessage);
 
     /// <summary>
@@ -69,13 +69,13 @@ public interface IVersionControl : IDisposable
     /// </summary>
     /// <param name="commitMessage">The message describing the commit.</param>
     /// <param name="errorMessage">An output parameter that will contain an error message if the commit fails.</param>
-    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool CommitChanges(string commitMessage, out string? errorMessage);
 
     /// <summary>
     /// Uploads the committed changes to the remote repository.
     /// </summary>
     /// <param name="errorMessage">An output parameter that will contain an error message if the upload fails.</param>
-    /// <returns><see langword="true"/> if the operation was succesfull, otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool UploadChanges(out string? errorMessage);
 }

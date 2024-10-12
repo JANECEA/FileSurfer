@@ -14,7 +14,7 @@ static class WindowsFileProperties
     /// Used for the ShellExecuteEx API function.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-    struct SHELLEXECUTEINFO
+    struct ShellExecuteInfo
     {
         public int cbSize;
         public uint fMask;
@@ -44,15 +44,15 @@ static class WindowsFileProperties
     }
 
     [DllImport("shell32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern bool ShellExecuteEx(ref SHELLEXECUTEINFO lpExecInfo);
+    private static extern bool ShellExecuteEx(ref ShellExecuteInfo lpExecInfo);
 
     /// <summary>
-    /// Calls the <see cref="ShellExecuteEx(ref SHELLEXECUTEINFO)"/> function to show the properties dialog of the specified <paramref name="filePath"/>.
+    /// Calls the <see cref="ShellExecuteEx(ref ShellExecuteInfo)"/> function to show the properties dialog of the specified <paramref name="filePath"/>.
     /// </summary>
     /// <returns><see langword="true"/> if the properties dialog was successfully shown, otherwise <see langword="false"/>.</returns>
     public static bool ShowFileProperties(string filePath, out string? errorMessage)
     {
-        SHELLEXECUTEINFO info = new();
+        ShellExecuteInfo info = new();
         info.cbSize = Marshal.SizeOf(info);
         info.lpVerb = "properties";
         info.lpFile = filePath;
