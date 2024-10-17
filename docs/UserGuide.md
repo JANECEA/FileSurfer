@@ -181,6 +181,7 @@ Access settings from the ellipsis menu in the toolbar to customize the theme, de
 |------------------------------------------|---------------------------------------------- |
 | **Go to previous directory**             | `Alt+LeftArrow`, `Side mouse button back`     |
 | **Go to next directory**                 | `Alt+RightArrow`, `Side mouse button forward` |
+| **Go up one directory**                  | `Alt+ArrowUp`, `Double tap empty space`       |
 | **Reload current directory**             | `F5`                                          |
 | **Open current directory in PowerShell** | `F12`                                         |
 | **Focus the Search Bar**                 | `Ctrl+F`                                      |
@@ -198,4 +199,3 @@ Access settings from the ellipsis menu in the toolbar to customize the theme, de
 | **Select none**                          | `Ctrl+Shift+L`                                |
 | **Invert selection**                     | `*`                                           |
 | **Open path**                            | `Middle mouse button`                         |
-| **Go up one directory**                  | `Alt+ArrowUp`, `Double tap empty space`       |
