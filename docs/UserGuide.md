@@ -198,3 +198,4 @@ Access settings from the ellipsis menu in the toolbar to customize the theme, de
 | **Select none**                          | `Ctrl+Shift+L`                                |
 | **Invert selection**                     | `*`                                           |
 | **Open path**                            | `Middle mouse button`                         |
+| **Go up one directory**                  | `Alt+ArrowUp`, `Double tap empty space`       |
