@@ -31,6 +31,7 @@
         <KeyBinding Gesture="Ctrl+A" Command="{Binding SelectAllCommand}"/>
         <KeyBinding Gesture="Ctrl+Shift+L" Command="{Binding SelectNoneCommand}"/>
         <KeyBinding Gesture="Multiply" Command="{Binding InvertSelectionCommand}"/>
+        <KeyBinding Gesture="Alt+Up" Command="{Binding GoUpCommand}"/>
     </Window.KeyBindings>
 
     <Window.Resources>

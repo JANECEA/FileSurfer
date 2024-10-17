@@ -235,6 +235,11 @@ public class MainWindowViewModel : ReactiveObject
     public ReactiveCommand<Unit, Unit> GoForwardCommand { get; }
 
     /// <summary>
+    /// Invokes <see cref="GoUp"/>.
+    /// </summary>
+    public ReactiveCommand<Unit, Unit> GoUpCommand { get; }
+
+    /// <summary>
     /// Invokes <see cref="Reload"/>.
     /// </summary>
     public ReactiveCommand<Unit, Unit> ReloadCommand { get; }
@@ -357,6 +362,7 @@ public class MainWindowViewModel : ReactiveObject
         SelectedFiles.CollectionChanged += UpdateSelectionInfo;
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
+        GoUpCommand = ReactiveCommand.Create(GoUp);
         ReloadCommand = ReactiveCommand.Create(Reload);
         OpenPowerShellCommand = ReactiveCommand.Create(OpenPowerShell);
         CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
