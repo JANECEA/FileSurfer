@@ -416,31 +416,13 @@ class WindowsFileIOHandler : IFileIOHandler
         return process.ExitCode == 0;
     }
 
-    private static bool IsValidFileName(string fileName)
-    {
-        if (string.IsNullOrWhiteSpace(fileName))
-            return false;
+    private static bool IsValidFileName(string fileName) =>
+        !string.IsNullOrWhiteSpace(fileName)
+        && Path.GetInvalidFileNameChars().All(ch => !fileName.Contains(ch));
 
-        foreach (char c in Path.GetInvalidFileNameChars())
-        {
-            if (fileName.Contains(c))
-                return false;
-        }
-        return true;
-    }
-
-    private static bool IsValidDirName(string dirName)
-    {
-        if (string.IsNullOrWhiteSpace(dirName))
-            return false;
-
-        foreach (char c in Path.GetInvalidPathChars())
-        {
-            if (dirName.Contains(c))
-                return false;
-        }
-        return true;
-    }
+    private static bool IsValidDirName(string dirName) =>
+        !string.IsNullOrWhiteSpace(dirName)
+        && Path.GetInvalidPathChars().All(ch => !dirName.Contains(ch));
 
     public bool RenameFileAt(string filePath, string newName, out string? errorMessage)
     {

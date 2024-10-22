@@ -75,11 +75,11 @@ static class FileNameGenerator
     /// </summary>
     /// <returns>An array of names available for <paramref name="entries"/>.</returns>
     public static string[] GetAvailableNames(
-        IEnumerable<FileSystemEntry> entries,
+        IList<FileSystemEntry> entries,
         string namingPattern
     )
     {
-        string[] newNames = new string[entries.Count()];
+        string[] newNames = new string[entries.Count];
         string extension = Path.GetExtension(namingPattern);
         string nameWithoutExtension = Path.GetFileNameWithoutExtension(namingPattern);
         string directory =
