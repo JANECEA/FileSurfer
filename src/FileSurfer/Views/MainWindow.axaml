@@ -234,17 +234,17 @@
                     </ListBox>
 
                     <Border x:Name="NewNameBar" Classes="InputBorder" Grid.Row="3">
-                        <StackPanel Orientation="Horizontal">
-                            <Label Classes="InputLabel" Content="New name: "/>
-                            <TextBox x:Name="NameInputBox" Classes="InputBox" GotFocus="TextBoxGotFocus" LostFocus="InputBoxLostFocus"/>
-                        </StackPanel>
+                        <DockPanel>
+                            <Label DockPanel.Dock="Left" Classes="InputLabel" Content="New name: "/>
+                            <TextBox DockPanel.Dock="Left" x:Name="NameInputBox" Classes="InputBox" GotFocus="TextBoxGotFocus" LostFocus="InputBoxLostFocus"/>
+                        </DockPanel>
                     </Border>
 
                     <Border x:Name="CommitMessageBar" Classes="InputBorder" Grid.Row="4">
-                        <StackPanel Orientation="Horizontal">
-                            <Label Classes="InputLabel" Content="Commit message: "/>
-                            <TextBox x:Name="CommitInputBox" Classes="InputBox" GotFocus="TextBoxGotFocus" LostFocus="InputBoxLostFocus" Width="250"/>
-                        </StackPanel>
+                        <DockPanel>
+                            <Label DockPanel.Dock="Left" Classes="InputLabel" Content="Commit message: "/>
+                            <TextBox DockPanel.Dock="Left" x:Name="CommitInputBox" Classes="InputBox" GotFocus="TextBoxGotFocus" LostFocus="InputBoxLostFocus"/>
+                        </DockPanel>
                     </Border>
                 </Grid>
             </Grid>

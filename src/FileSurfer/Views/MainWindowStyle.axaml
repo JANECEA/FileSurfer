@@ -216,7 +216,7 @@
 
     <Style Selector="Label.InputLabel">
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Margin" Value="10 0 10 0"/>
+        <Setter Property="Margin" Value="10 0 0 0"/>
         <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
     </Style>
 
@@ -228,9 +228,9 @@
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Padding" Value="5"/>
+        <Setter Property="Margin" Value="0 0 5 0"/>
         <Setter Property="MinHeight" Value="20"/>
         <Setter Property="Height" Value="30"/>
-        <Setter Property="Width" Value="150"/>
     </Style>
 
     <Style Selector="TextBlock.IconViewInfo">
