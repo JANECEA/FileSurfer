@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
 using FileSurfer.Models;
@@ -23,7 +24,7 @@ public class FileSystemEntry
         new(
             Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/DriveIcon.png"))
         );
-    private static readonly string[] ByteUnits = { "B", "KiB", "MiB", "GiB", "TiB", "PiB" };
+    private static readonly IReadOnlyList<string> ByteUnits = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"];
 
     /// <summary>
     /// Path to the file, directory, or drive represented by this <see cref="FileSystemEntry"/>.
