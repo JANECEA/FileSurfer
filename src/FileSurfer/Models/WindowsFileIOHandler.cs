@@ -10,7 +10,7 @@ namespace FileSurfer.Models;
 /// <summary>
 /// Handles file IO operations in the Windows environment within the context of the <see cref="FileSurfer"/> app.
 /// </summary>
-class WindowsFileIOHandler : IFileIOHandler
+public class WindowsFileIOHandler : IFileIOHandler
 {
     private readonly long _showDialogLimit;
 
@@ -408,12 +408,18 @@ class WindowsFileIOHandler : IFileIOHandler
             CreateNoWindow = true,
         };
         process.Start();
-        process.WaitForExit();
+        string stdOut = process.StandardOutput.ReadToEnd();
         errorMessage = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+        bool success = process.ExitCode == 0;
+
+        if (!success && errorMessage == string.Empty)
+            errorMessage = stdOut;
+
         if (errorMessage == string.Empty)
             errorMessage = null;
 
-        return process.ExitCode == 0;
+        return success;
     }
 
     private static bool IsValidFileName(string fileName) =>
