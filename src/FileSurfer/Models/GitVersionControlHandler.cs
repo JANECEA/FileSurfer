@@ -74,6 +74,8 @@ public class GitVersionControlHandler : IVersionControl
         return false;
     }
 
+    private string? GetWorkingDir() => _currentRepo?.Info.WorkingDirectory.TrimEnd('\\');
+
     /// <inheritdoc/>
     public bool DownloadChanges(out string? errorMessage)
     {
@@ -82,7 +84,7 @@ public class GitVersionControlHandler : IVersionControl
             errorMessage = MissingRepoMessage;
             return false;
         }
-        string command = $"cd \"{_currentRepo.Info.WorkingDirectory}\" && git pull";
+        string command = $"git -C \"{GetWorkingDir()}\" pull";
         return _fileIOHandler.ExecuteCmd(command, out errorMessage);
     }
 
@@ -108,7 +110,7 @@ public class GitVersionControlHandler : IVersionControl
         Branch branch = _currentRepo.Branches[branchName];
         if (branch is null)
         {
-            errorMessage = $"branch: {branchName} not found";
+            errorMessage = $"branch: \"{branchName}\" not found";
             return false;
         }
         Commands.Checkout(_currentRepo, branch);
@@ -236,8 +238,7 @@ public class GitVersionControlHandler : IVersionControl
             errorMessage = MissingRepoMessage;
             return false;
         }
-        string command =
-            $"cd \"{_currentRepo.Info.WorkingDirectory}\" && git commit -m \"{commitMessage}\"";
+        string command = $"git -C \"{GetWorkingDir()}\" commit -m \"{commitMessage}\"";
         return _fileIOHandler.ExecuteCmd(command, out errorMessage);
     }
 
@@ -249,7 +250,7 @@ public class GitVersionControlHandler : IVersionControl
             errorMessage = MissingRepoMessage;
             return false;
         }
-        string command = $"cd \"{_currentRepo.Info.WorkingDirectory}\" && git push";
+        string command = $"git -C \"{GetWorkingDir()}\" push";
         return _fileIOHandler.ExecuteCmd(command, out errorMessage);
     }
 
