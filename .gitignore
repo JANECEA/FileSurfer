@@ -3,4 +3,5 @@ bin/
 obj/
 .vs/
 .idea/
-
+Properties/
+*.csproj.user
