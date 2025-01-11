@@ -257,9 +257,5 @@ public class GitVersionControlHandler : IVersionControl
     /// <summary>
     /// Disposes of <see cref="_currentRepo"/>.
     /// </summary>
-    public void Dispose()
-    {
-        _currentRepo?.Dispose();
-        GC.SuppressFinalize(this);
-    }
+    public void Dispose() => _currentRepo?.Dispose();
 }

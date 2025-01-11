@@ -27,7 +27,6 @@ public class MainWindowViewModel : ReactiveObject
 {
     private const string SearchingLabel = "Search Results";
     private const long ShowDialogLimitB = 262144000; // 250 MiB
-    private const int ArraySearchThreshold = 25;
     private readonly string ThisPCLabel = FileSurferSettings.ThisPCLabel;
     private readonly string NewFileName = FileSurferSettings.NewFileName;
     private readonly string NewDirName = FileSurferSettings.NewDirectoryName;
@@ -1364,37 +1363,16 @@ public class MainWindowViewModel : ReactiveObject
 
     /// <summary>
     /// Inverts the current selection in <see cref="SelectedFiles"/> compared to <see cref="FileEntries"/>.
-    /// <para>
-    /// Picks between <see cref="Array"/> and <see cref="HashSet{T}"/> based on the number of items in <see cref="SelectedFiles"/>.
-    /// </para>
     /// </summary>
     private void InvertSelection()
     {
-        if (SelectedFiles.Count <= ArraySearchThreshold)
-        {
-            string[] oldSelectionNames = new string[SelectedFiles.Count];
-            for (int i = 0; i < SelectedFiles.Count; i++)
-                oldSelectionNames[i] = SelectedFiles[i].Name;
+        HashSet<string> oldSelectionNames = SelectedFiles.Select(entry => entry.Name).ToHashSet();
 
-            SelectedFiles.Clear();
-            foreach (FileSystemEntry entry in FileEntries)
-            {
-                if (!oldSelectionNames.Contains(entry.Name))
-                    SelectedFiles.Add(entry);
-            }
-        }
-        else
+        SelectedFiles.Clear();
+        foreach (FileSystemEntry entry in FileEntries)
         {
-            HashSet<string> oldSelectionNames = SelectedFiles
-                .Select(entry => entry.Name)
-                .ToHashSet();
-
-            SelectedFiles.Clear();
-            foreach (FileSystemEntry entry in FileEntries)
-            {
-                if (!oldSelectionNames.Contains(entry.Name))
-                    SelectedFiles.Add(entry);
-            }
+            if (!oldSelectionNames.Contains(entry.Name))
+                SelectedFiles.Add(entry);
         }
     }
 
