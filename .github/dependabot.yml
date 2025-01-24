@@ -6,11 +6,6 @@
 version: 2
 updates:
   - package-ecosystem: "dotnet-sdk" # See documentation for possible values
-    directory: "/src/FileSurfer" # Location of package manifests
-    schedule:
-      interval: "weekly"
-      
-  - package-ecosystem: "dotnet-sdk" # See documentation for possible values
-    directory: "/src/FSTests" # Location of package manifests
+    directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
