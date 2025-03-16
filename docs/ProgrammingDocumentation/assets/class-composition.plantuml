@@ -1,0 +1,72 @@
+@startuml
+left to right direction
+skinparam nodesep 70
+skinparam linetype ortho
+
+
+namespace FileSurfer {
+    together {
+        class Program
+        class FileSurferSettings
+    }
+}
+
+namespace FileSurfer.Models {
+    interface IFileOperationHandler
+    interface IFileInfoProvider
+    interface IVersionControl
+    interface IShellInteraction
+    interface IFileSystemEntry
+    class FileEntry
+    class DirectoryEntry
+    class IconProvider
+    class ArchiveManager
+    class ClipboardManager
+    class FileNameGenerator
+    class GitVersionControlHandler
+    class "UndoRedoHandler<T>"
+    class FileOperationResult
+    class WindowsFileOperationHandler
+    class WindowsFileProperties
+    class WindowsFileInfoProvider
+    class WindowsFileRestorer
+    class WindowsShellHandler
+}
+
+namespace FileSurfer.Models.UndoableFileOperations {
+    interface IUndoableFileOperation
+    class CopyFilesTo
+    class DuplicateFiles
+    class MoveFilesTo
+    class MoveFilesToTrash
+    class NewDirAt
+    class NewFileAt
+    class RenameFiles
+    class FlattenFolder
+}
+
+namespace FileSurfer.ViewModels {
+    class MainWindowViewModel
+    class FileSystemEntryViewModel
+}
+
+namespace FileSurfer.Views {
+    class MainWindow
+    class SettingsWindow
+    class ErrorDialog
+    class ConfirmationDialog
+}
+
+
+FileSurfer.ViewModels -r-> FileSurfer.Models : interact with
+FileSurfer.ViewModels -d--> FileSurfer.Views : serve data to
+
+FileSurfer.Models.WindowsShellHandler ..|> FileSurfer.Models.IShellInteraction
+FileSurfer.Models.WindowsFileInfoProvider ..|> FileSurfer.Models.IFileInfoProvider
+FileSurfer.Models.GitVersionControlHandler ..|> FileSurfer.Models.IVersionControl
+FileSurfer.Models.WindowsFileOperationHandler ..|> FileSurfer.Models.IFileOperationHandler
+
+FileSurfer.Models.FileEntry ..d|> FileSurfer.Models.IFileSystemEntry 
+FileSurfer.Models.DirectoryEntry ..u|> FileSurfer.Models.IFileSystemEntry 
+
+@enduml
