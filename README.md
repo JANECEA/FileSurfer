@@ -9,6 +9,7 @@
 FileSurfer is an open-source file explorer built for Windows with Avalonia UI, designed to provide a convenient and efficient way to access your files and directories. It maintains a clean, uncluttered interface that feels familiar yet modern.
 I've also included features that I personally find useful, even if they're not commonly found in other file explorers. Your feedback is very welcome: if you encounter any bugs or have suggestions, please open an issue here on GitHub!
 
+---
 
 ## ✨ **Features**  
 All what you'd expect from a file manager plus some more:  
@@ -20,14 +21,16 @@ All what you'd expect from a file manager plus some more:
 - 📁 **Saving Last Opened Directory**: Pick up where you left off.
 - 🐙 **Git Integration**: Speed up basic interactions with Git repositories directly from the app.  
 
+---
 
 ## 🖼️ **Screenshots**  
 ![Screenshot 1](docs/images/darkUI.png)  
-*Caption: Dark interface using the list view in a Git repository.*
+*Dark interface using the list view in a Git repository.*
 
 ![Screenshot 1](docs/images/lightUI.png)  
-*Caption: Light interface using the icon view.*
+*Light interface using the icon view.*
 
+---
 
 ## 🚀 **Getting Started**  
 
@@ -39,6 +42,7 @@ All what you'd expect from a file manager plus some more:
 If you're a developer or want to customize FileSurfer, you can build it from source. Check out the 
 [Building from Source](#️-building-from-source) section for detailed instructions.  
 
+---
 
 ## 🛠️ **Building from Source**  
 
@@ -64,12 +68,14 @@ To build FileSurfer from source, you'll need the following:
 
 *(You can also use Visual Studio 2022 to build the project.)*  
 
+---
 
 ## 📚 **Documentation**  
 
 - **[User Guide](docs/UserGuide.md)**: Learn how to use FileSurfer's features.  
 - **[Technical Documentation](docs/ProgrammingDocumentation/TechnicalSpecification.md)**: Take a look at the technical details of the project (*WIP*).  
 
+---
 
 ## 📦 **Dependencies**  
 
