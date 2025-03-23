@@ -1,52 +1,96 @@
-# README - FileSurfer
+<p align="center">
+  <img src="src/FileSurfer/Assets/FileSurfer-logo.ico" alt="FileSurfer Logo" height="80">
+</p>
+<h1 align="center">FileSurfer</h1>
+<h3 align="center">A Modern, Open-Source File Explorer for Windows</h3>
 
-## This is an open-source file explorer for Windows, built with Avalonia UI.
-Supports all you'd expect from a modern file explorer, plus some extra quirks:
-- Image pasting from the system clipboard
-- Treating dotfiles as hidden
-- Renaming multiple files or directories at once
-- Undo & redo for most of the reversible file operations
-- Integration with the Git version control system
-
-
-## Dependencies
-To build and run this project, ensure that the following dependencies are installed:
-
-### .NET and Frameworks
-- **.NET 8.0**
-- **Avalonia UI**
-- **Windows Forms**: The project uses Windows Forms to interact with the system clipboard
-
-### NuGet Packages
-- **[Avalonia](https://avaloniaui.net/gettingstarted#installation)** (v11.0.10)
-- **Avalonia.Desktop** (v11.0.10)
-- **Avalonia.Themes.Fluent** (v11.0.10)
-- **Avalonia.Fonts.Inter** (v11.0.10)
-- **Avalonia.ReactiveUI** (v11.0.10)
-- **Avalonia.Diagnostics** (v11.0.10) — *Debug configuration only*
-- **LibGit2Sharp** (v0.30.0)
-- **SharpCompress** (v0.37.2)
-
-### COM References
-- **Shell32** (GUID: `50a7e9b0-70ef-11d1-b75a-00a0c90564fe`)
-- **IWshRuntimeLibrary** (GUID: `f935dc20-1cf0-11d0-adb9-00c04fd58a0b`)
-
-Ensure these COM components are registered on the system where the application is running. If not, you may need to manually register the corresponding DLLs using `regsvr32 "path/to/dll"`.
-
-### Other
-- [Git for Windows](https://git-scm.com/download/win): for optional Git integration.
-
-
-## Building from source *
-1) Install the .NET Build tool using the [Visual Studio Build Tools](https://visualstudio.microsoft.com/cs/visual-cpp-build-tools/) installer.
-2) Open "Developer command prompt for VS 2022"
-3) Run `dotnet restore "path\to\csproject-file\FileSurfer.csproj"`
-4) Run `msbuild "path\to\project\solution\FileSurfer.sln" /t:publish /p:Configuration=Release /p:DeployOnBuild=true`
-5) Find `.\src\FileSurfer\bin\Release\net8.0-windows\FileSurfer.exe` to run the app.
-
-\* *You can also compile the project using Visual Studio 2022.*
-
-[User Guide](docs/UserGuide.md)
 ---
-[Programming Documentation](/docs/ProgrammingDocumentation/TechnicalSpecification.md)
----
+
+FileSurfer is an open-source file explorer built for Windows with Avalonia UI, designed to provide a convenient and efficient way to access your files and directories. It maintains a clean, uncluttered interface that feels familiar yet modern.
+I've also included features that I personally find useful, even if they're not commonly found in other file explorers. Your feedback is very welcome: if you encounter any bugs or have suggestions, please open an issue here on GitHub!
+
+
+## ✨ **Features**  
+All what you'd expect from a file manager plus some more:  
+
+- 📋 **Image Pasting from Clipboard**: Paste images directly from your clipboard into folders.  
+- 🕶️ **Dotfile Handling**: Treats dotfiles (e.g., `.gitignore`) as hidden files, just like on a Unix system.  
+- 🔄 **Batch Renaming**: Rename multiple files or directories at once.  
+- ⏪ **Undo & Redo**: Reverse most file operations with a simple undo/redo feature.  
+- 📁 **Saving Last Opened Directory**: Pick up where you left off.
+- 🐙 **Git Integration**: Speed up basic interactions with Git repositories directly from the app.  
+
+
+## 🖼️ **Screenshots**  
+![Screenshot 1](docs/images/darkUI.png)  
+*Caption: Dark interface using the list view in a Git repository.*
+
+![Screenshot 1](docs/images/lightUI.png)  
+*Caption: Light interface using the icon view.*
+
+
+## 🚀 **Getting Started**  
+
+### **Download and Install**  
+1. Download the latest release from the [Releases Page](https://github.com/JANECEA/FileSurfer/releases/latest).  
+2. Just extract the `.zip`, open the executable file, and you're all set!
+
+### **Build from Source**  
+If you're a developer or want to customize FileSurfer, you can build it from source. Check out the 
+[Building from Source](#️-building-from-source) section for detailed instructions.  
+
+
+## 🛠️ **Building from Source**  
+
+To build FileSurfer from source, you'll need the following:  
+
+### **Prerequisites**  
+- **.NET 8.0**  
+- **Avalonia UI**  
+- **Git for Windows** (optional, for Git integration)  
+
+### **Steps**  
+1. Install the [.NET Build Tools](https://visualstudio.microsoft.com/cs/visual-cpp-build-tools/).  
+2. Open the *"Developer Command Prompt for VS 2022"* app on your computer.  
+3. Run the following commands:  
+   ```bash  
+   dotnet restore "path\to\FileSurfer.csproj"  
+   msbuild "path\to\FileSurfer.sln" /t:publish /p:Configuration=Release /p:DeployOnBuild=true  
+   ```  
+4. Locate the compiled executable at:  
+   ```  
+   .\src\FileSurfer\bin\Release\net8.0-windows\FileSurfer.exe  
+   ```  
+
+*(You can also use Visual Studio 2022 to build the project.)*  
+
+
+## 📚 **Documentation**  
+
+- **[User Guide](docs/UserGuide.md)**: Learn how to use FileSurfer's features.  
+- **[Technical Documentation](docs/ProgrammingDocumentation/TechnicalSpecification.md)**: Take a look at the technical details of the project (*WIP*).  
+
+
+## 📦 **Dependencies**  
+
+FileSurfer relies on the following dependencies:  
+
+### **.NET and Frameworks**  
+- .NET 8.0  
+- Avalonia UI  
+- Windows Forms (for clipboard integration)  
+
+### **NuGet Packages**  
+- Avalonia (v11.0.10)  
+- Avalonia.Desktop (v11.0.10)  
+- Avalonia.Themes.Fluent (v11.0.10)  
+- Avalonia.Fonts.Inter (v11.0.10)  
+- Avalonia.ReactiveUI (v11.0.10)  
+- LibGit2Sharp (v0.30.0)  
+- SharpCompress (v0.37.2)  
+
+### **COM References**  
+- Shell32 (GUID: `50a7e9b0-70ef-11d1-b75a-00a0c90564fe`)  
+- IWshRuntimeLibrary (GUID: `f935dc20-1cf0-11d0-adb9-00c04fd58a0b`)  
+
+Ensure these COM components are registered on your system.  
