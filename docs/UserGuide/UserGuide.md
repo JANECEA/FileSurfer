@@ -23,7 +23,7 @@ Welcome to the **FileSurfer** User Guide. This guide will help you use the featu
 
 
 ## Installation
-Refer to [README.md](../README.md) for instructions on how to build the project from source.
+Refer to [README.md](../../README.md) for instructions on how to build the project from source.
 
 
 

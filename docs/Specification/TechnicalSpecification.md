@@ -2,7 +2,7 @@
 
 ## Overview
 **FileSurfer** implements the Model-View-ViewModel (MVVM) architectural pattern.
-It is built using the **Reactive UI** framework within the **Avalonia UI** ecosystem.
+It is built with **C#**, using the **Reactive UI** framework within the **Avalonia UI** ecosystem.
 
 The **Models** layer (FileSurfer.Models) encapsulates functional logic and file system operations. 
 

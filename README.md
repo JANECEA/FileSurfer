@@ -24,10 +24,10 @@ All what you'd expect from a file manager plus some more:
 ---
 
 ## 🖼️ **Screenshots**  
-![Screenshot 1](docs/images/darkUI.png)  
+![Screenshot 1](.github/images/darkUI.png)  
 *Dark interface using the list view in a Git repository.*
 
-![Screenshot 1](docs/images/lightUI.png)  
+![Screenshot 1](.github/images/lightUI.png)  
 *Light interface using the icon view.*
 
 ---
@@ -72,8 +72,9 @@ To build FileSurfer from source, you'll need the following:
 
 ## 📚 **Documentation**  
 
-- **[User Guide](docs/UserGuide.md)**: Learn how to use FileSurfer's features.  
-- **[Technical Documentation](docs/ProgrammingDocumentation/TechnicalSpecification.md)**: Take a look at the technical details of the project (*WIP*).  
+- **[User Guide](docs/UserGuide/UserGuide.md)**: Learn how to use FileSurfer's features.  
+- **[Specification](docs/Specification/)**: Check out the [technical](docs/Specification/TechnicalSpecification.md) and [functional](docs/Specification/TechnicalSpecification.md) specification of the project.  
+- **[Technical Documentation](docs/Documentation/html.zip)**: Take a look at the technical details of the project (*WIP*).  
 
 ---
 
