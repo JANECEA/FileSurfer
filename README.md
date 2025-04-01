@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/FileSurfer/Assets/FileSurfer-logo.ico" alt="FileSurfer Logo" height="80">
+  <img src=".github/images/FileSurfer-logo.png" alt="FileSurfer Logo" height="80">
 </p>
 <h1 align="center">FileSurfer</h1>
 <h3 align="center">A Modern, Open-Source File Explorer for Windows</h3>
@@ -73,7 +73,7 @@ To build FileSurfer from source, you'll need the following:
 ## 📚 **Documentation**  
 
 - **[User Guide](docs/UserGuide/UserGuide.md)**: Learn how to use FileSurfer's features.  
-- **[Specification](docs/Specification/)**: Check out the [technical](docs/Specification/TechnicalSpecification.md) and [functional](docs/Specification/TechnicalSpecification.md) specification of the project.  
+- **[Specification](docs/Specification/)**: Check out the [technical](docs/Specification/TechnicalSpecification.md) and [functional](docs/Specification/FunctionalSpecification.md) specification of the project.  
 - **[Technical Documentation](docs/Documentation/html.zip)**: Take a look at the technical details of the project (*WIP*).  
 
 ---
