@@ -1,13 +1,15 @@
 <p align="center">
-  <img src=".github/images/FileSurfer-logo.png" alt="FileSurfer Logo" height="80">
+  <img src=".github/images/FileSurfer-logo.png" alt="FileSurfer Logo" height="70">
 </p>
 <h1 align="center">FileSurfer</h1>
 <h3 align="center">A Modern, Open-Source File Explorer for Windows</h3>
 
 ---
 
-FileSurfer is an open-source file explorer built for Windows with Avalonia UI, designed to provide a convenient and efficient way to access your files and directories. It maintains a clean, uncluttered interface that feels familiar yet modern.
-I've also included features that I personally find useful, even if they're not commonly found in other file explorers. Your feedback is very welcome: if you encounter any bugs or have suggestions, please open an issue here on GitHub!
+FileSurfer is an open-source Windows file explorer built with Avalonia UI.
+FileSurfer is designed for convenience and efficiency, targeting more technical users while still providing a familiar and modern interface.
+I've also included features that I personally find useful, even if they're not commonly found in other file explorers.
+Your feedback is very welcome: if you encounter any bugs or have suggestions, please open an issue here on GitHub!
 
 ---
 
