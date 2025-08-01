@@ -439,15 +439,23 @@ public class WindowsFileIOHandler : IFileIOHandler
         }
         try
         {
-            string? pathToFile = Path.GetDirectoryName(filePath);
-            if (pathToFile is null)
+            string? parentDir = Path.GetDirectoryName(filePath);
+            if (parentDir is null)
             {
                 errorMessage = $"No parent directory found for \"{filePath}\"";
                 return false;
             }
+            string dirName = Path.GetFileName(filePath);
+            if (string.Compare(dirName, newName, true) == 0)
+            {
+                string tempName = FileNameGenerator.GetAvailableName(parentDir, Path.GetRandomFileName());
+                string tempPath = Path.Combine(parentDir, tempName);
+                File.Move(filePath, tempPath);
+                filePath = tempPath;
+            }
             FileSystem.MoveFile(
                 filePath,
-                Path.Combine(pathToFile, newName),
+                Path.Combine(parentDir, newName),
                 UIOption.AllDialogs,
                 UICancelOption.ThrowException
             );
@@ -470,15 +478,23 @@ public class WindowsFileIOHandler : IFileIOHandler
         }
         try
         {
-            string? pathToDir = Path.GetDirectoryName(dirPath);
-            if (pathToDir is null)
+            string? parentDir = Path.GetDirectoryName(dirPath);
+            if (parentDir is null)
             {
                 errorMessage = $"\"{dirPath}\" is a root directory";
                 return false;
             }
+            string dirName = Path.GetFileName(dirPath);
+            if (string.Compare(dirName, newName, true) == 0)
+            {
+                string tempName = FileNameGenerator.GetAvailableName(parentDir, Path.GetRandomFileName());
+                string tempPath = Path.Combine(parentDir, tempName);
+                Directory.Move(dirPath, tempPath);
+                dirPath = tempPath;
+            }
             FileSystem.MoveDirectory(
                 dirPath,
-                Path.Combine(pathToDir, newName),
+                Path.Combine(parentDir, newName),
                 UIOption.AllDialogs,
                 UICancelOption.ThrowException
             );

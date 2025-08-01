@@ -27,10 +27,9 @@ static class FileNameGenerator
         for (int index = lastIndex + 1; ; index++)
         {
             string newFileName = $"{nameWithoutExtension} ({index}){extension}";
+
             if (!Path.Exists(Path.Combine(directory, newFileName)))
-            {
                 return newFileName;
-            }
         }
     }
 
