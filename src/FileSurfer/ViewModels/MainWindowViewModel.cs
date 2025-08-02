@@ -23,7 +23,7 @@ namespace FileSurfer.ViewModels;
 /// Handles data directly bound to the View.
 /// </summary>
 #pragma warning disable CA1822 // Mark members as static
-public class MainWindowViewModel : ReactiveObject 
+public class MainWindowViewModel : ReactiveObject
 {
     private const string SearchingLabel = "Search Results";
     private const long ShowDialogLimitB = 262144000; // 250 MiB
@@ -1018,44 +1018,54 @@ public class MainWindowViewModel : ReactiveObject
             return;
 
         string fileName = Path.GetFileNameWithoutExtension(SelectedFiles[^1].Name) + ".zip";
-        if (await ZipFilesWrapperAsync(fileName))
-            Reload();
+        await ZipFilesWrapperAsync(fileName);
+        Reload();
     }
 
-    private Task<bool> ZipFilesWrapperAsync(string fileName)
-    {
-        return Task.Run(() =>
+    private Task ZipFilesWrapperAsync(string fileName) =>
+        Task.Run(() =>
         {
-            bool result = ArchiveManager.ZipFiles(
+            ArchiveManager.ZipFiles(
                 SelectedFiles.ToArray(),
                 CurrentDir,
                 FileNameGenerator.GetAvailableName(CurrentDir, fileName),
                 out string? errorMessage
             );
             ForwardError(errorMessage);
-            return result;
+            return;
         });
-    }
 
     /// <summary>
     /// Extracts the archives selected in <see cref="SelectedFiles"/>.
     /// </summary>
-    public void ExtractArchive()
+    public async void ExtractArchive()
     {
         if (!Directory.Exists(CurrentDir))
             return;
 
         foreach (FileSystemEntry entry in SelectedFiles)
             if (!ArchiveManager.IsZipped(entry.PathToEntry))
+            {
+                ForwardError($"Entry \"{entry.Name}\" is not an archive.");
                 return;
+            }
 
-        foreach (FileSystemEntry entry in SelectedFiles)
-        {
-            ArchiveManager.UnzipArchive(entry.PathToEntry, CurrentDir, out string? errorMessage);
-            ForwardError(errorMessage);
-        }
+        await ExtractArchiveWrapperAsync(
+            SelectedFiles.Select(entry => entry.PathToEntry).ToArray()
+        );
         Reload();
     }
+
+    private Task ExtractArchiveWrapperAsync(string[] archives) =>
+        Task.Run(() =>
+        {
+            foreach (string path in archives)
+            {
+                ArchiveManager.UnzipArchive(path, CurrentDir, out string? errorMessage);
+                ForwardError(errorMessage);
+            }
+            return;
+        });
 
     /// <summary>
     /// Copies the path to the selected <see cref="FileSystemEntry"/> to the system clipboard.

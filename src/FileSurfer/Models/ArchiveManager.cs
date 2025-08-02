@@ -104,13 +104,17 @@ static class ArchiveManager
         }
         try
         {
-            string extractName = Path.GetFileNameWithoutExtension(archivePath);
+            string extractName = FileNameGenerator.GetAvailableName(
+                destinationPath,
+                Path.GetFileNameWithoutExtension(archivePath)
+            );
             string extractTo = Path.Combine(destinationPath, extractName);
+
             Directory.CreateDirectory(extractTo);
             using IArchive archive = ArchiveFactory.Open(archivePath);
-            foreach (IArchiveEntry entry in archive.Entries.Where(entry => !entry.IsDirectory))
+            foreach (IArchiveEntry file in archive.Entries.Where(entry => !entry.IsDirectory))
             {
-                entry.WriteToDirectory(
+                file.WriteToDirectory(
                     extractTo,
                     new ExtractionOptions { ExtractFullPath = true, Overwrite = true }
                 );
