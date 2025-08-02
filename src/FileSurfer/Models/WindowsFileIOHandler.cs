@@ -448,7 +448,10 @@ public class WindowsFileIOHandler : IFileIOHandler
             string dirName = Path.GetFileName(filePath);
             if (string.Compare(dirName, newName, true) == 0)
             {
-                string tempName = FileNameGenerator.GetAvailableName(parentDir, Path.GetRandomFileName());
+                string tempName = FileNameGenerator.GetAvailableName(
+                    parentDir,
+                    Path.GetRandomFileName()
+                );
                 string tempPath = Path.Combine(parentDir, tempName);
                 File.Move(filePath, tempPath);
                 filePath = tempPath;
@@ -487,7 +490,10 @@ public class WindowsFileIOHandler : IFileIOHandler
             string dirName = Path.GetFileName(dirPath);
             if (string.Compare(dirName, newName, true) == 0)
             {
-                string tempName = FileNameGenerator.GetAvailableName(parentDir, Path.GetRandomFileName());
+                string tempName = FileNameGenerator.GetAvailableName(
+                    parentDir,
+                    Path.GetRandomFileName()
+                );
                 string tempPath = Path.Combine(parentDir, tempName);
                 Directory.Move(dirPath, tempPath);
                 dirPath = tempPath;
