@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using SharpCompress;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
@@ -36,21 +37,39 @@ static class ArchiveManager
     /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public static bool ZipFiles(
         IEnumerable<FileSystemEntry> entries,
-        string destinationPath,
+        string destinationDir,
         string archiveName,
         out string? errorMessage
     )
     {
+        FileStream zipStream = File.OpenWrite(Path.Combine(destinationDir, archiveName));
+        List<FileStream> fileStreams = new() { zipStream };
         try
         {
             using ZipArchive archive = ZipArchive.Create();
-            using FileStream zipStream = File.OpenWrite(Path.Combine(destinationPath, archiveName));
 
             foreach (FileSystemEntry entry in entries)
                 if (entry.IsDirectory)
-                    archive.AddAllFromDirectory(entry.PathToEntry);
+                {
+                    string[] allFiles = Directory.GetFiles(
+                        entry.PathToEntry,
+                        "*.*",
+                        SearchOption.AllDirectories
+                    );
+                    foreach (string filePath in allFiles)
+                    {
+                        string relativePath = Path.GetRelativePath(destinationDir, filePath);
+                        FileStream fileStream = File.OpenRead(filePath);
+                        archive.AddEntry(relativePath, fileStream);
+                        fileStreams.Add(fileStream);
+                    }
+                }
                 else
-                    archive.AddEntry(entry.Name, File.OpenRead(entry.PathToEntry));
+                {
+                    FileStream fileStream = File.OpenRead(entry.PathToEntry);
+                    archive.AddEntry(entry.Name, fileStream);
+                    fileStreams.Add(fileStream);
+                }
 
             archive.SaveTo(zipStream, new WriterOptions(CompressionType.Deflate));
             errorMessage = null;
@@ -60,6 +79,11 @@ static class ArchiveManager
         {
             errorMessage = ex.Message;
             return false;
+        }
+        finally
+        {
+            foreach (FileStream fileStream in fileStreams)
+                fileStream.Close();
         }
     }
 
