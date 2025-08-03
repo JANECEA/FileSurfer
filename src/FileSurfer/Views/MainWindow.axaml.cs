@@ -184,6 +184,13 @@ public partial class MainWindow : Window
             _viewModel?.CreateShortcut(entry);
     }
 
+    private void FlattenFolder(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem { DataContext: FileSystemEntry entry })
+            _viewModel?.FlattenFolder(entry);
+    }
+
+
     private void Delete(object sender, RoutedEventArgs e) => _viewModel?.MoveToTrash();
 
     private void DeletePermanently(object sender, RoutedEventArgs e) => _viewModel?.Delete();

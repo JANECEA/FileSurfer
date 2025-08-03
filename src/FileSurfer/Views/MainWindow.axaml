@@ -218,6 +218,7 @@
                                             <Separator Classes="ContextMenuSeparator"/>
                                             <MenuItem Classes="ContextMenuItem" Header="Delete" Click="Delete"/>
                                             <MenuItem Classes="ContextMenuItem" Header="Delete permanently" Click="DeletePermanently"/>
+                                            <MenuItem Classes="ContextMenuItem" Header="Flatten folder" IsVisible="{Binding IsDirectory}" Click="FlattenFolder"/>
                                             <MenuItem Classes="ContextMenuItem" Header="Rename" Click="OnRenameClicked"/>
                                             <Separator Classes="ContextMenuSeparator"/>
                                             <MenuItem Classes="ContextMenuItem" Header="Properties" Click="ShowProperties"/>

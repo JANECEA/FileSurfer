@@ -1231,6 +1231,23 @@ public class MainWindowViewModel : ReactiveObject
         Reload();
     }
 
+    public void FlattenFolder(FileSystemEntry entry)
+    {
+        if (!entry.IsDirectory)
+        {
+            ForwardError($"Cannot flatten a file: \"{entry.Name}\".");
+            return;
+        }
+
+        FlattenFolder action = new(_fileIOHandler, entry.PathToEntry);
+        if (action.Redo(out string? errorMessage))
+            _undoRedoHistory.AddNewNode(action);
+        else
+            ForwardError(errorMessage);
+
+        Reload();
+    }
+
     /// <summary>
     /// Permanently deletes the <see cref="FileSystemEntry"/>s in <see cref="SelectedFiles"/>.
     /// <para>

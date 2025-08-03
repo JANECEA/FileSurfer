@@ -57,6 +57,103 @@ public class MoveFilesToTrash : IUndoableFileOperation
 }
 
 /// <summary>
+/// Represents the action of flattening a directory.
+/// </summary>
+public class FlattenFolder : IUndoableFileOperation
+{
+    private readonly IFileIOHandler _fileIOHandler;
+    private readonly string _dirPath;
+    private readonly string? _parentDir;
+    private readonly bool _showHidden;
+    private readonly bool _showProtected;
+
+    private string[] _containedDirs = Array.Empty<string>();
+    private string[] _containedFiles = Array.Empty<string>();
+
+    public FlattenFolder(IFileIOHandler fileIOHandler, string dirPath)
+    {
+        _fileIOHandler = fileIOHandler;
+        _dirPath = dirPath;
+        _parentDir = Path.GetDirectoryName(dirPath);
+        _showHidden = FileSurferSettings.ShowHiddenFiles;
+        _showProtected = FileSurferSettings.ShowProtectedFiles;
+    }
+
+    /// <inheritdoc/>
+    public bool Redo(out string? errorMessage)
+    {
+        errorMessage = $"Cannot flatten top level directory: \"{_dirPath}\"";
+        if (_parentDir is null)
+            return false;
+
+        _containedDirs = _fileIOHandler.GetPathDirs(_dirPath, _showHidden, _showProtected);
+        _containedFiles = _fileIOHandler.GetPathFiles(_dirPath, _showHidden, _showProtected);
+
+        bool success = true;
+        errorMessage = "Problems occured moving these files:";
+        foreach (string containedDir in _containedDirs)
+        {
+            bool result = _fileIOHandler.MoveDirTo(containedDir, _parentDir, out _);
+
+            success &= result;
+            if (!result)
+                errorMessage += $" \"{Path.GetFileName(containedDir)}\",";
+        }
+        foreach (string containedFile in _containedFiles)
+        {
+            bool result = _fileIOHandler.MoveFileTo(containedFile, _parentDir, out _);
+
+            success &= result;
+            if (!result)
+                errorMessage += $" \"{Path.GetFileName(containedFile)}\",";
+        }
+
+        errorMessage = success ? null : errorMessage.TrimEnd(',');
+        return success && _fileIOHandler.DeleteDir(_dirPath, out errorMessage);
+    }
+
+    /// <inheritdoc/>
+    public bool Undo(out string? errorMessage)
+    {
+        errorMessage = $"Cannot create a top level directory: \"{_dirPath}\"";
+        if (_parentDir is null)
+            return false;
+
+        _fileIOHandler.NewDirAt(_parentDir, Path.GetFileName(_dirPath), out errorMessage);
+
+        bool success = true;
+        errorMessage = "Problems occured moving these files:";
+        foreach (string containedDir in _containedDirs)
+        {
+            bool result = _fileIOHandler.MoveDirTo(
+                Path.Combine(_parentDir, Path.GetFileName(containedDir)),
+                _dirPath,
+                out _
+            );
+
+            success &= result;
+            if (!result)
+                errorMessage += $" \"{Path.GetFileName(containedDir)}\",";
+        }
+        foreach (string containedFile in _containedFiles)
+        {
+            bool result = _fileIOHandler.MoveFileTo(
+                Path.Combine(_parentDir, Path.GetFileName(containedFile)),
+                _dirPath,
+                out _
+            );
+
+            success &= result;
+            if (!result)
+                errorMessage += $" \"{Path.GetFileName(containedFile)}\",";
+        }
+
+        errorMessage = success ? null : errorMessage.TrimEnd(',');
+        return success;
+    }
+}
+
+/// <summary>
 /// Represents the action of moving files and directories to a specific directory.
 /// </summary>
 public class MoveFilesTo : IUndoableFileOperation
