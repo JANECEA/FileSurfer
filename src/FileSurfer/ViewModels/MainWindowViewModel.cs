@@ -775,7 +775,7 @@ public class MainWindowViewModel : ReactiveObject
         IsVersionControlled =
             FileSurferSettings.GitIntegration
             && Directory.Exists(CurrentDir)
-            && _versionControl.IsVersionControlled(CurrentDir);
+            && _versionControl.InitIfVersionControlled(CurrentDir);
 
         Branches.Clear();
         if (IsVersionControlled)

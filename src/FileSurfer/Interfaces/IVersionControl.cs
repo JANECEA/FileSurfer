@@ -12,7 +12,7 @@ public interface IVersionControl : IDisposable
     /// </summary>
     /// <param name="directoryPath">The path of the directory to check.</param>
     /// <returns><see langword="true"/> if the directory is version controlled; otherwise, <see langword="false"/>.</returns>
-    public bool IsVersionControlled(string directoryPath);
+    public bool InitIfVersionControlled(string directoryPath);
 
     /// <summary>
     /// Consolidates and retrieves the status of the specified path in the version control system.

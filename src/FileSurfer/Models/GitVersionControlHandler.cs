@@ -43,7 +43,7 @@ public class GitVersionControlHandler : IVersionControl
     public GitVersionControlHandler(IFileIOHandler fileIOHandler) => _fileIOHandler = fileIOHandler;
 
     /// <inheritdoc/>
-    public bool IsVersionControlled(string directoryPath)
+    public bool InitIfVersionControlled(string directoryPath)
     {
         string? repoRootDir = directoryPath;
         while (repoRootDir is not null)
