@@ -687,14 +687,19 @@ public class MainWindowViewModel : ReactiveObject
         FileSystemEntry[] files = new FileSystemEntry[filePaths.Length];
 
         for (int i = 0; i < dirPaths.Length; i++)
-            directories[i] = new FileSystemEntry(_fileIOHandler, dirPaths[i], true);
+            directories[i] = new FileSystemEntry(
+                _fileIOHandler,
+                dirPaths[i],
+                true,
+                _versionControl.GetDirStatus(dirPaths[i])
+            );
 
         for (int i = 0; i < filePaths.Length; i++)
             files[i] = new FileSystemEntry(
                 _fileIOHandler,
                 filePaths[i],
                 false,
-                GetVCState(filePaths[i])
+                _versionControl.GetFileStatus(filePaths[i])
             );
 
         AddEntries(directories, files);
@@ -705,11 +710,6 @@ public class MainWindowViewModel : ReactiveObject
         dirPaths = dirPaths.Where(path => !Path.GetFileName(path).StartsWith('.')).ToArray();
         filePaths = filePaths.Where(path => !Path.GetFileName(path).StartsWith('.')).ToArray();
     }
-
-    private VCStatus GetVCState(string path) =>
-        IsVersionControlled
-            ? _versionControl.ConsolidateStatus(path)
-            : VCStatus.NotVersionControlled;
 
     /// <summary>
     /// Adds directories and files to <see cref="FileEntries"/>.
@@ -896,12 +896,14 @@ public class MainWindowViewModel : ReactiveObject
             foreach (string filePath in await GetPathFilesAsync(directory, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
                     FileEntries.Add(
-                        new FileSystemEntry(_fileIOHandler, filePath, false, GetVCState(filePath))
+                        new FileSystemEntry(_fileIOHandler, filePath, false, _versionControl.GetFileStatus(filePath))
                     );
 
             foreach (string dirPath in await GetPathDirsAsync(directory, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
-                    FileEntries.Add(new FileSystemEntry(_fileIOHandler, dirPath, true));
+                    FileEntries.Add(
+                        new FileSystemEntry(_fileIOHandler, dirPath, true, _versionControl.GetFileStatus(dirPath))
+                    );
         });
 
         foreach (string dir in await GetPathDirsAsync(directory))
@@ -1410,7 +1412,12 @@ public class MainWindowViewModel : ReactiveObject
     {
         if (IsVersionControlled)
         {
-            _versionControl.StageChange(entry.PathToEntry, out string? errorMessage);
+            string? errorMessage;
+            if (entry.IsDirectory)
+                _versionControl.StageDirectory(entry.PathToEntry, out errorMessage);
+            else
+                _versionControl.StageFile(entry.PathToEntry, out errorMessage);
+
             ForwardError(errorMessage);
         }
     }
@@ -1422,7 +1429,7 @@ public class MainWindowViewModel : ReactiveObject
     {
         if (IsVersionControlled)
         {
-            _versionControl.UnstageChange(entry.PathToEntry, out string? errorMessage);
+            _versionControl.UnstagePath(entry.PathToEntry, out string? errorMessage);
             ForwardError(errorMessage);
         }
     }

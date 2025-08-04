@@ -15,11 +15,18 @@ public interface IVersionControl : IDisposable
     public bool InitIfVersionControlled(string directoryPath);
 
     /// <summary>
-    /// Consolidates and retrieves the status of the specified path in the version control system.
+    /// Retrieves the status of the specified file in the version control system.
     /// </summary>
-    /// <param name="path">The path for which to retrieve the status.</param>
+    /// <param name="filePath">The path for which to retrieve the status.</param>
     /// <returns><see cref="VCStatus"/> representing the version control status in the context of <see cref="FileSurfer"/>.</returns>
-    public VCStatus ConsolidateStatus(string path);
+    public VCStatus GetFileStatus(string filePath);
+
+    /// <summary>
+    /// Retrieves the status of the specified directory in the version control system.
+    /// </summary>
+    /// <param name="dirPath">The path for which to retrieve the status.</param>
+    /// <returns><see cref="VCStatus"/> representing the version control status in the context of <see cref="FileSurfer"/>.</returns>
+    public VCStatus GetDirStatus(string dirPath);
 
     /// <summary>
     /// Downloads the latest changes from the version control system to the local repository.
@@ -54,15 +61,23 @@ public interface IVersionControl : IDisposable
     /// <param name="filePath">The path of the file to stage.</param>
     /// <param name="errorMessage">An output parameter that will contain an error message if the staging fails.</param>
     /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool StageChange(string filePath, out string? errorMessage);
+    public bool StageFile(string filePath, out string? errorMessage);
 
     /// <summary>
-    /// Unstages changes in the specified file, reverting it to the previous staged state.
+    /// Stages changes made in the specified directory for the next commit.
     /// </summary>
-    /// <param name="filePath">The path of the file to unstage.</param>
+    /// <param name="dirPath">The path of the directory to stage.</param>
+    /// <param name="errorMessage">An output parameter that will contain an error message if the staging fails.</param>
+    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
+    public bool StageDirectory(string dirPath, out string? errorMessage);
+
+    /// <summary>
+    /// Unstages changes in the specified file or directory, reverting it to the previous staged state.
+    /// </summary>
+    /// <param name="filePath">The path of the file or directory to unstage.</param>
     /// <param name="errorMessage">An output parameter that will contain an error message if the un-staging fails.</param>
     /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool UnstageChange(string filePath, out string? errorMessage);
+    public bool UnstagePath(string filePath, out string? errorMessage);
 
     /// <summary>
     /// Commits the staged changes with the specified commit message.

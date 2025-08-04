@@ -35,7 +35,8 @@ public class GitVersionControlHandler : IVersionControl
     private const string MissingRepoMessage = "No git repository found";
     private readonly IFileIOHandler _fileIOHandler;
     private Repository? _currentRepo = null;
-    private readonly Dictionary<string, VCStatus> _statusDict = new();
+    private readonly Dictionary<string, VCStatus> _fileStatuses = new();
+    private readonly Dictionary<string, VCStatus> _dirStatuses = new();
 
     /// <summary>
     /// Initializes a new <see cref="GitVersionControlHandler"/>.
@@ -130,14 +131,44 @@ public class GitVersionControlHandler : IVersionControl
                 IncludeUntracked = true,
                 RecurseUntrackedDirs = true,
                 DisablePathSpecMatch = true,
+                DetectRenamesInIndex = true,
+                DetectRenamesInWorkDir = true,
+                IncludeIgnored = false,
+                IncludeUnaltered = false,
+                RecurseIgnoredDirs = false,
             }
         );
-        _statusDict.Clear();
+        _fileStatuses.Clear();
+        _dirStatuses.Clear();
         foreach (StatusEntry? entry in repoStatus)
         {
             string absolutePath = Path.Combine(_currentRepo.Info.WorkingDirectory, entry.FilePath)
                 .Replace('\\', '/');
-            _statusDict[absolutePath] = ConvertToVCStatus(entry.State);
+            VCStatus status = ConvertToVCStatus(entry.State);
+            _fileStatuses[absolutePath] = status;
+
+            if (status is VCStatus.Unstaged or VCStatus.Staged)
+                SetDirStatuses(absolutePath, status);
+        }
+    }
+
+    private void SetDirStatuses(string absolutePath, VCStatus status)
+    {
+        string? parentPath = absolutePath;
+        while (
+            (parentPath = Path.GetDirectoryName(parentPath))?.Length
+            > _currentRepo!.Info.WorkingDirectory.Length
+        )
+        {
+            string normalizedPath = parentPath.Replace('\\', '/');
+
+            if (status is VCStatus.Unstaged)
+                _dirStatuses[normalizedPath] = VCStatus.Unstaged;
+            else if (
+                !_dirStatuses.TryGetValue(normalizedPath, out VCStatus currentStatus)
+                || currentStatus is not VCStatus.Unstaged
+            )
+                _dirStatuses[normalizedPath] = VCStatus.Staged;
         }
     }
 
@@ -168,19 +199,25 @@ public class GitVersionControlHandler : IVersionControl
     }
 
     /// <inheritdoc/>
-    public VCStatus ConsolidateStatus(string path)
-    {
-        if (_currentRepo is null)
-            return VCStatus.NotVersionControlled;
-
-        return _statusDict.GetValueOrDefault(
-            path.Replace('\\', '/'),
-            VCStatus.NotVersionControlled
-        );
-    }
+    public VCStatus GetFileStatus(string filePath) =>
+        _currentRepo is not null
+            ? _fileStatuses.GetValueOrDefault(
+                filePath.Replace('\\', '/'),
+                VCStatus.NotVersionControlled
+            )
+            : VCStatus.NotVersionControlled;
 
     /// <inheritdoc/>
-    public bool StageChange(string filePath, out string? errorMessage)
+    public VCStatus GetDirStatus(string dirPath) =>
+        _currentRepo is not null
+            ? _dirStatuses.GetValueOrDefault(
+                dirPath.Replace('\\', '/'),
+                VCStatus.NotVersionControlled
+            )
+            : VCStatus.NotVersionControlled;
+
+    /// <inheritdoc/>
+    public bool StageFile(string filePath, out string? errorMessage)
     {
         try
         {
@@ -189,11 +226,9 @@ public class GitVersionControlHandler : IVersionControl
                 errorMessage = MissingRepoMessage;
                 return false;
             }
-            string relativePath = Path.GetRelativePath(
-                _currentRepo.Info.WorkingDirectory,
-                filePath
+            _currentRepo.Index.Add(
+                Path.GetRelativePath(_currentRepo.Info.WorkingDirectory, filePath)
             );
-            _currentRepo.Index.Add(relativePath);
             _currentRepo.Index.Write();
             errorMessage = null;
             return true;
@@ -206,7 +241,35 @@ public class GitVersionControlHandler : IVersionControl
     }
 
     /// <inheritdoc/>
-    public bool UnstageChange(string filePath, out string? errorMessage)
+    public bool StageDirectory(string dirPath, out string? errorMessage)
+    {
+        try
+        {
+            if (_currentRepo is null)
+            {
+                errorMessage = MissingRepoMessage;
+                return false;
+            }
+
+            foreach (KeyValuePair<string, VCStatus> kp in _fileStatuses)
+                if (kp.Value is VCStatus.Unstaged)
+                    _currentRepo.Index.Add(
+                        Path.GetRelativePath(_currentRepo.Info.WorkingDirectory, kp.Key)
+                    );
+
+            _currentRepo.Index.Write();
+            errorMessage = null;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
+    }
+
+    /// <inheritdoc/>
+    public bool UnstagePath(string filePath, out string? errorMessage)
     {
         try
         {
