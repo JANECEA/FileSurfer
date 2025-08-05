@@ -691,7 +691,7 @@ public class MainWindowViewModel : ReactiveObject
                 _fileIOHandler,
                 dirPaths[i],
                 true,
-                _versionControl.GetDirStatus(dirPaths[i])
+                GetVCStatus(dirPaths[i])
             );
 
         for (int i = 0; i < filePaths.Length; i++)
@@ -699,11 +699,14 @@ public class MainWindowViewModel : ReactiveObject
                 _fileIOHandler,
                 filePaths[i],
                 false,
-                _versionControl.GetFileStatus(filePaths[i])
+                GetVCStatus(filePaths[i])
             );
 
         AddEntries(directories, files);
     }
+
+    private VCStatus GetVCStatus(string path) =>
+        IsVersionControlled ? _versionControl.GetStatus(path) : VCStatus.NotVersionControlled;
 
     private void RemoveDotFiles(ref string[] dirPaths, ref string[] filePaths)
     {
@@ -896,23 +899,13 @@ public class MainWindowViewModel : ReactiveObject
             foreach (string filePath in await GetPathFilesAsync(directory, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
                     FileEntries.Add(
-                        new FileSystemEntry(
-                            _fileIOHandler,
-                            filePath,
-                            false,
-                            _versionControl.GetFileStatus(filePath)
-                        )
+                        new FileSystemEntry(_fileIOHandler, filePath, false, GetVCStatus(filePath))
                     );
 
             foreach (string dirPath in await GetPathDirsAsync(directory, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
                     FileEntries.Add(
-                        new FileSystemEntry(
-                            _fileIOHandler,
-                            dirPath,
-                            true,
-                            _versionControl.GetFileStatus(dirPath)
-                        )
+                        new FileSystemEntry(_fileIOHandler, dirPath, true, GetVCStatus(dirPath))
                     );
         });
 

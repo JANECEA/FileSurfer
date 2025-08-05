@@ -35,8 +35,7 @@ public class GitVersionControlHandler : IVersionControl
     private const string MissingRepoMessage = "No git repository found";
     private readonly IFileIOHandler _fileIOHandler;
     private Repository? _currentRepo = null;
-    private readonly Dictionary<string, VCStatus> _fileStatuses = new();
-    private readonly Dictionary<string, VCStatus> _dirStatuses = new();
+    private readonly Dictionary<string, VCStatus> _pathStates = new();
 
     /// <summary>
     /// Initializes a new <see cref="GitVersionControlHandler"/>.
@@ -142,14 +141,13 @@ public class GitVersionControlHandler : IVersionControl
             }
         );
 
-        _fileStatuses.Clear();
-        _dirStatuses.Clear();
+        _pathStates.Clear();
         foreach (StatusEntry? entry in repoStatus)
         {
             string absolutePath = Path.Combine(_currentRepo.Info.WorkingDirectory, entry.FilePath)
                 .Replace('/', '\\');
             VCStatus status = ConvertToVCStatus(entry.State);
-            _fileStatuses[absolutePath] = status;
+            _pathStates[absolutePath] = status;
 
             if (status is VCStatus.Unstaged or VCStatus.Staged)
                 SetDirStatuses(absolutePath, status);
@@ -164,12 +162,12 @@ public class GitVersionControlHandler : IVersionControl
             > _currentRepo!.Info.WorkingDirectory.Length
         )
             if (status is VCStatus.Unstaged)
-                _dirStatuses[parentPath] = VCStatus.Unstaged;
+                _pathStates[parentPath] = VCStatus.Unstaged;
             else if (
-                !_dirStatuses.TryGetValue(parentPath, out VCStatus currentStatus)
+                !_pathStates.TryGetValue(parentPath, out VCStatus currentStatus)
                 || currentStatus is not VCStatus.Unstaged
             )
-                _dirStatuses[parentPath] = VCStatus.Staged;
+                _pathStates[parentPath] = VCStatus.Staged;
     }
 
     private static VCStatus ConvertToVCStatus(FileStatus status)
@@ -199,15 +197,9 @@ public class GitVersionControlHandler : IVersionControl
     }
 
     /// <inheritdoc/>
-    public VCStatus GetFileStatus(string filePath) =>
+    public VCStatus GetStatus(string path) =>
         _currentRepo is not null
-            ? _fileStatuses.GetValueOrDefault(filePath, VCStatus.NotVersionControlled)
-            : VCStatus.NotVersionControlled;
-
-    /// <inheritdoc/>
-    public VCStatus GetDirStatus(string dirPath) =>
-        _currentRepo is not null
-            ? _dirStatuses.GetValueOrDefault(dirPath, VCStatus.NotVersionControlled)
+            ? _pathStates.GetValueOrDefault(path, VCStatus.NotVersionControlled)
             : VCStatus.NotVersionControlled;
 
     /// <inheritdoc/>

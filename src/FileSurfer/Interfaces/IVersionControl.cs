@@ -15,18 +15,11 @@ public interface IVersionControl : IDisposable
     public bool InitIfVersionControlled(string directoryPath);
 
     /// <summary>
-    /// Retrieves the status of the specified file in the version control system.
+    /// Retrieves the status of the specified path in the version control system.
     /// </summary>
     /// <param name="filePath">The path for which to retrieve the status.</param>
     /// <returns><see cref="VCStatus"/> representing the version control status in the context of <see cref="FileSurfer"/>.</returns>
-    public VCStatus GetFileStatus(string filePath);
-
-    /// <summary>
-    /// Retrieves the status of the specified directory in the version control system.
-    /// </summary>
-    /// <param name="dirPath">The path for which to retrieve the status.</param>
-    /// <returns><see cref="VCStatus"/> representing the version control status in the context of <see cref="FileSurfer"/>.</returns>
-    public VCStatus GetDirStatus(string dirPath);
+    public VCStatus GetStatus(string filePath);
 
     /// <summary>
     /// Downloads the latest changes from the version control system to the local repository.
