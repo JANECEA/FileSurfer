@@ -56,20 +56,12 @@ public interface IVersionControl : IDisposable
     public bool SwitchBranches(string branchName, out string? errorMessage);
 
     /// <summary>
-    /// Stages changes in the specified file for the next commit.
+    /// Stages changes on the specified path for the next commit.
     /// </summary>
-    /// <param name="filePath">The path of the file to stage.</param>
+    /// <param name="path">The path to stage.</param>
     /// <param name="errorMessage">An output parameter that will contain an error message if the staging fails.</param>
     /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool StageFile(string filePath, out string? errorMessage);
-
-    /// <summary>
-    /// Stages changes made in the specified directory for the next commit.
-    /// </summary>
-    /// <param name="dirPath">The path of the directory to stage.</param>
-    /// <param name="errorMessage">An output parameter that will contain an error message if the staging fails.</param>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool StageDirectory(string dirPath, out string? errorMessage);
+    public bool StagePath(string path, out string? errorMessage);
 
     /// <summary>
     /// Unstages changes in the specified file or directory, reverting it to the previous staged state.

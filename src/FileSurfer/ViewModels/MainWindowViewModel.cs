@@ -896,13 +896,23 @@ public class MainWindowViewModel : ReactiveObject
             foreach (string filePath in await GetPathFilesAsync(directory, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
                     FileEntries.Add(
-                        new FileSystemEntry(_fileIOHandler, filePath, false, _versionControl.GetFileStatus(filePath))
+                        new FileSystemEntry(
+                            _fileIOHandler,
+                            filePath,
+                            false,
+                            _versionControl.GetFileStatus(filePath)
+                        )
                     );
 
             foreach (string dirPath in await GetPathDirsAsync(directory, searchQuery))
                 if (!searchCTS.IsCancellationRequested)
                     FileEntries.Add(
-                        new FileSystemEntry(_fileIOHandler, dirPath, true, _versionControl.GetFileStatus(dirPath))
+                        new FileSystemEntry(
+                            _fileIOHandler,
+                            dirPath,
+                            true,
+                            _versionControl.GetFileStatus(dirPath)
+                        )
                     );
         });
 
@@ -1412,12 +1422,7 @@ public class MainWindowViewModel : ReactiveObject
     {
         if (IsVersionControlled)
         {
-            string? errorMessage;
-            if (entry.IsDirectory)
-                _versionControl.StageDirectory(entry.PathToEntry, out errorMessage);
-            else
-                _versionControl.StageFile(entry.PathToEntry, out errorMessage);
-
+            _versionControl.StagePath(entry.PathToEntry, out string? errorMessage);
             ForwardError(errorMessage);
         }
     }

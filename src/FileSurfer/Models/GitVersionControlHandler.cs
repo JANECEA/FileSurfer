@@ -47,30 +47,33 @@ public class GitVersionControlHandler : IVersionControl
     public bool InitIfVersionControlled(string directoryPath)
     {
         string? repoRootDir = directoryPath;
+        string gitDir = string.Empty;
         while (repoRootDir is not null)
         {
-            string gitDir = Path.Combine(repoRootDir, ".git");
-            if (!Directory.Exists(gitDir))
-            {
-                repoRootDir = Path.GetDirectoryName(repoRootDir);
-                continue;
-            }
+            gitDir = Path.Combine(repoRootDir, ".git");
+            if (Directory.Exists(gitDir))
+                break;
+
+            repoRootDir = Path.GetDirectoryName(repoRootDir);
+        }
+
+        if ((_currentRepo?.Info.Path) == gitDir + '\\')
+        {
+            SetFileStates();
+            return true;
+        }
+
+        _currentRepo?.Dispose();
+        if (repoRootDir is not null && Directory.Exists(repoRootDir))
+        {
             try
             {
-                if (_currentRepo?.Info.Path != gitDir)
-                {
-                    _currentRepo?.Dispose();
-                    _currentRepo = new Repository(repoRootDir);
-                    SetFileStates();
-                }
+                _currentRepo = new Repository(repoRootDir);
+                SetFileStates();
                 return true;
             }
-            catch
-            {
-                break;
-            }
+            catch { }
         }
-        _currentRepo?.Dispose();
         _currentRepo = null;
         return false;
     }
@@ -138,6 +141,7 @@ public class GitVersionControlHandler : IVersionControl
                 RecurseIgnoredDirs = false,
             }
         );
+
         _fileStatuses.Clear();
         _dirStatuses.Clear();
         foreach (StatusEntry? entry in repoStatus)
@@ -217,31 +221,7 @@ public class GitVersionControlHandler : IVersionControl
             : VCStatus.NotVersionControlled;
 
     /// <inheritdoc/>
-    public bool StageFile(string filePath, out string? errorMessage)
-    {
-        try
-        {
-            if (_currentRepo is null)
-            {
-                errorMessage = MissingRepoMessage;
-                return false;
-            }
-            _currentRepo.Index.Add(
-                Path.GetRelativePath(_currentRepo.Info.WorkingDirectory, filePath)
-            );
-            _currentRepo.Index.Write();
-            errorMessage = null;
-            return true;
-        }
-        catch (Exception ex)
-        {
-            errorMessage = ex.Message;
-            return false;
-        }
-    }
-
-    /// <inheritdoc/>
-    public bool StageDirectory(string dirPath, out string? errorMessage)
+    public bool StagePath(string path, out string? errorMessage)
     {
         try
         {
@@ -251,13 +231,7 @@ public class GitVersionControlHandler : IVersionControl
                 return false;
             }
 
-            foreach (KeyValuePair<string, VCStatus> kp in _fileStatuses)
-                if (kp.Value is VCStatus.Unstaged)
-                    _currentRepo.Index.Add(
-                        Path.GetRelativePath(_currentRepo.Info.WorkingDirectory, kp.Key)
-                    );
-
-            _currentRepo.Index.Write();
+            Commands.Stage(_currentRepo, path);
             errorMessage = null;
             return true;
         }
