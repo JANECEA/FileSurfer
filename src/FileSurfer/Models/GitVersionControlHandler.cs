@@ -147,7 +147,7 @@ public class GitVersionControlHandler : IVersionControl
         foreach (StatusEntry? entry in repoStatus)
         {
             string absolutePath = Path.Combine(_currentRepo.Info.WorkingDirectory, entry.FilePath)
-                .Replace('\\', '/');
+                .Replace('/', '\\');
             VCStatus status = ConvertToVCStatus(entry.State);
             _fileStatuses[absolutePath] = status;
 
@@ -163,17 +163,13 @@ public class GitVersionControlHandler : IVersionControl
             (parentPath = Path.GetDirectoryName(parentPath))?.Length
             > _currentRepo!.Info.WorkingDirectory.Length
         )
-        {
-            string normalizedPath = parentPath.Replace('\\', '/');
-
             if (status is VCStatus.Unstaged)
-                _dirStatuses[normalizedPath] = VCStatus.Unstaged;
+                _dirStatuses[parentPath] = VCStatus.Unstaged;
             else if (
-                !_dirStatuses.TryGetValue(normalizedPath, out VCStatus currentStatus)
+                !_dirStatuses.TryGetValue(parentPath, out VCStatus currentStatus)
                 || currentStatus is not VCStatus.Unstaged
             )
-                _dirStatuses[normalizedPath] = VCStatus.Staged;
-        }
+                _dirStatuses[parentPath] = VCStatus.Staged;
     }
 
     private static VCStatus ConvertToVCStatus(FileStatus status)
@@ -205,19 +201,13 @@ public class GitVersionControlHandler : IVersionControl
     /// <inheritdoc/>
     public VCStatus GetFileStatus(string filePath) =>
         _currentRepo is not null
-            ? _fileStatuses.GetValueOrDefault(
-                filePath.Replace('\\', '/'),
-                VCStatus.NotVersionControlled
-            )
+            ? _fileStatuses.GetValueOrDefault(filePath, VCStatus.NotVersionControlled)
             : VCStatus.NotVersionControlled;
 
     /// <inheritdoc/>
     public VCStatus GetDirStatus(string dirPath) =>
         _currentRepo is not null
-            ? _dirStatuses.GetValueOrDefault(
-                dirPath.Replace('\\', '/'),
-                VCStatus.NotVersionControlled
-            )
+            ? _dirStatuses.GetValueOrDefault(dirPath, VCStatus.NotVersionControlled)
             : VCStatus.NotVersionControlled;
 
     /// <inheritdoc/>
