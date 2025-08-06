@@ -109,17 +109,18 @@ public class GitVersionControlHandler : IVersionControl
             errorMessage = MissingRepoMessage;
             return false;
         }
-
-        Branch branch = _currentRepo.Branches[branchName];
-        if (branch is null)
+        try
+        {
+            Branch branch = _currentRepo.Branches[branchName];
+            Commands.Checkout(_currentRepo, branch);
+            errorMessage = null;
+            return true;
+        }
+        catch
         {
             errorMessage = $"branch: \"{branchName}\" not found";
             return false;
         }
-        Commands.Checkout(_currentRepo, branch);
-
-        errorMessage = null;
-        return true;
     }
 
     private void SetFileStates()

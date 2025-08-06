@@ -170,6 +170,7 @@ public class MainWindowViewModel : ReactiveObject
         get => _currentBranch;
         set
         {
+            this.RaiseAndSetIfChanged(ref _currentBranch, value);
             if (!string.IsNullOrEmpty(value) && Branches.Contains(value))
             {
                 _versionControl.SwitchBranches(value, out string? errorMessage);
@@ -179,16 +180,6 @@ public class MainWindowViewModel : ReactiveObject
         }
     }
     private string? _currentBranch;
-
-    /// <summary>
-    /// Used for displaying the current branch in the "Branches" combobox.
-    /// </summary>
-    public int CurrentBranchIndex
-    {
-        get => _currentBranchIndex;
-        set => this.RaiseAndSetIfChanged(ref _currentBranchIndex, value);
-    }
-    private int _currentBranchIndex = 0;
 
     /// <summary>
     /// Indicates whether the current directory is version controlled.
@@ -786,7 +777,7 @@ public class MainWindowViewModel : ReactiveObject
             foreach (string branch in _versionControl.GetBranches())
                 Branches.Add(branch);
 
-            CurrentBranchIndex = Branches.IndexOf(_versionControl.GetCurrentBranchName());
+            CurrentBranch = _versionControl.GetCurrentBranchName();
         }
     }
 

@@ -118,7 +118,8 @@
                 <Button Classes="GitButton" Content="PUSH" Command="{Binding PushCommand}" IsVisible="{Binding IsVersionControlled}"/>
                 <Button Classes="GitButton" Content="COMMIT" Click="OnCommitClicked" IsVisible="{Binding IsVersionControlled}"/>
                 <Button Classes="GitButton" Content="PULL" Command="{Binding PullCommand}" IsVisible="{Binding IsVersionControlled}"/>
-                <ComboBox Classes="BranchComboBox" ItemsSource="{Binding Branches}" SelectedItem="{Binding CurrentBranch}" SelectedIndex="{Binding CurrentBranchIndex}" IsVisible="{Binding IsVersionControlled}"/>
+                <ComboBox Classes="BranchComboBox" ItemsSource="{Binding Branches}" SelectedItem="{Binding CurrentBranch, Mode=TwoWay}" 
+                          IsVisible="{Binding IsVersionControlled}"/>
             </DockPanel>
         </Border>
 
