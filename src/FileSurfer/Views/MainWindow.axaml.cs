@@ -466,7 +466,7 @@ public partial class MainWindow : Window
         {
             if (SearchBox.IsFocused && !string.IsNullOrWhiteSpace(SearchBox.Text))
             {
-                _viewModel?.SearchRelay(SearchBox.Text);
+                _viewModel?.SearchAsync(SearchBox.Text);
                 return;
             }
             if (_viewModel.SelectedFiles.Count == 1)

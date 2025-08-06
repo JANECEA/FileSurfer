@@ -862,8 +862,11 @@ public class MainWindowViewModel : ReactiveObject
     /// <summary>
     /// Prepares the <see cref="_searchCTS"/> cancellation token, updates <see cref="CurrentDir"/>, and starts the search.
     /// </summary>
-    public async void SearchRelay(string searchQuery)
+    public async Task SearchAsync(string searchQuery)
     {
+        if (Searching)
+            _searchCTS.Cancel();
+
         if (_searchCTS.IsCancellationRequested)
         {
             CancellationTokenSource oldCTS = _searchCTS;
@@ -878,10 +881,8 @@ public class MainWindowViewModel : ReactiveObject
         if (currentDir != ThisPCLabel)
             await SearchDirectoryAsync(currentDir, searchQuery, _searchCTS.Token);
         else
-        {
             foreach (DriveInfo drive in _fileIOHandler.GetDrives())
                 await SearchDirectoryAsync(drive.Name, searchQuery, _searchCTS.Token);
-        }
     }
 
     /// <summary>
@@ -894,63 +895,75 @@ public class MainWindowViewModel : ReactiveObject
         CancellationToken searchCTS
     )
     {
-        await Dispatcher.UIThread.InvokeAsync(async () =>
+        Queue<string> directories = new();
+        directories.Enqueue(directory);
+
+        while (directories.Count > 0 && !searchCTS.IsCancellationRequested)
         {
-            foreach (string filePath in await GetPathFilesAsync(directory, searchQuery))
-                if (!searchCTS.IsCancellationRequested)
-                    FileEntries.Add(
-                        new FileSystemEntry(_fileIOHandler, filePath, false, GetVCStatus(filePath))
-                    );
+            string currentDirPath = directories.Dequeue();
 
-            foreach (string dirPath in await GetPathDirsAsync(directory, searchQuery))
-                if (!searchCTS.IsCancellationRequested)
-                    FileEntries.Add(
-                        new FileSystemEntry(_fileIOHandler, dirPath, true, GetVCStatus(dirPath))
-                    );
-        });
-
-        foreach (string dir in await GetPathDirsAsync(directory))
-            if (!searchCTS.IsCancellationRequested)
-                await SearchDirectoryAsync(dir, searchQuery, searchCTS);
-    }
-
-    private async Task<IEnumerable<string>> GetPathFilesAsync(string directory, string query)
-    {
-        IEnumerable<string> entries = await Task.Run(
-            () =>
-                _fileIOHandler.GetPathFiles(
-                    directory,
-                    FileSurferSettings.ShowHiddenFiles,
-                    FileSurferSettings.ShowProtectedFiles
-                )
-        );
-        if (!FileSurferSettings.ShowHiddenFiles && FileSurferSettings.TreatDotFilesAsHidden)
-            entries = entries.Where(path => !Path.GetFileName(path).StartsWith('.'));
-
-        return entries.Where(name =>
-            Path.GetFileName(name).Contains(query, StringComparison.CurrentCultureIgnoreCase)
-        );
-    }
-
-    private async Task<IEnumerable<string>> GetPathDirsAsync(string directory, string? query = null)
-    {
-        IEnumerable<string> entries = await Task.Run(
-            () =>
-                _fileIOHandler.GetPathDirs(
-                    directory,
-                    FileSurferSettings.ShowHiddenFiles,
-                    FileSurferSettings.ShowProtectedFiles
-                )
-        );
-        if (!FileSurferSettings.ShowHiddenFiles && FileSurferSettings.TreatDotFilesAsHidden)
-            entries = entries.Where(path => !Path.GetFileName(path).StartsWith('.'));
-
-        return query is null
-            ? entries
-            : entries.Where(name =>
-                Path.GetFileName(name).Contains(query, StringComparison.CurrentCultureIgnoreCase)
+            IEnumerable<string> dirPaths = GetAllDirs(currentDirPath);
+            Task<List<FileSystemEntry>> filesTask = Task.Run(
+                () => GetFiles(currentDirPath, searchQuery)
             );
+            Task<List<FileSystemEntry>> filteredDirsTask = Task.Run(
+                () => GetDirs(dirPaths, searchQuery)
+            );
+            await Task.WhenAll(filesTask, filteredDirsTask);
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                foreach (FileSystemEntry file in filesTask.Result)
+                    if (!searchCTS.IsCancellationRequested)
+                        FileEntries.Add(file);
+
+                foreach (FileSystemEntry dir in filteredDirsTask.Result)
+                    if (!searchCTS.IsCancellationRequested)
+                        FileEntries.Add(dir);
+            });
+
+            foreach (string dirPath in dirPaths)
+                directories.Enqueue(dirPath);
+        }
     }
+
+    private List<FileSystemEntry> GetFiles(string directory, string query)
+    {
+        IEnumerable<string> filePaths = _fileIOHandler.GetPathFiles(
+            directory,
+            FileSurferSettings.ShowHiddenFiles,
+            FileSurferSettings.ShowProtectedFiles
+        );
+        if (!FileSurferSettings.ShowHiddenFiles && FileSurferSettings.TreatDotFilesAsHidden)
+            filePaths = filePaths.Where(path => !Path.GetFileName(path).StartsWith('.'));
+
+        return FilterPaths(filePaths, query)
+            .Select(path => new FileSystemEntry(_fileIOHandler, path, false, GetVCStatus(path)))
+            .ToList();
+    }
+
+    private IEnumerable<string> GetAllDirs(string directory)
+    {
+        IEnumerable<string> dirPaths = _fileIOHandler.GetPathDirs(
+            directory,
+            FileSurferSettings.ShowHiddenFiles,
+            FileSurferSettings.ShowProtectedFiles
+        );
+        if (!FileSurferSettings.ShowHiddenFiles && FileSurferSettings.TreatDotFilesAsHidden)
+            return dirPaths.Where(path => !Path.GetFileName(path).StartsWith('.'));
+
+        return dirPaths;
+    }
+
+    private List<FileSystemEntry> GetDirs(IEnumerable<string> dirs, string query) =>
+        FilterPaths(dirs, query)
+            .Select(path => new FileSystemEntry(_fileIOHandler, path, true, GetVCStatus(path)))
+            .ToList();
+
+    private IEnumerable<string> FilterPaths(IEnumerable<string> paths, string query) =>
+        paths.Where(path =>
+            Path.GetFileName(path).Contains(query, StringComparison.CurrentCultureIgnoreCase)
+        );
 
     /// <summary>
     /// Cancels the search and sets <see cref="CurrentDir"/> to the current in <see cref="_pathHistory"/>.
