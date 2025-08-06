@@ -52,7 +52,8 @@
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.10" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.10" />
-        <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
+        <PackageReference Include="LibGit2Sharp" Version="0.31.0" />
         <PackageReference Include="SharpCompress" Version="0.37.2" />
+        <PackageReference Include="xunit" Version="2.9.3" />
     </ItemGroup>
 </Project>
