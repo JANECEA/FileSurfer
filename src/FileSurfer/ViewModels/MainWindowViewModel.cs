@@ -39,6 +39,7 @@ public class MainWindowViewModel : ReactiveObject
     private readonly ClipboardManager _clipboardManager;
     private readonly DispatcherTimer? _refreshTimer;
 
+    private bool _isActionUserInvoked = true;
     private bool SortReversed
     {
         get => FileSurferSettings.SortReversed;
@@ -50,7 +51,6 @@ public class MainWindowViewModel : ReactiveObject
         set => FileSurferSettings.DefaultSort = value;
     }
     private CancellationTokenSource _searchCTS = new();
-    private bool _isUserInvoked = true;
     private DateTime _lastModified;
 
     /// <summary>
@@ -108,7 +108,7 @@ public class MainWindowViewModel : ReactiveObject
 
                 Reload();
 
-                if (_isUserInvoked && value != _pathHistory.Current)
+                if (_isActionUserInvoked && value != _pathHistory.Current)
                     _pathHistory.AddNewNode(value);
             }
             if (Directory.Exists(value))
@@ -171,12 +171,13 @@ public class MainWindowViewModel : ReactiveObject
         set
         {
             this.RaiseAndSetIfChanged(ref _currentBranch, value);
-            if (!string.IsNullOrEmpty(value) && Branches.Contains(value))
+            if (_isActionUserInvoked && !string.IsNullOrEmpty(value) && Branches.Contains(value))
             {
-                _versionControl.SwitchBranches(value, out string? errorMessage);
+                if (!_versionControl.SwitchBranches(value, out string? errorMessage))
+                    Reload();
+
                 ForwardError(errorMessage);
             }
-            _currentBranch = value;
         }
     }
     private string? _currentBranch;
@@ -777,7 +778,9 @@ public class MainWindowViewModel : ReactiveObject
             foreach (string branch in _versionControl.GetBranches())
                 Branches.Add(branch);
 
+            _isActionUserInvoked = false;
             CurrentBranch = _versionControl.GetCurrentBranchName();
+            _isActionUserInvoked = true;
         }
     }
 
@@ -804,9 +807,9 @@ public class MainWindowViewModel : ReactiveObject
 
         if (IsValidDirectory(previousPath))
         {
-            _isUserInvoked = false;
+            _isActionUserInvoked = false;
             CurrentDir = previousPath;
-            _isUserInvoked = true;
+            _isActionUserInvoked = true;
         }
         else
             _pathHistory.RemoveNode(false);
@@ -830,9 +833,9 @@ public class MainWindowViewModel : ReactiveObject
 
         if (IsValidDirectory(nextPath))
         {
-            _isUserInvoked = false;
+            _isActionUserInvoked = false;
             CurrentDir = nextPath;
-            _isUserInvoked = true;
+            _isActionUserInvoked = true;
         }
         else
             _pathHistory.RemoveNode(true);
