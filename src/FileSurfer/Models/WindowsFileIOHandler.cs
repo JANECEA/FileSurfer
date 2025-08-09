@@ -380,7 +380,7 @@ public class WindowsFileIOHandler : IFileIOHandler
             Process.Start(
                 new ProcessStartInfo
                 {
-                    FileName = FileSurferSettings.NotePadApp,
+                    FileName = FileSurferSettings.NotepadApp,
                     Arguments = filePath,
                     UseShellExecute = true,
                 }
