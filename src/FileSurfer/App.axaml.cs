@@ -39,6 +39,7 @@ public partial class App : Application
                 : ThemeVariant.Light;
 
             desktop.MainWindow = new MainWindow { DataContext = new MainWindowViewModel() };
+            desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnMainWindowClose;
         }
         base.OnFrameworkInitializationCompleted();
     }

@@ -413,6 +413,15 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
+    /// Opens the <see cref="SettingsWindow"/> in a dialog mode with <see cref="MainWindow"/> as the owner.
+    /// </summary>
+    private void OpenSettings(object sender, RoutedEventArgs e)
+    {
+        SettingsWindow settingsWindow = new();
+        settingsWindow.ShowDialog(this);  
+    }
+
+    /// <summary>
     /// Handles key presses without keybindings.
     /// </summary>
     private void KeyPressed(object sender, KeyEventArgs e)

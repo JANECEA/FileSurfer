@@ -110,7 +110,7 @@
                             <MenuItem Classes="MenuOption" Header="Select none" Command="{Binding SelectNoneCommand}"/>
                             <MenuItem Classes="MenuOption" Header="Invert selection" Command="{Binding InvertSelectionCommand}"/>
                             <Separator/>
-                            <MenuItem Classes="MenuOption" Header="Settings" Command="{Binding OpenSettingsCommand}"/>
+                            <MenuItem Classes="MenuOption" Header="Settings" Click="OpenSettings"/>
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>

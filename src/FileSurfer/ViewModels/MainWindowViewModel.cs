@@ -78,12 +78,6 @@ public class MainWindowViewModel : ReactiveObject
     /// </summary>
     public FileSystemEntry[] Drives { get; }
 
-    private async Task ShowErrorWindowAsync(string errorMessage) =>
-        await Dispatcher.UIThread.InvokeAsync(() =>
-        {
-            new Views.ErrorWindow { ErrorMessage = errorMessage }.Show();
-        });
-
     /// <summary>
     /// Holds the path to the current directory displayed in FileSurfer.
     /// <para>
@@ -218,7 +212,7 @@ public class MainWindowViewModel : ReactiveObject
     public ReactiveCommand<Unit, Unit> OpenPowerShellCommand { get; }
 
     /// <summary>
-    /// Invokes <see cref="CancelSearch()"/>.
+    /// Invokes <see cref="CancelSearch"/>.
     /// </summary>
     public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
 
@@ -303,11 +297,6 @@ public class MainWindowViewModel : ReactiveObject
     public ReactiveCommand<Unit, Unit> InvertSelectionCommand { get; }
 
     /// <summary>
-    /// Invokes <see cref="OpenSettings"/>.
-    /// </summary>
-    public ReactiveCommand<Unit, Unit> OpenSettingsCommand { get; }
-
-    /// <summary>
     /// Invokes <see cref="Pull"/>.
     /// </summary>
     public ReactiveCommand<Unit, Unit> PullCommand { get; }
@@ -350,7 +339,6 @@ public class MainWindowViewModel : ReactiveObject
         SelectAllCommand = ReactiveCommand.Create(SelectAll);
         SelectNoneCommand = ReactiveCommand.Create(SelectNone);
         InvertSelectionCommand = ReactiveCommand.Create(InvertSelection);
-        OpenSettingsCommand = ReactiveCommand.Create(OpenSettings);
         PullCommand = ReactiveCommand.Create(Pull);
         PushCommand = ReactiveCommand.Create(Push);
 
@@ -435,9 +423,9 @@ public class MainWindowViewModel : ReactiveObject
     private void ForwardError(string? errorMessage)
     {
         if (!string.IsNullOrEmpty(errorMessage))
-            Dispatcher.UIThread.InvokeAsync(async () =>
+            Dispatcher.UIThread.Post(() =>
             {
-                await ShowErrorWindowAsync(errorMessage);
+                new Views.ErrorWindow { ErrorMessage = errorMessage }.Show();
             });
     }
 
@@ -445,15 +433,6 @@ public class MainWindowViewModel : ReactiveObject
     /// Updates <see cref="_lastModified"/> to suppress unnecessary automatic reloads.
     /// </summary>
     private void UpdateLastModified() => _lastModified = DateTime.Now;
-
-    /// <summary>
-    /// Opens <c>settings.json</c> at <see cref="FileSurferSettings.SettingsFilePath"/> in the associated application.
-    /// </summary>
-    private void OpenSettings()
-    {
-        _fileIOHandler.OpenFile(FileSurferSettings.SettingsFilePath, out string? errorMessage);
-        ForwardError(errorMessage);
-    }
 
     /// <summary>
     /// Used for setting the text selection when renaming files.
@@ -568,7 +547,7 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     /// <summary>
-    /// Opens the selected files in the notepad app specified in <see cref="FileSurferSettings.NotePadApp"/>
+    /// Opens the selected files in the notepad app specified in <see cref="FileSurferSettings.NotepadApp"/>
     /// </summary>
     public void OpenInNotepad()
     {
