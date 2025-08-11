@@ -1,7 +1,6 @@
-using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using System;
+using FileSurfer.ViewModels;
 
 namespace FileSurfer.Views;
 
@@ -16,25 +15,32 @@ public partial class SettingsWindow : MainWindow
     public SettingsWindow()
     {
         InitializeComponent();
-        DataContext = new ViewModels.SettingsWindowViewModel();
+        DataContext = new SettingsWindowViewModel();
     }
 
-    protected override void OnOpened(EventArgs e)
+    private void ResetToDefaults(object sender, RoutedEventArgs args)
     {
-        base.OnOpened(e);
+        if (DataContext is SettingsWindowViewModel viewModel)
+        {
+            DataContext = null;
+            viewModel.ResetToDefault();
+            DataContext = viewModel;
+        }
     }
 
-    private void CloseWindow(object sender, RoutedEventArgs args) => Close();
+    private void CloseWindow(object? sender = null, RoutedEventArgs? args = null) => Close();
+
+    private void SaveAndClose(object sender, RoutedEventArgs args)
+    {
+        if (DataContext is SettingsWindowViewModel vm)
+            vm.Save();
+
+        CloseWindow();
+    }
 
     private void KeyPressed(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter)
-            OnEnterPressed(e);
-    }
-
-    private void OnEnterPressed(KeyEventArgs e)
-    {
-        e.Handled = true;
-        Close();
+        if (e.Key == Key.Escape)
+            CloseWindow();
     }
 }

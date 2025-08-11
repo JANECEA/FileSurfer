@@ -21,7 +21,7 @@
                 <ResourceDictionary x:Key="Light">
                     <Color x:Key="PrimaryColor">#EEEEEE</Color>
                     <Color x:Key="SecondaryColor">#CCCCCC</Color>
-                    <Color x:Key="TextBlockColor">#DDDDDD</Color>
+                    <Color x:Key="TextBoxColor">#DDDDDD</Color>
                     <Color x:Key="TextColor">#222222</Color>
                     <Color x:Key="IconColor">#333333</Color>
                     <Color x:Key="GitColor">#F34F29</Color>
@@ -32,7 +32,7 @@
                 <ResourceDictionary x:Key="Dark">
                     <Color x:Key="PrimaryColor">#282828</Color>
                     <Color x:Key="SecondaryColor">#4F4F4F</Color>
-                    <Color x:Key="TextBlockColor">#353535</Color>
+                    <Color x:Key="TextBoxColor">#353535</Color>
                     <Color x:Key="TextColor">#D0D0D0</Color>
                     <Color x:Key="IconColor">#D5D5D5</Color>
                     <Color x:Key="GitColor">#F34F29</Color>

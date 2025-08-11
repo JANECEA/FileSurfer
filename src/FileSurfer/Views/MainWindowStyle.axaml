@@ -5,6 +5,10 @@
         <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
     </Style>
 
+    <Style Selector="Border">
+        <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}"/>
+    </Style>
+
     <Style Selector="Button.TopLeftButton">
         <Setter Property="Height" Value="30"/>
         <Setter Property="Width" Value="30"/>
@@ -22,7 +26,7 @@
         <Setter Property="AcceptsTab" Value="False"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
-        <Setter Property="Background" Value="{DynamicResource TextBlockColor}"/>
+        <Setter Property="Background" Value="{DynamicResource TextBoxColor}"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
@@ -104,7 +108,7 @@
         <Setter Property="Height" Value="35"/>
         <Setter Property="Width" Value="120"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Background" Value="{DynamicResource TextBlockColor}"/>
+        <Setter Property="Background" Value="{DynamicResource TextBoxColor}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
         <Setter Property="BorderThickness" Value="0"/>
     </Style>
@@ -169,7 +173,7 @@
         <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
         <Setter Property="Width" Value="260"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource TextBlockColor}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource TextBoxColor}"/>
     </Style>
 
     <Style Selector="MenuItem.ContextMenuItem">
@@ -180,7 +184,7 @@
     </Style>
 
     <Style Selector="Separator.ContextMenuSeparator">
-        <Setter Property="Background" Value="{DynamicResource TextBlockColor}"/>
+        <Setter Property="Background" Value="{DynamicResource TextBoxColor}"/>
         <Setter Property="Margin" Value="2"/>
     </Style>
 
@@ -224,7 +228,7 @@
         <Setter Property="AcceptsTab" Value="False"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
-        <Setter Property="Background" Value="{DynamicResource TextBlockColor}"/>
+        <Setter Property="Background" Value="{DynamicResource TextBoxColor}"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Padding" Value="5"/>

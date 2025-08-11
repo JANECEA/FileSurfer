@@ -8,4 +8,52 @@
         <Setter Property="Padding" Value="15"/>
     </Style>
 
+    <Style Selector="TextBox">
+        <Setter Property="Background" Value="{DynamicResource TextBoxColor}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource TextBoxColor}"/>
+    </Style>
+
+    <Style Selector="TextBox:focus-within /template/ Border,TextBox:pointerover /template/ Border">
+        <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource TextColor}"/>
+    </Style>
+
+    <Style Selector="ComboBox,NumericUpDown">
+        <Setter Property="Background" Value="{DynamicResource TextBoxColor}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}"/>
+    </Style>
+
+    <Style Selector="NumericUpDown">
+        <Setter Property="ParsingNumberStyle" Value="Integer"/>
+        <Setter Property="FormatString" Value="0"/>
+    </Style>
+
+    <Style Selector="ComboBox,NumericUpDown,CheckBox,TextBox">
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+    </Style>
+
+    <Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+        <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="Button.BottomButton">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+        <Setter Property="CornerRadius" Value="5"/>
+        <Setter Property="Height" Value="35"/>
+        <Setter Property="Width" Value="60"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="2 0 3 0"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="Button.BottomButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource TextBoxColor}"/>
+    </Style>
+
 </Styles>

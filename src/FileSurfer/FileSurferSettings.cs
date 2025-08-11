@@ -101,6 +101,70 @@ static class FileSurferSettings
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\FileSurfer";
 
     /// <summary>
+    /// Returns the default set of settings for the <see cref="FileSurfer"/> app.
+    /// </summary>
+    public static SettingsRecord DefaultSettings
+    {
+        get
+        {
+            string thisPCLabel = "This PC";
+            return new SettingsRecord(
+                "New Image",
+                "New File",
+                "New Folder",
+                thisPCLabel,
+                "notepad.exe",
+                true,
+                thisPCLabel,
+                true,
+                DisplayModeEnum.ListView.ToString(),
+                SortBy.Name.ToString(),
+                4096,
+                false,
+                true,
+                false,
+                true,
+                true,
+                true,
+                true,
+                true,
+                3000,
+                true,
+                new List<string>()
+            );
+        }
+    }
+
+    /// <summary>
+    /// Returns the current settings in the form of <see cref="SettingsRecord"/>.
+    /// </summary>
+    public static SettingsRecord CurrentSettings =>
+        new(
+            NewImageName,
+            NewFileName,
+            NewDirectoryName,
+            ThisPCLabel,
+            NotepadApp,
+            OpenInLastLocation,
+            OpenIn,
+            UseDarkMode,
+            DisplayMode.ToString(),
+            DefaultSort.ToString(),
+            FileSizeDisplayLimit,
+            SortReversed,
+            ShowSpecialFolders,
+            ShowProtectedFiles,
+            ShowHiddenFiles,
+            TreatDotFilesAsHidden,
+            GitIntegration,
+            ShowUndoRedoErrorDialogs,
+            AutomaticRefresh,
+            AutomaticRefreshInterval,
+            AllowImagePastingFromClipboard,
+            QuickAccess
+        );
+
+    /// <summary>
     /// The full path to settings.json.
     /// </summary>
     public static readonly string SettingsFilePath = SettingsFileDir + "\\settings.json";
@@ -239,7 +303,7 @@ static class FileSurferSettings
         }
         catch
         {
-            ImportSettings(GetCurrentSettings());
+            ImportSettings(DefaultSettings);
             SaveSettings();
         }
     }
@@ -293,72 +357,11 @@ static class FileSurferSettings
         QuickAccess = quickAccess.Select(entry => entry.PathToEntry).ToList();
 
     /// <summary>
-    /// Returns the default set of settings for the <see cref="FileSurfer"/> app.
-    /// </summary>
-    public static SettingsRecord GetDefaultSettings()
-    {
-        string thisPCLabel = "This PC";
-        return new(
-            "New Image",
-            "New File",
-            "New Folder",
-            thisPCLabel,
-            "notepad.exe",
-            true,
-            thisPCLabel,
-            true,
-            DisplayModeEnum.ListView.ToString(),
-            SortBy.Name.ToString(),
-            4096,
-            false,
-            true,
-            false,
-            true,
-            true,
-            true,
-            true,
-            true,
-            3000,
-            true,
-            new List<string>()
-        );
-    }
-
-    /// <summary>
-    /// Returns the current settings in the form of <see cref="SettingsRecord"/>.
-    /// </summary>
-    public static SettingsRecord GetCurrentSettings() =>
-        new(
-            NewImageName,
-            NewFileName,
-            NewDirectoryName,
-            ThisPCLabel,
-            NotepadApp,
-            OpenInLastLocation,
-            OpenIn,
-            UseDarkMode,
-            DisplayMode.ToString(),
-            DefaultSort.ToString(),
-            FileSizeDisplayLimit,
-            SortReversed,
-            ShowSpecialFolders,
-            ShowProtectedFiles,
-            ShowHiddenFiles,
-            TreatDotFilesAsHidden,
-            GitIntegration,
-            ShowUndoRedoErrorDialogs,
-            AutomaticRefresh,
-            AutomaticRefreshInterval,
-            AllowImagePastingFromClipboard,
-            QuickAccess
-        );
-
-    /// <summary>
     /// Saves the current settings to the settings file if any changes have been made.
     /// </summary>
     public static void SaveSettings()
     {
-        SettingsRecord settings = GetCurrentSettings();
+        SettingsRecord settings = CurrentSettings;
         string settingsJson = JsonSerializer.Serialize(settings, SerializerOptions);
 
         if (!Directory.Exists(SettingsFileDir))

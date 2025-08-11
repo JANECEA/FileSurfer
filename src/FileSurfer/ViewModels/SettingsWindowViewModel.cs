@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive;
 using ReactiveUI;
 
@@ -25,8 +26,12 @@ public class SettingsWindowViewModel : ReactiveObject
     private bool _openInLastLocation;
     public string OpenIn { get; set; }
     public bool UseDarkMode { get; set; }
-    public DisplayModeEnum DisplayMode { get; set; }
-    public SortBy DefaultSort { get; set; }
+    public string DisplayMode { get; set; }
+    public IEnumerable<string> DisplayModeOptions { get; } =
+        Enum.GetValues<DisplayModeEnum>().Select(option => option.ToString());
+    public string DefaultSort { get; set; }
+    public IEnumerable<string> SortOptions { get; } =
+        Enum.GetValues<SortBy>().Select(option => option.ToString());
     public int FileSizeDisplayLimit { get; set; }
     public bool SortReversed { get; set; }
     public bool ShowSpecialFolders { get; set; }
@@ -40,23 +45,7 @@ public class SettingsWindowViewModel : ReactiveObject
     public bool AllowImagePastingFromClipboard { get; set; }
     public List<string> QuickAccess { get; set; }
 
-    /// <summary>
-    /// Invokes <see cref="Save"/>.
-    /// </summary>
-    public ReactiveCommand<Unit, Unit> SaveCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="ResetToDefault"/>.
-    /// </summary>
-    public ReactiveCommand<Unit, Unit> ResetToDefaultCommand { get; }
-
-    public SettingsWindowViewModel()
-    {
-        SetValues(FileSurferSettings.GetCurrentSettings());
-
-        SaveCommand = ReactiveCommand.Create(Save);
-        ResetToDefaultCommand = ReactiveCommand.Create(ResetToDefault);
-    }
+    public SettingsWindowViewModel() => SetValues(FileSurferSettings.CurrentSettings);
 
     private void SetValues(SettingsRecord settings)
     {
@@ -68,8 +57,8 @@ public class SettingsWindowViewModel : ReactiveObject
         OpenInLastLocation = settings.openInLastLocation;
         OpenIn = settings.openIn;
         UseDarkMode = settings.useDarkMode;
-        DisplayMode = Enum.Parse<DisplayModeEnum>(settings.displayMode);
-        DefaultSort = Enum.Parse<SortBy>(settings.defaultSort);
+        DisplayMode = settings.displayMode;
+        DefaultSort = settings.defaultSort;
         FileSizeDisplayLimit = settings.fileSizeDisplayLimit;
         SortReversed = settings.sortReversed;
         ShowSpecialFolders = settings.showSpecialFolders;
@@ -98,8 +87,8 @@ public class SettingsWindowViewModel : ReactiveObject
                 OpenInLastLocation,
                 OpenIn,
                 UseDarkMode,
-                DisplayMode.ToString(),
-                DefaultSort.ToString(),
+                DisplayMode,
+                DefaultSort,
                 FileSizeDisplayLimit,
                 SortReversed,
                 ShowSpecialFolders,
@@ -118,7 +107,7 @@ public class SettingsWindowViewModel : ReactiveObject
     /// <summary>
     /// Resets current values to default based on <see cref="FileSurferSettings.GetDefaultSettings"/>
     /// </summary>
-    public void ResetToDefault() => SetValues(FileSurferSettings.GetDefaultSettings());
+    public void ResetToDefault() => SetValues(FileSurferSettings.DefaultSettings);
 }
 #pragma warning restore CA1822 // Mark members as static
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
