@@ -32,8 +32,8 @@ public partial class SettingsWindow : MainWindow
 
     private void SaveAndClose(object sender, RoutedEventArgs args)
     {
-        if (DataContext is SettingsWindowViewModel vm)
-            vm.Save();
+        if (DataContext is SettingsWindowViewModel viewModel)
+            viewModel.Save();
 
         CloseWindow();
     }
