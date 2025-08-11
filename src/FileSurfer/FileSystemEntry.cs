@@ -15,7 +15,7 @@ namespace FileSurfer;
 /// </summary>
 public class FileSystemEntry
 {
-    private static readonly int SizeLimit = FileSurferSettings.FileSizeDisplayLimit;
+    private static readonly int SizeLimit = FileSurferSettings.FileSizeUnitLimit;
     private static readonly Bitmap FolderIcon =
         new(
             Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/FolderIcon.png"))

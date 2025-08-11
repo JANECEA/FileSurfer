@@ -10,7 +10,7 @@ namespace FileSurfer;
 /// <summary>
 /// Defines the display modes available in FileSurfer for viewing <see cref="FileSystemEntry"/>s.
 /// </summary>
-public enum DisplayModeEnum
+public enum DisplayMode
 {
     /// <summary>
     /// Displays <see cref="FileSystemEntry"/>s as a list.
@@ -68,7 +68,7 @@ public record SettingsRecord(
     bool useDarkMode,
     string displayMode,
     string defaultSort,
-    int fileSizeDisplayLimit,
+    int fileSizeUnitLimit,
     bool sortReversed,
     bool showSpecialFolders,
     bool showProtectedFiles,
@@ -117,7 +117,7 @@ static class FileSurferSettings
                 true,
                 thisPCLabel,
                 true,
-                DisplayModeEnum.ListView.ToString(),
+                DisplayMode.ListView.ToString(),
                 SortBy.Name.ToString(),
                 4096,
                 false,
@@ -150,7 +150,7 @@ static class FileSurferSettings
             UseDarkMode,
             DisplayMode.ToString(),
             DefaultSort.ToString(),
-            FileSizeDisplayLimit,
+            FileSizeUnitLimit,
             SortReversed,
             ShowSpecialFolders,
             ShowProtectedFiles,
@@ -211,9 +211,9 @@ static class FileSurferSettings
     public static bool UseDarkMode { get; set; }
 
     /// <summary>
-    /// Defines the view mode for displaying files and folders. Defaults to <see cref="DisplayModeEnum.ListView"/>.
+    /// Defines the view mode for displaying files and folders. Defaults to <see cref="DisplayMode.ListView"/>.
     /// </summary>
-    public static DisplayModeEnum DisplayMode { get; set; }
+    public static DisplayMode DisplayMode { get; set; }
 
     /// <summary>
     /// Specifies the default sorting method for files and folders. Defaults to sorting by <see cref="SortBy.Name"/>.
@@ -223,7 +223,7 @@ static class FileSurferSettings
     /// <summary>
     /// Numerical limit before FileSurfer uses the next byte unit. Defaults to <c>4096</c>.
     /// </summary>
-    public static int FileSizeDisplayLimit { get; set; }
+    public static int FileSizeUnitLimit { get; set; }
 
     /// <summary>
     /// Indicates whether file and folder sorting should be reversed. Defaults to <see langword="false"/>.
@@ -316,10 +316,10 @@ static class FileSurferSettings
         UseDarkMode = settings.useDarkMode;
         OpenInLastLocation = settings.openInLastLocation;
         OpenIn = settings.openIn;
-        if (settings.fileSizeDisplayLimit > 0)
-            FileSizeDisplayLimit = settings.fileSizeDisplayLimit;
+        if (settings.fileSizeUnitLimit > 0)
+            FileSizeUnitLimit = settings.fileSizeUnitLimit;
 
-        DisplayMode = (DisplayModeEnum)Enum.Parse(typeof(DisplayModeEnum), settings.displayMode);
+        DisplayMode = (DisplayMode)Enum.Parse(typeof(DisplayMode), settings.displayMode);
         DefaultSort = (SortBy)Enum.Parse(typeof(SortBy), settings.defaultSort);
         SortReversed = settings.sortReversed;
         ShowSpecialFolders = settings.showSpecialFolders;

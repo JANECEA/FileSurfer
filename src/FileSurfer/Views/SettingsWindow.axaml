@@ -67,7 +67,7 @@
                         
                         <Grid Margin="0,5,0,5" ColumnDefinitions="140 *">
                             <TextBlock Grid.Column="0" Text="File Size Unit Limit:" VerticalAlignment="Center"/>
-                            <NumericUpDown Grid.Column="1" Value="{Binding FileSizeDisplayLimit}" Margin="5,0,0,0" Minimum="512" Maximum="16384" Width="150" AllowSpin="True" HorizontalAlignment="Left"/>
+                            <NumericUpDown Grid.Column="1" Value="{Binding FileSizeUnitLimit}" Margin="5,0,0,0" Minimum="512" Maximum="16384" Width="150" AllowSpin="True" HorizontalAlignment="Left"/>
                         </Grid>
 
                         <Grid Margin="0,5,0,5" ColumnDefinitions="140 *">

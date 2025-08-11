@@ -81,7 +81,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void WrapPanelLoaded(object sender, RoutedEventArgs e)
     {
-        if (FileSurferSettings.DisplayMode is DisplayModeEnum.IconView)
+        if (FileSurferSettings.DisplayMode is DisplayMode.IconView)
             IconView();
     }
 
@@ -383,7 +383,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Switches the display mode to <see cref="DisplayModeEnum.ListView"/>.
+    /// Switches the display mode to <see cref="DisplayMode.ListView"/>.
     /// </summary>
     private void ListView(object? sender = null, RoutedEventArgs? e = null)
     {
@@ -394,11 +394,11 @@ public partial class MainWindow : Window
         wrapPanel.Orientation = Avalonia.Layout.Orientation.Vertical;
         LabelsPanel.IsVisible = true;
         FileDisplay.ItemTemplate = _listViewTemplate;
-        FileSurferSettings.DisplayMode = DisplayModeEnum.ListView;
+        FileSurferSettings.DisplayMode = DisplayMode.ListView;
     }
 
     /// <summary>
-    /// Switches the display mode to <see cref="DisplayModeEnum.IconView"/>.
+    /// Switches the display mode to <see cref="DisplayMode.IconView"/>.
     /// </summary>
     private void IconView(object? sender = null, RoutedEventArgs? e = null)
     {
@@ -409,7 +409,7 @@ public partial class MainWindow : Window
         wrapPanel.Orientation = Avalonia.Layout.Orientation.Horizontal;
         LabelsPanel.IsVisible = false;
         FileDisplay.ItemTemplate = _iconViewTemplate;
-        FileSurferSettings.DisplayMode = DisplayModeEnum.IconView;
+        FileSurferSettings.DisplayMode = DisplayMode.IconView;
     }
 
     /// <summary>

@@ -27,11 +27,11 @@ public class SettingsWindowViewModel : ReactiveObject
     public bool UseDarkMode { get; set; }
     public string DisplayMode { get; set; }
     public IEnumerable<string> DisplayModeOptions { get; } =
-        Enum.GetValues<DisplayModeEnum>().Select(option => option.ToString());
+        Enum.GetValues<DisplayMode>().Select(option => option.ToString());
     public string DefaultSort { get; set; }
     public IEnumerable<string> SortOptions { get; } =
         Enum.GetValues<SortBy>().Select(option => option.ToString());
-    public int FileSizeDisplayLimit { get; set; }
+    public int FileSizeUnitLimit { get; set; }
     public bool SortReversed { get; set; }
     public bool ShowSpecialFolders { get; set; }
     public bool ShowProtectedFiles { get; set; }
@@ -58,7 +58,7 @@ public class SettingsWindowViewModel : ReactiveObject
         UseDarkMode = settings.useDarkMode;
         DisplayMode = settings.displayMode;
         DefaultSort = settings.defaultSort;
-        FileSizeDisplayLimit = settings.fileSizeDisplayLimit;
+        FileSizeUnitLimit = settings.fileSizeUnitLimit;
         SortReversed = settings.sortReversed;
         ShowSpecialFolders = settings.showSpecialFolders;
         ShowProtectedFiles = settings.showProtectedFiles;
@@ -88,7 +88,7 @@ public class SettingsWindowViewModel : ReactiveObject
                 UseDarkMode,
                 DisplayMode,
                 DefaultSort,
-                FileSizeDisplayLimit,
+                FileSizeUnitLimit,
                 SortReversed,
                 ShowSpecialFolders,
                 ShowProtectedFiles,
