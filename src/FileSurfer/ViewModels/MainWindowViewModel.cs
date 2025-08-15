@@ -313,7 +313,7 @@ public class MainWindowViewModel : ReactiveObject
     public MainWindowViewModel()
     {
         _fileIOHandler = new WindowsFileIOHandler(ShowDialogLimitB);
-        _versionControl = new GitVersionControlHandler(_fileIOHandler);
+        _versionControl = new GitVersionControl(_fileIOHandler);
         _clipboardManager = new ClipboardManager(_fileIOHandler, NewImageName);
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
         _pathHistory = new UndoRedoHandler<string>();

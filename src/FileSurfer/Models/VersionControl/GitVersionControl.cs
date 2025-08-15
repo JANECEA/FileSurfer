@@ -9,7 +9,7 @@ namespace FileSurfer.Models.VersionControl;
 /// <summary>
 /// Handles git integration within the <see cref="FileSurfer"/> app.
 /// </summary>
-public class GitVersionControlHandler : IVersionControl
+public class GitVersionControl : IVersionControl
 {
     private const string MissingRepoMessage = "No git repository found";
     private readonly IFileIOHandler _fileIOHandler;
@@ -17,9 +17,9 @@ public class GitVersionControlHandler : IVersionControl
     private readonly Dictionary<string, VCStatus> _pathStates = new();
 
     /// <summary>
-    /// Initializes a new <see cref="GitVersionControlHandler"/>.
+    /// Initializes a new <see cref="GitVersionControl"/>.
     /// </summary>
-    public GitVersionControlHandler(IFileIOHandler fileIOHandler) => _fileIOHandler = fileIOHandler;
+    public GitVersionControl(IFileIOHandler fileIOHandler) => _fileIOHandler = fileIOHandler;
 
     /// <inheritdoc/>
     public bool InitIfVersionControlled(string directoryPath)
