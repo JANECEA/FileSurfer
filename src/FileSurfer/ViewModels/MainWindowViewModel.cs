@@ -10,7 +10,8 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using FileSurfer.Models;
 using FileSurfer.Models.FileInformation;
-using FileSurfer.Models.UndoableFileOperations;
+using FileSurfer.Models.FileOperations;
+using FileSurfer.Models.FileOperations.Undoable;
 using FileSurfer.Models.VersionControl;
 using ReactiveUI;
 

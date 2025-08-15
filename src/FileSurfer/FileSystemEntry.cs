@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
-using FileSurfer.Models;
+using FileSurfer.Models.FileOperations;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace FileSurfer;
