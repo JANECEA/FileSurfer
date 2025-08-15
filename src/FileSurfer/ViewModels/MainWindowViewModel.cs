@@ -12,6 +12,7 @@ using FileSurfer.Models;
 using FileSurfer.Models.FileInformation;
 using FileSurfer.Models.FileOperations;
 using FileSurfer.Models.FileOperations.Undoable;
+using FileSurfer.Models.Shell;
 using FileSurfer.Models.VersionControl;
 using ReactiveUI;
 
