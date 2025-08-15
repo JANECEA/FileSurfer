@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FileSurfer.Models.FileOperations;
 using LibGit2Sharp;
 
 namespace FileSurfer.Models.VersionControl;

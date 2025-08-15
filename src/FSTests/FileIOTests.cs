@@ -1,4 +1,4 @@
-using FileSurfer.Models;
+using FileSurfer.Models.FileOperations;
 
 namespace FSTests;
 

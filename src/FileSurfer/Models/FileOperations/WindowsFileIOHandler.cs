@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using FileSurfer.Models.FileInformation;
+using FileSurfer.Models.Shell;
 using Microsoft.VisualBasic.FileIO;
 
 namespace FileSurfer.Models.FileOperations;
