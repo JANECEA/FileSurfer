@@ -22,7 +22,7 @@ static class WindowsFileRestorer
     /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public static bool RestoreEntry(string originalPath, out string? errorMessage)
     {
-        Shell shell = new();
+        Shell32.Shell shell = new();
         errorMessage = null;
         Folder bin = shell.NameSpace(BinFolderID);
         bool entryFound = false;

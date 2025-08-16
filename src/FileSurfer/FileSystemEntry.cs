@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.IO;
+using System.Drawing.Imaging;
 using FileSurfer.Models.FileOperations;
-using Bitmap = Avalonia.Media.Imaging.Bitmap;
+using FileSurfer.Models.VersionControl;
+using Avalonia.Media.Imaging;
 
 namespace FileSurfer;
 
@@ -37,7 +38,7 @@ public class FileSystemEntry
     public bool IsDirectory { get; }
 
     /// <summary>
-    /// Holds a <see cref="Avalonia.Media.Imaging.Bitmap"/> representing the file.
+    /// Holds a <see cref="Bitmap"/> representing the file.
     /// </summary>
     public Bitmap? Icon { get; set; }
 
