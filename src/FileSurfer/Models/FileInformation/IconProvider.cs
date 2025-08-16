@@ -40,20 +40,17 @@ public class IconProvider : IIconProvider, IDisposable
     ];
     private static Bitmap? GenericFileIcon;
 
-    private readonly IFileIOHandler _fileIOHandler;
+    private readonly IFileInfoProvider _fileInfoProvider;
     private readonly Dictionary<string, Bitmap> _icons = new();
 
-    public IconProvider(IFileIOHandler fileIOHandler)
-    {
-        _fileIOHandler = fileIOHandler;
-    }
+    public IconProvider(IFileInfoProvider fileInfoProvider) => _fileInfoProvider = fileInfoProvider;
 
     /// <inheritdoc/>
     public Bitmap? GetFileIcon(string filePath)
     {
         string extension = Path.GetExtension(filePath);
         if (HaveUniqueIcons.Contains(extension))
-            return _fileIOHandler.GetFileIcon(filePath)?.ConvertToAvaloniaBitmap()
+            return _fileInfoProvider.GetFileIcon(filePath)?.ConvertToAvaloniaBitmap()
                 ?? GenericFileIcon;
 
         if (string.IsNullOrWhiteSpace(extension))
@@ -62,7 +59,7 @@ public class IconProvider : IIconProvider, IDisposable
         if (_icons.TryGetValue(filePath, out Bitmap? cachedIcon))
             return cachedIcon;
 
-        if (_fileIOHandler.GetFileIcon(filePath)?.ConvertToAvaloniaBitmap() is Bitmap icon)
+        if (_fileInfoProvider.GetFileIcon(filePath)?.ConvertToAvaloniaBitmap() is Bitmap icon)
             return _icons[extension] = icon;
 
         return GenericFileIcon;
@@ -75,7 +72,7 @@ public class IconProvider : IIconProvider, IDisposable
     public Bitmap GetDriveIcon() => DriveIcon;
 
     private Bitmap? GetGenericFileIcon(string genericFilePath) =>
-        _fileIOHandler.GetFileIcon(genericFilePath)?.ConvertToAvaloniaBitmap();
+        _fileInfoProvider.GetFileIcon(genericFilePath)?.ConvertToAvaloniaBitmap();
 
     public void Dispose()
     {

@@ -104,7 +104,7 @@ public class FileSystemEntry
     /// <param name="isDirectory">Indicates whether the path refers to a directory.</param>
     /// <param name="status">Optional version control status of the entry, defaulting to not version controlled.</param>
     public FileSystemEntry(
-        IFileIOHandler fileIOHandler,
+        IFileInfoProvider fileInfoProvider,
         IIconProvider iconProvider,
         string path,
         bool isDirectory,
@@ -116,9 +116,9 @@ public class FileSystemEntry
         Icon = IsDirectory ? iconProvider.GetDirectoryIcon() : iconProvider.GetFileIcon(path);
 
         Name = Path.GetFileName(path);
-        LastModTime = fileIOHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
-        LastModified = GetLastModified(fileIOHandler);
-        SizeB = isDirectory ? null : fileIOHandler.GetFileSizeB(path);
+        LastModTime = fileInfoProvider.GetFileLastModified(path) ?? DateTime.MaxValue;
+        LastModified = GetLastModified(fileInfoProvider);
+        SizeB = isDirectory ? null : fileInfoProvider.GetFileSizeB(path);
         Size = SizeB is long notNullSize ? GetSizeString(notNullSize) : string.Empty;
 
         if (isDirectory)
@@ -130,7 +130,7 @@ public class FileSystemEntry
         }
 
         Opacity =
-            fileIOHandler.IsHidden(path, isDirectory)
+            fileInfoProvider.IsHidden(path, isDirectory)
             || (FileSurferSettings.TreatDotFilesAsHidden && Name.StartsWith('.'))
                 ? 0.45
                 : 1;
@@ -165,11 +165,11 @@ public class FileSystemEntry
         Size = GetSizeString(drive.TotalSize);
     }
 
-    private string GetLastModified(IFileIOHandler fileOpsHandler)
+    private string GetLastModified(IFileInfoProvider fileInfoProvider)
     {
         DateTime? time = IsDirectory
-            ? fileOpsHandler.GetDirLastModified(PathToEntry)
-            : fileOpsHandler.GetFileLastModified(PathToEntry);
+            ? fileInfoProvider.GetDirLastModified(PathToEntry)
+            : fileInfoProvider.GetFileLastModified(PathToEntry);
 
         if (time is DateTime notNullTime)
             return notNullTime.ToShortDateString() + " " + notNullTime.ToShortTimeString();

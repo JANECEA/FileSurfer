@@ -37,6 +37,7 @@ public class MainWindowViewModel : ReactiveObject
     private readonly string NewImageName = FileSurferSettings.NewImageName + ".png";
 
     private readonly IFileIOHandler _fileIOHandler;
+    private readonly IFileInfoProvider _fileInfoProvider;
     private readonly IIconProvider _iconProvider;
     private readonly IVersionControl _versionControl;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
@@ -316,9 +317,10 @@ public class MainWindowViewModel : ReactiveObject
     /// </summary>
     public MainWindowViewModel()
     {
-        _fileIOHandler = new WindowsFileIOHandler(ShowDialogLimitB);
+        _fileInfoProvider = new WindowsFileInfoProvider();
+        _fileIOHandler = new WindowsFileIOHandler(_fileInfoProvider, ShowDialogLimitB);
         _versionControl = new GitVersionControl(_fileIOHandler);
-        _iconProvider = new IconProvider(_fileIOHandler);
+        _iconProvider = new IconProvider(_fileInfoProvider);
         _clipboardManager = new ClipboardManager(_fileIOHandler, NewImageName);
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
         _pathHistory = new UndoRedoHandler<string>();
@@ -509,7 +511,7 @@ public class MainWindowViewModel : ReactiveObject
     {
         if (entry.IsDirectory)
             CurrentDir = entry.PathToEntry;
-        else if (_fileIOHandler.IsLinkedToDirectory(entry.PathToEntry, out string? directory))
+        else if (_fileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? directory))
         {
             if (directory is not null)
                 CurrentDir = directory;
@@ -543,7 +545,7 @@ public class MainWindowViewModel : ReactiveObject
             foreach (FileSystemEntry entry in SelectedFiles)
                 if (
                     entry.IsDirectory
-                    || _fileIOHandler.IsLinkedToDirectory(entry.PathToEntry, out _)
+                    || _fileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out _)
                 )
                     return;
         }
@@ -618,16 +620,16 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     private FileSystemEntry[] GetDrives() =>
-        _fileIOHandler
+        _fileInfoProvider
             .GetDrives()
             .Select(driveInfo => new FileSystemEntry(_iconProvider, driveInfo))
             .ToArray();
 
     private FileSystemEntry[] GetSpecialFolders() =>
-        _fileIOHandler
+        _fileInfoProvider
             .GetSpecialFolders()
             .Where(dirPath => !string.IsNullOrEmpty(dirPath))
-            .Select(dirPath => new FileSystemEntry(_fileIOHandler, _iconProvider, dirPath, true))
+            .Select(dirPath => new FileSystemEntry(_fileInfoProvider, _iconProvider, dirPath, true))
             .ToArray();
 
     private void LoadQuickAccess()
@@ -635,9 +637,9 @@ public class MainWindowViewModel : ReactiveObject
         foreach (string path in FileSurferSettings.QuickAccess)
         {
             if (Directory.Exists(path))
-                QuickAccess.Add(new FileSystemEntry(_fileIOHandler, _iconProvider, path, true));
+                QuickAccess.Add(new FileSystemEntry(_fileInfoProvider, _iconProvider, path, true));
             else if (File.Exists(path))
-                QuickAccess.Add(new FileSystemEntry(_fileIOHandler, _iconProvider, path, false));
+                QuickAccess.Add(new FileSystemEntry(_fileInfoProvider, _iconProvider, path, false));
         }
     }
 
@@ -650,12 +652,12 @@ public class MainWindowViewModel : ReactiveObject
 
     private void LoadDirEntries()
     {
-        string[] dirPaths = _fileIOHandler.GetPathDirs(
+        string[] dirPaths = _fileInfoProvider.GetPathDirs(
             CurrentDir,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
-        string[] filePaths = _fileIOHandler.GetPathFiles(
+        string[] filePaths = _fileInfoProvider.GetPathFiles(
             CurrentDir,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
@@ -668,7 +670,7 @@ public class MainWindowViewModel : ReactiveObject
 
         for (int i = 0; i < dirPaths.Length; i++)
             directories[i] = new FileSystemEntry(
-                _fileIOHandler,
+                _fileInfoProvider,
                 _iconProvider,
                 dirPaths[i],
                 true,
@@ -677,7 +679,7 @@ public class MainWindowViewModel : ReactiveObject
 
         for (int i = 0; i < filePaths.Length; i++)
             files[i] = new FileSystemEntry(
-                _fileIOHandler,
+                _fileInfoProvider,
                 _iconProvider,
                 filePaths[i],
                 false,
@@ -865,7 +867,7 @@ public class MainWindowViewModel : ReactiveObject
         if (currentDir != ThisPCLabel)
             await SearchDirectoryAsync(currentDir, searchQuery, _searchCTS.Token);
         else
-            foreach (DriveInfo drive in _fileIOHandler.GetDrives())
+            foreach (DriveInfo drive in _fileInfoProvider.GetDrives())
                 await SearchDirectoryAsync(drive.Name, searchQuery, _searchCTS.Token);
     }
 
@@ -913,7 +915,7 @@ public class MainWindowViewModel : ReactiveObject
 
     private List<FileSystemEntry> GetFiles(string directory, string query)
     {
-        IEnumerable<string> filePaths = _fileIOHandler.GetPathFiles(
+        IEnumerable<string> filePaths = _fileInfoProvider.GetPathFiles(
             directory,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
@@ -923,7 +925,7 @@ public class MainWindowViewModel : ReactiveObject
 
         return FilterPaths(filePaths, query)
             .Select(path => new FileSystemEntry(
-                _fileIOHandler,
+                _fileInfoProvider,
                 _iconProvider,
                 path,
                 false,
@@ -934,7 +936,7 @@ public class MainWindowViewModel : ReactiveObject
 
     private IEnumerable<string> GetAllDirs(string directory)
     {
-        IEnumerable<string> dirPaths = _fileIOHandler.GetPathDirs(
+        IEnumerable<string> dirPaths = _fileInfoProvider.GetPathDirs(
             directory,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
@@ -948,7 +950,7 @@ public class MainWindowViewModel : ReactiveObject
     private List<FileSystemEntry> GetDirs(IEnumerable<string> dirs, string query) =>
         FilterPaths(dirs, query)
             .Select(path => new FileSystemEntry(
-                _fileIOHandler,
+                _fileInfoProvider,
                 _iconProvider,
                 path,
                 true,
@@ -1253,7 +1255,7 @@ public class MainWindowViewModel : ReactiveObject
             return;
         }
 
-        FlattenFolder action = new(_fileIOHandler, entry.PathToEntry);
+        FlattenFolder action = new(_fileIOHandler, _fileInfoProvider, entry.PathToEntry);
         if (action.Redo(out string? errorMessage))
             _undoRedoHistory.AddNewNode(action);
         else
