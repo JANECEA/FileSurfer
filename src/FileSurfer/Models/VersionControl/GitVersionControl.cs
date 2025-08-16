@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FileSurfer.Models.FileOperations;
+using FileSurfer.Models.Shell;
 using LibGit2Sharp;
 
 namespace FileSurfer.Models.VersionControl;
@@ -13,14 +13,16 @@ namespace FileSurfer.Models.VersionControl;
 public class GitVersionControl : IVersionControl
 {
     private const string MissingRepoMessage = "No git repository found";
-    private readonly IFileIOHandler _fileIOHandler;
-    private Repository? _currentRepo = null;
+
+    private readonly IShellHandler _shellHandler;
+
     private readonly Dictionary<string, VCStatus> _pathStates = new();
+    private Repository? _currentRepo = null;
 
     /// <summary>
     /// Initializes a new <see cref="GitVersionControl"/>.
     /// </summary>
-    public GitVersionControl(IFileIOHandler fileIOHandler) => _fileIOHandler = fileIOHandler;
+    public GitVersionControl(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
     /// <inheritdoc/>
     public bool InitIfVersionControlled(string directoryPath)
@@ -68,7 +70,7 @@ public class GitVersionControl : IVersionControl
             return false;
         }
         string command = $"git -C \"{GetWorkingDir()}\" pull";
-        return _fileIOHandler.ExecuteCmd(command, out errorMessage);
+        return _shellHandler.ExecuteCmd(command, out errorMessage);
     }
 
     /// <inheritdoc/>
@@ -239,7 +241,7 @@ public class GitVersionControl : IVersionControl
             return false;
         }
         string command = $"git -C \"{GetWorkingDir()}\" commit -m \"{commitMessage}\"";
-        return _fileIOHandler.ExecuteCmd(command, out errorMessage);
+        return _shellHandler.ExecuteCmd(command, out errorMessage);
     }
 
     /// <inheritdoc/>
@@ -251,7 +253,7 @@ public class GitVersionControl : IVersionControl
             return false;
         }
         string command = $"git -C \"{GetWorkingDir()}\" push";
-        return _fileIOHandler.ExecuteCmd(command, out errorMessage);
+        return _shellHandler.ExecuteCmd(command, out errorMessage);
     }
 
     /// <summary>

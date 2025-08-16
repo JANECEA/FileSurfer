@@ -1,87 +1,128 @@
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
+using System.IO;
 
 namespace FileSurfer.Models.Shell;
 
 /// <summary>
 /// Provides methods to interact with Windows file properties and dialogs using Windows API calls.
 /// </summary>
-static class WindowsFileProperties
+public class WindowsShellHandler : IShellHandler
 {
-    /// <summary>
-    /// Used for the ShellExecuteEx API function.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-    struct ShellExecuteInfo
-    {
-        public int cbSize;
-        public uint fMask;
-        public nint hwnd;
-
-        [MarshalAs(UnmanagedType.LPTStr)]
-        public string lpVerb;
-
-        [MarshalAs(UnmanagedType.LPTStr)]
-        public string lpFile;
-
-        [MarshalAs(UnmanagedType.LPTStr)]
-        public string lpParameters;
-
-        [MarshalAs(UnmanagedType.LPTStr)]
-        public string lpDirectory;
-        public int nShow;
-        public nint hInstApp;
-        public nint lpIDList;
-
-        [MarshalAs(UnmanagedType.LPTStr)]
-        public string lpClass;
-        public nint hkeyClass;
-        public uint dwHotKey;
-        public nint hIcon;
-        public nint hProcess;
-    }
-
-    [DllImport("shell32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern bool ShellExecuteEx(ref ShellExecuteInfo lpExecInfo);
-
-    /// <summary>
-    /// Calls the <see cref="ShellExecuteEx(ref ShellExecuteInfo)"/> function to show the properties dialog of the specified <paramref name="filePath"/>.
-    /// </summary>
-    /// <returns><see langword="true"/> if the properties dialog was successfully shown, otherwise <see langword="false"/>.</returns>
-    public static bool ShowFileProperties(string filePath, out string? errorMessage)
-    {
-        ShellExecuteInfo info = new();
-        info.cbSize = Marshal.SizeOf(info);
-        info.lpVerb = "properties";
-        info.lpFile = filePath;
-        info.nShow = 0;
-        info.fMask = 0x0000000C;
-
-        bool result = ShellExecuteEx(ref info);
-        errorMessage = null;
-        if (!result)
-            errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
-
-        return result;
-    }
-
-    /// <summary>
-    /// Displays the "Open With" dialog for a specified file using <c>rundll32.exe</c>.
-    /// </summary>
-    /// <returns><see langword="true"/> if the "Open With" dialog was successfully shown; otherwise, <see langword="false"/>.</returns>
-    public static bool ShowOpenAsDialog(string filePath, out string? errorMessage)
+    public bool OpenCmdAt(string dirPath, out string? errorMessage)
     {
         try
         {
-            Process.Start("rundll32.exe", "shell32.dll,OpenAs_RunDLL " + filePath);
+            new Process
+            {
+                StartInfo = new()
+                {
+                    FileName = "powershell.exe",
+                    WorkingDirectory = dirPath,
+                    Arguments = "-NoExit",
+                    UseShellExecute = true,
+                },
+            }.Start();
             errorMessage = null;
             return true;
         }
         catch (Exception ex)
         {
             errorMessage = ex.Message;
+            return false;
+        }
+    }
+
+    public bool OpenFile(string filePath, out string? errorMessage)
+    {
+        try
+        {
+            new Process
+            {
+                StartInfo = new ProcessStartInfo(filePath) { UseShellExecute = true },
+            }.Start();
+            errorMessage = null;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
+    }
+
+    public bool OpenInNotepad(string filePath, out string? errorMessage)
+    {
+        try
+        {
+            Process.Start(
+                new ProcessStartInfo
+                {
+                    FileName = FileSurferSettings.NotepadApp,
+                    Arguments = filePath,
+                    UseShellExecute = true,
+                }
+            );
+            errorMessage = null;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
+    }
+
+    public bool ExecuteCmd(string command, out string? errorMessage)
+    {
+        using Process process = new();
+        process.StartInfo = new()
+        {
+            FileName = "cmd.exe",
+            Arguments = "/c " + command,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        process.Start();
+        string stdOut = process.StandardOutput.ReadToEnd();
+        errorMessage = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+        bool success = process.ExitCode == 0;
+
+        if (!success && errorMessage == string.Empty)
+            errorMessage = stdOut;
+
+        if (errorMessage == string.Empty)
+            errorMessage = null;
+
+        return success;
+    }
+
+    public bool CreateLink(string filePath, out string? errorMessage)
+    {
+        try
+        {
+            string linkName = Path.GetFileName(filePath) + " - Shortcut.lnk";
+            string parentDir =
+                Path.GetDirectoryName(filePath)
+                ?? Path.GetPathRoot(filePath)
+                ?? throw new ArgumentNullException(filePath);
+            string linkPath = Path.Combine(parentDir, linkName);
+
+            IWshRuntimeLibrary.WshShell wshShell = new();
+            IWshRuntimeLibrary.IWshShortcut shortcut = wshShell.CreateShortcut(linkPath);
+
+            shortcut.TargetPath = filePath;
+            shortcut.WorkingDirectory = Path.GetDirectoryName(filePath);
+            shortcut.Save();
+            errorMessage = null;
+            return true;
+        }
+        catch (Exception e)
+        {
+            errorMessage = e.Message;
             return false;
         }
     }

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using FileSurfer.Models.FileInformation;
 
 namespace FileSurfer.Models.FileOperations.Undoable;
 
@@ -62,6 +63,7 @@ public class MoveFilesToTrash : IUndoableFileOperation
 public class FlattenFolder : IUndoableFileOperation
 {
     private readonly IFileIOHandler _fileIOHandler;
+    private readonly IFileInfoProvider _fileInfoProvider;
     private readonly string _dirPath;
     private readonly string? _parentDir;
     private readonly bool _showHidden;
@@ -70,9 +72,14 @@ public class FlattenFolder : IUndoableFileOperation
     private string[] _containedDirs = Array.Empty<string>();
     private string[] _containedFiles = Array.Empty<string>();
 
-    public FlattenFolder(IFileIOHandler fileIOHandler, string dirPath)
+    public FlattenFolder(
+        IFileIOHandler fileIOHandler,
+        IFileInfoProvider fileInfoProvider,
+        string dirPath
+    )
     {
         _fileIOHandler = fileIOHandler;
+        _fileInfoProvider = fileInfoProvider;
         _dirPath = dirPath;
         _parentDir = Path.GetDirectoryName(dirPath);
         _showHidden = FileSurferSettings.ShowHiddenFiles;
@@ -86,8 +93,8 @@ public class FlattenFolder : IUndoableFileOperation
         if (_parentDir is null)
             return false;
 
-        _containedDirs = _fileIOHandler.GetPathDirs(_dirPath, _showHidden, _showProtected);
-        _containedFiles = _fileIOHandler.GetPathFiles(_dirPath, _showHidden, _showProtected);
+        _containedDirs = _fileInfoProvider.GetPathDirs(_dirPath, _showHidden, _showProtected);
+        _containedFiles = _fileInfoProvider.GetPathFiles(_dirPath, _showHidden, _showProtected);
 
         bool success = true;
         errorMessage = "Problems occured moving these files:";

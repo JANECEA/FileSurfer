@@ -39,6 +39,7 @@ public class MainWindowViewModel : ReactiveObject
     private readonly IFileIOHandler _fileIOHandler;
     private readonly IFileInfoProvider _fileInfoProvider;
     private readonly IIconProvider _iconProvider;
+    private readonly IShellHandler _shellHandler;
     private readonly IVersionControl _versionControl;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
     private readonly UndoRedoHandler<string> _pathHistory;
@@ -318,8 +319,9 @@ public class MainWindowViewModel : ReactiveObject
     public MainWindowViewModel()
     {
         _fileInfoProvider = new WindowsFileInfoProvider();
+        _shellHandler = new WindowsShellHandler();
         _fileIOHandler = new WindowsFileIOHandler(_fileInfoProvider, ShowDialogLimitB);
-        _versionControl = new GitVersionControl(_fileIOHandler);
+        _versionControl = new GitVersionControl(_shellHandler);
         _iconProvider = new IconProvider(_fileInfoProvider);
         _clipboardManager = new ClipboardManager(_fileIOHandler, NewImageName);
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
@@ -518,7 +520,7 @@ public class MainWindowViewModel : ReactiveObject
         }
         else
         {
-            _fileIOHandler.OpenFile(entry.PathToEntry, out string? errorMessage);
+            _shellHandler.OpenFile(entry.PathToEntry, out string? errorMessage);
             ForwardError(errorMessage);
         }
     }
@@ -563,7 +565,7 @@ public class MainWindowViewModel : ReactiveObject
         {
             if (!entry.IsDirectory)
             {
-                _fileIOHandler.OpenInNotepad(entry.PathToEntry, out string? errorMessage);
+                _shellHandler.OpenInNotepad(entry.PathToEntry, out string? errorMessage);
                 ForwardError(errorMessage);
             }
         }
@@ -841,7 +843,7 @@ public class MainWindowViewModel : ReactiveObject
         if (CurrentDir == ThisPCLabel || Searching)
             return;
 
-        _fileIOHandler.OpenCmdAt(CurrentDir, out string? errorMessage);
+        _shellHandler.OpenCmdAt(CurrentDir, out string? errorMessage);
         ForwardError(errorMessage);
     }
 
@@ -1146,7 +1148,7 @@ public class MainWindowViewModel : ReactiveObject
     /// </summary>
     public void CreateShortcut(FileSystemEntry entry)
     {
-        _fileIOHandler.CreateLink(entry.PathToEntry, out string? errorMessage);
+        _shellHandler.CreateLink(entry.PathToEntry, out string? errorMessage);
         ForwardError(errorMessage);
         Reload();
     }
