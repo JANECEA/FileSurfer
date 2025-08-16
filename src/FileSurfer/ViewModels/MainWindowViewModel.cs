@@ -37,6 +37,7 @@ public class MainWindowViewModel : ReactiveObject
     private readonly string NewImageName = FileSurferSettings.NewImageName + ".png";
 
     private readonly IFileIOHandler _fileIOHandler;
+    private readonly IIconProvider _iconProvider;
     private readonly IVersionControl _versionControl;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
     private readonly UndoRedoHandler<string> _pathHistory;
@@ -317,6 +318,7 @@ public class MainWindowViewModel : ReactiveObject
     {
         _fileIOHandler = new WindowsFileIOHandler(ShowDialogLimitB);
         _versionControl = new GitVersionControl(_fileIOHandler);
+        _iconProvider = new IconProvider(_fileIOHandler);
         _clipboardManager = new ClipboardManager(_fileIOHandler, NewImageName);
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
         _pathHistory = new UndoRedoHandler<string>();
@@ -616,13 +618,16 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     private FileSystemEntry[] GetDrives() =>
-        _fileIOHandler.GetDrives().Select(driveInfo => new FileSystemEntry(driveInfo)).ToArray();
+        _fileIOHandler
+            .GetDrives()
+            .Select(driveInfo => new FileSystemEntry(_iconProvider, driveInfo))
+            .ToArray();
 
     private FileSystemEntry[] GetSpecialFolders() =>
         _fileIOHandler
             .GetSpecialFolders()
             .Where(dirPath => !string.IsNullOrEmpty(dirPath))
-            .Select(dirPath => new FileSystemEntry(_fileIOHandler, dirPath, true))
+            .Select(dirPath => new FileSystemEntry(_fileIOHandler, _iconProvider, dirPath, true))
             .ToArray();
 
     private void LoadQuickAccess()
@@ -630,9 +635,9 @@ public class MainWindowViewModel : ReactiveObject
         foreach (string path in FileSurferSettings.QuickAccess)
         {
             if (Directory.Exists(path))
-                QuickAccess.Add(new FileSystemEntry(_fileIOHandler, path, true));
+                QuickAccess.Add(new FileSystemEntry(_fileIOHandler, _iconProvider, path, true));
             else if (File.Exists(path))
-                QuickAccess.Add(new FileSystemEntry(_fileIOHandler, path, false));
+                QuickAccess.Add(new FileSystemEntry(_fileIOHandler, _iconProvider, path, false));
         }
     }
 
@@ -664,6 +669,7 @@ public class MainWindowViewModel : ReactiveObject
         for (int i = 0; i < dirPaths.Length; i++)
             directories[i] = new FileSystemEntry(
                 _fileIOHandler,
+                _iconProvider,
                 dirPaths[i],
                 true,
                 GetVCStatus(dirPaths[i])
@@ -672,6 +678,7 @@ public class MainWindowViewModel : ReactiveObject
         for (int i = 0; i < filePaths.Length; i++)
             files[i] = new FileSystemEntry(
                 _fileIOHandler,
+                _iconProvider,
                 filePaths[i],
                 false,
                 GetVCStatus(filePaths[i])
@@ -915,7 +922,13 @@ public class MainWindowViewModel : ReactiveObject
             filePaths = filePaths.Where(path => !Path.GetFileName(path).StartsWith('.'));
 
         return FilterPaths(filePaths, query)
-            .Select(path => new FileSystemEntry(_fileIOHandler, path, false, GetVCStatus(path)))
+            .Select(path => new FileSystemEntry(
+                _fileIOHandler,
+                _iconProvider,
+                path,
+                false,
+                GetVCStatus(path)
+            ))
             .ToList();
     }
 
@@ -934,7 +947,13 @@ public class MainWindowViewModel : ReactiveObject
 
     private List<FileSystemEntry> GetDirs(IEnumerable<string> dirs, string query) =>
         FilterPaths(dirs, query)
-            .Select(path => new FileSystemEntry(_fileIOHandler, path, true, GetVCStatus(path)))
+            .Select(path => new FileSystemEntry(
+                _fileIOHandler,
+                _iconProvider,
+                path,
+                true,
+                GetVCStatus(path)
+            ))
             .ToList();
 
     private IEnumerable<string> FilterPaths(IEnumerable<string> paths, string query) =>

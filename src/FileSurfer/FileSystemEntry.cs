@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Drawing.Imaging;
+using Avalonia.Media.Imaging;
+using FileSurfer.Models.FileInformation;
 using FileSurfer.Models.FileOperations;
 using FileSurfer.Models.VersionControl;
-using Avalonia.Media.Imaging;
 
 namespace FileSurfer;
 
@@ -17,15 +17,15 @@ namespace FileSurfer;
 public class FileSystemEntry
 {
     private static readonly int SizeLimit = FileSurferSettings.FileSizeUnitLimit;
-    private static readonly Bitmap FolderIcon =
-        new(
-            Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/FolderIcon.png"))
-        );
-    private static readonly Bitmap DriveIcon =
-        new(
-            Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/DriveIcon.png"))
-        );
-    private static readonly IReadOnlyList<string> ByteUnits = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"];
+    private static readonly IReadOnlyList<string> ByteUnits =
+    [
+        "B",
+        "KiB",
+        "MiB",
+        "GiB",
+        "TiB",
+        "PiB",
+    ];
 
     /// <summary>
     /// Path to the file, directory, or drive represented by this <see cref="FileSystemEntry"/>.
@@ -105,6 +105,7 @@ public class FileSystemEntry
     /// <param name="status">Optional version control status of the entry, defaulting to not version controlled.</param>
     public FileSystemEntry(
         IFileIOHandler fileIOHandler,
+        IIconProvider iconProvider,
         string path,
         bool isDirectory,
         VCStatus status = VCStatus.NotVersionControlled
@@ -112,10 +113,7 @@ public class FileSystemEntry
     {
         PathToEntry = path;
         IsDirectory = isDirectory;
-        if (IsDirectory)
-            Icon = FolderIcon;
-        else
-            SetIcon(fileIOHandler, path);
+        Icon = IsDirectory ? iconProvider.GetDirectoryIcon() : iconProvider.GetFileIcon(path);
 
         Name = Path.GetFileName(path);
         LastModTime = fileIOHandler.GetFileLastModified(path) ?? DateTime.MaxValue;
@@ -153,7 +151,7 @@ public class FileSystemEntry
     /// </para>
     /// </summary>
     /// <param name="drive">The drive information associated with this entry.</param>
-    public FileSystemEntry(DriveInfo drive)
+    public FileSystemEntry(IIconProvider iconProvider, DriveInfo drive)
     {
         PathToEntry = drive.Name;
         IsDirectory = true;
@@ -162,7 +160,7 @@ public class FileSystemEntry
             : drive.Name.TrimEnd(Path.DirectorySeparatorChar);
 
         Type = "Drive";
-        Icon = DriveIcon;
+        Icon = iconProvider.GetDriveIcon();
         LastModified = string.Empty;
         Size = GetSizeString(drive.TotalSize);
     }
@@ -177,18 +175,6 @@ public class FileSystemEntry
             return notNullTime.ToShortDateString() + " " + notNullTime.ToShortTimeString();
 
         return "Error";
-    }
-
-    private void SetIcon(IFileIOHandler fileOpsHandler, string path)
-    {
-        using System.Drawing.Bitmap? bitmap = fileOpsHandler.GetFileIcon(path);
-        if (bitmap is null)
-            return;
-
-        using MemoryStream stream = new();
-        bitmap.Save(stream, ImageFormat.Png);
-        stream.Position = 0;
-        Icon = new Bitmap(stream);
     }
 
     /// <summary>
