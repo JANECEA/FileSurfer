@@ -10,7 +10,7 @@ public interface IUndoableFileOperation
     /// Implementations of this method should reverse the effects of the original operation.
     /// </summary>
     /// <param name="errorMessage">An output parameter that will contain an error message if the undo operation fails.</param>
-    /// <returns><see langword="true"/> if the undo operation was successful, otherwise <see langword="false"/>.</returns> 
+    /// <returns><see langword="true"/> if the undo operation was successful, otherwise <see langword="false"/>.</returns>
     public bool Undo(out string? errorMessage);
 
     /// <summary>
@@ -18,6 +18,6 @@ public interface IUndoableFileOperation
     /// Implementations of this method should reapply the effects of the original operation.
     /// </summary>
     /// <param name="errorMessage">An output parameter that will contain an error message if the undo operation fails.</param>
-    /// <returns><see langword="true"/> if the redo operation was successful, otherwise <see langword="false"/>.</returns> 
+    /// <returns><see langword="true"/> if the redo operation was successful, otherwise <see langword="false"/>.</returns>
     public bool Redo(out string? errorMessage);
 }

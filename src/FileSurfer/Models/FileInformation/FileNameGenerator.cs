@@ -1,8 +1,9 @@
-using FileSurfer.Models.FileOperations;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FileSurfer.Models.FileOperations;
+using FileSurfer.ViewModels;
 
 namespace FileSurfer.Models.FileInformation;
 
@@ -35,11 +36,11 @@ static class FileNameGenerator
     }
 
     /// <summary>
-    /// Finds a name available for a copy in the context of 
+    /// Finds a name available for a copy in the context of
     /// <see cref="ClipboardManager.Duplicate(string, out string[], out string?)"/> operation.
     /// </summary>
     /// <returns>Name of a copy, available to use in the path specified in: <paramref name="directory"/>.</returns>
-    public static string GetCopyName(string directory, FileSystemEntry entry)
+    public static string GetCopyName(string directory, FileSystemEntryViewModel entry)
     {
         string extension = entry.IsDirectory ? string.Empty : Path.GetExtension(entry.PathToEntry);
         string copyName = entry.Name;
@@ -54,12 +55,12 @@ static class FileNameGenerator
     /// </summary>
     /// <returns><see langword="true"/> if <paramref name="entries"/> can be collectively renamed, otherwise <see langword="false"/>.</returns>
     public static bool CanBeRenamedCollectively(
-        IEnumerable<FileSystemEntry> entries,
+        IEnumerable<FileSystemEntryViewModel> entries,
         bool onlyFiles,
         string extension
     )
     {
-        foreach (FileSystemEntry entry in entries)
+        foreach (FileSystemEntryViewModel entry in entries)
         {
             if (
                 onlyFiles != !entry.IsDirectory
@@ -75,7 +76,7 @@ static class FileNameGenerator
     /// </summary>
     /// <returns>An array of names available for <paramref name="entries"/>.</returns>
     public static string[] GetAvailableNames(
-        IList<FileSystemEntry> entries,
+        IList<FileSystemEntryViewModel> entries,
         string namingPattern
     )
     {

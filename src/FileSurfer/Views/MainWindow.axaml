@@ -3,7 +3,7 @@
         xmlns:vm="using:FileSurfer.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:FileSurfer"
+        xmlns:local="clr-namespace:FileSurfer.ViewModels"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="450"
         MinWidth="860" MinHeight="400"
         WindowStartupLocation="CenterScreen"
@@ -35,7 +35,7 @@
     </Window.KeyBindings>
 
     <Window.Resources>
-        <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type local:FileSystemEntry}">
+        <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type local:FileSystemEntryViewModel}">
             <Grid ColumnDefinitions="30 360 160 130 90 Auto" Height="30">
                 <Image Source="{Binding Icon}" Grid.Column="0" Width="20" Height="20" Margin="0 0 12 0" Opacity="{Binding Opacity}"/>
                 <TextBlock Classes="FileInfo" Grid.Column="1" Text="{Binding Name}" FontFamily="Arial"/>
@@ -45,13 +45,13 @@
                 <CheckBox Classes="StagedCheckbox" Grid.Column="5" IsVisible="{Binding VersionControlled}" IsChecked="{Binding Staged}" Click="StagedToggle"/>
             </Grid>
         </DataTemplate>
-        <DataTemplate x:Key="IconViewTemplate" x:DataType="{x:Type local:FileSystemEntry}">
+        <DataTemplate x:Key="IconViewTemplate" x:DataType="{x:Type local:FileSystemEntryViewModel}">
             <StackPanel Width="80" Spacing="10">
                 <Image Source="{Binding Icon}" Width="60" Height="60" Margin="5 5 5 2" Opacity="{Binding Opacity}"/>
                 <TextBlock Classes="IconViewInfo" Text="{Binding Name}"/>
             </StackPanel>
         </DataTemplate>
-        <DataTemplate x:Key="SideBarTemplate" x:DataType="{x:Type local:FileSystemEntry}">
+        <DataTemplate x:Key="SideBarTemplate" x:DataType="{x:Type local:FileSystemEntryViewModel}">
             <Grid ColumnDefinitions="Auto *" Height="25">
                 <Image Source="{Binding Icon}" Grid.Column="0" Width="18" Height="18" Margin="20 0 12 0"/>
                 <TextBlock Classes="FileInfo" Grid.Column="1" Text="{Binding Name}" FontFamily="Arial"/>
@@ -139,7 +139,7 @@
                                     <Setter Property="Padding" Value="10 3 10 3"/>
                                     <Setter Property="ContextMenu">
                                         <Setter.Value>
-                                            <ContextMenu x:DataType="local:FileSystemEntry">
+                                            <ContextMenu x:DataType="local:FileSystemEntryViewModel">
                                                 <MenuItem Classes="ContextMenuItem" Header="Move up" Click="MoveUp"/>
                                                 <MenuItem Classes="ContextMenuItem" Header="Move down" Click="MoveDown"/>
                                                 <MenuItem Classes="ContextMenuItem" Header="Remove from quick access" Click="RemoveFromQuickAccess"/>
@@ -203,7 +203,7 @@
                                 <Setter Property="Margin" Value="0 0 4 4"/>
                                 <Setter Property="ContextMenu">
                                     <Setter.Value>
-                                        <ContextMenu Classes="FileContextMenu" x:DataType="local:FileSystemEntry">
+                                        <ContextMenu Classes="FileContextMenu" x:DataType="local:FileSystemEntryViewModel">
                                             <MenuItem Classes="ContextMenuItem" Header="Open" Click="OpenClicked"/>
                                             <MenuItem Classes="ContextMenuItem" Header="Open as" Click="OpenAs" IsVisible="{Binding !IsDirectory}"/>
                                             <MenuItem Classes="ContextMenuItem" Header="Open in Notepad" IsVisible="{Binding !IsDirectory}" Click="OpenInNotepad"/>

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using FileSurfer.Models.FileInformation;
+using FileSurfer.ViewModels;
 
 namespace FileSurfer.Models.FileOperations.Undoable;
 
@@ -10,9 +11,9 @@ namespace FileSurfer.Models.FileOperations.Undoable;
 public class MoveFilesToTrash : IUndoableFileOperation
 {
     private readonly IFileIOHandler _fileIOHandler;
-    private readonly FileSystemEntry[] _entries;
+    private readonly FileSystemEntryViewModel[] _entries;
 
-    public MoveFilesToTrash(IFileIOHandler fileHandler, FileSystemEntry[] entries)
+    public MoveFilesToTrash(IFileIOHandler fileHandler, FileSystemEntryViewModel[] entries)
     {
         _fileIOHandler = fileHandler;
         _entries = entries;
@@ -23,7 +24,7 @@ public class MoveFilesToTrash : IUndoableFileOperation
     {
         bool errorOccured = false;
         errorMessage = "Problems occurred moving these files to trash:";
-        foreach (FileSystemEntry entry in _entries)
+        foreach (FileSystemEntryViewModel entry in _entries)
         {
             bool result = entry.IsDirectory
                 ? _fileIOHandler.MoveDirToTrash(entry.PathToEntry, out _)
@@ -42,7 +43,7 @@ public class MoveFilesToTrash : IUndoableFileOperation
     {
         bool errorOccured = false;
         errorMessage = "Problems occurred restoring these files:";
-        foreach (FileSystemEntry entry in _entries)
+        foreach (FileSystemEntryViewModel entry in _entries)
         {
             bool result = entry.IsDirectory
                 ? _fileIOHandler.RestoreDir(entry.PathToEntry, out _)
@@ -166,13 +167,13 @@ public class FlattenFolder : IUndoableFileOperation
 public class MoveFilesTo : IUndoableFileOperation
 {
     private readonly IFileIOHandler _fileIOHandler;
-    private readonly FileSystemEntry[] _entries;
+    private readonly FileSystemEntryViewModel[] _entries;
     private readonly string _destinationDir;
     private readonly string _originalDir;
 
     public MoveFilesTo(
         IFileIOHandler fileOpsHandler,
-        FileSystemEntry[] entries,
+        FileSystemEntryViewModel[] entries,
         string destinationDir
     )
     {
@@ -188,7 +189,7 @@ public class MoveFilesTo : IUndoableFileOperation
     {
         bool errorOccured = false;
         errorMessage = "Problems occured moving these files:";
-        foreach (FileSystemEntry entry in _entries)
+        foreach (FileSystemEntryViewModel entry in _entries)
         {
             bool result = entry.IsDirectory
                 ? _fileIOHandler.MoveDirTo(entry.PathToEntry, _destinationDir, out _)
@@ -207,7 +208,7 @@ public class MoveFilesTo : IUndoableFileOperation
     {
         bool errorOccured = false;
         errorMessage = "Problems occured moving these files:";
-        foreach (FileSystemEntry entry in _entries)
+        foreach (FileSystemEntryViewModel entry in _entries)
         {
             string newPath = Path.Combine(_destinationDir, entry.Name);
             bool result = entry.IsDirectory
@@ -229,10 +230,14 @@ public class MoveFilesTo : IUndoableFileOperation
 public class CopyFilesTo : IUndoableFileOperation
 {
     private readonly IFileIOHandler _fileIOHandler;
-    private readonly FileSystemEntry[] _entries;
+    private readonly FileSystemEntryViewModel[] _entries;
     private readonly string _destinationDir;
 
-    public CopyFilesTo(IFileIOHandler fileHandler, FileSystemEntry[] entries, string destinationDir)
+    public CopyFilesTo(
+        IFileIOHandler fileHandler,
+        FileSystemEntryViewModel[] entries,
+        string destinationDir
+    )
     {
         _fileIOHandler = fileHandler;
         _entries = entries;
@@ -244,7 +249,7 @@ public class CopyFilesTo : IUndoableFileOperation
     {
         bool errorOccured = false;
         errorMessage = "Problems occured copying these files:";
-        foreach (FileSystemEntry entry in _entries)
+        foreach (FileSystemEntryViewModel entry in _entries)
         {
             bool result = entry.IsDirectory
                 ? _fileIOHandler.CopyDirTo(entry.PathToEntry, _destinationDir, out _)
@@ -263,7 +268,7 @@ public class CopyFilesTo : IUndoableFileOperation
     {
         bool errorOccured = false;
         errorMessage = "Problems occured deleting these files:";
-        foreach (FileSystemEntry entry in _entries)
+        foreach (FileSystemEntryViewModel entry in _entries)
         {
             string newPath = Path.Combine(_destinationDir, entry.Name);
             bool result = entry.IsDirectory
@@ -285,13 +290,13 @@ public class CopyFilesTo : IUndoableFileOperation
 public class DuplicateFiles : IUndoableFileOperation
 {
     private readonly IFileIOHandler _fileIOHandler;
-    private readonly FileSystemEntry[] _entries;
+    private readonly FileSystemEntryViewModel[] _entries;
     private readonly string[] _copyNames;
     private readonly string _parentDir;
 
     public DuplicateFiles(
         IFileIOHandler fileOpsHandler,
-        FileSystemEntry[] entries,
+        FileSystemEntryViewModel[] entries,
         string[] copyNames
     )
     {
@@ -347,11 +352,15 @@ public class DuplicateFiles : IUndoableFileOperation
 public class RenameMultiple : IUndoableFileOperation
 {
     private readonly IFileIOHandler _fileIOHandler;
-    private readonly FileSystemEntry[] _entries;
+    private readonly FileSystemEntryViewModel[] _entries;
     private readonly string[] _newNames;
     private readonly string _dirName;
 
-    public RenameMultiple(IFileIOHandler fileHandler, FileSystemEntry[] entries, string[] newNames)
+    public RenameMultiple(
+        IFileIOHandler fileHandler,
+        FileSystemEntryViewModel[] entries,
+        string[] newNames
+    )
     {
         _fileIOHandler = fileHandler;
         _entries = entries;
@@ -406,11 +415,11 @@ public class RenameMultiple : IUndoableFileOperation
 public class RenameOne : IUndoableFileOperation
 {
     private readonly IFileIOHandler _fileIOHandler;
-    private readonly FileSystemEntry _entry;
+    private readonly FileSystemEntryViewModel _entry;
     private readonly string _newName;
     private readonly string _newPath;
 
-    public RenameOne(IFileIOHandler fileHandler, FileSystemEntry entry, string newName)
+    public RenameOne(IFileIOHandler fileHandler, FileSystemEntryViewModel entry, string newName)
     {
         _fileIOHandler = fileHandler;
         _entry = entry;

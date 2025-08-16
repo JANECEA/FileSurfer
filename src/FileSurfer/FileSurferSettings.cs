@@ -4,47 +4,48 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using FileSurfer.ViewModels;
 
 namespace FileSurfer;
 
 /// <summary>
-/// Defines the display modes available in FileSurfer for viewing <see cref="FileSystemEntry"/>s.
+/// Defines the display modes available in FileSurfer for viewing <see cref="FileSystemEntryViewModel"/>s.
 /// </summary>
 public enum DisplayMode
 {
     /// <summary>
-    /// Displays <see cref="FileSystemEntry"/>s as a list.
+    /// Displays <see cref="FileSystemEntryViewModel"/>s as a list.
     /// </summary>
     ListView,
 
     /// <summary>
-    /// Displays <see cref="FileSystemEntry"/>s in a grid with larger icons.
+    /// Displays <see cref="FileSystemEntryViewModel"/>s in a grid with larger icons.
     /// </summary>
     IconView,
 }
 
 /// <summary>
-/// Specifies the order by which <see cref="FileSystemEntry"/>s can be sorted in the FileSurfer application.
+/// Specifies the order by which <see cref="FileSystemEntryViewModel"/>s can be sorted in the FileSurfer application.
 /// </summary>
 public enum SortBy
 {
     /// <summary>
-    /// Sorts <see cref="ViewModels.MainWindowViewModel.FileEntries"/> by <see cref="FileSystemEntry.Name"/>.
+    /// Sorts <see cref="MainWindowViewModel.FileEntries"/> by <see cref="FileSystemEntryViewModel.Name"/>.
     /// </summary>
     Name,
 
     /// <summary>
-    /// Sorts <see cref="ViewModels.MainWindowViewModel.FileEntries"/> by <see cref="FileSystemEntry.LastModTime"/>.
+    /// Sorts <see cref="MainWindowViewModel.FileEntries"/> by <see cref="FileSystemEntryViewModel.LastModTime"/>.
     /// </summary>
     Date,
 
     /// <summary>
-    /// Sorts <see cref="ViewModels.MainWindowViewModel.FileEntries"/> by <see cref="FileSystemEntry.Type"/>.
+    /// Sorts <see cref="MainWindowViewModel.FileEntries"/> by <see cref="FileSystemEntryViewModel.Type"/>.
     /// </summary>
     Type,
 
     /// <summary>
-    /// Sorts <see cref="ViewModels.MainWindowViewModel.FileEntries"/> by <see cref="FileSystemEntry.SizeB"/>.
+    /// Sorts <see cref="MainWindowViewModel.FileEntries"/> by <see cref="FileSystemEntryViewModel.SizeB"/>.
     /// </summary>
     Size,
 }
@@ -319,8 +320,8 @@ static class FileSurferSettings
         if (settings.fileSizeUnitLimit > 0)
             FileSizeUnitLimit = settings.fileSizeUnitLimit;
 
-        DisplayMode = (DisplayMode)Enum.Parse(typeof(DisplayMode), settings.displayMode);
-        DefaultSort = (SortBy)Enum.Parse(typeof(SortBy), settings.defaultSort);
+        DisplayMode = Enum.Parse<DisplayMode>(settings.displayMode);
+        DefaultSort = Enum.Parse<SortBy>(settings.defaultSort);
         SortReversed = settings.sortReversed;
         ShowSpecialFolders = settings.showSpecialFolders;
         ShowProtectedFiles = settings.showProtectedFiles;
@@ -350,10 +351,10 @@ static class FileSurferSettings
     }
 
     /// <summary>
-    /// Update Quick Access list with the specified <see cref="FileSystemEntry"/>s.
+    /// Update Quick Access list with the specified <see cref="FileSystemEntryViewModel"/>s.
     /// </summary>
     /// <param name="quickAccess"></param>
-    public static void UpdateQuickAccess(IEnumerable<FileSystemEntry> quickAccess) =>
+    public static void UpdateQuickAccess(IEnumerable<FileSystemEntryViewModel> quickAccess) =>
         QuickAccess = quickAccess.Select(entry => entry.PathToEntry).ToList();
 
     /// <summary>

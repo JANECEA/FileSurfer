@@ -6,7 +6,7 @@ using FileSurfer.Models.FileInformation;
 using FileSurfer.Models.FileOperations;
 using FileSurfer.Models.VersionControl;
 
-namespace FileSurfer;
+namespace FileSurfer.ViewModels;
 
 /// <summary>
 /// Represents a displayable file system entry (file, directory, or drive) in the FileSurfer application.
@@ -14,7 +14,7 @@ namespace FileSurfer;
 /// their name, size, type, last modification time, and icon. Also includes data about special conditions
 /// like hidden files, or version control status.
 /// </summary>
-public class FileSystemEntry
+public class FileSystemEntryViewModel
 {
     private static readonly int SizeLimit = FileSurferSettings.FileSizeUnitLimit;
     private static readonly IReadOnlyList<string> ByteUnits =
@@ -28,22 +28,22 @@ public class FileSystemEntry
     ];
 
     /// <summary>
-    /// Path to the file, directory, or drive represented by this <see cref="FileSystemEntry"/>.
+    /// Path to the file, directory, or drive represented by this <see cref="FileSystemEntryViewModel"/>.
     /// </summary>
     public readonly string PathToEntry;
 
     /// <summary>
-    /// Specifies if this <see cref="FileSystemEntry"/> is a directory.
+    /// Specifies if this <see cref="FileSystemEntryViewModel"/> is a directory.
     /// </summary>
     public bool IsDirectory { get; }
 
     /// <summary>
     /// Holds a <see cref="Bitmap"/> representing the file.
     /// </summary>
-    public Bitmap? Icon { get; set; }
+    public Bitmap? Icon { get; private set; }
 
     /// <summary>
-    /// Holds the name of file, directory, or drive represented by this <see cref="FileSystemEntry"/>.
+    /// Holds the name of file, directory, or drive represented by this <see cref="FileSystemEntryViewModel"/>.
     /// </summary>
     public string Name { get; }
 
@@ -73,17 +73,17 @@ public class FileSystemEntry
     public string Type { get; }
 
     /// <summary>
-    /// Holds this <see cref="FileSystemEntry"/>'s opacity in the context of <see cref="Views.MainWindow"/>.
+    /// Holds this <see cref="FileSystemEntryViewModel"/>'s opacity in the context of <see cref="Views.MainWindow"/>.
     /// </summary>
     public double Opacity { get; } = 1;
 
     /// <summary>
-    /// Specifies if the file represented by this <see cref="FileSystemEntry"/> is part of a repository.
+    /// Specifies if the file represented by this <see cref="FileSystemEntryViewModel"/> is part of a repository.
     /// </summary>
     public bool VersionControlled { get; } = false;
 
     /// <summary>
-    /// Specifies if the file represented by this <see cref="FileSystemEntry"/> has been staged for the next commit.
+    /// Specifies if the file represented by this <see cref="FileSystemEntryViewModel"/> has been staged for the next commit.
     /// </summary>
     public bool Staged { get; } = false;
 
@@ -93,7 +93,7 @@ public class FileSystemEntry
     public bool IsArchived { get; } = false;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="FileSystemEntry"/> class for a file or directory.
+    /// Initializes a new instance of the <see cref="FileSystemEntryViewModel"/> class for a file or directory.
     /// <para>
     /// Sets up properties like the name, icon, size, type, and last modified date based on
     /// the provided path and version control status.
@@ -103,7 +103,7 @@ public class FileSystemEntry
     /// <param name="path">The file or directory path associated with this entry.</param>
     /// <param name="isDirectory">Indicates whether the path refers to a directory.</param>
     /// <param name="status">Optional version control status of the entry, defaulting to not version controlled.</param>
-    public FileSystemEntry(
+    public FileSystemEntryViewModel(
         IFileInfoProvider fileInfoProvider,
         IIconProvider iconProvider,
         string path,
@@ -131,7 +131,7 @@ public class FileSystemEntry
 
         Opacity =
             fileInfoProvider.IsHidden(path, isDirectory)
-            || (FileSurferSettings.TreatDotFilesAsHidden && Name.StartsWith('.'))
+            || FileSurferSettings.TreatDotFilesAsHidden && Name.StartsWith('.')
                 ? 0.45
                 : 1;
 
@@ -141,7 +141,7 @@ public class FileSystemEntry
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="FileSystemEntry"/> class for a drive.
+    /// Initializes a new instance of the <see cref="FileSystemEntryViewModel"/> class for a drive.
     /// <para>
     /// Configures the properties such as name, type, icon, and total size based on the provided
     /// <see cref="DriveInfo"/> object.
@@ -151,7 +151,7 @@ public class FileSystemEntry
     /// </para>
     /// </summary>
     /// <param name="drive">The drive information associated with this entry.</param>
-    public FileSystemEntry(IIconProvider iconProvider, DriveInfo drive)
+    public FileSystemEntryViewModel(IIconProvider iconProvider, DriveInfo drive)
     {
         PathToEntry = drive.Name;
         IsDirectory = true;

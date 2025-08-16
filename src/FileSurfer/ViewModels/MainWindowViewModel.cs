@@ -61,29 +61,29 @@ public class MainWindowViewModel : ReactiveObject
     private DateTime _lastModified;
 
     /// <summary>
-    /// Holds <see cref="FileSystemEntry"/>s displayed in the main window.
+    /// Holds <see cref="FileSystemEntryViewModel"/>s displayed in the main window.
     /// </summary>
-    public ObservableCollection<FileSystemEntry> FileEntries { get; } = new();
+    public ObservableCollection<FileSystemEntryViewModel> FileEntries { get; } = new();
 
     /// <summary>
-    /// Holds the currently selected <see cref="FileSystemEntry"/>s.
+    /// Holds the currently selected <see cref="FileSystemEntryViewModel"/>s.
     /// </summary>
-    public ObservableCollection<FileSystemEntry> SelectedFiles { get; } = new();
+    public ObservableCollection<FileSystemEntryViewModel> SelectedFiles { get; } = new();
 
     /// <summary>
-    /// Holds <see cref="FileSystemEntry"/>s displayed in Quick Access.
+    /// Holds <see cref="FileSystemEntryViewModel"/>s displayed in Quick Access.
     /// </summary>
-    public ObservableCollection<FileSystemEntry> QuickAccess { get; } = new();
+    public ObservableCollection<FileSystemEntryViewModel> QuickAccess { get; } = new();
 
     /// <summary>
-    /// Holds the Special Folders <see cref="FileSystemEntry"/>s.
+    /// Holds the Special Folders <see cref="FileSystemEntryViewModel"/>s.
     /// </summary>
-    public FileSystemEntry[] SpecialFolders { get; }
+    public FileSystemEntryViewModel[] SpecialFolders { get; }
 
     /// <summary>
-    /// Holds the Drives <see cref="FileSystemEntry"/>s.
+    /// Holds the Drives <see cref="FileSystemEntryViewModel"/>s.
     /// </summary>
-    public FileSystemEntry[] Drives { get; }
+    public FileSystemEntryViewModel[] Drives { get; }
 
     /// <summary>
     /// Holds the path to the current directory displayed in FileSurfer.
@@ -356,7 +356,7 @@ public class MainWindowViewModel : ReactiveObject
         Drives = GetDrives();
         SpecialFolders = FileSurferSettings.ShowSpecialFolders
             ? GetSpecialFolders()
-            : Array.Empty<FileSystemEntry>();
+            : Array.Empty<FileSystemEntryViewModel>();
 
         CurrentDir = IsValidDirectory(FileSurferSettings.OpenIn)
             ? FileSurferSettings.OpenIn
@@ -448,7 +448,7 @@ public class MainWindowViewModel : ReactiveObject
     /// Used for setting the text selection when renaming files.
     /// </summary>
     /// <returns>The length of the file name without extension.</returns>
-    public int GetNameEndIndex(FileSystemEntry entry) =>
+    public int GetNameEndIndex(FileSystemEntryViewModel entry) =>
         SelectedFiles.Count > 0 ? Path.GetFileNameWithoutExtension(entry.PathToEntry).Length : 0;
 
     private bool IsValidDirectory(string path) =>
@@ -484,7 +484,7 @@ public class MainWindowViewModel : ReactiveObject
 
         bool displaySize = SelectedFiles.Count >= 1;
         long sizeSum = 0;
-        foreach (FileSystemEntry entry in SelectedFiles)
+        foreach (FileSystemEntryViewModel entry in SelectedFiles)
         {
             if (entry.IsDirectory)
             {
@@ -495,7 +495,7 @@ public class MainWindowViewModel : ReactiveObject
                 sizeSum += sizeB;
         }
         if (displaySize)
-            selectionInfo += "  " + FileSystemEntry.GetSizeString(sizeSum);
+            selectionInfo += "  " + FileSystemEntryViewModel.GetSizeString(sizeSum);
 
         SelectionInfo = selectionInfo;
     }
@@ -509,7 +509,7 @@ public class MainWindowViewModel : ReactiveObject
     /// Otherwise, the file is opened in the application preferred by the system.
     /// </para>
     /// </summary>
-    public void OpenEntry(FileSystemEntry entry)
+    public void OpenEntry(FileSystemEntryViewModel entry)
     {
         if (entry.IsDirectory)
             CurrentDir = entry.PathToEntry;
@@ -528,7 +528,7 @@ public class MainWindowViewModel : ReactiveObject
     /// <summary>
     /// Shows the "Open file with" dialog.
     /// </summary>
-    public void OpenAs(FileSystemEntry entry)
+    public void OpenAs(FileSystemEntryViewModel entry)
     {
         if (!entry.IsDirectory)
         {
@@ -544,7 +544,7 @@ public class MainWindowViewModel : ReactiveObject
     {
         if (SelectedFiles.Count > 1)
         {
-            foreach (FileSystemEntry entry in SelectedFiles)
+            foreach (FileSystemEntryViewModel entry in SelectedFiles)
                 if (
                     entry.IsDirectory
                     || _fileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out _)
@@ -552,7 +552,7 @@ public class MainWindowViewModel : ReactiveObject
                     return;
         }
         // To prevent collection changing during iteration
-        foreach (FileSystemEntry entry in SelectedFiles.ToArray())
+        foreach (FileSystemEntryViewModel entry in SelectedFiles.ToArray())
             OpenEntry(entry);
     }
 
@@ -561,7 +561,7 @@ public class MainWindowViewModel : ReactiveObject
     /// </summary>
     public void OpenInNotepad()
     {
-        foreach (FileSystemEntry entry in SelectedFiles)
+        foreach (FileSystemEntryViewModel entry in SelectedFiles)
         {
             if (!entry.IsDirectory)
             {
@@ -572,12 +572,12 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     /// <summary>
-    /// Adds the selected <see cref="FileSystemEntry"/> to Quick Access.
+    /// Adds the selected <see cref="FileSystemEntryViewModel"/> to Quick Access.
     /// </summary>
-    public void AddToQuickAccess(FileSystemEntry entry) => QuickAccess.Add(entry);
+    public void AddToQuickAccess(FileSystemEntryViewModel entry) => QuickAccess.Add(entry);
 
     /// <summary>
-    /// Moves the <see cref="FileSystemEntry"/> under the index up within the Quick Access list.
+    /// Moves the <see cref="FileSystemEntryViewModel"/> under the index up within the Quick Access list.
     /// </summary>
     public void MoveUp(int i)
     {
@@ -586,7 +586,7 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     /// <summary>
-    /// Moves the <see cref="FileSystemEntry"/> under the index down within the Quick Access list.
+    /// Moves the <see cref="FileSystemEntryViewModel"/> under the index down within the Quick Access list.
     /// </summary>
     public void MoveDown(int i)
     {
@@ -595,14 +595,14 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     /// <summary>
-    /// Removes the <see cref="FileSystemEntry"/> under the index from the Quick Access list.
+    /// Removes the <see cref="FileSystemEntryViewModel"/> under the index from the Quick Access list.
     /// </summary>
     public void RemoveFromQuickAccess(int index) => QuickAccess.RemoveAt(index);
 
     /// <summary>
     /// Opens the location of the selected entry during searching.
     /// </summary>
-    public void OpenEntryLocation(FileSystemEntry entry) =>
+    public void OpenEntryLocation(FileSystemEntryViewModel entry) =>
         CurrentDir = Path.GetDirectoryName(entry.PathToEntry) ?? ThisPCLabel;
 
     /// <summary>
@@ -621,17 +621,22 @@ public class MainWindowViewModel : ReactiveObject
             CurrentDir = parentDir;
     }
 
-    private FileSystemEntry[] GetDrives() =>
+    private FileSystemEntryViewModel[] GetDrives() =>
         _fileInfoProvider
             .GetDrives()
-            .Select(driveInfo => new FileSystemEntry(_iconProvider, driveInfo))
+            .Select(driveInfo => new FileSystemEntryViewModel(_iconProvider, driveInfo))
             .ToArray();
 
-    private FileSystemEntry[] GetSpecialFolders() =>
+    private FileSystemEntryViewModel[] GetSpecialFolders() =>
         _fileInfoProvider
             .GetSpecialFolders()
             .Where(dirPath => !string.IsNullOrEmpty(dirPath))
-            .Select(dirPath => new FileSystemEntry(_fileInfoProvider, _iconProvider, dirPath, true))
+            .Select(dirPath => new FileSystemEntryViewModel(
+                _fileInfoProvider,
+                _iconProvider,
+                dirPath,
+                true
+            ))
             .ToArray();
 
     private void LoadQuickAccess()
@@ -639,16 +644,20 @@ public class MainWindowViewModel : ReactiveObject
         foreach (string path in FileSurferSettings.QuickAccess)
         {
             if (Directory.Exists(path))
-                QuickAccess.Add(new FileSystemEntry(_fileInfoProvider, _iconProvider, path, true));
+                QuickAccess.Add(
+                    new FileSystemEntryViewModel(_fileInfoProvider, _iconProvider, path, true)
+                );
             else if (File.Exists(path))
-                QuickAccess.Add(new FileSystemEntry(_fileInfoProvider, _iconProvider, path, false));
+                QuickAccess.Add(
+                    new FileSystemEntryViewModel(_fileInfoProvider, _iconProvider, path, false)
+                );
         }
     }
 
     private void ShowDrives()
     {
         FileEntries.Clear();
-        foreach (FileSystemEntry drive in Drives)
+        foreach (FileSystemEntryViewModel drive in Drives)
             FileEntries.Add(drive);
     }
 
@@ -667,11 +676,11 @@ public class MainWindowViewModel : ReactiveObject
         if (FileSurferSettings.TreatDotFilesAsHidden && !FileSurferSettings.ShowHiddenFiles)
             RemoveDotFiles(ref dirPaths, ref filePaths);
 
-        FileSystemEntry[] directories = new FileSystemEntry[dirPaths.Length];
-        FileSystemEntry[] files = new FileSystemEntry[filePaths.Length];
+        FileSystemEntryViewModel[] directories = new FileSystemEntryViewModel[dirPaths.Length];
+        FileSystemEntryViewModel[] files = new FileSystemEntryViewModel[filePaths.Length];
 
         for (int i = 0; i < dirPaths.Length; i++)
-            directories[i] = new FileSystemEntry(
+            directories[i] = new FileSystemEntryViewModel(
                 _fileInfoProvider,
                 _iconProvider,
                 dirPaths[i],
@@ -680,7 +689,7 @@ public class MainWindowViewModel : ReactiveObject
             );
 
         for (int i = 0; i < filePaths.Length; i++)
-            files[i] = new FileSystemEntry(
+            files[i] = new FileSystemEntryViewModel(
                 _fileInfoProvider,
                 _iconProvider,
                 filePaths[i],
@@ -703,7 +712,10 @@ public class MainWindowViewModel : ReactiveObject
     /// <summary>
     /// Adds directories and files to <see cref="FileEntries"/>.
     /// </summary>
-    private void AddEntries(FileSystemEntry[] directories, FileSystemEntry[] files)
+    private void AddEntries(
+        FileSystemEntryViewModel[] directories,
+        FileSystemEntryViewModel[] files
+    )
     {
         if (SortBy is not SortBy.Name)
             SortInPlace(files, SortBy);
@@ -729,9 +741,9 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     /// <summary>
-    /// Sorts given array of <see cref="FileSystemEntry"/>s based on <see cref="SortBy"/>
+    /// Sorts given array of <see cref="FileSystemEntryViewModel"/>s based on <see cref="SortBy"/>
     /// </summary>
-    private void SortInPlace(FileSystemEntry[] entries, SortBy sortBy)
+    private void SortInPlace(FileSystemEntryViewModel[] entries, SortBy sortBy)
     {
         switch (sortBy)
         {
@@ -875,7 +887,7 @@ public class MainWindowViewModel : ReactiveObject
 
     /// <summary>
     /// Recursively searches <see cref="CurrentDir"/> and asynchronously
-    /// adds matching <see cref="FileSystemEntry"/>s to <see cref="FileEntries"/>.
+    /// adds matching <see cref="FileSystemEntryViewModel"/>s to <see cref="FileEntries"/>.
     /// </summary>
     private async Task SearchDirectoryAsync(
         string directory,
@@ -891,21 +903,21 @@ public class MainWindowViewModel : ReactiveObject
             string currentDirPath = directories.Dequeue();
 
             IEnumerable<string> dirPaths = GetAllDirs(currentDirPath);
-            Task<List<FileSystemEntry>> filesTask = Task.Run(
+            Task<List<FileSystemEntryViewModel>> filesTask = Task.Run(
                 () => GetFiles(currentDirPath, searchQuery)
             );
-            Task<List<FileSystemEntry>> filteredDirsTask = Task.Run(
+            Task<List<FileSystemEntryViewModel>> filteredDirsTask = Task.Run(
                 () => GetDirs(dirPaths, searchQuery)
             );
             await Task.WhenAll(filesTask, filteredDirsTask);
 
             Dispatcher.UIThread.Post(() =>
             {
-                foreach (FileSystemEntry file in filesTask.Result)
+                foreach (FileSystemEntryViewModel file in filesTask.Result)
                     if (!searchCTS.IsCancellationRequested)
                         FileEntries.Add(file);
 
-                foreach (FileSystemEntry dir in filteredDirsTask.Result)
+                foreach (FileSystemEntryViewModel dir in filteredDirsTask.Result)
                     if (!searchCTS.IsCancellationRequested)
                         FileEntries.Add(dir);
             });
@@ -915,7 +927,7 @@ public class MainWindowViewModel : ReactiveObject
         }
     }
 
-    private List<FileSystemEntry> GetFiles(string directory, string query)
+    private List<FileSystemEntryViewModel> GetFiles(string directory, string query)
     {
         IEnumerable<string> filePaths = _fileInfoProvider.GetPathFiles(
             directory,
@@ -926,7 +938,7 @@ public class MainWindowViewModel : ReactiveObject
             filePaths = filePaths.Where(path => !Path.GetFileName(path).StartsWith('.'));
 
         return FilterPaths(filePaths, query)
-            .Select(path => new FileSystemEntry(
+            .Select(path => new FileSystemEntryViewModel(
                 _fileInfoProvider,
                 _iconProvider,
                 path,
@@ -949,9 +961,9 @@ public class MainWindowViewModel : ReactiveObject
         return dirPaths;
     }
 
-    private List<FileSystemEntry> GetDirs(IEnumerable<string> dirs, string query) =>
+    private List<FileSystemEntryViewModel> GetDirs(IEnumerable<string> dirs, string query) =>
         FilterPaths(dirs, query)
-            .Select(path => new FileSystemEntry(
+            .Select(path => new FileSystemEntryViewModel(
                 _fileInfoProvider,
                 _iconProvider,
                 path,
@@ -1028,7 +1040,7 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     /// <summary>
-    /// Creates an archive from the <see cref="FileSystemEntry"/>s in <see cref="SelectedFiles"/>.
+    /// Creates an archive from the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/>.
     /// </summary>
     public async void AddToArchive()
     {
@@ -1061,7 +1073,7 @@ public class MainWindowViewModel : ReactiveObject
         if (!Directory.Exists(CurrentDir))
             return;
 
-        foreach (FileSystemEntry entry in SelectedFiles)
+        foreach (FileSystemEntryViewModel entry in SelectedFiles)
             if (!ArchiveManager.IsZipped(entry.PathToEntry))
             {
                 ForwardError($"Entry \"{entry.Name}\" is not an archive.");
@@ -1086,9 +1098,9 @@ public class MainWindowViewModel : ReactiveObject
         });
 
     /// <summary>
-    /// Copies the path to the selected <see cref="FileSystemEntry"/> to the system clipboard.
+    /// Copies the path to the selected <see cref="FileSystemEntryViewModel"/> to the system clipboard.
     /// </summary>
-    public void CopyPath(FileSystemEntry entry) =>
+    public void CopyPath(FileSystemEntryViewModel entry) =>
         _clipboardManager.CopyPathToFile(entry.PathToEntry);
 
     /// <summary>
@@ -1128,7 +1140,7 @@ public class MainWindowViewModel : ReactiveObject
         }
         else if (_clipboardManager.IsCutOperation)
         {
-            FileSystemEntry[] clipBoard = _clipboardManager.GetClipboard();
+            FileSystemEntryViewModel[] clipBoard = _clipboardManager.GetClipboard();
             if (_clipboardManager.Paste(CurrentDir, out errorMessage))
                 _undoRedoHistory.AddNewNode(new MoveFilesTo(_fileIOHandler, clipBoard, CurrentDir));
         }
@@ -1146,7 +1158,7 @@ public class MainWindowViewModel : ReactiveObject
     /// <summary>
     /// Relays the operation to <see cref="_fileIOHandler"/> and invokes <see cref="Reload"/>.
     /// </summary>
-    public void CreateShortcut(FileSystemEntry entry)
+    public void CreateShortcut(FileSystemEntryViewModel entry)
     {
         _shellHandler.CreateLink(entry.PathToEntry, out string? errorMessage);
         ForwardError(errorMessage);
@@ -1156,7 +1168,7 @@ public class MainWindowViewModel : ReactiveObject
     /// <summary>
     /// Relays the operation to <see cref="_fileIOHandler"/>.
     /// </summary>
-    public void ShowProperties(FileSystemEntry entry)
+    public void ShowProperties(FileSystemEntryViewModel entry)
     {
         WindowsFileProperties.ShowFileProperties(entry.PathToEntry, out string? errorMessage);
         ForwardError(errorMessage);
@@ -1175,7 +1187,7 @@ public class MainWindowViewModel : ReactiveObject
 
     private void RenameOne(string newName)
     {
-        FileSystemEntry entry = SelectedFiles[0];
+        FileSystemEntryViewModel entry = SelectedFiles[0];
         bool result = entry.IsDirectory
             ? _fileIOHandler.RenameDirAt(entry.PathToEntry, newName, out string? errorMessage)
             : _fileIOHandler.RenameFileAt(entry.PathToEntry, newName, out errorMessage);
@@ -1224,7 +1236,7 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     /// <summary>
-    /// Moves the <see cref="FileSystemEntry"/>s in <see cref="SelectedFiles"/> to the system trash using <see cref="_fileIOHandler"/>.
+    /// Moves the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/> to the system trash using <see cref="_fileIOHandler"/>.
     /// <para>
     /// Adds the operation to <see cref="_undoRedoHistory"/> if the operation was successful.
     /// </para>
@@ -1233,7 +1245,7 @@ public class MainWindowViewModel : ReactiveObject
     public void MoveToTrash()
     {
         bool errorOccured = false;
-        foreach (FileSystemEntry entry in SelectedFiles)
+        foreach (FileSystemEntryViewModel entry in SelectedFiles)
         {
             bool result = entry.IsDirectory
                 ? _fileIOHandler.MoveDirToTrash(entry.PathToEntry, out string? errorMessage)
@@ -1249,7 +1261,7 @@ public class MainWindowViewModel : ReactiveObject
         Reload();
     }
 
-    public void FlattenFolder(FileSystemEntry entry)
+    public void FlattenFolder(FileSystemEntryViewModel entry)
     {
         if (!entry.IsDirectory)
         {
@@ -1267,14 +1279,14 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     /// <summary>
-    /// Permanently deletes the <see cref="FileSystemEntry"/>s in <see cref="SelectedFiles"/>.
+    /// Permanently deletes the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/>.
     /// <para>
     /// Invokes <see cref="Reload"/>.
     /// </para>
     /// </summary>
     public void Delete()
     {
-        foreach (FileSystemEntry entry in SelectedFiles)
+        foreach (FileSystemEntryViewModel entry in SelectedFiles)
         {
             string? errorMessage;
             if (entry.IsDirectory)
@@ -1391,13 +1403,13 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     /// <summary>
-    /// Adds all <see cref="FileSystemEntry"/>s in <see cref="FileEntries"/> to <see cref="SelectedFiles"/>.
+    /// Adds all <see cref="FileSystemEntryViewModel"/>s in <see cref="FileEntries"/> to <see cref="SelectedFiles"/>.
     /// </summary>
     private void SelectAll()
     {
         SelectedFiles.Clear();
 
-        foreach (FileSystemEntry entry in FileEntries)
+        foreach (FileSystemEntryViewModel entry in FileEntries)
             SelectedFiles.Add(entry);
     }
 
@@ -1414,7 +1426,7 @@ public class MainWindowViewModel : ReactiveObject
         HashSet<string> oldSelectionNames = SelectedFiles.Select(entry => entry.Name).ToHashSet();
 
         SelectedFiles.Clear();
-        foreach (FileSystemEntry entry in FileEntries)
+        foreach (FileSystemEntryViewModel entry in FileEntries)
         {
             if (!oldSelectionNames.Contains(entry.Name))
                 SelectedFiles.Add(entry);
@@ -1424,7 +1436,7 @@ public class MainWindowViewModel : ReactiveObject
     /// <summary>
     /// Relays the operations to <see cref="_versionControl"/>.
     /// </summary>
-    public void StageFile(FileSystemEntry entry)
+    public void StageFile(FileSystemEntryViewModel entry)
     {
         if (IsVersionControlled)
         {
@@ -1436,7 +1448,7 @@ public class MainWindowViewModel : ReactiveObject
     /// <summary>
     /// Relays the operations to <see cref="_versionControl"/>.
     /// </summary>
-    public void UnstageFile(FileSystemEntry entry)
+    public void UnstageFile(FileSystemEntryViewModel entry)
     {
         if (IsVersionControlled)
         {

@@ -1,4 +1,3 @@
-using FileSurfer.Models.FileInformation;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -7,6 +6,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using FileSurfer.Models.FileInformation;
+using FileSurfer.ViewModels;
 
 namespace FileSurfer.Models.FileOperations;
 
@@ -17,7 +18,7 @@ class ClipboardManager
 {
     private readonly string _newImageName;
     private readonly IFileIOHandler _fileIOHandler;
-    private List<FileSystemEntry> _programClipboard = new();
+    private List<FileSystemEntryViewModel> _programClipboard = new();
     private string _copyFromDir = string.Empty;
 
     /// <summary>
@@ -120,7 +121,7 @@ class ClipboardManager
         if (Clipboard.GetFileDropList() is not StringCollection filePaths)
             return false;
 
-        foreach (FileSystemEntry entry in _programClipboard)
+        foreach (FileSystemEntryViewModel entry in _programClipboard)
         {
             if (!filePaths.Contains(entry.PathToEntry))
                 return false;
@@ -137,8 +138,8 @@ class ClipboardManager
     /// <summary>
     /// Gets the contents of <see cref="_programClipboard"/>.
     /// </summary>
-    /// <returns>An array of <see cref="FileSystemEntry"/>s.</returns>
-    public FileSystemEntry[] GetClipboard() => _programClipboard.ToArray();
+    /// <returns>An array of <see cref="FileSystemEntryViewModel"/>s.</returns>
+    public FileSystemEntryViewModel[] GetClipboard() => _programClipboard.ToArray();
 
     /// <summary>
     /// Stores <paramref name="selectedFiles"/> to both <see cref="Clipboard"/> and <see cref="_programClipboard"/>.
@@ -148,7 +149,7 @@ class ClipboardManager
     /// </summary>
     /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool Cut(
-        List<FileSystemEntry> selectedFiles,
+        List<FileSystemEntryViewModel> selectedFiles,
         string currentDir,
         out string? errorMessage
     )
@@ -169,14 +170,14 @@ class ClipboardManager
     }
 
     /// <summary>
-    /// Stores the selection of <see cref="FileSystemEntry"/> in <see cref="_programClipboard"/> and the system clipboard.
+    /// Stores the selection of <see cref="FileSystemEntryViewModel"/> in <see cref="_programClipboard"/> and the system clipboard.
     /// <para>
     /// Sets <see cref="IsCutOperation"/> to <see langword="false"/>.
     /// </para>
     /// </summary>
     /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool Copy(
-        List<FileSystemEntry> selectedFiles,
+        List<FileSystemEntryViewModel> selectedFiles,
         string currentDir,
         out string? errorMessage
     )
@@ -221,7 +222,7 @@ class ClipboardManager
         bool errorOccured = false;
         if (IsCutOperation)
         {
-            foreach (FileSystemEntry entry in _programClipboard)
+            foreach (FileSystemEntryViewModel entry in _programClipboard)
             {
                 bool result = entry.IsDirectory
                     ? _fileIOHandler.DeleteDir(entry.PathToEntry, out _)
@@ -251,7 +252,7 @@ class ClipboardManager
         bool errorOccured = false;
         for (int i = 0; i < _programClipboard.Count; i++)
         {
-            FileSystemEntry entry = _programClipboard[i];
+            FileSystemEntryViewModel entry = _programClipboard[i];
             copyNames[i] = FileNameGenerator.GetCopyName(currentDir, entry);
 
             bool result = entry.IsDirectory
