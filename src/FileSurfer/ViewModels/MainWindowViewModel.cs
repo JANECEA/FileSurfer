@@ -41,9 +41,9 @@ public class MainWindowViewModel : ReactiveObject
     private readonly IIconProvider _iconProvider;
     private readonly IShellHandler _shellHandler;
     private readonly IVersionControl _versionControl;
+    private readonly IClipboardManager _clipboardManager;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
     private readonly UndoRedoHandler<string> _pathHistory;
-    private readonly ClipboardManager _clipboardManager;
     private readonly DispatcherTimer? _refreshTimer;
 
     private bool _isActionUserInvoked = true;

@@ -124,10 +124,11 @@ public class FlattenFolder : IUndoableFileOperation
     public bool Undo(out string? errorMessage)
     {
         errorMessage = $"Cannot create a top level directory: \"{_dirPath}\"";
-        if (_parentDir is null)
+        if (
+            _parentDir is null
+            || !_fileIOHandler.NewDirAt(_parentDir, Path.GetFileName(_dirPath), out errorMessage)
+        )
             return false;
-
-        _fileIOHandler.NewDirAt(_parentDir, Path.GetFileName(_dirPath), out errorMessage);
 
         bool success = true;
         errorMessage = "Problems occured moving these files:";

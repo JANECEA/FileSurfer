@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Avalonia.Media.Imaging;
-using FileSurfer.Models.FileOperations;
 
 namespace FileSurfer.Models.FileInformation;
 

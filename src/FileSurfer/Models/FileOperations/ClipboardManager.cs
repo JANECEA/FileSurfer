@@ -14,16 +14,13 @@ namespace FileSurfer.Models.FileOperations;
 /// <summary>
 /// Interacts with the program and system clipboards using <see cref="System.Windows.Forms"/>.
 /// </summary>
-class ClipboardManager
+public class ClipboardManager : IClipboardManager
 {
     private readonly string _newImageName;
     private readonly IFileIOHandler _fileIOHandler;
     private List<FileSystemEntryViewModel> _programClipboard = new();
     private string _copyFromDir = string.Empty;
 
-    /// <summary>
-    /// Indicates if <see cref="_programClipboard"/>'s contents are meant to be cut or copied from their original location.
-    /// </summary>
     public bool IsCutOperation { get; private set; }
 
     public ClipboardManager(IFileIOHandler fileIOHandler, string newImageName)
@@ -129,25 +126,11 @@ class ClipboardManager
         return true;
     }
 
-    /// <summary>
-    /// Copies the <paramref name="filePath"/> to the system's clipboard.
-    /// </summary>
     [STAThread]
     public void CopyPathToFile(string filePath) => Clipboard.SetText('\"' + filePath + '\"');
 
-    /// <summary>
-    /// Gets the contents of <see cref="_programClipboard"/>.
-    /// </summary>
-    /// <returns>An array of <see cref="FileSystemEntryViewModel"/>s.</returns>
     public FileSystemEntryViewModel[] GetClipboard() => _programClipboard.ToArray();
 
-    /// <summary>
-    /// Stores <paramref name="selectedFiles"/> to both <see cref="Clipboard"/> and <see cref="_programClipboard"/>.
-    /// <para>
-    /// Sets <see cref="IsCutOperation"/> to <see langword="true"/>.
-    /// </para>
-    /// </summary>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool Cut(
         List<FileSystemEntryViewModel> selectedFiles,
         string currentDir,
@@ -169,13 +152,6 @@ class ClipboardManager
         return false;
     }
 
-    /// <summary>
-    /// Stores the selection of <see cref="FileSystemEntryViewModel"/> in <see cref="_programClipboard"/> and the system clipboard.
-    /// <para>
-    /// Sets <see cref="IsCutOperation"/> to <see langword="false"/>.
-    /// </para>
-    /// </summary>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool Copy(
         List<FileSystemEntryViewModel> selectedFiles,
         string currentDir,
@@ -197,18 +173,9 @@ class ClipboardManager
         return false;
     }
 
-    /// <summary>
-    /// Determines if the current copy operation is occuring in the same directory.
-    /// </summary>
-    /// <param name="currentDir"></param>
-    /// <returns><see langword="true"/> if <see cref="_copyFromDir"/> and <paramref name="currentDir"/> are equal, otherwise <see langword="false"/>.</returns>
     public bool IsDuplicateOperation(string currentDir) =>
         !IsCutOperation && _copyFromDir == currentDir && _programClipboard.Count > 0;
 
-    /// <summary>
-    /// Pastes the contents of the system clipboard into <paramref name="currentDir"/>.
-    /// </summary>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool Paste(string currentDir, out string? errorMessage)
     {
         if (!PasteFromOSClipboard(currentDir, out errorMessage))
@@ -241,10 +208,6 @@ class ClipboardManager
         return !errorOccured;
     }
 
-    /// <summary>
-    /// Duplicates the files stored in <see cref="_programClipboard"/>.
-    /// </summary>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public bool Duplicate(string currentDir, out string[] copyNames, out string? errorMessage)
     {
         copyNames = new string[_programClipboard.Count];

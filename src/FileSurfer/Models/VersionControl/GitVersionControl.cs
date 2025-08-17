@@ -17,7 +17,7 @@ public class GitVersionControl : IVersionControl
     private readonly IShellHandler _shellHandler;
 
     private readonly Dictionary<string, VCStatus> _pathStates = new();
-    private Repository? _currentRepo = null;
+    private Repository? _currentRepo;
 
     /// <summary>
     /// Initializes a new <see cref="GitVersionControl"/>.
@@ -180,9 +180,9 @@ public class GitVersionControl : IVersionControl
     }
 
     /// <inheritdoc/>
-    public VCStatus GetStatus(string path) =>
+    public VCStatus GetStatus(string filePath) =>
         _currentRepo is not null
-            ? _pathStates.GetValueOrDefault(path, VCStatus.NotVersionControlled)
+            ? _pathStates.GetValueOrDefault(filePath, VCStatus.NotVersionControlled)
             : VCStatus.NotVersionControlled;
 
     /// <inheritdoc/>

@@ -126,7 +126,7 @@ public class FileSystemEntryViewModel
         else
         {
             string extension = Path.GetExtension(path).TrimStart('.').ToUpperInvariant();
-            Type = extension == string.Empty ? "File" : extension + " File";
+            Type = string.IsNullOrEmpty(extension) ? "File" : extension + " File";
         }
 
         Opacity =
@@ -188,10 +188,10 @@ public class FileSystemEntryViewModel
         foreach (string notation in ByteUnits)
         {
             if (size <= SizeLimit)
-                return size.ToString() + " " + notation;
+                return $"{size} {notation}";
 
             size = (size + 1023) / 1024;
         }
-        return (size * 1024).ToString() + " " + ByteUnits[^1];
+        return $"{size * 1024} {ByteUnits[^1]}";
     }
 }

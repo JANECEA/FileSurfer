@@ -174,11 +174,13 @@ public class WindowsFileIOHandler : IFileIOHandler
 
     private static bool IsValidFileName(string fileName) =>
         !string.IsNullOrWhiteSpace(fileName)
-        && Path.GetInvalidFileNameChars().All(ch => !fileName.Contains(ch));
+        && Path.GetInvalidFileNameChars()
+            .All(ch => !fileName.Contains(ch, StringComparison.OrdinalIgnoreCase));
 
     private static bool IsValidDirName(string dirName) =>
         !string.IsNullOrWhiteSpace(dirName)
-        && Path.GetInvalidPathChars().All(ch => !dirName.Contains(ch));
+        && Path.GetInvalidPathChars()
+            .All(ch => !dirName.Contains(ch, StringComparison.OrdinalIgnoreCase));
 
     public bool RenameFileAt(string filePath, string newName, out string? errorMessage)
     {
@@ -196,7 +198,7 @@ public class WindowsFileIOHandler : IFileIOHandler
                 return false;
             }
             string dirName = Path.GetFileName(filePath);
-            if (string.Compare(dirName, newName, true) == 0)
+            if (string.Equals(dirName, newName, StringComparison.OrdinalIgnoreCase))
             {
                 string tempName = FileNameGenerator.GetAvailableName(
                     parentDir,
@@ -238,7 +240,7 @@ public class WindowsFileIOHandler : IFileIOHandler
                 return false;
             }
             string dirName = Path.GetFileName(dirPath);
-            if (string.Compare(dirName, newName, true) == 0)
+            if (string.Equals(dirName, newName, StringComparison.OrdinalIgnoreCase))
             {
                 string tempName = FileNameGenerator.GetAvailableName(
                     parentDir,

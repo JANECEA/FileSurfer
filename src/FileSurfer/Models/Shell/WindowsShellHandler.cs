@@ -13,16 +13,18 @@ public class WindowsShellHandler : IShellHandler
     {
         try
         {
-            new Process
-            {
-                StartInfo = new()
+            using Process process =
+                new()
                 {
-                    FileName = "powershell.exe",
-                    WorkingDirectory = dirPath,
-                    Arguments = "-NoExit",
-                    UseShellExecute = true,
-                },
-            }.Start();
+                    StartInfo = new()
+                    {
+                        FileName = "powershell.exe",
+                        WorkingDirectory = dirPath,
+                        Arguments = "-NoExit",
+                        UseShellExecute = true,
+                    },
+                };
+            process.Start();
             errorMessage = null;
             return true;
         }
@@ -37,10 +39,9 @@ public class WindowsShellHandler : IShellHandler
     {
         try
         {
-            new Process
-            {
-                StartInfo = new ProcessStartInfo(filePath) { UseShellExecute = true },
-            }.Start();
+            using Process process =
+                new() { StartInfo = new ProcessStartInfo(filePath) { UseShellExecute = true } };
+            process.Start();
             errorMessage = null;
             return true;
         }
@@ -91,10 +92,10 @@ public class WindowsShellHandler : IShellHandler
         process.WaitForExit();
         bool success = process.ExitCode == 0;
 
-        if (!success && errorMessage == string.Empty)
+        if (!success && string.IsNullOrEmpty(errorMessage))
             errorMessage = stdOut;
 
-        if (errorMessage == string.Empty)
+        if (string.IsNullOrEmpty(errorMessage))
             errorMessage = null;
 
         return success;
