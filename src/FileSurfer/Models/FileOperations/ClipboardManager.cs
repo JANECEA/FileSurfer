@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using FileSurfer.Models.FileInformation;
-using FileSurfer.ViewModels;
 
 namespace FileSurfer.Models.FileOperations;
 
@@ -18,7 +17,7 @@ public class ClipboardManager : IClipboardManager
 {
     private readonly string _newImageName;
     private readonly IFileIOHandler _fileIOHandler;
-    private List<FileSystemEntryViewModel> _programClipboard = new();
+    private IFileSystemEntry[] _programClipboard = Array.Empty<IFileSystemEntry>();
     private string _copyFromDir = string.Empty;
 
     public bool IsCutOperation { get; private set; }
@@ -118,21 +117,20 @@ public class ClipboardManager : IClipboardManager
         if (Clipboard.GetFileDropList() is not StringCollection filePaths)
             return false;
 
-        foreach (FileSystemEntryViewModel entry in _programClipboard)
-        {
+        foreach (IFileSystemEntry entry in _programClipboard)
             if (!filePaths.Contains(entry.PathToEntry))
                 return false;
-        }
+
         return true;
     }
 
     [STAThread]
     public void CopyPathToFile(string filePath) => Clipboard.SetText('\"' + filePath + '\"');
 
-    public FileSystemEntryViewModel[] GetClipboard() => _programClipboard.ToArray();
+    public IFileSystemEntry[] GetClipboard() => _programClipboard.ToArray();
 
     public bool Cut(
-        List<FileSystemEntryViewModel> selectedFiles,
+        IFileSystemEntry[] selectedFiles,
         string currentDir,
         out string? errorMessage
     )
@@ -153,7 +151,7 @@ public class ClipboardManager : IClipboardManager
     }
 
     public bool Copy(
-        List<FileSystemEntryViewModel> selectedFiles,
+        IFileSystemEntry[] selectedFiles,
         string currentDir,
         out string? errorMessage
     )
@@ -174,13 +172,13 @@ public class ClipboardManager : IClipboardManager
     }
 
     public bool IsDuplicateOperation(string currentDir) =>
-        !IsCutOperation && _copyFromDir == currentDir && _programClipboard.Count > 0;
+        !IsCutOperation && _copyFromDir == currentDir && _programClipboard.Length > 0;
 
     public bool Paste(string currentDir, out string? errorMessage)
     {
         if (!PasteFromOSClipboard(currentDir, out errorMessage))
         {
-            _programClipboard.Clear();
+            _programClipboard = Array.Empty<IFileSystemEntry>();
             return false;
         }
         errorMessage = "Problems occured moving these files:";
@@ -189,18 +187,19 @@ public class ClipboardManager : IClipboardManager
         bool errorOccured = false;
         if (IsCutOperation)
         {
-            foreach (FileSystemEntryViewModel entry in _programClipboard)
+            foreach (IFileSystemEntry entry in _programClipboard)
             {
-                bool result = entry.IsDirectory
-                    ? _fileIOHandler.DeleteDir(entry.PathToEntry, out _)
-                    : _fileIOHandler.DeleteFile(entry.PathToEntry, out _);
+                bool result =
+                    entry is DirectoryEntry
+                        ? _fileIOHandler.DeleteDir(entry.PathToEntry, out _)
+                        : _fileIOHandler.DeleteFile(entry.PathToEntry, out _);
 
                 errorOccured = !result || errorOccured;
                 if (!result)
                     errorMessage += $" \"{entry.PathToEntry}\",";
             }
             errorMessage = errorMessage.TrimEnd(',');
-            _programClipboard.Clear();
+            _programClipboard = Array.Empty<IFileSystemEntry>();
             Clipboard.Clear();
         }
         if (!errorOccured)
@@ -210,17 +209,18 @@ public class ClipboardManager : IClipboardManager
 
     public bool Duplicate(string currentDir, out string[] copyNames, out string? errorMessage)
     {
-        copyNames = new string[_programClipboard.Count];
+        copyNames = new string[_programClipboard.Length];
         errorMessage = "Problems occured duplicating these files:";
         bool errorOccured = false;
-        for (int i = 0; i < _programClipboard.Count; i++)
+        for (int i = 0; i < _programClipboard.Length; i++)
         {
-            FileSystemEntryViewModel entry = _programClipboard[i];
+            IFileSystemEntry entry = _programClipboard[i];
             copyNames[i] = FileNameGenerator.GetCopyName(currentDir, entry);
 
-            bool result = entry.IsDirectory
-                ? _fileIOHandler.DuplicateDir(entry.PathToEntry, copyNames[i], out _)
-                : _fileIOHandler.DuplicateFile(entry.PathToEntry, copyNames[i], out _);
+            bool result =
+                entry is DirectoryEntry
+                    ? _fileIOHandler.DuplicateDir(entry.PathToEntry, copyNames[i], out _)
+                    : _fileIOHandler.DuplicateFile(entry.PathToEntry, copyNames[i], out _);
 
             errorOccured = !result || errorOccured;
             if (!result)
@@ -229,7 +229,7 @@ public class ClipboardManager : IClipboardManager
         if (errorOccured)
         {
             ClearClipboard();
-            _programClipboard.Clear();
+            _programClipboard = Array.Empty<IFileSystemEntry>();
         }
         else
             errorMessage = null;

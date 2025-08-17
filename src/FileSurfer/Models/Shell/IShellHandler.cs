@@ -1,5 +1,8 @@
 namespace FileSurfer.Models.Shell;
 
+/// <summary>
+/// Represents the layer between the OS shell and the <see cref="FileSurfer"/> layer.
+/// </summary>
 public interface IShellHandler
 {
     /// <summary>

@@ -16,16 +16,23 @@ public class FileSystemEntryVMFactory
         _iconProvider = iconProvider;
     }
 
-    public FileSystemEntryViewModel CreateDirectory(
+    public FileSystemEntryViewModel Directory(string dirPath) =>
+        new(
+            _fileInfoProvider,
+            _iconProvider,
+            new DirectoryEntry(dirPath),
+            VCStatus.NotVersionControlled
+        );
+
+    public FileSystemEntryViewModel Directory(
         string dirPath,
         VCStatus vcStatus = VCStatus.NotVersionControlled
     ) => new(_fileInfoProvider, _iconProvider, new DirectoryEntry(dirPath), vcStatus);
 
-    public FileSystemEntryViewModel CreateFile(
+    public FileSystemEntryViewModel File(
         string filePath,
         VCStatus vcStatus = VCStatus.NotVersionControlled
     ) => new(_fileInfoProvider, _iconProvider, new FileEntry(filePath), vcStatus);
 
-    public FileSystemEntryViewModel CreateDrive(DriveInfo driveInfo) =>
-        new(_iconProvider, driveInfo);
+    public FileSystemEntryViewModel Drive(DriveInfo driveInfo) => new(_iconProvider, driveInfo);
 }

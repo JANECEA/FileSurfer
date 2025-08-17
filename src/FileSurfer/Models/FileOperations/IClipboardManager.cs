@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using FileSurfer.ViewModels;
-
-namespace FileSurfer.Models.FileOperations;
+﻿namespace FileSurfer.Models.FileOperations;
 
 /// <summary>
 /// Represents the layer between the <see cref="FileSurfer"/> app and the system clipboard.
@@ -14,17 +11,13 @@ public interface IClipboardManager
     public bool IsCutOperation { get; }
 
     /// <summary>
-    /// Stores the selection of <see cref="FileSystemEntryViewModel"/> in <see cref="_programClipboard"/> and the system clipboard.
+    /// Stores the selection of <see cref="IFileSystemEntry"/> in <see cref="_programClipboard"/> and the system clipboard.
     /// <para>
     /// Sets <see cref="IsCutOperation"/> to <see langword="false"/>.
     /// </para>
     /// </summary>
     /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool Copy(
-        List<FileSystemEntryViewModel> selectedFiles,
-        string currentDir,
-        out string? errorMessage
-    );
+    public bool Copy(IFileSystemEntry[] selectedFiles, string currentDir, out string? errorMessage);
 
     /// <summary>
     /// Copies the <paramref name="filePath"/> to the system's clipboard.
@@ -38,11 +31,7 @@ public interface IClipboardManager
     /// </para>
     /// </summary>
     /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool Cut(
-        List<FileSystemEntryViewModel> selectedFiles,
-        string currentDir,
-        out string? errorMessage
-    );
+    public bool Cut(IFileSystemEntry[] selectedFiles, string currentDir, out string? errorMessage);
 
     /// <summary>
     /// Duplicates the files stored in <see cref="_programClipboard"/>.
@@ -53,8 +42,8 @@ public interface IClipboardManager
     /// <summary>
     /// Gets the contents of <see cref="_programClipboard"/>.
     /// </summary>
-    /// <returns>An array of <see cref="FileSystemEntryViewModel"/>s.</returns>
-    public FileSystemEntryViewModel[] GetClipboard();
+    /// <returns>An array of <see cref="IFileSystemEntry"/>s.</returns>
+    public IFileSystemEntry[] GetClipboard();
 
     /// <summary>
     /// Determines if the current copy operation is occuring in the same directory.

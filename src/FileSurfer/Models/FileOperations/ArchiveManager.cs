@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FileSurfer.Models.FileInformation;
-using FileSurfer.ViewModels;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
@@ -37,7 +36,7 @@ static class ArchiveManager
     /// </summary>
     /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
     public static bool ZipFiles(
-        IEnumerable<FileSystemEntryViewModel> entries,
+        IEnumerable<IFileSystemEntry> entries,
         string destinationDir,
         string archiveName,
         out string? errorMessage
@@ -49,8 +48,8 @@ static class ArchiveManager
         {
             using ZipArchive archive = ZipArchive.Create();
 
-            foreach (FileSystemEntryViewModel entry in entries)
-                if (entry.IsDirectory)
+            foreach (IFileSystemEntry entry in entries)
+                if (entry is DirectoryEntry)
                 {
                     string[] allFiles = Directory.GetFiles(
                         entry.PathToEntry,

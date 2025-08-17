@@ -552,7 +552,7 @@ public class MainWindowViewModel : ReactiveObject
                     return;
         }
         // To prevent collection changing during iteration
-        foreach (FileSystemEntryViewModel entry in SelectedFiles.ToArray())
+        foreach (FileSystemEntryViewModel entry in SelectedFiles.ConvertToArray())
             OpenEntry(entry);
     }
 
@@ -622,13 +622,13 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     private FileSystemEntryViewModel[] GetDrives() =>
-        _fileInfoProvider.GetDrives().Select(_entryVMFactory.CreateDrive).ToArray();
+        _fileInfoProvider.GetDrives().Select(_entryVMFactory.Drive).ToArray();
 
     private FileSystemEntryViewModel[] GetSpecialFolders() =>
         _fileInfoProvider
             .GetSpecialFolders()
             .Where(dirPath => !string.IsNullOrEmpty(dirPath))
-            .Select(dirPath => _entryVMFactory.CreateDirectory(dirPath))
+            .Select(_entryVMFactory.Directory)
             .ToArray();
 
     private void LoadQuickAccess()
@@ -636,9 +636,9 @@ public class MainWindowViewModel : ReactiveObject
         foreach (string path in FileSurferSettings.QuickAccess)
         {
             if (Directory.Exists(path))
-                QuickAccess.Add(_entryVMFactory.CreateDirectory(path));
+                QuickAccess.Add(_entryVMFactory.Directory(path));
             else if (File.Exists(path))
-                QuickAccess.Add(_entryVMFactory.CreateFile(path));
+                QuickAccess.Add(_entryVMFactory.File(path));
         }
     }
 
@@ -668,10 +668,10 @@ public class MainWindowViewModel : ReactiveObject
         FileSystemEntryViewModel[] files = new FileSystemEntryViewModel[filePaths.Length];
 
         for (int i = 0; i < dirPaths.Length; i++)
-            directories[i] = _entryVMFactory.CreateDirectory(dirPaths[i], GetVCStatus(dirPaths[i]));
+            directories[i] = _entryVMFactory.Directory(dirPaths[i], GetVCStatus(dirPaths[i]));
 
         for (int i = 0; i < filePaths.Length; i++)
-            files[i] = _entryVMFactory.CreateFile(filePaths[i], GetVCStatus(filePaths[i]));
+            files[i] = _entryVMFactory.File(filePaths[i], GetVCStatus(filePaths[i]));
 
         AddEntries(directories, files);
     }
@@ -914,7 +914,7 @@ public class MainWindowViewModel : ReactiveObject
             filePaths = filePaths.Where(path => !Path.GetFileName(path).StartsWith('.'));
 
         return FilterPaths(filePaths, query)
-            .Select(filePath => _entryVMFactory.CreateFile(filePath, GetVCStatus(filePath)))
+            .Select(filePath => _entryVMFactory.File(filePath, GetVCStatus(filePath)))
             .ToList();
     }
 
@@ -933,7 +933,7 @@ public class MainWindowViewModel : ReactiveObject
 
     private List<FileSystemEntryViewModel> GetDirs(IEnumerable<string> dirs, string query) =>
         FilterPaths(dirs, query)
-            .Select(dirPath => _entryVMFactory.CreateDirectory(dirPath, GetVCStatus(dirPath)))
+            .Select(dirPath => _entryVMFactory.Directory(dirPath, GetVCStatus(dirPath)))
             .ToList();
 
     private IEnumerable<string> FilterPaths(IEnumerable<string> paths, string query) =>
@@ -1020,7 +1020,7 @@ public class MainWindowViewModel : ReactiveObject
         Task.Run(() =>
         {
             ArchiveManager.ZipFiles(
-                SelectedFiles.ToArray(),
+                SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                 CurrentDir,
                 FileNameGenerator.GetAvailableName(CurrentDir, fileName),
                 out string? errorMessage
@@ -1072,7 +1072,11 @@ public class MainWindowViewModel : ReactiveObject
     /// </summary>
     public void Cut()
     {
-        _clipboardManager.Cut(SelectedFiles.ToList(), CurrentDir, out string? errorMessage);
+        _clipboardManager.Cut(
+            SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
+            CurrentDir,
+            out string? errorMessage
+        );
         ForwardError(errorMessage);
     }
 
@@ -1081,7 +1085,11 @@ public class MainWindowViewModel : ReactiveObject
     /// </summary>
     public void Copy()
     {
-        _clipboardManager.Copy(SelectedFiles.ToList(), CurrentDir, out string? errorMessage);
+        _clipboardManager.Copy(
+            SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
+            CurrentDir,
+            out string? errorMessage
+        );
         ForwardError(errorMessage);
     }
 
@@ -1104,7 +1112,7 @@ public class MainWindowViewModel : ReactiveObject
         }
         else if (_clipboardManager.IsCutOperation)
         {
-            FileSystemEntryViewModel[] clipBoard = _clipboardManager.GetClipboard();
+            IFileSystemEntry[] clipBoard = _clipboardManager.GetClipboard();
             if (_clipboardManager.Paste(CurrentDir, out errorMessage))
                 _undoRedoHistory.AddNewNode(new MoveFilesTo(_fileIOHandler, clipBoard, CurrentDir));
         }
@@ -1158,7 +1166,9 @@ public class MainWindowViewModel : ReactiveObject
 
         if (result)
         {
-            _undoRedoHistory.AddNewNode(new RenameOne(_fileIOHandler, entry, newName));
+            _undoRedoHistory.AddNewNode(
+                new RenameOne(_fileIOHandler, entry.FileSystemEntry, newName)
+            );
             Reload();
             SelectedFiles.Add(FileEntries.First(e => e.Name == newName));
         }
@@ -1173,13 +1183,22 @@ public class MainWindowViewModel : ReactiveObject
             ? Path.GetExtension(SelectedFiles[0].PathToEntry)
             : string.Empty;
 
-        if (!FileNameGenerator.CanBeRenamedCollectively(SelectedFiles, onlyFiles, extension))
+        if (
+            !FileNameGenerator.CanBeRenamedCollectively(
+                SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
+                onlyFiles,
+                extension
+            )
+        )
         {
             ForwardError("Selected entries aren't of the same type.");
             return;
         }
 
-        string[] newNames = FileNameGenerator.GetAvailableNames(SelectedFiles, namingPattern);
+        string[] newNames = FileNameGenerator.GetAvailableNames(
+            SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
+            namingPattern
+        );
         bool errorOccured = false;
         for (int i = 0; i < SelectedFiles.Count; i++)
         {
@@ -1194,7 +1213,11 @@ public class MainWindowViewModel : ReactiveObject
         }
         if (!errorOccured)
             _undoRedoHistory.AddNewNode(
-                new RenameMultiple(_fileIOHandler, SelectedFiles.ToArray(), newNames)
+                new RenameMultiple(
+                    _fileIOHandler,
+                    SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
+                    newNames
+                )
             );
         Reload();
     }
@@ -1220,7 +1243,10 @@ public class MainWindowViewModel : ReactiveObject
         }
         if (!errorOccured)
             _undoRedoHistory.AddNewNode(
-                new MoveFilesToTrash(_fileIOHandler, SelectedFiles.ToArray())
+                new MoveFilesToTrash(
+                    _fileIOHandler,
+                    SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry)
+                )
             );
         Reload();
     }
