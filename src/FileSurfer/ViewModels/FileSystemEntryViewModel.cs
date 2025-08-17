@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Avalonia.Media.Imaging;
+using FileSurfer.Models;
 using FileSurfer.Models.FileInformation;
 using FileSurfer.Models.FileOperations;
 using FileSurfer.Models.VersionControl;
@@ -30,12 +31,12 @@ public class FileSystemEntryViewModel
     /// <summary>
     /// Path to the file, directory, or drive represented by this <see cref="FileSystemEntryViewModel"/>.
     /// </summary>
-    public readonly string PathToEntry;
+    public string PathToEntry => FileSystemEntry.PathToEntry;
 
     /// <summary>
     /// Specifies if this <see cref="FileSystemEntryViewModel"/> is a directory.
     /// </summary>
-    public bool IsDirectory { get; }
+    public bool IsDirectory => FileSystemEntry is DirectoryEntry or DriveEntry;
 
     /// <summary>
     /// Holds a <see cref="Bitmap"/> representing the file.
@@ -45,7 +46,7 @@ public class FileSystemEntryViewModel
     /// <summary>
     /// Holds the name of file, directory, or drive represented by this <see cref="FileSystemEntryViewModel"/>.
     /// </summary>
-    public string Name { get; }
+    public string Name => FileSystemEntry.Name;
 
     /// <summary>
     /// Holds the <see cref="DateTime"/> of this entry's last modification date.
@@ -93,51 +94,55 @@ public class FileSystemEntryViewModel
     public bool IsArchived { get; } = false;
 
     /// <summary>
+    /// Holds the underlying <see cref="IFileSystemEntry"/>.
+    /// </summary>
+    public IFileSystemEntry FileSystemEntry { get; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="FileSystemEntryViewModel"/> class for a file or directory.
     /// <para>
     /// Sets up properties like the name, icon, size, type, and last modified date based on
     /// the provided path and version control status.
     /// </para>
     /// </summary>
-    /// <param name="fileIOHandler">Handler for file operations like retrieving file size and modification time.</param>
+    /// <param name="fileInfoProvider">Provider for file operations like retrieving file size and modification time.</param>
+    /// <param name="iconProvider">Provider for retrieving file icons.</param>
     /// <param name="path">The file or directory path associated with this entry.</param>
     /// <param name="isDirectory">Indicates whether the path refers to a directory.</param>
     /// <param name="status">Optional version control status of the entry, defaulting to not version controlled.</param>
     public FileSystemEntryViewModel(
         IFileInfoProvider fileInfoProvider,
         IIconProvider iconProvider,
-        string path,
-        bool isDirectory,
-        VCStatus status = VCStatus.NotVersionControlled
+        IFileSystemEntry entry,
+        VCStatus status
     )
     {
-        PathToEntry = path;
-        IsDirectory = isDirectory;
-        Icon = IsDirectory ? iconProvider.GetDirectoryIcon() : iconProvider.GetFileIcon(path);
-
-        Name = Path.GetFileName(path);
-        LastModTime = fileInfoProvider.GetFileLastModified(path) ?? DateTime.MaxValue;
+        FileSystemEntry = entry;
+        Icon = IsDirectory
+            ? iconProvider.GetDirectoryIcon()
+            : iconProvider.GetFileIcon(entry.PathToEntry);
+        LastModTime = fileInfoProvider.GetFileLastModified(entry.PathToEntry) ?? DateTime.MaxValue;
         LastModified = GetLastModified(fileInfoProvider);
-        SizeB = isDirectory ? null : fileInfoProvider.GetFileSizeB(path);
+        SizeB = IsDirectory ? null : fileInfoProvider.GetFileSizeB(entry.PathToEntry);
         Size = SizeB is long notNullSize ? GetSizeString(notNullSize) : string.Empty;
 
-        if (isDirectory)
+        if (IsDirectory)
             Type = "Directory";
         else
         {
-            string extension = Path.GetExtension(path).TrimStart('.').ToUpperInvariant();
+            string extension = entry.Extension.TrimStart('.').ToUpperInvariant();
             Type = string.IsNullOrEmpty(extension) ? "File" : extension + " File";
         }
 
         Opacity =
-            fileInfoProvider.IsHidden(path, isDirectory)
+            fileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory)
             || FileSurferSettings.TreatDotFilesAsHidden && Name.StartsWith('.')
                 ? 0.45
                 : 1;
 
         VersionControlled = status is not VCStatus.NotVersionControlled;
         Staged = status is VCStatus.Staged;
-        IsArchived = ArchiveManager.IsZipped(path);
+        IsArchived = ArchiveManager.IsZipped(entry.PathToEntry);
     }
 
     /// <summary>
@@ -150,19 +155,14 @@ public class FileSystemEntryViewModel
     /// This constructor is specifically used for representing drives within the <see cref="FileSurfer"/> app.
     /// </para>
     /// </summary>
-    /// <param name="drive">The drive information associated with this entry.</param>
-    public FileSystemEntryViewModel(IIconProvider iconProvider, DriveInfo drive)
+    /// <param name="driveInfo">The drive information associated with this entry.</param>
+    public FileSystemEntryViewModel(IIconProvider iconProvider, DriveInfo driveInfo)
     {
-        PathToEntry = drive.Name;
-        IsDirectory = true;
-        Name = !string.IsNullOrEmpty(drive.VolumeLabel)
-            ? $"{drive.VolumeLabel} ({drive.Name.TrimEnd(Path.DirectorySeparatorChar)})"
-            : drive.Name.TrimEnd(Path.DirectorySeparatorChar);
-
+        FileSystemEntry = new DriveEntry(driveInfo);
         Type = "Drive";
         Icon = iconProvider.GetDriveIcon();
         LastModified = string.Empty;
-        Size = GetSizeString(drive.TotalSize);
+        Size = GetSizeString(driveInfo.TotalSize);
     }
 
     private string GetLastModified(IFileInfoProvider fileInfoProvider)

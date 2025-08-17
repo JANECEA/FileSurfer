@@ -38,10 +38,10 @@ public class MainWindowViewModel : ReactiveObject
 
     private readonly IFileIOHandler _fileIOHandler;
     private readonly IFileInfoProvider _fileInfoProvider;
-    private readonly IIconProvider _iconProvider;
     private readonly IShellHandler _shellHandler;
     private readonly IVersionControl _versionControl;
     private readonly IClipboardManager _clipboardManager;
+    private readonly FileSystemEntryVMFactory _entryVMFactory;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
     private readonly UndoRedoHandler<string> _pathHistory;
     private readonly DispatcherTimer? _refreshTimer;
@@ -322,8 +322,8 @@ public class MainWindowViewModel : ReactiveObject
         _shellHandler = new WindowsShellHandler();
         _fileIOHandler = new WindowsFileIOHandler(_fileInfoProvider, ShowDialogLimitB);
         _versionControl = new GitVersionControl(_shellHandler);
-        _iconProvider = new IconProvider(_fileInfoProvider);
         _clipboardManager = new ClipboardManager(_fileIOHandler, NewImageName);
+        _entryVMFactory = new(_fileInfoProvider, new IconProvider(_fileInfoProvider));
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
         _pathHistory = new UndoRedoHandler<string>();
         SelectedFiles.CollectionChanged += UpdateSelectionInfo;
@@ -622,21 +622,13 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     private FileSystemEntryViewModel[] GetDrives() =>
-        _fileInfoProvider
-            .GetDrives()
-            .Select(driveInfo => new FileSystemEntryViewModel(_iconProvider, driveInfo))
-            .ToArray();
+        _fileInfoProvider.GetDrives().Select(_entryVMFactory.CreateDrive).ToArray();
 
     private FileSystemEntryViewModel[] GetSpecialFolders() =>
         _fileInfoProvider
             .GetSpecialFolders()
             .Where(dirPath => !string.IsNullOrEmpty(dirPath))
-            .Select(dirPath => new FileSystemEntryViewModel(
-                _fileInfoProvider,
-                _iconProvider,
-                dirPath,
-                true
-            ))
+            .Select(dirPath => _entryVMFactory.CreateDirectory(dirPath))
             .ToArray();
 
     private void LoadQuickAccess()
@@ -644,13 +636,9 @@ public class MainWindowViewModel : ReactiveObject
         foreach (string path in FileSurferSettings.QuickAccess)
         {
             if (Directory.Exists(path))
-                QuickAccess.Add(
-                    new FileSystemEntryViewModel(_fileInfoProvider, _iconProvider, path, true)
-                );
+                QuickAccess.Add(_entryVMFactory.CreateDirectory(path));
             else if (File.Exists(path))
-                QuickAccess.Add(
-                    new FileSystemEntryViewModel(_fileInfoProvider, _iconProvider, path, false)
-                );
+                QuickAccess.Add(_entryVMFactory.CreateFile(path));
         }
     }
 
@@ -680,22 +668,10 @@ public class MainWindowViewModel : ReactiveObject
         FileSystemEntryViewModel[] files = new FileSystemEntryViewModel[filePaths.Length];
 
         for (int i = 0; i < dirPaths.Length; i++)
-            directories[i] = new FileSystemEntryViewModel(
-                _fileInfoProvider,
-                _iconProvider,
-                dirPaths[i],
-                true,
-                GetVCStatus(dirPaths[i])
-            );
+            directories[i] = _entryVMFactory.CreateDirectory(dirPaths[i], GetVCStatus(dirPaths[i]));
 
         for (int i = 0; i < filePaths.Length; i++)
-            files[i] = new FileSystemEntryViewModel(
-                _fileInfoProvider,
-                _iconProvider,
-                filePaths[i],
-                false,
-                GetVCStatus(filePaths[i])
-            );
+            files[i] = _entryVMFactory.CreateFile(filePaths[i], GetVCStatus(filePaths[i]));
 
         AddEntries(directories, files);
     }
@@ -938,13 +914,7 @@ public class MainWindowViewModel : ReactiveObject
             filePaths = filePaths.Where(path => !Path.GetFileName(path).StartsWith('.'));
 
         return FilterPaths(filePaths, query)
-            .Select(path => new FileSystemEntryViewModel(
-                _fileInfoProvider,
-                _iconProvider,
-                path,
-                false,
-                GetVCStatus(path)
-            ))
+            .Select(filePath => _entryVMFactory.CreateFile(filePath, GetVCStatus(filePath)))
             .ToList();
     }
 
@@ -963,13 +933,7 @@ public class MainWindowViewModel : ReactiveObject
 
     private List<FileSystemEntryViewModel> GetDirs(IEnumerable<string> dirs, string query) =>
         FilterPaths(dirs, query)
-            .Select(path => new FileSystemEntryViewModel(
-                _fileInfoProvider,
-                _iconProvider,
-                path,
-                true,
-                GetVCStatus(path)
-            ))
+            .Select(dirPath => _entryVMFactory.CreateDirectory(dirPath, GetVCStatus(dirPath)))
             .ToList();
 
     private IEnumerable<string> FilterPaths(IEnumerable<string> paths, string query) =>
