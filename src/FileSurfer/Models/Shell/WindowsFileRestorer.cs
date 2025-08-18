@@ -9,23 +9,25 @@ namespace FileSurfer.Models.Shell;
 /// Interacts with the Windows <see cref="Shell"/> and <see cref="System.Runtime.InteropServices"/>
 /// in order to restore files and directories from the system trash.
 /// </summary>
-static class WindowsFileRestorer
+public class WindowsFileRestorer : IFileRestorer
 {
     private const int BinFolderID = 10;
     private const int NameColumn = 0;
     private const int PathColumn = 1;
     private const string RestoreVerb = "ESTORE";
 
-    /// <summary>
-    /// Restores a file or a directory based on <paramref name="originalPath"/>.
-    /// </summary>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public static bool RestoreEntry(string originalPath, out string? errorMessage)
+    public IFileOperationResult RestoreFile(string originalFilePath) =>
+        RestoreEntry(originalFilePath);
+
+    public IFileOperationResult RestoreDir(string originalDirPath) => RestoreEntry(originalDirPath);
+
+    private static FileOperationResult RestoreEntry(string originalPath)
     {
         Shell32.Shell shell = new();
-        errorMessage = null;
         Folder bin = shell.NameSpace(BinFolderID);
-        bool entryFound = false;
+        FileOperationResult result = FileOperationResult.Error(
+            $"Entry: \"{originalPath}\" not found."
+        );
         try
         {
             foreach (FolderItem item in bin.Items())
@@ -36,19 +38,19 @@ static class WindowsFileRestorer
                 if (Path.Combine(itemPath, itemName) == originalPath)
                 {
                     DoVerb(item, RestoreVerb);
-                    entryFound = true;
+                    result = FileOperationResult.Ok();
                     break;
                 }
             }
-            errorMessage = entryFound ? null : $"Entry: \"{originalPath}\" not found.";
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            result = FileOperationResult.Error(ex.Message);
         }
         Marshal.FinalReleaseComObject(bin);
         Marshal.FinalReleaseComObject(shell);
-        return entryFound;
+
+        return result;
     }
 
     private static void DoVerb(FolderItem item, string verb)

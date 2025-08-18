@@ -12,12 +12,18 @@ namespace FileSurfer.Models.FileOperations;
 /// </summary>
 public class WindowsFileIOHandler : IFileIOHandler
 {
-    private readonly long _showDialogLimit;
     private readonly IFileInfoProvider _fileInfoProvider;
+    private readonly IFileRestorer _fileRestorer;
+    private readonly long _showDialogLimit;
 
-    public WindowsFileIOHandler(IFileInfoProvider fileInfoProvider, long showDialogLimit)
+    public WindowsFileIOHandler(
+        IFileInfoProvider fileInfoProvider,
+        IFileRestorer fileRestorer,
+        long showDialogLimit
+    )
     {
         _fileInfoProvider = fileInfoProvider;
+        _fileRestorer = fileRestorer;
         _showDialogLimit = showDialogLimit;
     }
 
@@ -102,10 +108,9 @@ public class WindowsFileIOHandler : IFileIOHandler
     }
 
     public IFileOperationResult RestoreFile(string ogFilePath) =>
-        WindowsFileRestorer.RestoreEntry(ogFilePath);
+        _fileRestorer.RestoreFile(ogFilePath);
 
-    public IFileOperationResult RestoreDir(string ogDirPath) =>
-        WindowsFileRestorer.RestoreEntry(ogDirPath);
+    public IFileOperationResult RestoreDir(string ogDirPath) => _fileRestorer.RestoreDir(ogDirPath);
 
     public IFileOperationResult NewFileAt(string dirPath, string fileName)
     {
