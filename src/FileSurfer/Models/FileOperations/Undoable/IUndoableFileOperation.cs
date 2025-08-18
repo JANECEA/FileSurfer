@@ -9,15 +9,13 @@ public interface IUndoableFileOperation
     /// Undoes the file operation.
     /// Implementations of this method should reverse the effects of the original operation.
     /// </summary>
-    /// <param name="errorMessage">An output parameter that will contain an error message if the undo operation fails.</param>
-    /// <returns><see langword="true"/> if the undo operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool Undo(out string? errorMessage);
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
+    public IFileOperationResult Undo();
 
     /// <summary>
     /// Redoes the file operation.
     /// Implementations of this method should reapply the effects of the original operation.
     /// </summary>
-    /// <param name="errorMessage">An output parameter that will contain an error message if the undo operation fails.</param>
-    /// <returns><see langword="true"/> if the redo operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool Redo(out string? errorMessage);
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
+    public IFileOperationResult Redo();
 }
