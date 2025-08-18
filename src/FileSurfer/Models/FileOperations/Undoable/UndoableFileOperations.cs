@@ -68,8 +68,8 @@ public class MoveFilesTo : UndoableOperation
 public class CopyFilesTo : UndoableOperation
 {
     private readonly string _destinationDir;
-    protected override string RedoErrorStart => "Problems occured moving these files:";
-    protected override string UndoErrorStart => "Problems occured moving these files:";
+    protected override string RedoErrorStart => "Problems occured copying these files:";
+    protected override string UndoErrorStart => "Problems occured deleting these files:";
 
     public CopyFilesTo(
         IFileIOHandler fileIOHandler,
@@ -132,8 +132,8 @@ public class RenameMultiple : UndoableOperation
 {
     private readonly string[] _newNames;
     private readonly string _dirName;
-    protected override string RedoErrorStart => throw new NotImplementedException();
-    protected override string UndoErrorStart => throw new NotImplementedException();
+    protected override string RedoErrorStart => "Problems occured renaming these files:";
+    protected override string UndoErrorStart => RedoErrorStart;
 
     public RenameMultiple(
         IFileIOHandler fileIOHandler,
