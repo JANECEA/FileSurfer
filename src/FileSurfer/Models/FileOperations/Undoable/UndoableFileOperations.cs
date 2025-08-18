@@ -7,55 +7,157 @@ namespace FileSurfer.Models.FileOperations.Undoable;
 /// <summary>
 /// Represents the action of moving selected files to the system trash.
 /// </summary>
-public class MoveFilesToTrash : IUndoableFileOperation
+public class MoveFilesToTrash : UndoableOperation
 {
-    private readonly IFileIOHandler _fileIOHandler;
-    private readonly IFileSystemEntry[] _entries;
+    protected override string RedoErrorStart => "Problems occurred moving these files to trash:";
+    protected override string UndoErrorStart => "Problems occurred restoring these files:";
 
-    public MoveFilesToTrash(IFileIOHandler fileHandler, IFileSystemEntry[] entries)
+    public MoveFilesToTrash(IFileIOHandler fileIOHandler, IFileSystemEntry[] entries)
+        : base(fileIOHandler, entries) { }
+
+    protected override bool RedoAction(IFileSystemEntry entry, int index) =>
+        entry is DirectoryEntry
+            ? _fileIOHandler.MoveDirToTrash(entry.PathToEntry, out _)
+            : _fileIOHandler.MoveFileToTrash(entry.PathToEntry, out _);
+
+    protected override bool UndoAction(IFileSystemEntry entry, int index) =>
+        entry is DirectoryEntry
+            ? _fileIOHandler.RestoreDir(entry.PathToEntry, out _)
+            : _fileIOHandler.RestoreFile(entry.PathToEntry, out _);
+}
+
+/// <summary>
+/// Represents the action of moving files and directories to a specific directory.
+/// </summary>
+public class MoveFilesTo : UndoableOperation
+{
+    private readonly string _destinationDir;
+    private readonly string _originalDir;
+    protected override string RedoErrorStart => "Problems occured moving these files:";
+    protected override string UndoErrorStart => "Problems occured moving these files:";
+
+    public MoveFilesTo(
+        IFileIOHandler fileIOHandler,
+        IFileSystemEntry[] entries,
+        string destinationDir
+    )
+        : base(fileIOHandler, entries)
     {
-        _fileIOHandler = fileHandler;
-        _entries = entries;
+        _destinationDir = destinationDir;
+        _originalDir =
+            Path.GetDirectoryName(entries[0].PathToEntry) ?? throw new InvalidOperationException();
     }
 
-    /// <inheritdoc/>
-    public bool Redo(out string? errorMessage)
-    {
-        bool errorOccured = false;
-        errorMessage = "Problems occurred moving these files to trash:";
-        foreach (IFileSystemEntry entry in _entries)
-        {
-            bool result =
-                entry is DirectoryEntry
-                    ? _fileIOHandler.MoveDirToTrash(entry.PathToEntry, out _)
-                    : _fileIOHandler.MoveFileToTrash(entry.PathToEntry, out _);
+    protected override bool RedoAction(IFileSystemEntry entry, int index) =>
+        entry is DirectoryEntry
+            ? _fileIOHandler.MoveDirTo(entry.PathToEntry, _destinationDir, out _)
+            : _fileIOHandler.MoveFileTo(entry.PathToEntry, _destinationDir, out _);
 
-            errorOccured = !result || errorOccured;
-            if (!result)
-                errorMessage += $" \"{entry.PathToEntry}\",";
-        }
-        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
-        return !errorOccured;
+    protected override bool UndoAction(IFileSystemEntry entry, int index)
+    {
+        string newPath = Path.Combine(_destinationDir, entry.Name);
+        return entry is DirectoryEntry
+            ? _fileIOHandler.MoveDirTo(newPath, _originalDir, out _)
+            : _fileIOHandler.MoveFileTo(newPath, _originalDir, out _);
+    }
+}
+
+/// <summary>
+/// Represents the action of copying files and directories to a specific directory.
+/// </summary>
+public class CopyFilesTo : UndoableOperation
+{
+    private readonly string _destinationDir;
+    protected override string RedoErrorStart => "Problems occured moving these files:";
+    protected override string UndoErrorStart => "Problems occured moving these files:";
+
+    public CopyFilesTo(
+        IFileIOHandler fileIOHandler,
+        IFileSystemEntry[] entries,
+        string destinationDir
+    )
+        : base(fileIOHandler, entries) => _destinationDir = destinationDir;
+
+    protected override bool RedoAction(IFileSystemEntry entry, int index) =>
+        entry is DirectoryEntry
+            ? _fileIOHandler.CopyDirTo(entry.PathToEntry, _destinationDir, out _)
+            : _fileIOHandler.CopyFileTo(entry.PathToEntry, _destinationDir, out _);
+
+    protected override bool UndoAction(IFileSystemEntry entry, int index)
+    {
+        string newPath = Path.Combine(_destinationDir, entry.Name);
+        return entry is DirectoryEntry
+            ? _fileIOHandler.DeleteDir(newPath, out _)
+            : _fileIOHandler.DeleteFile(newPath, out _);
+    }
+}
+
+/// <summary>
+/// Represents the action of duplicating files or directories in a specific directory.
+/// </summary>
+public class DuplicateFiles : UndoableOperation
+{
+    private readonly string[] _copyNames;
+    private readonly string _parentDir;
+    protected override string RedoErrorStart => "Problems occured duplicating these files:";
+    protected override string UndoErrorStart => "Problems occured deleting these files:";
+
+    public DuplicateFiles(
+        IFileIOHandler fileIOHandler,
+        IFileSystemEntry[] entries,
+        string[] copyNames
+    )
+        : base(fileIOHandler, entries)
+    {
+        _copyNames = copyNames;
+        _parentDir =
+            Path.GetDirectoryName(entries[0].PathToEntry) ?? throw new InvalidOperationException();
     }
 
-    /// <inheritdoc/>
-    public bool Undo(out string? errorMessage)
-    {
-        bool errorOccured = false;
-        errorMessage = "Problems occurred restoring these files:";
-        foreach (IFileSystemEntry entry in _entries)
-        {
-            bool result =
-                entry is DirectoryEntry
-                    ? _fileIOHandler.RestoreDir(entry.PathToEntry, out _)
-                    : _fileIOHandler.RestoreFile(entry.PathToEntry, out _);
+    protected override bool RedoAction(IFileSystemEntry entry, int index) =>
+        entry is DirectoryEntry
+            ? _fileIOHandler.DuplicateDir(entry.PathToEntry, _copyNames[index], out _)
+            : _fileIOHandler.DuplicateFile(entry.PathToEntry, _copyNames[index], out _);
 
-            errorOccured = !result || errorOccured;
-            if (!result)
-                errorMessage += $" \"{entry.PathToEntry}\",";
-        }
-        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
-        return !errorOccured;
+    protected override bool UndoAction(IFileSystemEntry entry, int index) =>
+        entry is DirectoryEntry
+            ? _fileIOHandler.DeleteDir(Path.Combine(_parentDir, _copyNames[index]), out _)
+            : _fileIOHandler.DeleteFile(Path.Combine(_parentDir, _copyNames[index]), out _);
+}
+
+/// <summary>
+/// Represents the action of renaming multiple files or directories.
+/// </summary>
+public class RenameMultiple : UndoableOperation
+{
+    private readonly string[] _newNames;
+    private readonly string _dirName;
+    protected override string RedoErrorStart => throw new NotImplementedException();
+    protected override string UndoErrorStart => throw new NotImplementedException();
+
+    public RenameMultiple(
+        IFileIOHandler fileIOHandler,
+        IFileSystemEntry[] entries,
+        string[] newNames
+    )
+        : base(fileIOHandler, entries)
+    {
+        _newNames = newNames;
+        _dirName =
+            Path.GetDirectoryName(entries[0].PathToEntry) ?? throw new InvalidOperationException();
+    }
+
+    protected override bool RedoAction(IFileSystemEntry entry, int index) =>
+        entry is DirectoryEntry
+            ? _fileIOHandler.RenameDirAt(entry.PathToEntry, _newNames[index], out _)
+            : _fileIOHandler.RenameFileAt(entry.PathToEntry, _newNames[index], out _);
+
+    protected override bool UndoAction(IFileSystemEntry entry, int index)
+    {
+        string newPath = Path.Combine(_dirName, _newNames[index]);
+        return entry is DirectoryEntry
+            ? _fileIOHandler.RenameDirAt(newPath, _entries[index].Name, out _)
+            : _fileIOHandler.RenameFileAt(newPath, _entries[index].Name, out _);
     }
 }
 
@@ -88,7 +190,6 @@ public class FlattenFolder : IUndoableFileOperation
         _showProtected = FileSurferSettings.ShowProtectedFiles;
     }
 
-    /// <inheritdoc/>
     public bool Redo(out string? errorMessage)
     {
         errorMessage = $"Cannot flatten top level directory: \"{_dirPath}\"";
@@ -121,7 +222,6 @@ public class FlattenFolder : IUndoableFileOperation
         return success && _fileIOHandler.DeleteDir(_dirPath, out errorMessage);
     }
 
-    /// <inheritdoc/>
     public bool Undo(out string? errorMessage)
     {
         errorMessage = $"Cannot create a top level directory: \"{_dirPath}\"";
@@ -164,258 +264,6 @@ public class FlattenFolder : IUndoableFileOperation
 }
 
 /// <summary>
-/// Represents the action of moving files and directories to a specific directory.
-/// </summary>
-public class MoveFilesTo : IUndoableFileOperation
-{
-    private readonly IFileIOHandler _fileIOHandler;
-    private readonly IFileSystemEntry[] _entries;
-    private readonly string _destinationDir;
-    private readonly string _originalDir;
-
-    public MoveFilesTo(
-        IFileIOHandler fileOpsHandler,
-        IFileSystemEntry[] entries,
-        string destinationDir
-    )
-    {
-        _entries = entries;
-        _fileIOHandler = fileOpsHandler;
-        _destinationDir = destinationDir;
-        _originalDir =
-            Path.GetDirectoryName(entries[0].PathToEntry) ?? throw new InvalidOperationException();
-    }
-
-    /// <inheritdoc/>
-    public bool Redo(out string? errorMessage)
-    {
-        bool errorOccured = false;
-        errorMessage = "Problems occured moving these files:";
-        foreach (IFileSystemEntry entry in _entries)
-        {
-            bool result =
-                entry is DirectoryEntry
-                    ? _fileIOHandler.MoveDirTo(entry.PathToEntry, _destinationDir, out _)
-                    : _fileIOHandler.MoveFileTo(entry.PathToEntry, _destinationDir, out _);
-
-            errorOccured = !result || errorOccured;
-            if (!result)
-                errorMessage += $" \"{entry.PathToEntry}\",";
-        }
-        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
-        return !errorOccured;
-    }
-
-    /// <inheritdoc/>
-    public bool Undo(out string? errorMessage)
-    {
-        bool errorOccured = false;
-        errorMessage = "Problems occured moving these files:";
-        foreach (IFileSystemEntry entry in _entries)
-        {
-            string newPath = Path.Combine(_destinationDir, entry.Name);
-            bool result =
-                entry is DirectoryEntry
-                    ? _fileIOHandler.MoveDirTo(newPath, _originalDir, out _)
-                    : _fileIOHandler.MoveFileTo(newPath, _originalDir, out _);
-
-            errorOccured = !result || errorOccured;
-            if (!result)
-                errorMessage += $" \"{entry.PathToEntry}\",";
-        }
-        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
-        return !errorOccured;
-    }
-}
-
-/// <summary>
-/// Represents the action of copying files and directories to a specific directory.
-/// </summary>
-public class CopyFilesTo : IUndoableFileOperation
-{
-    private readonly IFileIOHandler _fileIOHandler;
-    private readonly IFileSystemEntry[] _entries;
-    private readonly string _destinationDir;
-
-    public CopyFilesTo(
-        IFileIOHandler fileHandler,
-        IFileSystemEntry[] entries,
-        string destinationDir
-    )
-    {
-        _fileIOHandler = fileHandler;
-        _entries = entries;
-        _destinationDir = destinationDir;
-    }
-
-    /// <inheritdoc/>
-    public bool Redo(out string? errorMessage)
-    {
-        bool errorOccured = false;
-        errorMessage = "Problems occured copying these files:";
-        foreach (IFileSystemEntry entry in _entries)
-        {
-            bool result =
-                entry is DirectoryEntry
-                    ? _fileIOHandler.CopyDirTo(entry.PathToEntry, _destinationDir, out _)
-                    : _fileIOHandler.CopyFileTo(entry.PathToEntry, _destinationDir, out _);
-
-            errorOccured = !result || errorOccured;
-            if (!result)
-                errorMessage += $" \"{entry.PathToEntry}\",";
-        }
-        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
-        return !errorOccured;
-    }
-
-    /// <inheritdoc/>
-    public bool Undo(out string? errorMessage)
-    {
-        bool errorOccured = false;
-        errorMessage = "Problems occured deleting these files:";
-        foreach (IFileSystemEntry entry in _entries)
-        {
-            string newPath = Path.Combine(_destinationDir, entry.Name);
-            bool result =
-                entry is DirectoryEntry
-                    ? _fileIOHandler.DeleteDir(newPath, out _)
-                    : _fileIOHandler.DeleteFile(newPath, out _);
-
-            errorOccured = !result || errorOccured;
-            if (!result)
-                errorMessage += $" \"{entry.PathToEntry}\",";
-        }
-        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
-        return !errorOccured;
-    }
-}
-
-/// <summary>
-/// Represents the action of duplicating files or directories in a specific directory.
-/// </summary>
-public class DuplicateFiles : IUndoableFileOperation
-{
-    private readonly IFileIOHandler _fileIOHandler;
-    private readonly IFileSystemEntry[] _entries;
-    private readonly string[] _copyNames;
-    private readonly string _parentDir;
-
-    public DuplicateFiles(
-        IFileIOHandler fileOpsHandler,
-        IFileSystemEntry[] entries,
-        string[] copyNames
-    )
-    {
-        _fileIOHandler = fileOpsHandler;
-        _entries = entries;
-        _copyNames = copyNames;
-        _parentDir =
-            Path.GetDirectoryName(entries[0].PathToEntry) ?? throw new InvalidOperationException();
-    }
-
-    /// <inheritdoc/>
-    public bool Redo(out string? errorMessage)
-    {
-        bool errorOccured = false;
-        errorMessage = "Problems occured duplicating these files:";
-        for (int i = 0; i < _entries.Length; i++)
-        {
-            bool result =
-                _entries[i] is DirectoryEntry
-                    ? _fileIOHandler.DuplicateDir(_entries[i].PathToEntry, _copyNames[i], out _)
-                    : _fileIOHandler.DuplicateFile(_entries[i].PathToEntry, _copyNames[i], out _);
-
-            errorOccured = !result || errorOccured;
-            if (!result)
-                errorMessage += $" \"{_entries[i].PathToEntry}\",";
-        }
-        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
-        return !errorOccured;
-    }
-
-    /// <inheritdoc/>
-    public bool Undo(out string? errorMessage)
-    {
-        bool errorOccured = false;
-        errorMessage = "Problems occured deleting these files:";
-        for (int i = 0; i < _entries.Length; i++)
-        {
-            bool result =
-                _entries[i] is DirectoryEntry
-                    ? _fileIOHandler.DeleteDir(Path.Combine(_parentDir, _copyNames[i]), out _)
-                    : _fileIOHandler.DeleteFile(Path.Combine(_parentDir, _copyNames[i]), out _);
-
-            errorOccured = !result || errorOccured;
-            if (!result)
-                errorMessage += $" \"{_entries[i].PathToEntry}\",";
-        }
-        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
-        return !errorOccured;
-    }
-}
-
-/// <summary>
-/// Represents the action of renaming multiple files or directories.
-/// </summary>
-public class RenameMultiple : IUndoableFileOperation
-{
-    private readonly IFileIOHandler _fileIOHandler;
-    private readonly IFileSystemEntry[] _entries;
-    private readonly string[] _newNames;
-    private readonly string _dirName;
-
-    public RenameMultiple(IFileIOHandler fileHandler, IFileSystemEntry[] entries, string[] newNames)
-    {
-        _fileIOHandler = fileHandler;
-        _entries = entries;
-        _newNames = newNames;
-        _dirName =
-            Path.GetDirectoryName(entries[0].PathToEntry) ?? throw new InvalidOperationException();
-    }
-
-    /// <inheritdoc/>
-    public bool Redo(out string? errorMessage)
-    {
-        bool errorOccured = false;
-        errorMessage = "Problems occured renaming these files:";
-        for (int i = 0; i < _entries.Length; i++)
-        {
-            bool result =
-                _entries[i] is DirectoryEntry
-                    ? _fileIOHandler.RenameDirAt(_entries[i].PathToEntry, _newNames[i], out _)
-                    : _fileIOHandler.RenameFileAt(_entries[i].PathToEntry, _newNames[i], out _);
-
-            errorOccured = !result || errorOccured;
-            if (!result)
-                errorMessage += $" \"{_entries[i].PathToEntry}\",";
-        }
-        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
-        return !errorOccured;
-    }
-
-    /// <inheritdoc/>
-    public bool Undo(out string? errorMessage)
-    {
-        bool errorOccured = false;
-        errorMessage = "Problems occured renaming these files:";
-        for (int i = 0; i < _entries.Length; i++)
-        {
-            string newPath = Path.Combine(_dirName, _newNames[i]);
-            bool result =
-                _entries[i] is DirectoryEntry
-                    ? _fileIOHandler.RenameDirAt(newPath, _entries[i].Name, out _)
-                    : _fileIOHandler.RenameFileAt(newPath, _entries[i].Name, out _);
-
-            errorOccured = !result || errorOccured;
-            if (!result)
-                errorMessage += $" \"{_entries[i].PathToEntry}\",";
-        }
-        errorMessage = errorOccured ? errorMessage.TrimEnd(',') : null;
-        return !errorOccured;
-    }
-}
-
-/// <summary>
 /// Represents the action of renaming one file or directory.
 /// </summary>
 public class RenameOne : IUndoableFileOperation
@@ -435,13 +283,11 @@ public class RenameOne : IUndoableFileOperation
         _newPath = Path.Combine(dirName, newName);
     }
 
-    /// <inheritdoc/>
     public bool Redo(out string? errorMessage) =>
         _entry is DirectoryEntry
             ? _fileIOHandler.RenameDirAt(_entry.PathToEntry, _newName, out errorMessage)
             : _fileIOHandler.RenameFileAt(_entry.PathToEntry, _newName, out errorMessage);
 
-    /// <inheritdoc/>
     public bool Undo(out string? errorMessage) =>
         _entry is DirectoryEntry
             ? _fileIOHandler.RenameDirAt(_newPath, _entry.Name, out errorMessage)
@@ -464,11 +310,9 @@ public class NewFileAt : IUndoableFileOperation
         _fileName = fileName;
     }
 
-    /// <inheritdoc/>
     public bool Redo(out string? errorMessage) =>
         _fileIOHandler.NewFileAt(_path, _fileName, out errorMessage);
 
-    /// <inheritdoc/>
     public bool Undo(out string? errorMessage) =>
         _fileIOHandler.DeleteFile(Path.Combine(_path, _fileName), out errorMessage);
 }
@@ -489,11 +333,9 @@ public class NewDirAt : IUndoableFileOperation
         _dirName = dirName;
     }
 
-    /// <inheritdoc/>
     public bool Redo(out string? errorMessage) =>
         _fileIOHandler.NewDirAt(_path, _dirName, out errorMessage);
 
-    /// <inheritdoc/>
     public bool Undo(out string? errorMessage) =>
         _fileIOHandler.DeleteDir(Path.Combine(_path, _dirName), out errorMessage);
 }
