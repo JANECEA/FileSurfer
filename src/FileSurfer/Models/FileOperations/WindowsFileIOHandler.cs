@@ -27,12 +27,12 @@ public class WindowsFileIOHandler : IFileIOHandler
         _showDialogLimit = showDialogLimit;
     }
 
-    public IFileOperationResult DeleteFile(string filePath)
+    public IResult DeleteFile(string filePath)
     {
         try
         {
             if (!File.Exists(filePath))
-                return FileOperationResult.Error($"Could not find file: \"{filePath}\"");
+                return Result.Error($"Could not find file: \"{filePath}\"");
 
             FileSystem.DeleteFile(
                 filePath,
@@ -40,20 +40,20 @@ public class WindowsFileIOHandler : IFileIOHandler
                 RecycleOption.DeletePermanently,
                 UICancelOption.ThrowException
             );
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult DeleteDir(string dirPath)
+    public IResult DeleteDir(string dirPath)
     {
         try
         {
             if (!Directory.Exists(dirPath))
-                return FileOperationResult.Error($"Could not find directory: \"{dirPath}\"");
+                return Result.Error($"Could not find directory: \"{dirPath}\"");
 
             FileSystem.DeleteDirectory(
                 dirPath,
@@ -61,15 +61,15 @@ public class WindowsFileIOHandler : IFileIOHandler
                 RecycleOption.DeletePermanently,
                 UICancelOption.ThrowException
             );
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult MoveFileToTrash(string filePath)
+    public IResult MoveFileToTrash(string filePath)
     {
         try
         {
@@ -81,15 +81,15 @@ public class WindowsFileIOHandler : IFileIOHandler
                 RecycleOption.SendToRecycleBin,
                 UICancelOption.ThrowException
             );
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult MoveDirToTrash(string dirPath)
+    public IResult MoveDirToTrash(string dirPath)
     {
         try
         {
@@ -99,59 +99,59 @@ public class WindowsFileIOHandler : IFileIOHandler
                 RecycleOption.SendToRecycleBin,
                 UICancelOption.ThrowException
             );
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult RestoreFile(string ogFilePath) =>
+    public IResult RestoreFile(string ogFilePath) =>
         _fileRestorer.RestoreFile(ogFilePath);
 
-    public IFileOperationResult RestoreDir(string ogDirPath) => _fileRestorer.RestoreDir(ogDirPath);
+    public IResult RestoreDir(string ogDirPath) => _fileRestorer.RestoreDir(ogDirPath);
 
-    public IFileOperationResult NewFileAt(string dirPath, string fileName)
+    public IResult NewFileAt(string dirPath, string fileName)
     {
         if (!IsValidFileName(fileName))
-            return FileOperationResult.Error($"File name: \"{fileName}\" is invalid.");
+            return Result.Error($"File name: \"{fileName}\" is invalid.");
 
         try
         {
             string filePath = Path.Combine(dirPath, fileName);
             if (File.Exists(filePath))
-                return FileOperationResult.Error($"File: \"{filePath}\" already exists");
+                return Result.Error($"File: \"{filePath}\" already exists");
 
             using FileStream file = File.Create(filePath);
             file.Close();
 
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult NewDirAt(string dirPath, string dirName)
+    public IResult NewDirAt(string dirPath, string dirName)
     {
         if (!IsValidDirName(dirName))
-            return FileOperationResult.Error($"Directory name: \"{dirName}\" is invalid.");
+            return Result.Error($"Directory name: \"{dirName}\" is invalid.");
 
         try
         {
             string newDirPath = Path.Combine(dirPath, dirName);
             if (Directory.Exists(newDirPath))
-                return FileOperationResult.Error($"Directory: \"{newDirPath}\" already exists");
+                return Result.Error($"Directory: \"{newDirPath}\" already exists");
 
             Directory.CreateDirectory(newDirPath);
 
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
@@ -165,15 +165,15 @@ public class WindowsFileIOHandler : IFileIOHandler
         && Path.GetInvalidPathChars()
             .All(ch => !dirName.Contains(ch, StringComparison.OrdinalIgnoreCase));
 
-    public IFileOperationResult RenameFileAt(string filePath, string newName)
+    public IResult RenameFileAt(string filePath, string newName)
     {
         if (!IsValidFileName(newName))
-            return FileOperationResult.Error($"File name: \"{newName}\" is invalid.");
+            return Result.Error($"File name: \"{newName}\" is invalid.");
 
         try
         {
             if (Path.GetDirectoryName(filePath) is not string parentDir)
-                return FileOperationResult.Error($"No parent directory found for \"{filePath}\"");
+                return Result.Error($"No parent directory found for \"{filePath}\"");
 
             string dirName = Path.GetFileName(filePath);
             if (string.Equals(dirName, newName, StringComparison.OrdinalIgnoreCase))
@@ -193,23 +193,23 @@ public class WindowsFileIOHandler : IFileIOHandler
                 UICancelOption.ThrowException
             );
 
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult RenameDirAt(string dirPath, string newName)
+    public IResult RenameDirAt(string dirPath, string newName)
     {
         if (!IsValidDirName(newName))
-            return FileOperationResult.Error($"Directory name: \"{newName}\" is invalid.");
+            return Result.Error($"Directory name: \"{newName}\" is invalid.");
 
         try
         {
             if (Path.GetDirectoryName(dirPath) is not string parentDir)
-                return FileOperationResult.Error($"\"{dirPath}\" is a root directory");
+                return Result.Error($"\"{dirPath}\" is a root directory");
 
             string dirName = Path.GetFileName(dirPath);
             if (string.Equals(dirName, newName, StringComparison.OrdinalIgnoreCase))
@@ -229,15 +229,15 @@ public class WindowsFileIOHandler : IFileIOHandler
                 UICancelOption.ThrowException
             );
 
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult MoveFileTo(string filePath, string destinationDir)
+    public IResult MoveFileTo(string filePath, string destinationDir)
     {
         try
         {
@@ -248,15 +248,15 @@ public class WindowsFileIOHandler : IFileIOHandler
                 UIOption.AllDialogs,
                 UICancelOption.ThrowException
             );
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult MoveDirTo(string dirPath, string destinationDir)
+    public IResult MoveDirTo(string dirPath, string destinationDir)
     {
         try
         {
@@ -267,15 +267,15 @@ public class WindowsFileIOHandler : IFileIOHandler
                 UIOption.AllDialogs,
                 UICancelOption.ThrowException
             );
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult CopyFileTo(string filePath, string destinationDir)
+    public IResult CopyFileTo(string filePath, string destinationDir)
     {
         try
         {
@@ -286,15 +286,15 @@ public class WindowsFileIOHandler : IFileIOHandler
                 UIOption.AllDialogs,
                 UICancelOption.ThrowException
             );
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult CopyDirTo(string dirPath, string destinationDir)
+    public IResult CopyDirTo(string dirPath, string destinationDir)
     {
         try
         {
@@ -305,21 +305,21 @@ public class WindowsFileIOHandler : IFileIOHandler
                 UIOption.AllDialogs,
                 UICancelOption.ThrowException
             );
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult DuplicateFile(string filePath, string copyName)
+    public IResult DuplicateFile(string filePath, string copyName)
     {
         bool showDialog = _fileInfoProvider.GetFileSizeB(filePath) > _showDialogLimit;
         try
         {
             if (Path.GetDirectoryName(filePath) is not string parentDir)
-                return FileOperationResult.Error("Can't duplicate a root directory.");
+                return Result.Error("Can't duplicate a root directory.");
 
             string newFilePath = Path.Combine(parentDir, copyName);
             FileSystem.CopyFile(
@@ -328,20 +328,20 @@ public class WindowsFileIOHandler : IFileIOHandler
                 showDialog ? UIOption.AllDialogs : UIOption.OnlyErrorDialogs,
                 UICancelOption.ThrowException
             );
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult DuplicateDir(string dirPath, string copyName)
+    public IResult DuplicateDir(string dirPath, string copyName)
     {
         try
         {
             if (Path.GetDirectoryName(dirPath) is not string parentDir)
-                return FileOperationResult.Error("Can't duplicate a root directory.");
+                return Result.Error("Can't duplicate a root directory.");
 
             string newDirPath = Path.Combine(parentDir, copyName);
             FileSystem.CopyDirectory(
@@ -350,11 +350,11 @@ public class WindowsFileIOHandler : IFileIOHandler
                 UIOption.AllDialogs,
                 UICancelOption.ThrowException
             );
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 }

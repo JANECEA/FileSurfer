@@ -444,7 +444,7 @@ public class MainWindowViewModel : ReactiveObject
     /// <summary>
     /// Opens a new <see cref="Views.ErrorWindow"/> dialog.
     /// </summary>
-    private void ForwardIfError(IFileOperationResult result)
+    private void ForwardIfError(IResult result)
     {
         if (!result.IsOK)
             foreach (string errorMessage in result.Errors)
@@ -975,7 +975,7 @@ public class MainWindowViewModel : ReactiveObject
         string newFileName = FileNameGenerator.GetAvailableName(CurrentDir, NewFileName);
 
         NewFileAt operation = new(_fileIOHandler, CurrentDir, newFileName);
-        IFileOperationResult result = operation.Redo();
+        IResult result = operation.Invoke();
         if (result.IsOK)
         {
             Reload();
@@ -998,7 +998,7 @@ public class MainWindowViewModel : ReactiveObject
         string newDirName = FileNameGenerator.GetAvailableName(CurrentDir, NewDirName);
 
         NewDirAt operation = new(_fileIOHandler, CurrentDir, newDirName);
-        IFileOperationResult result = operation.Redo();
+        IResult result = operation.Invoke();
         if (result.IsOK)
         {
             Reload();
@@ -1098,7 +1098,7 @@ public class MainWindowViewModel : ReactiveObject
     /// </summary>
     private void Paste()
     {
-        IFileOperationResult result;
+        IResult result;
         if (_clipboardManager.IsDuplicateOperation(CurrentDir))
         {
             if ((result = _clipboardManager.Duplicate(CurrentDir, out string[] copyNames)).IsOK)
@@ -1155,7 +1155,7 @@ public class MainWindowViewModel : ReactiveObject
         FileSystemEntryViewModel entry = SelectedFiles[0];
 
         RenameOne operation = new(_fileIOHandler, entry.FileSystemEntry, newName);
-        IFileOperationResult result = operation.Redo();
+        IResult result = operation.Invoke();
         if (result.IsOK)
         {
             _undoRedoHistory.AddNewNode(operation);
@@ -1193,7 +1193,7 @@ public class MainWindowViewModel : ReactiveObject
                     namingPattern
                 )
             );
-        IFileOperationResult result = operation.Redo();
+        IResult result = operation.Invoke();
         if (result.IsOK)
             _undoRedoHistory.AddNewNode(operation);
 
@@ -1213,7 +1213,7 @@ public class MainWindowViewModel : ReactiveObject
         MoveFilesToTrash operation =
             new(_fileIOHandler, SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry));
 
-        IFileOperationResult result = operation.Redo();
+        IResult result = operation.Invoke();
         if (result.IsOK)
             _undoRedoHistory.AddNewNode(operation);
 
@@ -1230,7 +1230,7 @@ public class MainWindowViewModel : ReactiveObject
         }
 
         FlattenFolder action = new(_fileIOHandler, _fileInfoProvider, entry.PathToEntry);
-        IFileOperationResult result = action.Redo();
+        IResult result = action.Invoke();
         if (result.IsOK)
             _undoRedoHistory.AddNewNode(action);
 
@@ -1323,7 +1323,7 @@ public class MainWindowViewModel : ReactiveObject
         IUndoableFileOperation operation =
             _undoRedoHistory.Current ?? throw new NullReferenceException();
 
-        IFileOperationResult result = operation.Undo();
+        IResult result = operation.Undo();
         if (result.IsOK)
         {
             _undoRedoHistory.MoveToPrevious();
@@ -1349,7 +1349,7 @@ public class MainWindowViewModel : ReactiveObject
             return;
 
         IUndoableFileOperation operation = _undoRedoHistory.Current;
-        IFileOperationResult result = operation.Redo();
+        IResult result = operation.Invoke();
         if (result.IsOK)
             Reload();
         else

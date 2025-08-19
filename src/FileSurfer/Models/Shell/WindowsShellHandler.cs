@@ -9,7 +9,7 @@ namespace FileSurfer.Models.Shell;
 /// </summary>
 public class WindowsShellHandler : IShellHandler
 {
-    public IFileOperationResult OpenCmdAt(string dirPath)
+    public IResult OpenCmdAt(string dirPath)
     {
         try
         {
@@ -25,30 +25,30 @@ public class WindowsShellHandler : IShellHandler
                     },
                 };
             process.Start();
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult OpenFile(string filePath)
+    public IResult OpenFile(string filePath)
     {
         try
         {
             using Process process =
                 new() { StartInfo = new ProcessStartInfo(filePath) { UseShellExecute = true } };
             process.Start();
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult OpenInNotepad(string filePath)
+    public IResult OpenInNotepad(string filePath)
     {
         try
         {
@@ -60,15 +60,15 @@ public class WindowsShellHandler : IShellHandler
                     UseShellExecute = true,
                 }
             );
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult ExecuteCmd(string command)
+    public IResult ExecuteCmd(string command)
     {
         using Process process = new();
         process.StartInfo = new()
@@ -95,12 +95,12 @@ public class WindowsShellHandler : IShellHandler
         if (success)
             return NoMessageResult.Ok();
         else if (errorMessage is not null)
-            return FileOperationResult.Error(errorMessage);
+            return Result.Error(errorMessage);
         else
             return NoMessageResult.Error();
     }
 
-    public IFileOperationResult CreateLink(string filePath)
+    public IResult CreateLink(string filePath)
     {
         try
         {
@@ -117,11 +117,11 @@ public class WindowsShellHandler : IShellHandler
             shortcut.TargetPath = filePath;
             shortcut.WorkingDirectory = Path.GetDirectoryName(filePath);
             shortcut.Save();
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 }

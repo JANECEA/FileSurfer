@@ -11,96 +11,96 @@ public interface IFileIOHandler
     /// <summary>
     /// Creates a new file at the specified directory path.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult NewFileAt(string dirPath, string fileName);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult NewFileAt(string dirPath, string fileName);
 
     /// <summary>
     /// Creates a new directory at the specified path.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult NewDirAt(string dirPath, string dirName);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult NewDirAt(string dirPath, string dirName);
 
     /// <summary>
     /// Renames a file at the specified path.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult RenameFileAt(string filePath, string newName);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult RenameFileAt(string filePath, string newName);
 
     /// <summary>
     /// Renames a directory at the specified path.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult RenameDirAt(string dirPath, string newName);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult RenameDirAt(string dirPath, string newName);
 
     /// <summary>
     /// Moves a file to a specified destination directory.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult MoveFileTo(string filePath, string destinationDir);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult MoveFileTo(string filePath, string destinationDir);
 
     /// <summary>
     /// Moves a directory to a specified destination directory.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult MoveDirTo(string dirPath, string destinationDir);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult MoveDirTo(string dirPath, string destinationDir);
 
     /// <summary>
     /// Copies a file to a specified destination directory.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult CopyFileTo(string filePath, string destinationDir);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult CopyFileTo(string filePath, string destinationDir);
 
     /// <summary>
     /// Copies a directory to a specified destination directory.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult CopyDirTo(string dirPath, string destinationDir);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult CopyDirTo(string dirPath, string destinationDir);
 
     /// <summary>
     /// Creates a duplicate of a file with a new name.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult DuplicateFile(string filePath, string copyName);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult DuplicateFile(string filePath, string copyName);
 
     /// <summary>
     /// Creates a duplicate of a directory with a new name.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult DuplicateDir(string dirPath, string copyName);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult DuplicateDir(string dirPath, string copyName);
 
     /// <summary>
     /// Moves a file to the trash.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult MoveFileToTrash(string filePath);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult MoveFileToTrash(string filePath);
 
     /// <summary>
     /// Moves a directory to the trash.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult MoveDirToTrash(string dirPath);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult MoveDirToTrash(string dirPath);
 
     /// <summary>
     /// Restores a file from the trash to its original location.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult RestoreFile(string ogFilePath);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult RestoreFile(string ogFilePath);
 
     /// <summary>
     /// Restores a directory from the trash to its original location.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult RestoreDir(string ogDirPath);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult RestoreDir(string ogDirPath);
 
     /// <summary>
     /// Deletes a file permanently.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult DeleteFile(string filePath);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult DeleteFile(string filePath);
 
     /// <summary>
     /// Deletes a directory permanently.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult DeleteDir(string dirPath);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult DeleteDir(string dirPath);
 }

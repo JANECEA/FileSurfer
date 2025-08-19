@@ -24,7 +24,7 @@ public class GitVersionControl : IVersionControl
     /// </summary>
     public GitVersionControl(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
-    public IFileOperationResult InitIfVersionControlled(string directoryPath)
+    public IResult InitIfVersionControlled(string directoryPath)
     {
         string? repoRootDir = directoryPath;
         string gitDir = string.Empty;
@@ -60,10 +60,10 @@ public class GitVersionControl : IVersionControl
 
     private string? GetWorkingDir() => _currentRepo?.Info.WorkingDirectory.TrimEnd('\\');
 
-    public IFileOperationResult DownloadChanges()
+    public IResult DownloadChanges()
     {
         if (_currentRepo is null)
-            return FileOperationResult.Error(MissingRepoMessage);
+            return Result.Error(MissingRepoMessage);
 
         string command = $"git -C \"{GetWorkingDir()}\" pull";
         return _shellHandler.ExecuteCmd(command);
@@ -77,20 +77,20 @@ public class GitVersionControl : IVersionControl
             ? Array.Empty<string>()
             : _currentRepo.Branches.Where(b => !b.IsRemote).Select(b => b.FriendlyName).ToArray();
 
-    public IFileOperationResult SwitchBranches(string branchName)
+    public IResult SwitchBranches(string branchName)
     {
         if (_currentRepo is null)
-            return FileOperationResult.Error(MissingRepoMessage);
+            return Result.Error(MissingRepoMessage);
 
         try
         {
             Branch branch = _currentRepo.Branches[branchName];
             Commands.Checkout(_currentRepo, branch);
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch
         {
-            return FileOperationResult.Error($"branch: \"{branchName}\" not found");
+            return Result.Error($"branch: \"{branchName}\" not found");
         }
     }
 
@@ -173,55 +173,55 @@ public class GitVersionControl : IVersionControl
             ? _pathStates.GetValueOrDefault(filePath, VCStatus.NotVersionControlled)
             : VCStatus.NotVersionControlled;
 
-    public IFileOperationResult StagePath(string path)
+    public IResult StagePath(string path)
     {
         try
         {
             if (_currentRepo is null)
-                return FileOperationResult.Error(MissingRepoMessage);
+                return Result.Error(MissingRepoMessage);
 
             Commands.Stage(_currentRepo, path);
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult UnstagePath(string filePath)
+    public IResult UnstagePath(string filePath)
     {
         try
         {
             if (_currentRepo is null)
-                return FileOperationResult.Error(MissingRepoMessage);
+                return Result.Error(MissingRepoMessage);
 
             string relativePath = Path.GetRelativePath(
                 _currentRepo.Info.WorkingDirectory,
                 filePath
             );
             Commands.Unstage(_currentRepo, relativePath);
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
-    public IFileOperationResult CommitChanges(string commitMessage)
+    public IResult CommitChanges(string commitMessage)
     {
         if (_currentRepo is null)
-            return FileOperationResult.Error(MissingRepoMessage);
+            return Result.Error(MissingRepoMessage);
 
         string command = $"git -C \"{GetWorkingDir()}\" commit -m \"{commitMessage}\"";
         return _shellHandler.ExecuteCmd(command);
     }
 
-    public IFileOperationResult UploadChanges()
+    public IResult UploadChanges()
     {
         if (_currentRepo is null)
-            return FileOperationResult.Error(MissingRepoMessage);
+            return Result.Error(MissingRepoMessage);
 
         string command = $"git -C \"{GetWorkingDir()}\" push";
         return _shellHandler.ExecuteCmd(command);

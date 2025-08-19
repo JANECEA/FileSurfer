@@ -6,16 +6,16 @@ namespace FileSurfer.Models.FileOperations.Undoable;
 public interface IUndoableFileOperation
 {
     /// <summary>
+    /// Invokes the file operation.
+    /// Implementations of this method should apply the effects of the operation.
+    /// </summary>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult Invoke();
+
+    /// <summary>
     /// Undoes the file operation.
     /// Implementations of this method should reverse the effects of the original operation.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult Undo();
-
-    /// <summary>
-    /// Redoes the file operation.
-    /// Implementations of this method should reapply the effects of the original operation.
-    /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult Redo();
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult Undo();
 }

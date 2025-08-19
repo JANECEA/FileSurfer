@@ -2,6 +2,9 @@ using System.IO;
 
 namespace FileSurfer.Models;
 
+/// <summary>
+/// Lazy implementation of <see cref="IFileSystemEntry"/> for a file.
+/// </summary>
 public class FileEntry : IFileSystemEntry
 {
     public string PathToEntry { get; }
@@ -20,7 +23,7 @@ public class FileEntry : IFileSystemEntry
 
     public FileEntry(string pathToFile, string fileName)
     {
-        _name = fileName;
         PathToEntry = pathToFile;
+        _name = fileName;
     }
 }

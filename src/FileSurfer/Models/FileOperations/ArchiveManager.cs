@@ -34,8 +34,8 @@ static class ArchiveManager
     /// <summary>
     /// Compresses specified file paths into a new archive.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public static IFileOperationResult ZipFiles(
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public static IResult ZipFiles(
         IEnumerable<IFileSystemEntry> entries,
         string destinationDir,
         string archiveName
@@ -71,11 +71,11 @@ static class ArchiveManager
                 }
 
             archive.SaveTo(zipStream, new WriterOptions(CompressionType.Deflate));
-            return FileOperationResult.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
         finally
         {
@@ -87,11 +87,11 @@ static class ArchiveManager
     /// <summary>
     /// Extracts an archive, overwriting the already existing files.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public static IFileOperationResult UnzipArchive(string archivePath, string destinationPath)
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public static IResult UnzipArchive(string archivePath, string destinationPath)
     {
         if (!IsZipped(archivePath))
-            return FileOperationResult.Error($"\"{archivePath}\" is not an archive.");
+            return Result.Error($"\"{archivePath}\" is not an archive.");
 
         try
         {
@@ -109,11 +109,11 @@ static class ArchiveManager
             foreach (IArchiveEntry file in archive.Entries.Where(entry => !entry.IsDirectory))
                 file.WriteToDirectory(extractTo, extractionOptions);
 
-            return FileOperationResult.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 }

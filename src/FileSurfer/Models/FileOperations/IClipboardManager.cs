@@ -16,8 +16,8 @@ public interface IClipboardManager
     /// Sets <see cref="IsCutOperation"/> to <see langword="false"/>.
     /// </para>
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult Copy(IFileSystemEntry[] selectedFiles, string currentDir);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult Copy(IFileSystemEntry[] selectedFiles, string currentDir);
 
     /// <summary>
     /// Copies the <paramref name="filePath"/> to the system's clipboard.
@@ -30,14 +30,14 @@ public interface IClipboardManager
     /// Sets <see cref="IsCutOperation"/> to <see langword="true"/>.
     /// </para>
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult Cut(IFileSystemEntry[] selectedFiles, string currentDir);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult Cut(IFileSystemEntry[] selectedFiles, string currentDir);
 
     /// <summary>
     /// Duplicates the files stored in <see cref="_programClipboard"/>.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult Duplicate(string currentDir, out string[] copyNames);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult Duplicate(string currentDir, out string[] copyNames);
 
     /// <summary>
     /// Gets the contents of <see cref="_programClipboard"/>.
@@ -55,6 +55,6 @@ public interface IClipboardManager
     /// <summary>
     /// Pastes the contents of the system clipboard into <paramref name="currentDir"/>.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult Paste(string currentDir);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult Paste(string currentDir);
 }

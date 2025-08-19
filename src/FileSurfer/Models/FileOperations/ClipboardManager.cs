@@ -31,32 +31,32 @@ public class ClipboardManager : IClipboardManager
     private static void ClearClipboard() => Clipboard.Clear();
 
     [STAThread]
-    private static FileOperationResult CopyToOSClipboard(string[] paths)
+    private static Result CopyToOSClipboard(string[] paths)
     {
         try
         {
             StringCollection fileCollection = new();
             fileCollection.AddRange(paths);
             Clipboard.SetFileDropList(fileCollection);
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
             Clipboard.Clear();
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
     [STAThread]
-    private FileOperationResult PasteFromOSClipboard(string destinationPath)
+    private Result PasteFromOSClipboard(string destinationPath)
     {
         if (!Clipboard.ContainsFileDropList())
-            return FileOperationResult.Ok();
+            return Result.Ok();
 
         try
         {
             StringCollection fileCollection = Clipboard.GetFileDropList();
-            FileOperationResult result = FileOperationResult.Ok();
+            Result result = Result.Ok();
             foreach (string? path in fileCollection)
             {
                 if (path is null)
@@ -71,25 +71,25 @@ public class ClipboardManager : IClipboardManager
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
 
     [STAThread]
-    private FileOperationResult SaveImageToPath(string destinationPath)
+    private Result SaveImageToPath(string destinationPath)
     {
         if (Clipboard.GetImage() is not Image image)
-            return FileOperationResult.Error("There is no image in the system clipboard");
+            return Result.Error("There is no image in the system clipboard");
 
         string imgName = FileNameGenerator.GetAvailableName(destinationPath, _newImageName);
         try
         {
             image.Save(Path.Combine(destinationPath, imgName), ImageFormat.Png);
-            return FileOperationResult.Ok();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return FileOperationResult.Error(ex.Message);
+            return Result.Error(ex.Message);
         }
         finally
         {
@@ -115,9 +115,9 @@ public class ClipboardManager : IClipboardManager
 
     public IFileSystemEntry[] GetClipboard() => _programClipboard.ToArray();
 
-    public IFileOperationResult Cut(IFileSystemEntry[] selectedFiles, string currentDir)
+    public IResult Cut(IFileSystemEntry[] selectedFiles, string currentDir)
     {
-        FileOperationResult result = CopyToOSClipboard(
+        Result result = CopyToOSClipboard(
             selectedFiles.Select(entry => entry.PathToEntry).ToArray()
         );
         if (result.IsOK)
@@ -129,9 +129,9 @@ public class ClipboardManager : IClipboardManager
         return result;
     }
 
-    public IFileOperationResult Copy(IFileSystemEntry[] selectedFiles, string currentDir)
+    public IResult Copy(IFileSystemEntry[] selectedFiles, string currentDir)
     {
-        FileOperationResult result = CopyToOSClipboard(
+        Result result = CopyToOSClipboard(
             selectedFiles.Select(entry => entry.PathToEntry).ToArray()
         );
         if (result.IsOK)
@@ -146,14 +146,14 @@ public class ClipboardManager : IClipboardManager
     public bool IsDuplicateOperation(string currentDir) =>
         !IsCutOperation && _copyFromDir == currentDir && _programClipboard.Length > 0;
 
-    public IFileOperationResult Paste(string currentDir)
+    public IResult Paste(string currentDir)
     {
         if (FileSurferSettings.AllowImagePastingFromClipboard && Clipboard.ContainsImage())
         {
             SaveImageToPath(currentDir);
             return NoMessageResult.Error();
         }
-        FileOperationResult result = PasteFromOSClipboard(currentDir);
+        Result result = PasteFromOSClipboard(currentDir);
         if (!result.IsOK)
         {
             _programClipboard = Array.Empty<IFileSystemEntry>();
@@ -176,10 +176,10 @@ public class ClipboardManager : IClipboardManager
         return result;
     }
 
-    public IFileOperationResult Duplicate(string currentDir, out string[] copyNames)
+    public IResult Duplicate(string currentDir, out string[] copyNames)
     {
         copyNames = new string[_programClipboard.Length];
-        FileOperationResult result = FileOperationResult.Ok();
+        Result result = Result.Ok();
         for (int i = 0; i < _programClipboard.Length; i++)
         {
             IFileSystemEntry entry = _programClipboard[i];

@@ -2,6 +2,9 @@ using System.IO;
 
 namespace FileSurfer.Models;
 
+/// <summary>
+/// Implementation of <see cref="IFileSystemEntry"/> for a drive.
+/// </summary>
 public class DriveEntry : IFileSystemEntry
 {
     public string PathToEntry { get; }

@@ -15,7 +15,7 @@ public class ShellInteractionTests
         string command = "for /L %i in (1,1,1000) do @echo Line %i"; // Generates 1000 lines of output
 
         // Act
-        IFileOperationResult result = _shellHandler.ExecuteCmd(command);
+        IResult result = _shellHandler.ExecuteCmd(command);
 
         // Assert
         Assert.True(result.IsOK, "The command should complete successfully in cca 80ms.");
@@ -28,7 +28,7 @@ public class ShellInteractionTests
         string command = "ping --invalidoption";
 
         // Act
-        IFileOperationResult result = _shellHandler.ExecuteCmd(command);
+        IResult result = _shellHandler.ExecuteCmd(command);
 
         // Assert
         Assert.False(result.IsOK, "The command should fail.");
@@ -41,7 +41,7 @@ public class ShellInteractionTests
         string command = "echo \"Hello world!\"";
 
         // Act
-        IFileOperationResult result = _shellHandler.ExecuteCmd(command);
+        IResult result = _shellHandler.ExecuteCmd(command);
 
         // Assert
         Assert.True(result.IsOK, "The command should succeed.");

@@ -11,8 +11,8 @@ public interface IVersionControl : IDisposable
     /// Determines whether the specified directory is under version control.
     /// </summary>
     /// <param name="directoryPath">The path of the directory to check.</param>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult InitIfVersionControlled(string directoryPath);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult InitIfVersionControlled(string directoryPath);
 
     /// <summary>
     /// Retrieves the status of the specified path in the version control system.
@@ -24,8 +24,8 @@ public interface IVersionControl : IDisposable
     /// <summary>
     /// Downloads the latest changes from the version control system to the local repository.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult DownloadChanges();
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult DownloadChanges();
 
     /// <summary>
     /// Retrieves a list of all branches in the version control system.
@@ -43,33 +43,33 @@ public interface IVersionControl : IDisposable
     /// Switches to the specified branch in the version control system.
     /// </summary>
     /// <param name="branchName">The name of the branch to switch to.</param>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult SwitchBranches(string branchName);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult SwitchBranches(string branchName);
 
     /// <summary>
     /// Stages changes on the specified path for the next commit.
     /// </summary>
     /// <param name="path">The path to stage.</param>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult StagePath(string path);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult StagePath(string path);
 
     /// <summary>
     /// Unstages changes in the specified file or directory, reverting it to the previous staged state.
     /// </summary>
     /// <param name="filePath">The path of the file or directory to unstage.</param>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult UnstagePath(string filePath);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult UnstagePath(string filePath);
 
     /// <summary>
     /// Commits the staged changes with the specified commit message.
     /// </summary>
     /// <param name="commitMessage">The message describing the commit.</param>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult CommitChanges(string commitMessage);
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult CommitChanges(string commitMessage);
 
     /// <summary>
     /// Uploads the committed changes to the remote repository.
     /// </summary>
-    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
-    public IFileOperationResult UploadChanges();
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult UploadChanges();
 }
