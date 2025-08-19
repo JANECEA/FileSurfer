@@ -1,10 +1,12 @@
+using FileSurfer.Models;
 using FileSurfer.Models.FileOperations;
+using FileSurfer.Models.Shell;
 
 namespace FSTests;
 
 public class ShellInteractionTests
 {
-    private readonly WindowsFileIOHandler _fileIOHandler = new(100);
+    private readonly WindowsShellHandler _shellHandler = new();
 
     [Fact]
     public void ExecuteCmd_Should_Not_Hang()
@@ -13,11 +15,10 @@ public class ShellInteractionTests
         string command = "for /L %i in (1,1,1000) do @echo Line %i"; // Generates 1000 lines of output
 
         // Act
-        bool result = _fileIOHandler.ExecuteCmd(command, out string? errorMessage);
+        IFileOperationResult result = _shellHandler.ExecuteCmd(command);
 
         // Assert
-        Assert.True(result, "The command should complete successfully in cca 80ms.");
-        Assert.Null(errorMessage);
+        Assert.True(result.IsOK, "The command should complete successfully in cca 80ms.");
     }
 
     [Fact]
@@ -27,11 +28,10 @@ public class ShellInteractionTests
         string command = "ping --invalidoption";
 
         // Act
-        bool result = _fileIOHandler.ExecuteCmd(command, out string? errorMessage);
+        IFileOperationResult result = _shellHandler.ExecuteCmd(command);
 
         // Assert
-        Assert.False(result, "The command should fail.");
-        Assert.NotNull(errorMessage);
+        Assert.False(result.IsOK, "The command should fail.");
     }
 
     [Fact]
@@ -41,10 +41,9 @@ public class ShellInteractionTests
         string command = "echo \"Hello world!\"";
 
         // Act
-        bool result = _fileIOHandler.ExecuteCmd(command, out string? errorMessage);
+        IFileOperationResult result = _shellHandler.ExecuteCmd(command);
 
         // Assert
-        Assert.True(result, "The command should succeed.");
-        Assert.Null(errorMessage);
+        Assert.True(result.IsOK, "The command should succeed.");
     }
 }
