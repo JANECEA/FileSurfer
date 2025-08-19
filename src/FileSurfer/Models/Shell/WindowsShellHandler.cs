@@ -25,11 +25,11 @@ public class WindowsShellHandler : IShellHandler
                     },
                 };
             process.Start();
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
@@ -40,11 +40,11 @@ public class WindowsShellHandler : IShellHandler
             using Process process =
                 new() { StartInfo = new ProcessStartInfo(filePath) { UseShellExecute = true } };
             process.Start();
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
@@ -60,11 +60,11 @@ public class WindowsShellHandler : IShellHandler
                     UseShellExecute = true,
                 }
             );
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
@@ -93,11 +93,11 @@ public class WindowsShellHandler : IShellHandler
             errorMessage = null;
 
         if (success)
-            return NoMessageResult.Ok();
+            return SimpleResult.Ok();
         else if (errorMessage is not null)
-            return Result.Error(errorMessage);
+            return SimpleResult.Error(errorMessage);
         else
-            return NoMessageResult.Error();
+            return SimpleResult.Error();
     }
 
     public IResult CreateLink(string filePath)
@@ -117,11 +117,11 @@ public class WindowsShellHandler : IShellHandler
             shortcut.TargetPath = filePath;
             shortcut.WorkingDirectory = Path.GetDirectoryName(filePath);
             shortcut.Save();
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 }

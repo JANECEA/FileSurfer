@@ -15,7 +15,7 @@ public abstract class UndoableOperation : IUndoableFileOperation
     {
         Result result = Result.Ok();
         for (int i = 0; i < _entries.Length; i++)
-            result.AddResult(InvokeAction(_entries[i], i));
+            result.MergeResult(InvokeAction(_entries[i], i));
 
         return result;
     }
@@ -24,7 +24,7 @@ public abstract class UndoableOperation : IUndoableFileOperation
     {
         Result result = Result.Ok();
         for (int i = 0; i < _entries.Length; i++)
-            result.AddResult(UndoAction(_entries[i], i));
+            result.MergeResult(UndoAction(_entries[i], i));
 
         return result;
     }

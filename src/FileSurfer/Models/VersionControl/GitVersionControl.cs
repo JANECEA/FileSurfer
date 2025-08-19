@@ -40,7 +40,7 @@ public class GitVersionControl : IVersionControl
         if ((_currentRepo?.Info.Path) == gitDir + '\\')
         {
             SetFileStates();
-            return NoMessageResult.Ok();
+            return SimpleResult.Ok();
         }
 
         _currentRepo?.Dispose();
@@ -50,12 +50,12 @@ public class GitVersionControl : IVersionControl
             {
                 _currentRepo = new Repository(repoRootDir);
                 SetFileStates();
-                return NoMessageResult.Ok();
+                return SimpleResult.Ok();
             }
             catch { }
         }
         _currentRepo = null;
-        return NoMessageResult.Error();
+        return SimpleResult.Error();
     }
 
     private string? GetWorkingDir() => _currentRepo?.Info.WorkingDirectory.TrimEnd('\\');
@@ -63,7 +63,7 @@ public class GitVersionControl : IVersionControl
     public IResult DownloadChanges()
     {
         if (_currentRepo is null)
-            return Result.Error(MissingRepoMessage);
+            return SimpleResult.Error(MissingRepoMessage);
 
         string command = $"git -C \"{GetWorkingDir()}\" pull";
         return _shellHandler.ExecuteCmd(command);
@@ -80,17 +80,17 @@ public class GitVersionControl : IVersionControl
     public IResult SwitchBranches(string branchName)
     {
         if (_currentRepo is null)
-            return Result.Error(MissingRepoMessage);
+            return SimpleResult.Error(MissingRepoMessage);
 
         try
         {
             Branch branch = _currentRepo.Branches[branchName];
             Commands.Checkout(_currentRepo, branch);
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch
         {
-            return Result.Error($"branch: \"{branchName}\" not found");
+            return SimpleResult.Error($"branch: \"{branchName}\" not found");
         }
     }
 
@@ -178,14 +178,14 @@ public class GitVersionControl : IVersionControl
         try
         {
             if (_currentRepo is null)
-                return Result.Error(MissingRepoMessage);
+                return SimpleResult.Error(MissingRepoMessage);
 
             Commands.Stage(_currentRepo, path);
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
@@ -194,25 +194,25 @@ public class GitVersionControl : IVersionControl
         try
         {
             if (_currentRepo is null)
-                return Result.Error(MissingRepoMessage);
+                return SimpleResult.Error(MissingRepoMessage);
 
             string relativePath = Path.GetRelativePath(
                 _currentRepo.Info.WorkingDirectory,
                 filePath
             );
             Commands.Unstage(_currentRepo, relativePath);
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
     public IResult CommitChanges(string commitMessage)
     {
         if (_currentRepo is null)
-            return Result.Error(MissingRepoMessage);
+            return SimpleResult.Error(MissingRepoMessage);
 
         string command = $"git -C \"{GetWorkingDir()}\" commit -m \"{commitMessage}\"";
         return _shellHandler.ExecuteCmd(command);
@@ -221,7 +221,7 @@ public class GitVersionControl : IVersionControl
     public IResult UploadChanges()
     {
         if (_currentRepo is null)
-            return Result.Error(MissingRepoMessage);
+            return SimpleResult.Error(MissingRepoMessage);
 
         string command = $"git -C \"{GetWorkingDir()}\" push";
         return _shellHandler.ExecuteCmd(command);

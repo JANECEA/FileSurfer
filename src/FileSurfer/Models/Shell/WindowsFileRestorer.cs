@@ -16,18 +16,15 @@ public class WindowsFileRestorer : IFileRestorer
     private const int PathColumn = 1;
     private const string RestoreVerb = "ESTORE";
 
-    public IResult RestoreFile(string originalFilePath) =>
-        RestoreEntry(originalFilePath);
+    public IResult RestoreFile(string originalFilePath) => RestoreEntry(originalFilePath);
 
     public IResult RestoreDir(string originalDirPath) => RestoreEntry(originalDirPath);
 
-    private static Result RestoreEntry(string originalPath)
+    private static SimpleResult RestoreEntry(string originalPath)
     {
         Shell32.Shell shell = new();
         Folder bin = shell.NameSpace(BinFolderID);
-        Result result = Result.Error(
-            $"Entry: \"{originalPath}\" not found."
-        );
+        SimpleResult result = SimpleResult.Error($"Entry: \"{originalPath}\" not found.");
         try
         {
             foreach (FolderItem item in bin.Items())
@@ -38,14 +35,14 @@ public class WindowsFileRestorer : IFileRestorer
                 if (Path.Combine(itemPath, itemName) == originalPath)
                 {
                     DoVerb(item, RestoreVerb);
-                    result = Result.Ok();
+                    result = SimpleResult.Ok();
                     break;
                 }
             }
         }
         catch (Exception ex)
         {
-            result = Result.Error(ex.Message);
+            result = SimpleResult.Error(ex.Message);
         }
         Marshal.FinalReleaseComObject(bin);
         Marshal.FinalReleaseComObject(shell);

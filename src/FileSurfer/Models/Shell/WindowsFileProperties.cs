@@ -60,8 +60,8 @@ static class WindowsFileProperties
         info.fMask = 0x0000000C;
 
         return ShellExecuteEx(ref info)
-            ? Result.Ok()
-            : Result.Error(new Win32Exception(Marshal.GetLastWin32Error()).Message);
+            ? SimpleResult.Ok()
+            : SimpleResult.Error(new Win32Exception(Marshal.GetLastWin32Error()).Message);
     }
 
     /// <summary>
@@ -73,11 +73,11 @@ static class WindowsFileProperties
         try
         {
             Process.Start("rundll32.exe", "shell32.dll,OpenAs_RunDLL " + filePath);
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 }

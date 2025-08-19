@@ -32,7 +32,7 @@ public class WindowsFileIOHandler : IFileIOHandler
         try
         {
             if (!File.Exists(filePath))
-                return Result.Error($"Could not find file: \"{filePath}\"");
+                return SimpleResult.Error($"Could not find file: \"{filePath}\"");
 
             FileSystem.DeleteFile(
                 filePath,
@@ -40,11 +40,11 @@ public class WindowsFileIOHandler : IFileIOHandler
                 RecycleOption.DeletePermanently,
                 UICancelOption.ThrowException
             );
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
@@ -53,7 +53,7 @@ public class WindowsFileIOHandler : IFileIOHandler
         try
         {
             if (!Directory.Exists(dirPath))
-                return Result.Error($"Could not find directory: \"{dirPath}\"");
+                return SimpleResult.Error($"Could not find directory: \"{dirPath}\"");
 
             FileSystem.DeleteDirectory(
                 dirPath,
@@ -61,11 +61,11 @@ public class WindowsFileIOHandler : IFileIOHandler
                 RecycleOption.DeletePermanently,
                 UICancelOption.ThrowException
             );
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
@@ -81,11 +81,11 @@ public class WindowsFileIOHandler : IFileIOHandler
                 RecycleOption.SendToRecycleBin,
                 UICancelOption.ThrowException
             );
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
@@ -99,59 +99,58 @@ public class WindowsFileIOHandler : IFileIOHandler
                 RecycleOption.SendToRecycleBin,
                 UICancelOption.ThrowException
             );
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
-    public IResult RestoreFile(string ogFilePath) =>
-        _fileRestorer.RestoreFile(ogFilePath);
+    public IResult RestoreFile(string ogFilePath) => _fileRestorer.RestoreFile(ogFilePath);
 
     public IResult RestoreDir(string ogDirPath) => _fileRestorer.RestoreDir(ogDirPath);
 
     public IResult NewFileAt(string dirPath, string fileName)
     {
         if (!IsValidFileName(fileName))
-            return Result.Error($"File name: \"{fileName}\" is invalid.");
+            return SimpleResult.Error($"File name: \"{fileName}\" is invalid.");
 
         try
         {
             string filePath = Path.Combine(dirPath, fileName);
             if (File.Exists(filePath))
-                return Result.Error($"File: \"{filePath}\" already exists");
+                return SimpleResult.Error($"File: \"{filePath}\" already exists");
 
             using FileStream file = File.Create(filePath);
             file.Close();
 
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
     public IResult NewDirAt(string dirPath, string dirName)
     {
         if (!IsValidDirName(dirName))
-            return Result.Error($"Directory name: \"{dirName}\" is invalid.");
+            return SimpleResult.Error($"Directory name: \"{dirName}\" is invalid.");
 
         try
         {
             string newDirPath = Path.Combine(dirPath, dirName);
             if (Directory.Exists(newDirPath))
-                return Result.Error($"Directory: \"{newDirPath}\" already exists");
+                return SimpleResult.Error($"Directory: \"{newDirPath}\" already exists");
 
             Directory.CreateDirectory(newDirPath);
 
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
@@ -168,12 +167,12 @@ public class WindowsFileIOHandler : IFileIOHandler
     public IResult RenameFileAt(string filePath, string newName)
     {
         if (!IsValidFileName(newName))
-            return Result.Error($"File name: \"{newName}\" is invalid.");
+            return SimpleResult.Error($"File name: \"{newName}\" is invalid.");
 
         try
         {
             if (Path.GetDirectoryName(filePath) is not string parentDir)
-                return Result.Error($"No parent directory found for \"{filePath}\"");
+                return SimpleResult.Error($"No parent directory found for \"{filePath}\"");
 
             string dirName = Path.GetFileName(filePath);
             if (string.Equals(dirName, newName, StringComparison.OrdinalIgnoreCase))
@@ -193,23 +192,23 @@ public class WindowsFileIOHandler : IFileIOHandler
                 UICancelOption.ThrowException
             );
 
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
     public IResult RenameDirAt(string dirPath, string newName)
     {
         if (!IsValidDirName(newName))
-            return Result.Error($"Directory name: \"{newName}\" is invalid.");
+            return SimpleResult.Error($"Directory name: \"{newName}\" is invalid.");
 
         try
         {
             if (Path.GetDirectoryName(dirPath) is not string parentDir)
-                return Result.Error($"\"{dirPath}\" is a root directory");
+                return SimpleResult.Error($"\"{dirPath}\" is a root directory");
 
             string dirName = Path.GetFileName(dirPath);
             if (string.Equals(dirName, newName, StringComparison.OrdinalIgnoreCase))
@@ -229,11 +228,11 @@ public class WindowsFileIOHandler : IFileIOHandler
                 UICancelOption.ThrowException
             );
 
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
@@ -248,11 +247,11 @@ public class WindowsFileIOHandler : IFileIOHandler
                 UIOption.AllDialogs,
                 UICancelOption.ThrowException
             );
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
@@ -267,11 +266,11 @@ public class WindowsFileIOHandler : IFileIOHandler
                 UIOption.AllDialogs,
                 UICancelOption.ThrowException
             );
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
@@ -286,11 +285,11 @@ public class WindowsFileIOHandler : IFileIOHandler
                 UIOption.AllDialogs,
                 UICancelOption.ThrowException
             );
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
@@ -305,11 +304,11 @@ public class WindowsFileIOHandler : IFileIOHandler
                 UIOption.AllDialogs,
                 UICancelOption.ThrowException
             );
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
@@ -319,7 +318,7 @@ public class WindowsFileIOHandler : IFileIOHandler
         try
         {
             if (Path.GetDirectoryName(filePath) is not string parentDir)
-                return Result.Error("Can't duplicate a root directory.");
+                return SimpleResult.Error("Can't duplicate a root directory.");
 
             string newFilePath = Path.Combine(parentDir, copyName);
             FileSystem.CopyFile(
@@ -328,11 +327,11 @@ public class WindowsFileIOHandler : IFileIOHandler
                 showDialog ? UIOption.AllDialogs : UIOption.OnlyErrorDialogs,
                 UICancelOption.ThrowException
             );
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 
@@ -341,7 +340,7 @@ public class WindowsFileIOHandler : IFileIOHandler
         try
         {
             if (Path.GetDirectoryName(dirPath) is not string parentDir)
-                return Result.Error("Can't duplicate a root directory.");
+                return SimpleResult.Error("Can't duplicate a root directory.");
 
             string newDirPath = Path.Combine(parentDir, copyName);
             FileSystem.CopyDirectory(
@@ -350,11 +349,11 @@ public class WindowsFileIOHandler : IFileIOHandler
                 UIOption.AllDialogs,
                 UICancelOption.ThrowException
             );
-            return Result.Ok();
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return SimpleResult.Error(ex.Message);
         }
     }
 }

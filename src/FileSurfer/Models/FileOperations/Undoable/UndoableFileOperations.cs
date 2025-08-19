@@ -182,17 +182,17 @@ public class FlattenFolder : IUndoableFileOperation
     public IResult Invoke()
     {
         if (_parentDir is null)
-            return Result.Error($"Cannot flatten top level directory: \"{_dirPath}\"");
+            return SimpleResult.Error($"Cannot flatten top level directory: \"{_dirPath}\"");
 
         _containedDirs = _fileInfoProvider.GetPathDirs(_dirPath, _showHidden, _showProtected);
         _containedFiles = _fileInfoProvider.GetPathFiles(_dirPath, _showHidden, _showProtected);
 
         Result result = Result.Ok();
         foreach (string containedDir in _containedDirs)
-            result.AddResult(_fileIOHandler.MoveDirTo(containedDir, _parentDir));
+            result.MergeResult(_fileIOHandler.MoveDirTo(containedDir, _parentDir));
 
         foreach (string containedFile in _containedFiles)
-            result.AddResult(_fileIOHandler.MoveFileTo(containedFile, _parentDir));
+            result.MergeResult(_fileIOHandler.MoveFileTo(containedFile, _parentDir));
 
         return result.IsOK ? _fileIOHandler.DeleteDir(_dirPath) : result;
     }
@@ -200,14 +200,9 @@ public class FlattenFolder : IUndoableFileOperation
     public IResult Undo()
     {
         if (_parentDir is null)
-            return Result.Error(
-                $"Cannot create a top level directory: \"{_dirPath}\""
-            );
+            return SimpleResult.Error($"Cannot create a top level directory: \"{_dirPath}\"");
 
-        IResult newDirResult = _fileIOHandler.NewDirAt(
-            _parentDir,
-            Path.GetFileName(_dirPath)
-        );
+        IResult newDirResult = _fileIOHandler.NewDirAt(_parentDir, Path.GetFileName(_dirPath));
         if (!newDirResult.IsOK)
             return newDirResult;
 
@@ -215,12 +210,12 @@ public class FlattenFolder : IUndoableFileOperation
         foreach (string containedDir in _containedDirs)
         {
             string dirPath = Path.Combine(_parentDir, Path.GetFileName(containedDir));
-            result.AddResult(_fileIOHandler.MoveDirTo(dirPath, _dirPath));
+            result.MergeResult(_fileIOHandler.MoveDirTo(dirPath, _dirPath));
         }
         foreach (string containedFile in _containedFiles)
         {
             string filePath = Path.Combine(_parentDir, Path.GetFileName(containedFile));
-            result.AddResult(_fileIOHandler.MoveFileTo(filePath, _dirPath));
+            result.MergeResult(_fileIOHandler.MoveFileTo(filePath, _dirPath));
         }
         return result;
     }

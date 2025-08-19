@@ -91,7 +91,7 @@ static class ArchiveManager
     public static IResult UnzipArchive(string archivePath, string destinationPath)
     {
         if (!IsZipped(archivePath))
-            return Result.Error($"\"{archivePath}\" is not an archive.");
+            return SimpleResult.Error($"\"{archivePath}\" is not an archive.");
 
         try
         {
