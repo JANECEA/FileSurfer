@@ -76,7 +76,7 @@ public class ClipboardManager : IClipboardManager
     }
 
     [STAThread]
-    private IResult SaveImageToPath(string destinationPath)
+    private SimpleResult SaveImageToPath(string destinationPath)
     {
         if (Clipboard.GetImage() is not Image image)
             return SimpleResult.Error("There is no image in the system clipboard");
@@ -117,7 +117,7 @@ public class ClipboardManager : IClipboardManager
 
     public IResult Cut(IFileSystemEntry[] selectedFiles, string currentDir)
     {
-        IResult result = CopyToOSClipboard(
+        SimpleResult result = CopyToOSClipboard(
             selectedFiles.Select(entry => entry.PathToEntry).ToArray()
         );
         if (result.IsOK)
@@ -126,12 +126,12 @@ public class ClipboardManager : IClipboardManager
             IsCutOperation = true;
             _programClipboard = selectedFiles;
         }
-        return SimpleResult;
+        return result;
     }
 
     public IResult Copy(IFileSystemEntry[] selectedFiles, string currentDir)
     {
-        IResult result = CopyToOSClipboard(
+        SimpleResult result = CopyToOSClipboard(
             selectedFiles.Select(entry => entry.PathToEntry).ToArray()
         );
         if (result.IsOK)
@@ -140,7 +140,7 @@ public class ClipboardManager : IClipboardManager
             IsCutOperation = false;
             _programClipboard = selectedFiles;
         }
-        return SimpleResult;
+        return result;
     }
 
     public bool IsDuplicateOperation(string currentDir) =>
@@ -157,7 +157,7 @@ public class ClipboardManager : IClipboardManager
         if (!result.IsOK)
         {
             _programClipboard = Array.Empty<IFileSystemEntry>();
-            return SimpleResult;
+            return result;
         }
 
         IsCutOperation = IsCutOperation && CompareClipboards();
@@ -173,7 +173,7 @@ public class ClipboardManager : IClipboardManager
             _programClipboard = Array.Empty<IFileSystemEntry>();
             Clipboard.Clear();
         }
-        return SimpleResult;
+        return result;
     }
 
     public IResult Duplicate(string currentDir, out string[] copyNames)
@@ -196,6 +196,6 @@ public class ClipboardManager : IClipboardManager
             ClearClipboard();
             _programClipboard = Array.Empty<IFileSystemEntry>();
         }
-        return SimpleResult;
+        return result;
     }
 }
