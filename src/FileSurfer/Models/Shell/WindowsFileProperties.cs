@@ -50,7 +50,7 @@ static class WindowsFileProperties
     /// Calls the <see cref="ShellExecuteEx(ref ShellExecuteInfo)"/> function to show the properties dialog of the specified <paramref name="filePath"/>.
     /// </summary>
     /// <returns><see langword="true"/> if the properties dialog was successfully shown, otherwise <see langword="false"/>.</returns>
-    public static bool ShowFileProperties(string filePath, out string? errorMessage)
+    public static IFileOperationResult ShowFileProperties(string filePath)
     {
         ShellExecuteInfo info = new();
         info.cbSize = Marshal.SizeOf(info);
@@ -59,30 +59,25 @@ static class WindowsFileProperties
         info.nShow = 0;
         info.fMask = 0x0000000C;
 
-        bool result = ShellExecuteEx(ref info);
-        errorMessage = null;
-        if (!result)
-            errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
-
-        return result;
+        return ShellExecuteEx(ref info)
+            ? FileOperationResult.Ok()
+            : FileOperationResult.Error(new Win32Exception(Marshal.GetLastWin32Error()).Message);
     }
 
     /// <summary>
     /// Displays the "Open With" dialog for a specified file using <c>rundll32.exe</c>.
     /// </summary>
     /// <returns><see langword="true"/> if the "Open With" dialog was successfully shown; otherwise, <see langword="false"/>.</returns>
-    public static bool ShowOpenAsDialog(string filePath, out string? errorMessage)
+    public static IFileOperationResult ShowOpenAsDialog(string filePath)
     {
         try
         {
             Process.Start("rundll32.exe", "shell32.dll,OpenAs_RunDLL " + filePath);
-            errorMessage = null;
-            return true;
+            return FileOperationResult.Ok();
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
-            return false;
+            return FileOperationResult.Error(ex.Message);
         }
     }
 }
