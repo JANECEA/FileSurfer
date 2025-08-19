@@ -174,10 +174,8 @@ public class MainWindowViewModel : ReactiveObject
             this.RaiseAndSetIfChanged(ref _currentBranch, value);
             if (_isActionUserInvoked && !string.IsNullOrEmpty(value) && Branches.Contains(value))
             {
-                if (!_versionControl.SwitchBranches(value, out string? errorMessage))
-                    Reload();
-
-                ForwardError(errorMessage);
+                ForwardIfError(_versionControl.SwitchBranches(value));
+                Reload();
             }
         }
     }
@@ -320,7 +318,11 @@ public class MainWindowViewModel : ReactiveObject
     {
         _fileInfoProvider = new WindowsFileInfoProvider();
         _shellHandler = new WindowsShellHandler();
-        _fileIOHandler = new WindowsFileIOHandler(_fileInfoProvider, ShowDialogLimitB);
+        _fileIOHandler = new WindowsFileIOHandler(
+            _fileInfoProvider,
+            new WindowsFileRestorer(),
+            ShowDialogLimitB
+        );
         _versionControl = new GitVersionControl(_shellHandler);
         _clipboardManager = new ClipboardManager(_fileIOHandler, NewImageName);
         _entryVMFactory = new(_fileInfoProvider, new IconProvider(_fileInfoProvider));
@@ -440,6 +442,19 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     /// <summary>
+    /// Opens a new <see cref="Views.ErrorWindow"/> dialog.
+    /// </summary>
+    private void ForwardIfError(IFileOperationResult result)
+    {
+        if (!result.IsOK)
+            foreach (string errorMessage in result.Errors)
+                Dispatcher.UIThread.Post(() =>
+                {
+                    new Views.ErrorWindow { ErrorMessage = errorMessage }.Show();
+                });
+    }
+
+    /// <summary>
     /// Updates <see cref="_lastModified"/> to suppress unnecessary automatic reloads.
     /// </summary>
     private void UpdateLastModified() => _lastModified = DateTime.Now;
@@ -519,10 +534,7 @@ public class MainWindowViewModel : ReactiveObject
                 CurrentDir = directory;
         }
         else
-        {
-            _shellHandler.OpenFile(entry.PathToEntry, out string? errorMessage);
-            ForwardError(errorMessage);
-        }
+            ForwardIfError(_shellHandler.OpenFile(entry.PathToEntry));
     }
 
     /// <summary>
@@ -531,10 +543,7 @@ public class MainWindowViewModel : ReactiveObject
     public void OpenAs(FileSystemEntryViewModel entry)
     {
         if (!entry.IsDirectory)
-        {
-            WindowsFileProperties.ShowOpenAsDialog(entry.PathToEntry, out string? errorMessage);
-            ForwardError(errorMessage);
-        }
+            ForwardIfError(WindowsFileProperties.ShowOpenAsDialog(entry.PathToEntry));
     }
 
     /// <summary>
@@ -562,13 +571,8 @@ public class MainWindowViewModel : ReactiveObject
     public void OpenInNotepad()
     {
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
-        {
             if (!entry.IsDirectory)
-            {
-                _shellHandler.OpenInNotepad(entry.PathToEntry, out string? errorMessage);
-                ForwardError(errorMessage);
-            }
-        }
+                ForwardIfError(_shellHandler.OpenInNotepad(entry.PathToEntry));
     }
 
     /// <summary>
@@ -752,7 +756,7 @@ public class MainWindowViewModel : ReactiveObject
         IsVersionControlled =
             FileSurferSettings.GitIntegration
             && Directory.Exists(CurrentDir)
-            && _versionControl.InitIfVersionControlled(CurrentDir);
+            && _versionControl.InitIfVersionControlled(CurrentDir).IsOK;
 
         Branches.Clear();
         if (IsVersionControlled)
@@ -828,11 +832,8 @@ public class MainWindowViewModel : ReactiveObject
     /// </summary>
     private void OpenPowerShell()
     {
-        if (CurrentDir == ThisPCLabel || Searching)
-            return;
-
-        _shellHandler.OpenCmdAt(CurrentDir, out string? errorMessage);
-        ForwardError(errorMessage);
+        if (CurrentDir != ThisPCLabel && !Searching)
+            ForwardIfError(_shellHandler.OpenCmdAt(CurrentDir));
     }
 
     /// <summary>
@@ -972,14 +973,16 @@ public class MainWindowViewModel : ReactiveObject
     private void NewFile()
     {
         string newFileName = FileNameGenerator.GetAvailableName(CurrentDir, NewFileName);
-        if (_fileIOHandler.NewFileAt(CurrentDir, newFileName, out string? errorMessage))
+
+        NewFileAt operation = new(_fileIOHandler, CurrentDir, newFileName);
+        IFileOperationResult result = operation.Redo();
+        if (result.IsOK)
         {
             Reload();
-            _undoRedoHistory.AddNewNode(new NewFileAt(_fileIOHandler, CurrentDir, newFileName));
+            _undoRedoHistory.AddNewNode(operation);
             SelectedFiles.Add(FileEntries.First(entry => entry.Name == newFileName));
         }
-        else
-            ForwardError(errorMessage);
+        ForwardIfError(result);
     }
 
     /// <summary>
@@ -993,14 +996,16 @@ public class MainWindowViewModel : ReactiveObject
     private void NewDir()
     {
         string newDirName = FileNameGenerator.GetAvailableName(CurrentDir, NewDirName);
-        if (_fileIOHandler.NewDirAt(CurrentDir, newDirName, out string? errorMessage))
+
+        NewDirAt operation = new(_fileIOHandler, CurrentDir, newDirName);
+        IFileOperationResult result = operation.Redo();
+        if (result.IsOK)
         {
             Reload();
-            _undoRedoHistory.AddNewNode(new NewDirAt(_fileIOHandler, CurrentDir, newDirName));
+            _undoRedoHistory.AddNewNode(operation);
             SelectedFiles.Add(FileEntries.First(entry => entry.Name == newDirName));
         }
-        else
-            ForwardError(errorMessage);
+        ForwardIfError(result);
     }
 
     /// <summary>
@@ -1017,16 +1022,22 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     private Task ZipFilesWrapperAsync(string fileName) =>
+        Task.Run(
+            () =>
+                ForwardIfError(
+                    ArchiveManager.ZipFiles(
+                        SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
+                        CurrentDir,
+                        FileNameGenerator.GetAvailableName(CurrentDir, fileName)
+                    )
+                )
+        );
+
+    private Task ExtractArchiveWrapperAsync(string[] archives) =>
         Task.Run(() =>
         {
-            ArchiveManager.ZipFiles(
-                SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
-                CurrentDir,
-                FileNameGenerator.GetAvailableName(CurrentDir, fileName),
-                out string? errorMessage
-            );
-            ForwardError(errorMessage);
-            return;
+            foreach (string path in archives)
+                ForwardIfError(ArchiveManager.UnzipArchive(path, CurrentDir));
         });
 
     /// <summary>
@@ -1050,17 +1061,6 @@ public class MainWindowViewModel : ReactiveObject
         Reload();
     }
 
-    private Task ExtractArchiveWrapperAsync(string[] archives) =>
-        Task.Run(() =>
-        {
-            foreach (string path in archives)
-            {
-                ArchiveManager.UnzipArchive(path, CurrentDir, out string? errorMessage);
-                ForwardError(errorMessage);
-            }
-            return;
-        });
-
     /// <summary>
     /// Copies the path to the selected <see cref="FileSystemEntryViewModel"/> to the system clipboard.
     /// </summary>
@@ -1070,28 +1070,24 @@ public class MainWindowViewModel : ReactiveObject
     /// <summary>
     /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="_clipboardManager"/>.
     /// </summary>
-    public void Cut()
-    {
-        _clipboardManager.Cut(
-            SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
-            CurrentDir,
-            out string? errorMessage
+    public void Cut() =>
+        ForwardIfError(
+            _clipboardManager.Cut(
+                SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
+                CurrentDir
+            )
         );
-        ForwardError(errorMessage);
-    }
 
     /// <summary>
     /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="_clipboardManager"/>.
     /// </summary>
-    public void Copy()
-    {
-        _clipboardManager.Copy(
-            SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
-            CurrentDir,
-            out string? errorMessage
+    public void Copy() =>
+        ForwardIfError(
+            _clipboardManager.Copy(
+                SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
+                CurrentDir
+            )
         );
-        ForwardError(errorMessage);
-    }
 
     /// <summary>
     /// Determines the type of paste operation and executes it using <see cref="_clipboardManager"/>.
@@ -1102,28 +1098,29 @@ public class MainWindowViewModel : ReactiveObject
     /// </summary>
     private void Paste()
     {
-        string? errorMessage;
+        IFileOperationResult result;
         if (_clipboardManager.IsDuplicateOperation(CurrentDir))
         {
-            if (_clipboardManager.Duplicate(CurrentDir, out string[] copyNames, out errorMessage))
+            if ((result = _clipboardManager.Duplicate(CurrentDir, out string[] copyNames)).IsOK)
                 _undoRedoHistory.AddNewNode(
                     new DuplicateFiles(_fileIOHandler, _clipboardManager.GetClipboard(), copyNames)
                 );
         }
         else if (_clipboardManager.IsCutOperation)
         {
-            IFileSystemEntry[] clipBoard = _clipboardManager.GetClipboard();
-            if (_clipboardManager.Paste(CurrentDir, out errorMessage))
-                _undoRedoHistory.AddNewNode(new MoveFilesTo(_fileIOHandler, clipBoard, CurrentDir));
+            if ((result = _clipboardManager.Paste(CurrentDir)).IsOK)
+                _undoRedoHistory.AddNewNode(
+                    new MoveFilesTo(_fileIOHandler, _clipboardManager.GetClipboard(), CurrentDir)
+                );
         }
         else
         {
-            if (_clipboardManager.Paste(CurrentDir, out errorMessage))
+            if ((result = _clipboardManager.Paste(CurrentDir)).IsOK)
                 _undoRedoHistory.AddNewNode(
                     new CopyFilesTo(_fileIOHandler, _clipboardManager.GetClipboard(), CurrentDir)
                 );
         }
-        ForwardError(errorMessage);
+        ForwardIfError(result);
         Reload();
     }
 
@@ -1132,19 +1129,15 @@ public class MainWindowViewModel : ReactiveObject
     /// </summary>
     public void CreateShortcut(FileSystemEntryViewModel entry)
     {
-        _shellHandler.CreateLink(entry.PathToEntry, out string? errorMessage);
-        ForwardError(errorMessage);
+        ForwardIfError(_shellHandler.CreateLink(entry.PathToEntry));
         Reload();
     }
 
     /// <summary>
     /// Relays the operation to <see cref="_fileIOHandler"/>.
     /// </summary>
-    public void ShowProperties(FileSystemEntryViewModel entry)
-    {
-        WindowsFileProperties.ShowFileProperties(entry.PathToEntry, out string? errorMessage);
-        ForwardError(errorMessage);
-    }
+    public void ShowProperties(FileSystemEntryViewModel entry) =>
+        ForwardIfError(WindowsFileProperties.ShowFileProperties(entry.PathToEntry));
 
     /// <summary>
     /// Relays the operation to <see cref="RenameOne(string)"/> or <see cref="RenameMultiple(string)"/>.
@@ -1160,20 +1153,16 @@ public class MainWindowViewModel : ReactiveObject
     private void RenameOne(string newName)
     {
         FileSystemEntryViewModel entry = SelectedFiles[0];
-        bool result = entry.IsDirectory
-            ? _fileIOHandler.RenameDirAt(entry.PathToEntry, newName, out string? errorMessage)
-            : _fileIOHandler.RenameFileAt(entry.PathToEntry, newName, out errorMessage);
 
-        if (result)
+        RenameOne operation = new(_fileIOHandler, entry.FileSystemEntry, newName);
+        IFileOperationResult result = operation.Redo();
+        if (result.IsOK)
         {
-            _undoRedoHistory.AddNewNode(
-                new RenameOne(_fileIOHandler, entry.FileSystemEntry, newName)
-            );
+            _undoRedoHistory.AddNewNode(operation);
             Reload();
             SelectedFiles.Add(FileEntries.First(e => e.Name == newName));
         }
-        else
-            ForwardError(errorMessage);
+        ForwardIfError(result);
     }
 
     private void RenameMultiple(string namingPattern)
@@ -1195,30 +1184,20 @@ public class MainWindowViewModel : ReactiveObject
             return;
         }
 
-        string[] newNames = FileNameGenerator.GetAvailableNames(
-            SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
-            namingPattern
-        );
-        bool errorOccured = false;
-        for (int i = 0; i < SelectedFiles.Count; i++)
-        {
-            string path = SelectedFiles[i].PathToEntry;
-            bool result = onlyFiles
-                ? _fileIOHandler.RenameFileAt(path, newNames[i], out string? errorMessage)
-                : _fileIOHandler.RenameDirAt(path, newNames[i], out errorMessage);
-
-            errorOccured = !result || errorOccured;
-            if (!result)
-                ForwardError(errorMessage);
-        }
-        if (!errorOccured)
-            _undoRedoHistory.AddNewNode(
-                new RenameMultiple(
-                    _fileIOHandler,
+        RenameMultiple operation =
+            new(
+                _fileIOHandler,
+                SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
+                FileNameGenerator.GetAvailableNames(
                     SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
-                    newNames
+                    namingPattern
                 )
             );
+        IFileOperationResult result = operation.Redo();
+        if (result.IsOK)
+            _undoRedoHistory.AddNewNode(operation);
+
+        ForwardIfError(result);
         Reload();
     }
 
@@ -1231,23 +1210,14 @@ public class MainWindowViewModel : ReactiveObject
     /// </summary>
     public void MoveToTrash()
     {
-        bool errorOccured = false;
-        foreach (FileSystemEntryViewModel entry in SelectedFiles)
-        {
-            bool result = entry.IsDirectory
-                ? _fileIOHandler.MoveDirToTrash(entry.PathToEntry, out string? errorMessage)
-                : _fileIOHandler.MoveFileToTrash(entry.PathToEntry, out errorMessage);
+        MoveFilesToTrash operation =
+            new(_fileIOHandler, SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry));
 
-            errorOccured = !result || errorOccured;
-            ForwardError(errorMessage);
-        }
-        if (!errorOccured)
-            _undoRedoHistory.AddNewNode(
-                new MoveFilesToTrash(
-                    _fileIOHandler,
-                    SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry)
-                )
-            );
+        IFileOperationResult result = operation.Redo();
+        if (result.IsOK)
+            _undoRedoHistory.AddNewNode(operation);
+
+        ForwardIfError(result);
         Reload();
     }
 
@@ -1260,11 +1230,11 @@ public class MainWindowViewModel : ReactiveObject
         }
 
         FlattenFolder action = new(_fileIOHandler, _fileInfoProvider, entry.PathToEntry);
-        if (action.Redo(out string? errorMessage))
+        IFileOperationResult result = action.Redo();
+        if (result.IsOK)
             _undoRedoHistory.AddNewNode(action);
-        else
-            ForwardError(errorMessage);
 
+        ForwardIfError(result);
         Reload();
     }
 
@@ -1277,15 +1247,12 @@ public class MainWindowViewModel : ReactiveObject
     public void Delete()
     {
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
-        {
-            string? errorMessage;
-            if (entry.IsDirectory)
-                _fileIOHandler.DeleteDir(entry.PathToEntry, out errorMessage);
-            else
-                _fileIOHandler.DeleteFile(entry.PathToEntry, out errorMessage);
+            ForwardIfError(
+                entry.IsDirectory
+                    ? _fileIOHandler.DeleteDir(entry.PathToEntry)
+                    : _fileIOHandler.DeleteFile(entry.PathToEntry)
+            );
 
-            ForwardError(errorMessage);
-        }
         Reload();
     }
 
@@ -1356,7 +1323,8 @@ public class MainWindowViewModel : ReactiveObject
         IUndoableFileOperation operation =
             _undoRedoHistory.Current ?? throw new NullReferenceException();
 
-        if (operation.Undo(out string? errorMessage))
+        IFileOperationResult result = operation.Undo();
+        if (result.IsOK)
         {
             _undoRedoHistory.MoveToPrevious();
             Reload();
@@ -1364,7 +1332,7 @@ public class MainWindowViewModel : ReactiveObject
         else
         {
             if (FileSurferSettings.ShowUndoRedoErrorDialogs)
-                ForwardError(errorMessage);
+                ForwardIfError(result);
 
             _undoRedoHistory.RemoveNode(true);
         }
@@ -1381,12 +1349,13 @@ public class MainWindowViewModel : ReactiveObject
             return;
 
         IUndoableFileOperation operation = _undoRedoHistory.Current;
-        if (operation.Redo(out string? errorMessage))
+        IFileOperationResult result = operation.Redo();
+        if (result.IsOK)
             Reload();
         else
         {
             if (FileSurferSettings.ShowUndoRedoErrorDialogs)
-                ForwardError(errorMessage);
+                ForwardIfError(result);
 
             _undoRedoHistory.RemoveNode(true);
         }
@@ -1429,10 +1398,7 @@ public class MainWindowViewModel : ReactiveObject
     public void StageFile(FileSystemEntryViewModel entry)
     {
         if (IsVersionControlled)
-        {
-            _versionControl.StagePath(entry.PathToEntry, out string? errorMessage);
-            ForwardError(errorMessage);
-        }
+            ForwardIfError(_versionControl.StagePath(entry.PathToEntry));
     }
 
     /// <summary>
@@ -1441,10 +1407,7 @@ public class MainWindowViewModel : ReactiveObject
     public void UnstageFile(FileSystemEntryViewModel entry)
     {
         if (IsVersionControlled)
-        {
-            _versionControl.UnstagePath(entry.PathToEntry, out string? errorMessage);
-            ForwardError(errorMessage);
-        }
+            ForwardIfError(_versionControl.UnstagePath(entry.PathToEntry));
     }
 
     /// <summary>
@@ -1454,10 +1417,8 @@ public class MainWindowViewModel : ReactiveObject
     {
         if (IsVersionControlled)
         {
-            if (_versionControl.DownloadChanges(out string? errorMessage))
-                Reload();
-            else
-                ForwardError(errorMessage);
+            ForwardIfError(_versionControl.DownloadChanges());
+            Reload();
         }
     }
 
@@ -1468,10 +1429,8 @@ public class MainWindowViewModel : ReactiveObject
     {
         if (IsVersionControlled)
         {
-            if (_versionControl.CommitChanges(commitMessage, out string? errorMessage))
-                Reload();
-            else
-                ForwardError(errorMessage);
+            ForwardIfError(_versionControl.CommitChanges(commitMessage));
+            Reload();
         }
     }
 
@@ -1480,8 +1439,8 @@ public class MainWindowViewModel : ReactiveObject
     /// </summary>
     private void Push()
     {
-        if (IsVersionControlled && !_versionControl.UploadChanges(out string? errorMessage))
-            ForwardError(errorMessage);
+        if (IsVersionControlled)
+            ForwardIfError(_versionControl.UploadChanges());
     }
 
     /// <summary>
