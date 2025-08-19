@@ -31,7 +31,19 @@ public abstract class UndoableOperation : IUndoableFileOperation
         return result;
     }
 
+    /// <summary>
+    /// Represents a redo-action invoked on <see cref="IFileSystemEntry"/> from <see cref="_entries"/>.
+    /// </summary>
+    /// <param name="entry"><see cref="IFileSystemEntry"/> for the redo-action.</param>
+    /// <param name="index">Entry's index in <see cref="_entries"/>, in case it is useful.</param>
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
     protected abstract IFileOperationResult RedoAction(IFileSystemEntry entry, int index);
 
+    /// <summary>
+    /// Represents a undo-action invoked on <see cref="IFileSystemEntry"/> from <see cref="_entries"/>.
+    /// </summary>
+    /// <param name="entry"><see cref="IFileSystemEntry"/> for the undo-action.</param>
+    /// <param name="index">Entry's index in <see cref="_entries"/>, in case it is useful.</param>
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
     protected abstract IFileOperationResult UndoAction(IFileSystemEntry entry, int index);
 }

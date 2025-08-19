@@ -9,10 +9,11 @@ public class FileEntry : IFileSystemEntry
     public string Name => _name ??= Path.GetFileName(PathToEntry);
     private string? _name;
 
-    public string Extension  => _extension ??= Path.GetExtension(PathToEntry);
+    public string Extension => _extension ??= Path.GetExtension(PathToEntry);
     private string? _extension;
 
-    public string NameWOExtension  => _nameWOExtension ??= Path.GetFileNameWithoutExtension(PathToEntry);
+    public string NameWOExtension =>
+        _nameWOExtension ??= Path.GetFileNameWithoutExtension(PathToEntry);
     private string? _nameWOExtension;
 
     public FileEntry(string pathToFile) => PathToEntry = pathToFile;

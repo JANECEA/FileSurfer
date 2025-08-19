@@ -24,7 +24,6 @@ public class GitVersionControl : IVersionControl
     /// </summary>
     public GitVersionControl(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
-    /// <inheritdoc/>
     public IFileOperationResult InitIfVersionControlled(string directoryPath)
     {
         string? repoRootDir = directoryPath;
@@ -61,7 +60,6 @@ public class GitVersionControl : IVersionControl
 
     private string? GetWorkingDir() => _currentRepo?.Info.WorkingDirectory.TrimEnd('\\');
 
-    /// <inheritdoc/>
     public IFileOperationResult DownloadChanges()
     {
         if (_currentRepo is null)
@@ -71,17 +69,14 @@ public class GitVersionControl : IVersionControl
         return _shellHandler.ExecuteCmd(command);
     }
 
-    /// <inheritdoc/>
     public string GetCurrentBranchName() =>
         _currentRepo is null ? string.Empty : _currentRepo.Head.FriendlyName;
 
-    /// <inheritdoc/>
     public string[] GetBranches() =>
         _currentRepo is null
             ? Array.Empty<string>()
             : _currentRepo.Branches.Where(b => !b.IsRemote).Select(b => b.FriendlyName).ToArray();
 
-    /// <inheritdoc/>
     public IFileOperationResult SwitchBranches(string branchName)
     {
         if (_currentRepo is null)
@@ -173,13 +168,11 @@ public class GitVersionControl : IVersionControl
         return VCStatus.NotVersionControlled;
     }
 
-    /// <inheritdoc/>
     public VCStatus GetStatus(string filePath) =>
         _currentRepo is not null
             ? _pathStates.GetValueOrDefault(filePath, VCStatus.NotVersionControlled)
             : VCStatus.NotVersionControlled;
 
-    /// <inheritdoc/>
     public IFileOperationResult StagePath(string path)
     {
         try
@@ -196,7 +189,6 @@ public class GitVersionControl : IVersionControl
         }
     }
 
-    /// <inheritdoc/>
     public IFileOperationResult UnstagePath(string filePath)
     {
         try
@@ -217,7 +209,6 @@ public class GitVersionControl : IVersionControl
         }
     }
 
-    /// <inheritdoc/>
     public IFileOperationResult CommitChanges(string commitMessage)
     {
         if (_currentRepo is null)
@@ -227,7 +218,6 @@ public class GitVersionControl : IVersionControl
         return _shellHandler.ExecuteCmd(command);
     }
 
-    /// <inheritdoc/>
     public IFileOperationResult UploadChanges()
     {
         if (_currentRepo is null)

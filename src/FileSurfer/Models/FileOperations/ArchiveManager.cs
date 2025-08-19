@@ -34,7 +34,7 @@ static class ArchiveManager
     /// <summary>
     /// Compresses specified file paths into a new archive.
     /// </summary>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
     public static IFileOperationResult ZipFiles(
         IEnumerable<IFileSystemEntry> entries,
         string destinationDir,
@@ -87,7 +87,7 @@ static class ArchiveManager
     /// <summary>
     /// Extracts an archive, overwriting the already existing files.
     /// </summary>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
     public static IFileOperationResult UnzipArchive(string archivePath, string destinationPath)
     {
         if (!IsZipped(archivePath))

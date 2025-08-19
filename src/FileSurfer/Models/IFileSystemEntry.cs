@@ -8,7 +8,7 @@ public interface IFileSystemEntry
     /// <summary>
     /// Path to the file, directory, or drive represented by this <see cref="IFileSystemEntry"/>.
     /// </summary>
-    public string PathToEntry { get;}
+    public string PathToEntry { get; }
 
     /// <summary>
     /// Holds the name of file, directory, or drive represented by this <see cref="IFileSystemEntry"/>.

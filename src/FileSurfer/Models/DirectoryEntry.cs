@@ -9,7 +9,7 @@ public class DirectoryEntry : IFileSystemEntry
     public string Name => _name ??= Path.GetFileName(PathToEntry);
     private string? _name;
 
-    public string Extension  => string.Empty;
+    public string Extension => string.Empty;
 
     public string NameWOExtension => Name;
 
