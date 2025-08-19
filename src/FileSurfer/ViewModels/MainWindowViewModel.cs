@@ -1098,28 +1098,28 @@ public class MainWindowViewModel : ReactiveObject
     /// </summary>
     private void Paste()
     {
+        IFileSystemEntry[] clipboard = _clipboardManager.GetClipboard();
+
         IResult result;
+        IUndoableFileOperation operation;
         if (_clipboardManager.IsDuplicateOperation(CurrentDir))
         {
-            if ((result = _clipboardManager.Duplicate(CurrentDir, out string[] copyNames)).IsOK)
-                _undoRedoHistory.AddNewNode(
-                    new DuplicateFiles(_fileIOHandler, _clipboardManager.GetClipboard(), copyNames)
-                );
+            result = _clipboardManager.Duplicate(CurrentDir, out string[] copyNames);
+            operation = new DuplicateFiles(_fileIOHandler, clipboard, copyNames);
         }
         else if (_clipboardManager.IsCutOperation)
         {
-            if ((result = _clipboardManager.Paste(CurrentDir)).IsOK)
-                _undoRedoHistory.AddNewNode(
-                    new MoveFilesTo(_fileIOHandler, _clipboardManager.GetClipboard(), CurrentDir)
-                );
+            result = _clipboardManager.Paste(CurrentDir);
+            operation = new MoveFilesTo(_fileIOHandler, clipboard, CurrentDir);
         }
         else
         {
-            if ((result = _clipboardManager.Paste(CurrentDir)).IsOK)
-                _undoRedoHistory.AddNewNode(
-                    new CopyFilesTo(_fileIOHandler, _clipboardManager.GetClipboard(), CurrentDir)
-                );
+            result = _clipboardManager.Paste(CurrentDir);
+            operation = new CopyFilesTo(_fileIOHandler, clipboard, CurrentDir);
         }
+
+        if (result.IsOK)
+            _undoRedoHistory.AddNewNode(operation);
         ForwardIfError(result);
         Reload();
     }

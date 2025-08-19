@@ -48,34 +48,6 @@ public class ClipboardManager : IClipboardManager
     }
 
     [STAThread]
-    private Result PasteFromOSClipboard(string destinationPath)
-    {
-        if (!Clipboard.ContainsFileDropList())
-            return Result.Ok();
-
-        try
-        {
-            StringCollection fileCollection = Clipboard.GetFileDropList();
-            Result result = Result.Ok();
-            foreach (string? path in fileCollection)
-            {
-                if (path is null)
-                    throw new ArgumentNullException(path);
-
-                if (Directory.Exists(path))
-                    result.MergeResult(_fileIOHandler.CopyDirTo(path, destinationPath));
-                else if (File.Exists(path))
-                    result.MergeResult(_fileIOHandler.CopyFileTo(path, destinationPath));
-            }
-            return result;
-        }
-        catch (Exception ex)
-        {
-            return Result.Error(ex.Message);
-        }
-    }
-
-    [STAThread]
     private SimpleResult SaveImageToPath(string destinationPath)
     {
         if (Clipboard.GetImage() is not Image image)
@@ -146,6 +118,42 @@ public class ClipboardManager : IClipboardManager
     public bool IsDuplicateOperation(string currentDir) =>
         !IsCutOperation && _copyFromDir == currentDir && _programClipboard.Length > 0;
 
+    [STAThread]
+    private IResult PasteFromOSClipboard(string destinationPath)
+    {
+        if (!Clipboard.ContainsFileDropList())
+            return SimpleResult.Ok();
+
+        try
+        {
+            StringCollection fileCollection = Clipboard.GetFileDropList();
+            Result result = Result.Ok();
+            foreach (string? path in fileCollection)
+            {
+                if (path is null)
+                    throw new ArgumentNullException(path);
+
+                if (Directory.Exists(path))
+                    result.MergeResult(
+                        IsCutOperation
+                            ? _fileIOHandler.MoveDirTo(path, destinationPath)
+                            : _fileIOHandler.CopyDirTo(path, destinationPath)
+                    );
+                else if (File.Exists(path))
+                    result.MergeResult(
+                        IsCutOperation
+                            ? _fileIOHandler.MoveFileTo(path, destinationPath)
+                            : _fileIOHandler.CopyFileTo(path, destinationPath)
+                    );
+            }
+            return result;
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
     public IResult Paste(string currentDir)
     {
         if (FileSurferSettings.AllowImagePastingFromClipboard && Clipboard.ContainsImage())
@@ -153,25 +161,18 @@ public class ClipboardManager : IClipboardManager
             SaveImageToPath(currentDir);
             return SimpleResult.Error();
         }
-        Result result = PasteFromOSClipboard(currentDir);
+
+        IsCutOperation = IsCutOperation && CompareClipboards();
+        IResult result = PasteFromOSClipboard(currentDir);
+        if (IsCutOperation)
+        {
+            _programClipboard = Array.Empty<IFileSystemEntry>();
+            Clipboard.Clear();
+        }
         if (!result.IsOK)
         {
             _programClipboard = Array.Empty<IFileSystemEntry>();
             return result;
-        }
-
-        IsCutOperation = IsCutOperation && CompareClipboards();
-        if (IsCutOperation)
-        {
-            foreach (IFileSystemEntry entry in _programClipboard)
-                result.MergeResult(
-                    entry is DirectoryEntry
-                        ? _fileIOHandler.DeleteDir(entry.PathToEntry)
-                        : _fileIOHandler.DeleteFile(entry.PathToEntry)
-                );
-
-            _programClipboard = Array.Empty<IFileSystemEntry>();
-            Clipboard.Clear();
         }
         return result;
     }
