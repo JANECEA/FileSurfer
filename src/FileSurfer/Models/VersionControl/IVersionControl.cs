@@ -11,8 +11,8 @@ public interface IVersionControl : IDisposable
     /// Determines whether the specified directory is under version control.
     /// </summary>
     /// <param name="directoryPath">The path of the directory to check.</param>
-    /// <returns><see langword="true"/> if the directory is version controlled; otherwise, <see langword="false"/>.</returns>
-    public bool InitIfVersionControlled(string directoryPath);
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
+    public IFileOperationResult InitIfVersionControlled(string directoryPath);
 
     /// <summary>
     /// Retrieves the status of the specified path in the version control system.
@@ -24,9 +24,8 @@ public interface IVersionControl : IDisposable
     /// <summary>
     /// Downloads the latest changes from the version control system to the local repository.
     /// </summary>
-    /// <param name="errorMessage">An output parameter that will contain an error message if the download fails.</param>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool DownloadChanges(out string? errorMessage);
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
+    public IFileOperationResult DownloadChanges();
 
     /// <summary>
     /// Retrieves a list of all branches in the version control system.
@@ -44,38 +43,33 @@ public interface IVersionControl : IDisposable
     /// Switches to the specified branch in the version control system.
     /// </summary>
     /// <param name="branchName">The name of the branch to switch to.</param>
-    /// <param name="errorMessage">An output parameter that will contain an error message if the switch fails.</param>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool SwitchBranches(string branchName, out string? errorMessage);
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
+    public IFileOperationResult SwitchBranches(string branchName);
 
     /// <summary>
     /// Stages changes on the specified path for the next commit.
     /// </summary>
     /// <param name="path">The path to stage.</param>
-    /// <param name="errorMessage">An output parameter that will contain an error message if the staging fails.</param>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool StagePath(string path, out string? errorMessage);
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
+    public IFileOperationResult StagePath(string path);
 
     /// <summary>
     /// Unstages changes in the specified file or directory, reverting it to the previous staged state.
     /// </summary>
     /// <param name="filePath">The path of the file or directory to unstage.</param>
-    /// <param name="errorMessage">An output parameter that will contain an error message if the un-staging fails.</param>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool UnstagePath(string filePath, out string? errorMessage);
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
+    public IFileOperationResult UnstagePath(string filePath);
 
     /// <summary>
     /// Commits the staged changes with the specified commit message.
     /// </summary>
     /// <param name="commitMessage">The message describing the commit.</param>
-    /// <param name="errorMessage">An output parameter that will contain an error message if the commit fails.</param>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool CommitChanges(string commitMessage, out string? errorMessage);
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
+    public IFileOperationResult CommitChanges(string commitMessage);
 
     /// <summary>
     /// Uploads the committed changes to the remote repository.
     /// </summary>
-    /// <param name="errorMessage">An output parameter that will contain an error message if the upload fails.</param>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool UploadChanges(out string? errorMessage);
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
+    public IFileOperationResult UploadChanges();
 }
