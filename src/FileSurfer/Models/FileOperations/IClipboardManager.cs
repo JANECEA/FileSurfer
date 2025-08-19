@@ -16,8 +16,8 @@ public interface IClipboardManager
     /// Sets <see cref="IsCutOperation"/> to <see langword="false"/>.
     /// </para>
     /// </summary>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool Copy(IFileSystemEntry[] selectedFiles, string currentDir, out string? errorMessage);
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
+    public IFileOperationResult Copy(IFileSystemEntry[] selectedFiles, string currentDir);
 
     /// <summary>
     /// Copies the <paramref name="filePath"/> to the system's clipboard.
@@ -30,14 +30,14 @@ public interface IClipboardManager
     /// Sets <see cref="IsCutOperation"/> to <see langword="true"/>.
     /// </para>
     /// </summary>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool Cut(IFileSystemEntry[] selectedFiles, string currentDir, out string? errorMessage);
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
+    public IFileOperationResult Cut(IFileSystemEntry[] selectedFiles, string currentDir);
 
     /// <summary>
     /// Duplicates the files stored in <see cref="_programClipboard"/>.
     /// </summary>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool Duplicate(string currentDir, out string[] copyNames, out string? errorMessage);
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
+    public IFileOperationResult Duplicate(string currentDir, out string[] copyNames);
 
     /// <summary>
     /// Gets the contents of <see cref="_programClipboard"/>.
@@ -55,6 +55,6 @@ public interface IClipboardManager
     /// <summary>
     /// Pastes the contents of the system clipboard into <paramref name="currentDir"/>.
     /// </summary>
-    /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public bool Paste(string currentDir, out string? errorMessage);
+    /// <returns>A <see cref="IFileOperationResult"/> representing the result of the operation and potential errors.</returns>
+    public IFileOperationResult Paste(string currentDir);
 }

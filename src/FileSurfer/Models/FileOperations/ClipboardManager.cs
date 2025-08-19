@@ -32,83 +32,70 @@ public class ClipboardManager : IClipboardManager
     private static void ClearClipboard() => Clipboard.Clear();
 
     [STAThread]
-    private static bool CopyToOSClipboard(string[] paths, out string? errorMessage)
+    private static FileOperationResult CopyToOSClipboard(string[] paths)
     {
         try
         {
             StringCollection fileCollection = new();
             fileCollection.AddRange(paths);
             Clipboard.SetFileDropList(fileCollection);
-            errorMessage = null;
-            return true;
+            return FileOperationResult.Ok();
         }
         catch (Exception ex)
         {
             Clipboard.Clear();
-            errorMessage = ex.Message;
-            return false;
+            return FileOperationResult.Error(ex.Message);
         }
     }
 
     [STAThread]
-    private bool PasteFromOSClipboard(string destinationPath, out string? errorMessage)
+    private FileOperationResult PasteFromOSClipboard(string destinationPath)
     {
-        errorMessage = null;
-        if (FileSurferSettings.AllowImagePastingFromClipboard && Clipboard.ContainsImage())
-        {
-            SaveImageToPath(destinationPath, out errorMessage);
-            return false;
-        }
         if (!Clipboard.ContainsFileDropList())
-            return true;
+            return FileOperationResult.Ok();
 
         try
         {
             StringCollection fileCollection = Clipboard.GetFileDropList();
-            errorMessage = "Problems occured pasting these files:";
-            bool errorOccured = false;
+            FileOperationResult result = FileOperationResult.Ok();
             foreach (string? path in fileCollection)
             {
                 if (path is null)
                     throw new ArgumentNullException(path);
 
-                bool result =
-                    Directory.Exists(path)
-                        && _fileIOHandler.CopyDirTo(path, destinationPath, out errorMessage)
-                    || File.Exists(path)
-                        && _fileIOHandler.CopyFileTo(path, destinationPath, out errorMessage);
-
-                errorOccured = !result || errorOccured;
-                if (!result)
-                    errorMessage += $" \"{path}\",";
+                if (Directory.Exists(path))
+                    result.AddResult(_fileIOHandler.CopyDirTo(path, destinationPath));
+                else if (File.Exists(path))
+                    result.AddResult(_fileIOHandler.CopyFileTo(path, destinationPath));
             }
-            errorMessage = errorOccured ? errorMessage?.TrimEnd(',') : null;
-            return !errorOccured;
+            return result;
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
-            return false;
+            return FileOperationResult.Error(ex.Message);
         }
     }
 
     [STAThread]
-    private void SaveImageToPath(string destinationPath, out string? errorMessage)
+    private FileOperationResult SaveImageToPath(string destinationPath)
     {
-        errorMessage = null;
         if (Clipboard.GetImage() is not Image image)
-            return;
+            return FileOperationResult.Error("There is no image in the system clipboard");
 
         string imgName = FileNameGenerator.GetAvailableName(destinationPath, _newImageName);
         try
         {
             image.Save(Path.Combine(destinationPath, imgName), ImageFormat.Png);
+            return FileOperationResult.Ok();
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            return FileOperationResult.Error(ex.Message);
         }
-        image.Dispose();
+        finally
+        {
+            image.Dispose();
+        }
     }
 
     [STAThread]
@@ -129,110 +116,87 @@ public class ClipboardManager : IClipboardManager
 
     public IFileSystemEntry[] GetClipboard() => _programClipboard.ToArray();
 
-    public bool Cut(
-        IFileSystemEntry[] selectedFiles,
-        string currentDir,
-        out string? errorMessage
-    )
+    public IFileOperationResult Cut(IFileSystemEntry[] selectedFiles, string currentDir)
     {
-        if (
-            CopyToOSClipboard(
-                selectedFiles.Select(entry => entry.PathToEntry).ToArray(),
-                out errorMessage
-            )
-        )
+        FileOperationResult result = CopyToOSClipboard(
+            selectedFiles.Select(entry => entry.PathToEntry).ToArray()
+        );
+        if (result.IsOK)
         {
             _copyFromDir = currentDir;
             IsCutOperation = true;
             _programClipboard = selectedFiles;
-            return true;
         }
-        return false;
+        return result;
     }
 
-    public bool Copy(
-        IFileSystemEntry[] selectedFiles,
-        string currentDir,
-        out string? errorMessage
-    )
+    public IFileOperationResult Copy(IFileSystemEntry[] selectedFiles, string currentDir)
     {
-        if (
-            CopyToOSClipboard(
-                selectedFiles.Select(entry => entry.PathToEntry).ToArray(),
-                out errorMessage
-            )
-        )
+        FileOperationResult result = CopyToOSClipboard(
+            selectedFiles.Select(entry => entry.PathToEntry).ToArray()
+        );
+        if (result.IsOK)
         {
             _copyFromDir = currentDir;
             IsCutOperation = false;
             _programClipboard = selectedFiles;
-            return true;
         }
-        return false;
+        return result;
     }
 
     public bool IsDuplicateOperation(string currentDir) =>
         !IsCutOperation && _copyFromDir == currentDir && _programClipboard.Length > 0;
 
-    public bool Paste(string currentDir, out string? errorMessage)
+    public IFileOperationResult Paste(string currentDir)
     {
-        if (!PasteFromOSClipboard(currentDir, out errorMessage))
+        if (FileSurferSettings.AllowImagePastingFromClipboard && Clipboard.ContainsImage())
+        {
+            SaveImageToPath(currentDir);
+            return NoMessageResult.Error();
+        }
+        FileOperationResult result = PasteFromOSClipboard(currentDir);
+        if (!result.IsOK)
         {
             _programClipboard = Array.Empty<IFileSystemEntry>();
-            return false;
+            return result;
         }
-        errorMessage = "Problems occured moving these files:";
 
         IsCutOperation = IsCutOperation && CompareClipboards();
-        bool errorOccured = false;
         if (IsCutOperation)
         {
             foreach (IFileSystemEntry entry in _programClipboard)
-            {
-                bool result =
+                result.AddResult(
                     entry is DirectoryEntry
-                        ? _fileIOHandler.DeleteDir(entry.PathToEntry, out _)
-                        : _fileIOHandler.DeleteFile(entry.PathToEntry, out _);
+                        ? _fileIOHandler.DeleteDir(entry.PathToEntry)
+                        : _fileIOHandler.DeleteFile(entry.PathToEntry)
+                );
 
-                errorOccured = !result || errorOccured;
-                if (!result)
-                    errorMessage += $" \"{entry.PathToEntry}\",";
-            }
-            errorMessage = errorMessage.TrimEnd(',');
             _programClipboard = Array.Empty<IFileSystemEntry>();
             Clipboard.Clear();
         }
-        if (!errorOccured)
-            errorMessage = null;
-        return !errorOccured;
+        return result;
     }
 
-    public bool Duplicate(string currentDir, out string[] copyNames, out string? errorMessage)
+    public IFileOperationResult Duplicate(string currentDir, out string[] copyNames)
     {
         copyNames = new string[_programClipboard.Length];
-        errorMessage = "Problems occured duplicating these files:";
-        bool errorOccured = false;
+        FileOperationResult result = FileOperationResult.Ok();
         for (int i = 0; i < _programClipboard.Length; i++)
         {
             IFileSystemEntry entry = _programClipboard[i];
             copyNames[i] = FileNameGenerator.GetCopyName(currentDir, entry);
 
-            bool result =
+            result.AddResult(
                 entry is DirectoryEntry
-                    ? _fileIOHandler.DuplicateDir(entry.PathToEntry, copyNames[i], out _)
-                    : _fileIOHandler.DuplicateFile(entry.PathToEntry, copyNames[i], out _);
-
-            errorOccured = !result || errorOccured;
-            if (!result)
-                errorMessage += $" \"{entry.PathToEntry}\",";
+                    ? _fileIOHandler.DuplicateDir(entry.PathToEntry, copyNames[i])
+                    : _fileIOHandler.DuplicateFile(entry.PathToEntry, copyNames[i])
+            );
         }
-        if (errorOccured)
+        if (!result.IsOK)
         {
             ClearClipboard();
             _programClipboard = Array.Empty<IFileSystemEntry>();
         }
-        else
-            errorMessage = null;
-        return !errorOccured;
+        return result;
     }
 }

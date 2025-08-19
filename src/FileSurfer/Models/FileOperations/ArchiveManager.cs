@@ -35,11 +35,10 @@ static class ArchiveManager
     /// Compresses specified file paths into a new archive.
     /// </summary>
     /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public static bool ZipFiles(
+    public static IFileOperationResult ZipFiles(
         IEnumerable<IFileSystemEntry> entries,
         string destinationDir,
-        string archiveName,
-        out string? errorMessage
+        string archiveName
     )
     {
         FileStream zipStream = File.OpenWrite(Path.Combine(destinationDir, archiveName));
@@ -72,13 +71,11 @@ static class ArchiveManager
                 }
 
             archive.SaveTo(zipStream, new WriterOptions(CompressionType.Deflate));
-            errorMessage = null;
-            return true;
+            return FileOperationResult.Ok();
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
-            return false;
+            return FileOperationResult.Error(ex.Message);
         }
         finally
         {
@@ -91,17 +88,11 @@ static class ArchiveManager
     /// Extracts an archive, overwriting the already existing files.
     /// </summary>
     /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/>.</returns>
-    public static bool UnzipArchive(
-        string archivePath,
-        string destinationPath,
-        out string? errorMessage
-    )
+    public static IFileOperationResult UnzipArchive(string archivePath, string destinationPath)
     {
         if (!IsZipped(archivePath))
-        {
-            errorMessage = $"\"{archivePath}\" is not an archive.";
-            return false;
-        }
+            return FileOperationResult.Error($"\"{archivePath}\" is not an archive.");
+
         try
         {
             string extractName = FileNameGenerator.GetAvailableName(
@@ -112,20 +103,17 @@ static class ArchiveManager
 
             Directory.CreateDirectory(extractTo);
             using IArchive archive = ArchiveFactory.Open(archivePath);
+            ExtractionOptions extractionOptions =
+                new() { ExtractFullPath = true, Overwrite = true };
+
             foreach (IArchiveEntry file in archive.Entries.Where(entry => !entry.IsDirectory))
-            {
-                file.WriteToDirectory(
-                    extractTo,
-                    new ExtractionOptions { ExtractFullPath = true, Overwrite = true }
-                );
-            }
-            errorMessage = null;
-            return true;
+                file.WriteToDirectory(extractTo, extractionOptions);
+
+            return FileOperationResult.Ok();
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
-            return false;
+            return FileOperationResult.Error(ex.Message);
         }
     }
 }
