@@ -174,9 +174,7 @@ public class WindowsFileInfoProvider : IFileInfoProvider
     public bool IsLinkedToDirectory(string linkPath, out string? directory)
     {
         directory = null;
-        if (
-            !Path.GetExtension(linkPath).Equals(".lnk", StringComparison.InvariantCultureIgnoreCase)
-        )
+        if (!Path.GetExtension(linkPath).Equals(".lnk", StringComparison.OrdinalIgnoreCase))
             return false;
 
         try

@@ -90,8 +90,9 @@ public record SettingsRecord(
 /// Handles the loading, saving, and updating of user preferences and settings.
 /// </summary>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-static class FileSurferSettings
+internal static class FileSurferSettings
 {
+    public const long ShowDialogLimitB = 250 * 1024 * 1024; // 250 MiB
     private static readonly JsonSerializerOptions SerializerOptions =
         new()
         {
@@ -108,7 +109,7 @@ static class FileSurferSettings
     {
         get
         {
-            string thisPCLabel = "This PC";
+            const string thisPCLabel = "This PC";
             return new SettingsRecord(
                 "New Image",
                 "New File",
@@ -298,7 +299,7 @@ static class FileSurferSettings
         {
             SettingsRecord settings =
                 JsonSerializer.Deserialize<SettingsRecord>(_previousSettingsJson)
-                ?? throw new NullReferenceException();
+                ?? throw new InvalidDataException();
 
             ImportSettings(settings);
         }

@@ -15,7 +15,7 @@ namespace FileSurfer.ViewModels;
 /// their name, size, type, last modification time, and icon. Also includes data about special conditions
 /// like hidden files, or version control status.
 /// </summary>
-public class FileSystemEntryViewModel
+public sealed class FileSystemEntryViewModel
 {
     private static readonly int SizeLimit = FileSurferSettings.FileSizeUnitLimit;
     private static readonly IReadOnlyList<string> ByteUnits =
@@ -107,8 +107,7 @@ public class FileSystemEntryViewModel
     /// </summary>
     /// <param name="fileInfoProvider">Provider for file operations like retrieving file size and modification time.</param>
     /// <param name="iconProvider">Provider for retrieving file icons.</param>
-    /// <param name="path">The file or directory path associated with this entry.</param>
-    /// <param name="isDirectory">Indicates whether the path refers to a directory.</param>
+    /// <param name="entry">The file or directory entry.</param>
     /// <param name="status">Optional version control status of the entry, defaulting to not version controlled.</param>
     public FileSystemEntryViewModel(
         IFileInfoProvider fileInfoProvider,
@@ -155,6 +154,7 @@ public class FileSystemEntryViewModel
     /// This constructor is specifically used for representing drives within the <see cref="FileSurfer"/> app.
     /// </para>
     /// </summary>
+    /// <param name="iconProvider">Provides the drive icon.</param>
     /// <param name="driveInfo">The drive information associated with this entry.</param>
     public FileSystemEntryViewModel(IIconProvider iconProvider, DriveInfo driveInfo)
     {

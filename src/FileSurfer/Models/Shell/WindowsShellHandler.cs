@@ -13,17 +13,14 @@ public class WindowsShellHandler : IShellHandler
     {
         try
         {
-            using Process process =
-                new()
-                {
-                    StartInfo = new()
-                    {
-                        FileName = "powershell.exe",
-                        WorkingDirectory = dirPath,
-                        Arguments = "-NoExit",
-                        UseShellExecute = true,
-                    },
-                };
+            using Process process = new();
+            process.StartInfo = new()
+            {
+                FileName = "powershell.exe",
+                WorkingDirectory = dirPath,
+                Arguments = "-NoExit",
+                UseShellExecute = true,
+            };
             process.Start();
             return SimpleResult.Ok();
         }
@@ -37,8 +34,8 @@ public class WindowsShellHandler : IShellHandler
     {
         try
         {
-            using Process process =
-                new() { StartInfo = new ProcessStartInfo(filePath) { UseShellExecute = true } };
+            using Process process = new();
+            process.StartInfo = new(filePath) { UseShellExecute = true };
             process.Start();
             return SimpleResult.Ok();
         }
@@ -94,10 +91,8 @@ public class WindowsShellHandler : IShellHandler
 
         if (success)
             return SimpleResult.Ok();
-        else if (errorMessage is not null)
-            return SimpleResult.Error(errorMessage);
-        else
-            return SimpleResult.Error();
+
+        return errorMessage is null ? SimpleResult.Error() : SimpleResult.Error(errorMessage);
     }
 
     public IResult CreateLink(string filePath)

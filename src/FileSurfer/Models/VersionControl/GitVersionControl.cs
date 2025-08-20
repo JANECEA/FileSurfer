@@ -37,7 +37,7 @@ public class GitVersionControl : IVersionControl
             repoRootDir = Path.GetDirectoryName(repoRootDir);
         }
 
-        if ((_currentRepo?.Info.Path) == gitDir + '\\')
+        if (_currentRepo?.Info.Path == gitDir + '\\')
         {
             SetFileStates();
             return SimpleResult.Ok();

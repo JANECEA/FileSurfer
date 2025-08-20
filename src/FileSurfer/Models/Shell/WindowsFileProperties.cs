@@ -8,13 +8,13 @@ namespace FileSurfer.Models.Shell;
 /// <summary>
 /// Provides methods to interact with Windows file properties and dialogs using Windows API calls.
 /// </summary>
-static class WindowsFileProperties
+internal static class WindowsFileProperties
 {
     /// <summary>
     /// Used for the ShellExecuteEx API function.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-    struct ShellExecuteInfo
+    private struct ShellExecuteInfo
     {
         public int cbSize;
         public uint fMask;

@@ -13,7 +13,7 @@ namespace FileSurfer.Models.FileOperations;
 /// <summary>
 /// Handles interactions with archives using the <see cref="SharpCompress"/> package.
 /// </summary>
-static class ArchiveManager
+internal static class ArchiveManager
 {
     /// <summary>
     /// Determines if the file is an archive in the context of <see cref="FileSurfer"/>.

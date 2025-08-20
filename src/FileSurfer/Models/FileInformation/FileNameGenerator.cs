@@ -9,7 +9,7 @@ namespace FileSurfer.Models.FileInformation;
 /// <summary>
 /// Handles file and directory name validation and generation within the <see cref="FileSurfer"/> app.
 /// </summary>
-static class FileNameGenerator
+internal static class FileNameGenerator
 {
     /// <summary>
     /// Finds a name available to use in <paramref name="directory"/> based on <paramref name="newName"/>.
@@ -61,13 +61,12 @@ static class FileNameGenerator
     )
     {
         foreach (IFileSystemEntry entry in entries)
-        {
             if (
                 onlyFiles != entry is not DirectoryEntry
                 || onlyFiles && Path.GetExtension(entry.PathToEntry) != extension
             )
                 return false;
-        }
+
         return true;
     }
 

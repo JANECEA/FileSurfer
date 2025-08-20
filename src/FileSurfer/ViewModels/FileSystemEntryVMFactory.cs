@@ -24,10 +24,8 @@ public class FileSystemEntryVMFactory
             VCStatus.NotVersionControlled
         );
 
-    public FileSystemEntryViewModel Directory(
-        string dirPath,
-        VCStatus vcStatus = VCStatus.NotVersionControlled
-    ) => new(_fileInfoProvider, _iconProvider, new DirectoryEntry(dirPath), vcStatus);
+    public FileSystemEntryViewModel Directory(string dirPath, VCStatus vcStatus) =>
+        new(_fileInfoProvider, _iconProvider, new DirectoryEntry(dirPath), vcStatus);
 
     public FileSystemEntryViewModel File(
         string filePath,

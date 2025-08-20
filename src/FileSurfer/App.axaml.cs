@@ -2,6 +2,10 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
+using FileSurfer.Models.FileInformation;
+using FileSurfer.Models.FileOperations;
+using FileSurfer.Models.Shell;
+using FileSurfer.Models.VersionControl;
 using FileSurfer.ViewModels;
 using FileSurfer.Views;
 
@@ -38,9 +42,25 @@ public partial class App : Application
                 ? ThemeVariant.Dark
                 : ThemeVariant.Light;
 
-            desktop.MainWindow = new MainWindow { DataContext = new MainWindowViewModel() };
+            desktop.MainWindow = new MainWindow { DataContext = GetViewModel() };
             desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnMainWindowClose;
         }
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static MainWindowViewModel GetViewModel()
+    {
+        WindowsFileInfoProvider fileInfoProvider = new();
+        WindowsFileIOHandler fileIOHandler =
+            new(fileInfoProvider, new WindowsFileRestorer(), FileSurferSettings.ShowDialogLimitB);
+        WindowsShellHandler shellHandler = new();
+
+        return new MainWindowViewModel(
+            fileIOHandler,
+            fileInfoProvider,
+            shellHandler,
+            new GitVersionControl(shellHandler),
+            new ClipboardManager(fileIOHandler, FileSurferSettings.NewImageName)
+        );
     }
 }

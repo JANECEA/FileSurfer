@@ -18,7 +18,7 @@ public class ShellInteractionTests
         IResult result = _shellHandler.ExecuteCmd(command);
 
         // Assert
-        Assert.True(result.IsOK, "The command should complete successfully in cca 80ms.");
+        Assert.True(result.IsOk, "The command should complete successfully in cca 80ms.");
     }
 
     [Fact]
@@ -31,7 +31,7 @@ public class ShellInteractionTests
         IResult result = _shellHandler.ExecuteCmd(command);
 
         // Assert
-        Assert.False(result.IsOK, "The command should fail.");
+        Assert.False(result.IsOk, "The command should fail.");
     }
 
     [Fact]
@@ -44,6 +44,6 @@ public class ShellInteractionTests
         IResult result = _shellHandler.ExecuteCmd(command);
 
         // Assert
-        Assert.True(result.IsOK, "The command should succeed.");
+        Assert.True(result.IsOk, "The command should succeed.");
     }
 }

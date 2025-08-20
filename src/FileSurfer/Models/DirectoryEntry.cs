@@ -5,7 +5,7 @@ namespace FileSurfer.Models;
 /// <summary>
 /// Lazy implementation of <see cref="IFileSystemEntry"/> for a directory.
 /// </summary>
-public class DirectoryEntry : IFileSystemEntry
+public sealed class DirectoryEntry : IFileSystemEntry
 {
     public string PathToEntry { get; }
 

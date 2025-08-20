@@ -27,10 +27,9 @@ namespace FileSurfer.ViewModels;
 /// Handles data directly bound to the View.
 /// </summary>
 #pragma warning disable CA1822 // Mark members as static
-public class MainWindowViewModel : ReactiveObject
+public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
     private const string SearchingLabel = "Search Results";
-    private const long ShowDialogLimitB = 262144000; // 250 MiB
     private readonly string ThisPCLabel = FileSurferSettings.ThisPCLabel;
     private readonly string NewFileName = FileSurferSettings.NewFileName;
     private readonly string NewDirName = FileSurferSettings.NewDirectoryName;
@@ -314,18 +313,23 @@ public class MainWindowViewModel : ReactiveObject
     /// <summary>
     /// Initializes a new <see cref="MainWindowViewModel"/>.
     /// </summary>
-    public MainWindowViewModel()
+    public MainWindowViewModel(
+        IFileIOHandler fileIOHandler,
+        IFileInfoProvider fileInfoProvider,
+        IShellHandler shellHandler,
+        IVersionControl versionControl,
+        IClipboardManager clipboardManager
+    )
     {
-        _fileInfoProvider = new WindowsFileInfoProvider();
-        _shellHandler = new WindowsShellHandler();
-        _fileIOHandler = new WindowsFileIOHandler(
+        _fileIOHandler = fileIOHandler;
+        _fileInfoProvider = fileInfoProvider;
+        _shellHandler = shellHandler;
+        _versionControl = versionControl;
+        _clipboardManager = clipboardManager;
+        _entryVMFactory = new FileSystemEntryVMFactory(
             _fileInfoProvider,
-            new WindowsFileRestorer(),
-            ShowDialogLimitB
+            new IconProvider(_fileInfoProvider)
         );
-        _versionControl = new GitVersionControl(_shellHandler);
-        _clipboardManager = new ClipboardManager(_fileIOHandler, NewImageName);
-        _entryVMFactory = new(_fileInfoProvider, new IconProvider(_fileInfoProvider));
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
         _pathHistory = new UndoRedoHandler<string>();
         SelectedFiles.CollectionChanged += UpdateSelectionInfo;
@@ -446,12 +450,14 @@ public class MainWindowViewModel : ReactiveObject
     /// </summary>
     private void ForwardIfError(IResult result)
     {
-        if (!result.IsOK)
-            foreach (string errorMessage in result.Errors)
-                Dispatcher.UIThread.Post(() =>
-                {
-                    new Views.ErrorWindow { ErrorMessage = errorMessage }.Show();
-                });
+        if (result.IsOk)
+            return;
+
+        foreach (string errorMessage in result.Errors)
+            Dispatcher.UIThread.Post(() =>
+            {
+                new Views.ErrorWindow { ErrorMessage = errorMessage }.Show();
+            });
     }
 
     /// <summary>
@@ -756,7 +762,7 @@ public class MainWindowViewModel : ReactiveObject
         IsVersionControlled =
             FileSurferSettings.GitIntegration
             && Directory.Exists(CurrentDir)
-            && _versionControl.InitIfVersionControlled(CurrentDir).IsOK;
+            && _versionControl.InitIfVersionControlled(CurrentDir).IsOk;
 
         Branches.Clear();
         if (IsVersionControlled)
@@ -842,7 +848,7 @@ public class MainWindowViewModel : ReactiveObject
     public async Task SearchAsync(string searchQuery)
     {
         if (Searching)
-            _searchCTS.Cancel();
+            await _searchCTS.CancelAsync();
 
         if (_searchCTS.IsCancellationRequested)
         {
@@ -881,10 +887,12 @@ public class MainWindowViewModel : ReactiveObject
 
             IEnumerable<string> dirPaths = GetAllDirs(currentDirPath);
             Task<List<FileSystemEntryViewModel>> filesTask = Task.Run(
-                () => GetFiles(currentDirPath, searchQuery)
+                () => GetFiles(currentDirPath, searchQuery),
+                searchCTS
             );
             Task<List<FileSystemEntryViewModel>> filteredDirsTask = Task.Run(
-                () => GetDirs(dirPaths, searchQuery)
+                () => GetDirs(dirPaths, searchQuery),
+                searchCTS
             );
             await Task.WhenAll(filesTask, filteredDirsTask);
 
@@ -976,7 +984,7 @@ public class MainWindowViewModel : ReactiveObject
 
         NewFileAt operation = new(_fileIOHandler, CurrentDir, newFileName);
         IResult result = operation.Invoke();
-        if (result.IsOK)
+        if (result.IsOk)
         {
             Reload();
             _undoRedoHistory.AddNewNode(operation);
@@ -999,7 +1007,7 @@ public class MainWindowViewModel : ReactiveObject
 
         NewDirAt operation = new(_fileIOHandler, CurrentDir, newDirName);
         IResult result = operation.Invoke();
-        if (result.IsOK)
+        if (result.IsOk)
         {
             Reload();
             _undoRedoHistory.AddNewNode(operation);
@@ -1011,7 +1019,7 @@ public class MainWindowViewModel : ReactiveObject
     /// <summary>
     /// Creates an archive from the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/>.
     /// </summary>
-    public async void AddToArchive()
+    public async Task AddToArchive()
     {
         if (!Directory.Exists(CurrentDir))
             return;
@@ -1043,7 +1051,7 @@ public class MainWindowViewModel : ReactiveObject
     /// <summary>
     /// Extracts the archives selected in <see cref="SelectedFiles"/>.
     /// </summary>
-    public async void ExtractArchive()
+    public async Task ExtractArchive()
     {
         if (!Directory.Exists(CurrentDir))
             return;
@@ -1118,7 +1126,7 @@ public class MainWindowViewModel : ReactiveObject
             operation = new CopyFilesTo(_fileIOHandler, clipboard, CurrentDir);
         }
 
-        if (result.IsOK)
+        if (result.IsOk)
             _undoRedoHistory.AddNewNode(operation);
         ForwardIfError(result);
         Reload();
@@ -1156,7 +1164,7 @@ public class MainWindowViewModel : ReactiveObject
 
         RenameOne operation = new(_fileIOHandler, entry.FileSystemEntry, newName);
         IResult result = operation.Invoke();
-        if (result.IsOK)
+        if (result.IsOk)
         {
             _undoRedoHistory.AddNewNode(operation);
             Reload();
@@ -1194,7 +1202,7 @@ public class MainWindowViewModel : ReactiveObject
                 )
             );
         IResult result = operation.Invoke();
-        if (result.IsOK)
+        if (result.IsOk)
             _undoRedoHistory.AddNewNode(operation);
 
         ForwardIfError(result);
@@ -1214,7 +1222,7 @@ public class MainWindowViewModel : ReactiveObject
             new(_fileIOHandler, SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry));
 
         IResult result = operation.Invoke();
-        if (result.IsOK)
+        if (result.IsOk)
             _undoRedoHistory.AddNewNode(operation);
 
         ForwardIfError(result);
@@ -1231,7 +1239,7 @@ public class MainWindowViewModel : ReactiveObject
 
         FlattenFolder action = new(_fileIOHandler, _fileInfoProvider, entry.PathToEntry);
         IResult result = action.Invoke();
-        if (result.IsOK)
+        if (result.IsOk)
             _undoRedoHistory.AddNewNode(action);
 
         ForwardIfError(result);
@@ -1309,7 +1317,7 @@ public class MainWindowViewModel : ReactiveObject
     }
 
     /// <summary>
-    /// Invokes <see cref="IUndoableFileOperation.Undo(out string?)"/> on the current
+    /// Invokes <see cref="IUndoableFileOperation.Undo()"/> on the current
     /// <see cref="IUndoableFileOperation"/> and goes back in <see cref="_undoRedoHistory"/>.
     /// </summary>
     private void Undo()
@@ -1321,10 +1329,10 @@ public class MainWindowViewModel : ReactiveObject
             return;
 
         IUndoableFileOperation operation =
-            _undoRedoHistory.Current ?? throw new NullReferenceException();
+            _undoRedoHistory.Current ?? throw new InvalidOperationException();
 
         IResult result = operation.Undo();
-        if (result.IsOK)
+        if (result.IsOk)
         {
             _undoRedoHistory.MoveToPrevious();
             Reload();
@@ -1340,7 +1348,7 @@ public class MainWindowViewModel : ReactiveObject
 
     /// <summary>
     /// Moves forward in <see cref="_undoRedoHistory"/> and invokes
-    /// <see cref="IUndoableFileOperation.Redo(out string?)"/> on the current <see cref="IUndoableFileOperation"/>.
+    /// <see cref="IUndoableFileOperation.Invoke()"/> on the current <see cref="IUndoableFileOperation"/>.
     /// </summary>
     private void Redo()
     {
@@ -1350,7 +1358,7 @@ public class MainWindowViewModel : ReactiveObject
 
         IUndoableFileOperation operation = _undoRedoHistory.Current;
         IResult result = operation.Invoke();
-        if (result.IsOK)
+        if (result.IsOk)
             Reload();
         else
         {
@@ -1446,7 +1454,7 @@ public class MainWindowViewModel : ReactiveObject
     /// <summary>
     /// Disposes <see cref="MainWindowViewModel"/> resources.
     /// </summary>
-    public void DisposeResources()
+    public void Dispose()
     {
         _versionControl.Dispose();
         _searchCTS.Dispose();

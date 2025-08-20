@@ -2,7 +2,7 @@ namespace FileSurfer.Models.FileOperations;
 
 /// <summary>
 /// Defines methods for handling file and directory operations.
-/// <para>
+/// <para/>
 /// Includes methods for file and directory management such as creating,
 /// moving, copying and deleting files and directories.
 /// </summary>

@@ -14,13 +14,13 @@ public class MoveFilesToTrash : UndoableOperation
 
     protected override IResult InvokeAction(IFileSystemEntry entry, int index) =>
         entry is DirectoryEntry
-            ? _fileIOHandler.MoveDirToTrash(entry.PathToEntry)
-            : _fileIOHandler.MoveFileToTrash(entry.PathToEntry);
+            ? FileIOHandler.MoveDirToTrash(entry.PathToEntry)
+            : FileIOHandler.MoveFileToTrash(entry.PathToEntry);
 
     protected override IResult UndoAction(IFileSystemEntry entry, int index) =>
         entry is DirectoryEntry
-            ? _fileIOHandler.RestoreDir(entry.PathToEntry)
-            : _fileIOHandler.RestoreFile(entry.PathToEntry);
+            ? FileIOHandler.RestoreDir(entry.PathToEntry)
+            : FileIOHandler.RestoreFile(entry.PathToEntry);
 }
 
 /// <summary>
@@ -45,15 +45,15 @@ public class MoveFilesTo : UndoableOperation
 
     protected override IResult InvokeAction(IFileSystemEntry entry, int index) =>
         entry is DirectoryEntry
-            ? _fileIOHandler.MoveDirTo(entry.PathToEntry, _destinationDir)
-            : _fileIOHandler.MoveFileTo(entry.PathToEntry, _destinationDir);
+            ? FileIOHandler.MoveDirTo(entry.PathToEntry, _destinationDir)
+            : FileIOHandler.MoveFileTo(entry.PathToEntry, _destinationDir);
 
     protected override IResult UndoAction(IFileSystemEntry entry, int index)
     {
         string newPath = Path.Combine(_destinationDir, entry.Name);
         return entry is DirectoryEntry
-            ? _fileIOHandler.MoveDirTo(newPath, _originalDir)
-            : _fileIOHandler.MoveFileTo(newPath, _originalDir);
+            ? FileIOHandler.MoveDirTo(newPath, _originalDir)
+            : FileIOHandler.MoveFileTo(newPath, _originalDir);
     }
 }
 
@@ -73,15 +73,15 @@ public class CopyFilesTo : UndoableOperation
 
     protected override IResult InvokeAction(IFileSystemEntry entry, int index) =>
         entry is DirectoryEntry
-            ? _fileIOHandler.CopyDirTo(entry.PathToEntry, _destinationDir)
-            : _fileIOHandler.CopyFileTo(entry.PathToEntry, _destinationDir);
+            ? FileIOHandler.CopyDirTo(entry.PathToEntry, _destinationDir)
+            : FileIOHandler.CopyFileTo(entry.PathToEntry, _destinationDir);
 
     protected override IResult UndoAction(IFileSystemEntry entry, int index)
     {
         string newPath = Path.Combine(_destinationDir, entry.Name);
         return entry is DirectoryEntry
-            ? _fileIOHandler.DeleteDir(newPath)
-            : _fileIOHandler.DeleteFile(newPath);
+            ? FileIOHandler.DeleteDir(newPath)
+            : FileIOHandler.DeleteFile(newPath);
     }
 }
 
@@ -107,13 +107,13 @@ public class DuplicateFiles : UndoableOperation
 
     protected override IResult InvokeAction(IFileSystemEntry entry, int index) =>
         entry is DirectoryEntry
-            ? _fileIOHandler.DuplicateDir(entry.PathToEntry, _copyNames[index])
-            : _fileIOHandler.DuplicateFile(entry.PathToEntry, _copyNames[index]);
+            ? FileIOHandler.DuplicateDir(entry.PathToEntry, _copyNames[index])
+            : FileIOHandler.DuplicateFile(entry.PathToEntry, _copyNames[index]);
 
     protected override IResult UndoAction(IFileSystemEntry entry, int index) =>
         entry is DirectoryEntry
-            ? _fileIOHandler.DeleteDir(Path.Combine(_parentDir, _copyNames[index]))
-            : _fileIOHandler.DeleteFile(Path.Combine(_parentDir, _copyNames[index]));
+            ? FileIOHandler.DeleteDir(Path.Combine(_parentDir, _copyNames[index]))
+            : FileIOHandler.DeleteFile(Path.Combine(_parentDir, _copyNames[index]));
 }
 
 /// <summary>
@@ -138,15 +138,15 @@ public class RenameMultiple : UndoableOperation
 
     protected override IResult InvokeAction(IFileSystemEntry entry, int index) =>
         entry is DirectoryEntry
-            ? _fileIOHandler.RenameDirAt(entry.PathToEntry, _newNames[index])
-            : _fileIOHandler.RenameFileAt(entry.PathToEntry, _newNames[index]);
+            ? FileIOHandler.RenameDirAt(entry.PathToEntry, _newNames[index])
+            : FileIOHandler.RenameFileAt(entry.PathToEntry, _newNames[index]);
 
     protected override IResult UndoAction(IFileSystemEntry entry, int index)
     {
         string newPath = Path.Combine(_dirName, _newNames[index]);
         return entry is DirectoryEntry
-            ? _fileIOHandler.RenameDirAt(newPath, _entries[index].Name)
-            : _fileIOHandler.RenameFileAt(newPath, _entries[index].Name);
+            ? FileIOHandler.RenameDirAt(newPath, Entries[index].Name)
+            : FileIOHandler.RenameFileAt(newPath, Entries[index].Name);
     }
 }
 
@@ -194,7 +194,7 @@ public class FlattenFolder : IUndoableFileOperation
         foreach (string containedFile in _containedFiles)
             result.MergeResult(_fileIOHandler.MoveFileTo(containedFile, _parentDir));
 
-        return result.IsOK ? _fileIOHandler.DeleteDir(_dirPath) : result;
+        return result.IsOk ? _fileIOHandler.DeleteDir(_dirPath) : result;
     }
 
     public IResult Undo()
@@ -203,7 +203,7 @@ public class FlattenFolder : IUndoableFileOperation
             return SimpleResult.Error($"Cannot create a top level directory: \"{_dirPath}\"");
 
         IResult newDirResult = _fileIOHandler.NewDirAt(_parentDir, Path.GetFileName(_dirPath));
-        if (!newDirResult.IsOK)
+        if (!newDirResult.IsOk)
             return newDirResult;
 
         Result result = Result.Ok();

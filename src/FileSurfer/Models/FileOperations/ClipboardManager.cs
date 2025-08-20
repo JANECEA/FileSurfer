@@ -92,7 +92,7 @@ public class ClipboardManager : IClipboardManager
         SimpleResult result = CopyToOSClipboard(
             selectedFiles.Select(entry => entry.PathToEntry).ToArray()
         );
-        if (result.IsOK)
+        if (result.IsOk)
         {
             _copyFromDir = currentDir;
             IsCutOperation = true;
@@ -106,7 +106,7 @@ public class ClipboardManager : IClipboardManager
         SimpleResult result = CopyToOSClipboard(
             selectedFiles.Select(entry => entry.PathToEntry).ToArray()
         );
-        if (result.IsOK)
+        if (result.IsOk)
         {
             _copyFromDir = currentDir;
             IsCutOperation = false;
@@ -169,11 +169,10 @@ public class ClipboardManager : IClipboardManager
             _programClipboard = Array.Empty<IFileSystemEntry>();
             Clipboard.Clear();
         }
-        if (!result.IsOK)
-        {
+
+        if (!result.IsOk)
             _programClipboard = Array.Empty<IFileSystemEntry>();
-            return result;
-        }
+
         return result;
     }
 
@@ -192,7 +191,7 @@ public class ClipboardManager : IClipboardManager
                     : _fileIOHandler.DuplicateFile(entry.PathToEntry, copyNames[i])
             );
         }
-        if (!result.IsOK)
+        if (!result.IsOk)
         {
             ClearClipboard();
             _programClipboard = Array.Empty<IFileSystemEntry>();

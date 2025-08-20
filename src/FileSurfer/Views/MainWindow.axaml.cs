@@ -507,7 +507,7 @@ public partial class MainWindow : Window
         if (_viewModel is not null)
         {
             FileSurferSettings.UpdateQuickAccess(_viewModel.QuickAccess);
-            _viewModel.DisposeResources();
+            _viewModel.Dispose();
         }
         FileSurferSettings.SaveSettings();
     }

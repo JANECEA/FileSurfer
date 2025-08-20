@@ -37,7 +37,7 @@ public class IconProvider : IIconProvider, IDisposable
         ".library-ms",
         ".appref-ms",
     ];
-    private static Bitmap? GenericFileIcon;
+    private static Bitmap? _genericFileIcon;
 
     private readonly IFileInfoProvider _fileInfoProvider;
     private readonly Dictionary<string, Bitmap> _icons = new();
@@ -50,10 +50,10 @@ public class IconProvider : IIconProvider, IDisposable
         string extension = Path.GetExtension(filePath);
         if (HaveUniqueIcons.Contains(extension))
             return _fileInfoProvider.GetFileIcon(filePath)?.ConvertToAvaloniaBitmap()
-                ?? GenericFileIcon;
+                ?? _genericFileIcon;
 
         if (string.IsNullOrWhiteSpace(extension))
-            return GenericFileIcon ??= GetGenericFileIcon(filePath);
+            return _genericFileIcon ??= GetGenericFileIcon(filePath);
 
         if (_icons.TryGetValue(filePath, out Bitmap? cachedIcon))
             return cachedIcon;
@@ -61,7 +61,7 @@ public class IconProvider : IIconProvider, IDisposable
         if (_fileInfoProvider.GetFileIcon(filePath)?.ConvertToAvaloniaBitmap() is Bitmap icon)
             return _icons[extension] = icon;
 
-        return GenericFileIcon;
+        return _genericFileIcon;
     }
 
     /// <inheritdoc/>
