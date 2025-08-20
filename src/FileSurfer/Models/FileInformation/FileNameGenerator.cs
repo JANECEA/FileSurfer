@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FileSurfer.Models.FileOperations;
 
-namespace FileSurfer.Models;
+namespace FileSurfer.Models.FileInformation;
 
 /// <summary>
 /// Handles file and directory name validation and generation within the <see cref="FileSurfer"/> app.
 /// </summary>
-static class FileNameGenerator
+internal static class FileNameGenerator
 {
     /// <summary>
     /// Finds a name available to use in <paramref name="directory"/> based on <paramref name="newName"/>.
@@ -34,13 +35,14 @@ static class FileNameGenerator
     }
 
     /// <summary>
-    /// Finds a name available for a copy in the context of 
-    /// <see cref="ClipboardManager.Duplicate(string, out string[], out string?)"/> operation.
+    /// Finds a name available for a copy in the context of
+    /// <see cref="ClipboardManager.Duplicate(string, out string[])"/> operation.
     /// </summary>
     /// <returns>Name of a copy, available to use in the path specified in: <paramref name="directory"/>.</returns>
-    public static string GetCopyName(string directory, FileSystemEntry entry)
+    public static string GetCopyName(string directory, IFileSystemEntry entry)
     {
-        string extension = entry.IsDirectory ? string.Empty : Path.GetExtension(entry.PathToEntry);
+        string extension =
+            entry is DirectoryEntry ? string.Empty : Path.GetExtension(entry.PathToEntry);
         string copyName = entry.Name;
         if (extension != string.Empty)
             copyName = Path.GetFileNameWithoutExtension(entry.PathToEntry);
@@ -53,19 +55,18 @@ static class FileNameGenerator
     /// </summary>
     /// <returns><see langword="true"/> if <paramref name="entries"/> can be collectively renamed, otherwise <see langword="false"/>.</returns>
     public static bool CanBeRenamedCollectively(
-        IEnumerable<FileSystemEntry> entries,
+        IEnumerable<IFileSystemEntry> entries,
         bool onlyFiles,
         string extension
     )
     {
-        foreach (FileSystemEntry entry in entries)
-        {
+        foreach (IFileSystemEntry entry in entries)
             if (
-                onlyFiles != !entry.IsDirectory
+                onlyFiles != entry is not DirectoryEntry
                 || onlyFiles && Path.GetExtension(entry.PathToEntry) != extension
             )
                 return false;
-        }
+
         return true;
     }
 
@@ -73,10 +74,7 @@ static class FileNameGenerator
     /// Gets new available name for the files represented by <paramref name="entries"/> accoring to <paramref name="namingPattern"/>.
     /// </summary>
     /// <returns>An array of names available for <paramref name="entries"/>.</returns>
-    public static string[] GetAvailableNames(
-        IList<FileSystemEntry> entries,
-        string namingPattern
-    )
+    public static string[] GetAvailableNames(IList<IFileSystemEntry> entries, string namingPattern)
     {
         string[] newNames = new string[entries.Count];
         string extension = Path.GetExtension(namingPattern);

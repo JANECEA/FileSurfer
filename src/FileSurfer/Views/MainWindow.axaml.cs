@@ -138,7 +138,7 @@ public partial class MainWindow : Window
                 hitElement = hitElement.GetVisualParent();
             }
 
-            if (listBox.SelectedItem is FileSystemEntry entry)
+            if (listBox.SelectedItem is FileSystemEntryViewModel entry)
                 _viewModel?.OpenEntry(entry);
             else
                 _viewModel?.GoUp();
@@ -151,7 +151,7 @@ public partial class MainWindow : Window
 
     private void PinToQuickAccess(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem { DataContext: FileSystemEntry entry })
+        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
             _viewModel?.AddToQuickAccess(entry);
     }
 
@@ -170,7 +170,7 @@ public partial class MainWindow : Window
 
     private void CopyPath(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem { DataContext: FileSystemEntry entry })
+        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
             _viewModel?.CopyPath(entry);
     }
 
@@ -180,16 +180,15 @@ public partial class MainWindow : Window
 
     private void CreateShortcut(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem { DataContext: FileSystemEntry entry })
+        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
             _viewModel?.CreateShortcut(entry);
     }
 
     private void FlattenFolder(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem { DataContext: FileSystemEntry entry })
+        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
             _viewModel?.FlattenFolder(entry);
     }
-
 
     private void Delete(object sender, RoutedEventArgs e) => _viewModel?.MoveToTrash();
 
@@ -197,13 +196,13 @@ public partial class MainWindow : Window
 
     private void ShowProperties(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem { DataContext: FileSystemEntry entry })
+        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
             _viewModel?.ShowProperties(entry);
     }
 
     private void OpenAs(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem { DataContext: FileSystemEntry entry })
+        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
             _viewModel?.OpenAs(entry);
     }
 
@@ -233,7 +232,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void SideBarEntryClicked(object sender, TappedEventArgs e)
     {
-        if (sender is ListBox { SelectedItem: FileSystemEntry entry })
+        if (sender is ListBox { SelectedItem: FileSystemEntryViewModel entry })
         {
             _viewModel?.OpenEntry(entry);
             SpecialsListBox.SelectedItems?.Clear();
@@ -259,7 +258,7 @@ public partial class MainWindow : Window
             Visual? hitElement = (Visual?)FileDisplay.InputHitTest(e.GetPosition(FileDisplay));
             while (hitElement is not null)
             {
-                if (hitElement is ListBoxItem { DataContext: FileSystemEntry entry })
+                if (hitElement is ListBoxItem { DataContext: FileSystemEntryViewModel entry })
                 {
                     _viewModel?.OpenEntryLocation(entry);
                     return;
@@ -373,7 +372,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void StagedToggle(object sender, RoutedEventArgs e)
     {
-        if (sender is CheckBox { DataContext: FileSystemEntry entry } checkBox)
+        if (sender is CheckBox { DataContext: FileSystemEntryViewModel entry } checkBox)
         {
             if (checkBox.IsChecked is true)
                 _viewModel?.StageFile(entry);
@@ -418,7 +417,7 @@ public partial class MainWindow : Window
     private void OpenSettings(object sender, RoutedEventArgs e)
     {
         SettingsWindow settingsWindow = new();
-        settingsWindow.ShowDialog(this);  
+        settingsWindow.ShowDialog(this);
     }
 
     /// <summary>
@@ -497,7 +496,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Invokes <see cref="FileSurferSettings.UpdateQuickAccess(System.Collections.Generic.IEnumerable{FileSystemEntry})"/>
+    /// Invokes <see cref="FileSurferSettings.UpdateQuickAccess(System.Collections.Generic.IEnumerable{FileSystemEntryViewModel})"/>
     /// and <see cref="FileSurferSettings.SaveSettings"/>,
     /// <para>
     /// and also disposes of <see cref="_viewModel"/>'s resources after the app closes.
@@ -508,7 +507,7 @@ public partial class MainWindow : Window
         if (_viewModel is not null)
         {
             FileSurferSettings.UpdateQuickAccess(_viewModel.QuickAccess);
-            _viewModel.DisposeResources();
+            _viewModel.Dispose();
         }
         FileSurferSettings.SaveSettings();
     }

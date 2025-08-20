@@ -1,10 +1,13 @@
-using FileSurfer.Models;
+using FileSurfer.Models.FileInformation;
+using FileSurfer.Models.FileOperations;
+using FileSurfer.Models.Shell;
 
 namespace FSTests;
 
 public class FileIOTests
 {
-    private readonly WindowsFileIOHandler _fileIOHandler = new(100);
+    private readonly WindowsFileIOHandler _fileIOHandler =
+        new(new WindowsFileInfoProvider(), new WindowsFileRestorer(), 100);
 
     [Fact]
     public void Renaming_File_To_Different_Capital_Letters_Works()
@@ -22,7 +25,7 @@ public class FileIOTests
         try
         {
             // Act
-            _fileIOHandler.RenameFileAt(originalPath, newFileName, out string? errorMessage);
+            _fileIOHandler.RenameFileAt(originalPath, newFileName);
 
             // Assert
             string[] allFiles = Directory.GetFiles(parentDir);
@@ -55,7 +58,7 @@ public class FileIOTests
         try
         {
             // Act
-            _fileIOHandler.RenameDirAt(originalPath, newDirName, out string? errorMessage);
+            _fileIOHandler.RenameDirAt(originalPath, newDirName);
 
             // Assert
             string[] allDirs = Directory.GetDirectories(parentDir);

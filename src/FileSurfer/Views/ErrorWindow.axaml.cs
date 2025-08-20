@@ -1,7 +1,7 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using System;
 
 namespace FileSurfer.Views;
 
@@ -13,7 +13,7 @@ public partial class ErrorWindow : Window
     /// <summary>
     /// Holds text shown in <see cref="ErrorBlock"/>.
     /// </summary>
-    public string ErrorMessage { get; set; } = string.Empty;
+    public string ErrorMessage { get; init; } = string.Empty;
 
     /// <summary>
     /// Creates a new <see cref="ErrorWindow"/> error dialog.

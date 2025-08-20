@@ -10,7 +10,7 @@ namespace FileSurfer.ViewModels;
 /// </summary>
 #pragma warning disable CA1822 // Mark members as static
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-public class SettingsWindowViewModel : ReactiveObject
+public sealed class SettingsWindowViewModel : ReactiveObject
 {
     public string NewImageName { get; set; }
     public string NewFileName { get; set; }
@@ -42,7 +42,7 @@ public class SettingsWindowViewModel : ReactiveObject
     public bool AutomaticRefresh { get; set; }
     public int AutomaticRefreshInterval { get; set; }
     public bool AllowImagePastingFromClipboard { get; set; }
-    public List<string> QuickAccess { get; set; }
+    private List<string> QuickAccess { get; set; }
 
     public SettingsWindowViewModel() => SetValues(FileSurferSettings.CurrentSettings);
 
@@ -104,7 +104,7 @@ public class SettingsWindowViewModel : ReactiveObject
         );
 
     /// <summary>
-    /// Resets current values to default based on <see cref="FileSurferSettings.GetDefaultSettings"/>
+    /// Resets current values to default based on <see cref="FileSurferSettings.DefaultSettings"/>
     /// </summary>
     public void ResetToDefault() => SetValues(FileSurferSettings.DefaultSettings);
 }

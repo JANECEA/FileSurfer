@@ -3,22 +3,22 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace FileSurfer.Models;
+namespace FileSurfer.Models.Shell;
 
 /// <summary>
 /// Provides methods to interact with Windows file properties and dialogs using Windows API calls.
 /// </summary>
-static class WindowsFileProperties
+internal static class WindowsFileProperties
 {
     /// <summary>
     /// Used for the ShellExecuteEx API function.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-    struct ShellExecuteInfo
+    private struct ShellExecuteInfo
     {
         public int cbSize;
         public uint fMask;
-        public IntPtr hwnd;
+        public nint hwnd;
 
         [MarshalAs(UnmanagedType.LPTStr)]
         public string lpVerb;
@@ -32,15 +32,15 @@ static class WindowsFileProperties
         [MarshalAs(UnmanagedType.LPTStr)]
         public string lpDirectory;
         public int nShow;
-        public IntPtr hInstApp;
-        public IntPtr lpIDList;
+        public nint hInstApp;
+        public nint lpIDList;
 
         [MarshalAs(UnmanagedType.LPTStr)]
         public string lpClass;
-        public IntPtr hkeyClass;
+        public nint hkeyClass;
         public uint dwHotKey;
-        public IntPtr hIcon;
-        public IntPtr hProcess;
+        public nint hIcon;
+        public nint hProcess;
     }
 
     [DllImport("shell32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -50,7 +50,7 @@ static class WindowsFileProperties
     /// Calls the <see cref="ShellExecuteEx(ref ShellExecuteInfo)"/> function to show the properties dialog of the specified <paramref name="filePath"/>.
     /// </summary>
     /// <returns><see langword="true"/> if the properties dialog was successfully shown, otherwise <see langword="false"/>.</returns>
-    public static bool ShowFileProperties(string filePath, out string? errorMessage)
+    public static IResult ShowFileProperties(string filePath)
     {
         ShellExecuteInfo info = new();
         info.cbSize = Marshal.SizeOf(info);
@@ -59,30 +59,25 @@ static class WindowsFileProperties
         info.nShow = 0;
         info.fMask = 0x0000000C;
 
-        bool result = ShellExecuteEx(ref info);
-        errorMessage = null;
-        if (!result)
-            errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
-
-        return result;
+        return ShellExecuteEx(ref info)
+            ? SimpleResult.Ok()
+            : SimpleResult.Error(new Win32Exception(Marshal.GetLastWin32Error()).Message);
     }
 
     /// <summary>
     /// Displays the "Open With" dialog for a specified file using <c>rundll32.exe</c>.
     /// </summary>
     /// <returns><see langword="true"/> if the "Open With" dialog was successfully shown; otherwise, <see langword="false"/>.</returns>
-    public static bool ShowOpenAsDialog(string filePath, out string? errorMessage)
+    public static IResult ShowOpenAsDialog(string filePath)
     {
         try
         {
             Process.Start("rundll32.exe", "shell32.dll,OpenAs_RunDLL " + filePath);
-            errorMessage = null;
-            return true;
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
-            return false;
+            return SimpleResult.Error(ex.Message);
         }
     }
 }

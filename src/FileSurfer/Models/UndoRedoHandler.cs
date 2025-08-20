@@ -5,12 +5,12 @@ namespace FileSurfer.Models;
 /// <summary>
 /// Generic class for browsing <see cref="FileSurfer"/>'s history, such as file operations and visited directories.
 /// </summary>
-class UndoRedoHandler<T>
+internal sealed class UndoRedoHandler<T>
 {
     /// <summary>
     /// Nested class representing a node in the <see cref="UndoRedoHandler{T}"/> chain.
     /// </summary>
-    class UndoRedoNode
+    private class UndoRedoNode
     {
         internal T? Data;
         internal UndoRedoNode? Previous;
@@ -44,8 +44,8 @@ class UndoRedoHandler<T>
     /// </summary>
     public UndoRedoHandler()
     {
-        _head = new(default);
-        _tail = new(default, _head);
+        _head = new UndoRedoNode(default);
+        _tail = new UndoRedoNode(default, _head);
         _current = _head;
     }
 

@@ -2,48 +2,29 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FileSurfer.Models.Shell;
 using LibGit2Sharp;
 
-namespace FileSurfer.Models;
-
-/// <summary>
-/// Consolidates complex Git file handling for the <see cref="FileSurfer"/> app's UI.
-/// </summary>
-public enum VCStatus
-{
-    /// <summary>
-    /// File is either ignored or no changes have been made to it from the last commit.
-    /// </summary>
-    NotVersionControlled,
-
-    /// <summary>
-    /// File has been staged for the next commit.
-    /// </summary>
-    Staged,
-
-    /// <summary>
-    /// File has not been staged for the next commit.
-    /// </summary>
-    Unstaged,
-}
+namespace FileSurfer.Models.VersionControl;
 
 /// <summary>
 /// Handles git integration within the <see cref="FileSurfer"/> app.
 /// </summary>
-public class GitVersionControlHandler : IVersionControl
+public class GitVersionControl : IVersionControl
 {
     private const string MissingRepoMessage = "No git repository found";
-    private readonly IFileIOHandler _fileIOHandler;
-    private Repository? _currentRepo = null;
+
+    private readonly IShellHandler _shellHandler;
+
     private readonly Dictionary<string, VCStatus> _pathStates = new();
+    private Repository? _currentRepo;
 
     /// <summary>
-    /// Initializes a new <see cref="GitVersionControlHandler"/>.
+    /// Initializes a new <see cref="GitVersionControl"/>.
     /// </summary>
-    public GitVersionControlHandler(IFileIOHandler fileIOHandler) => _fileIOHandler = fileIOHandler;
+    public GitVersionControl(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
-    /// <inheritdoc/>
-    public bool InitIfVersionControlled(string directoryPath)
+    public IResult InitIfVersionControlled(string directoryPath)
     {
         string? repoRootDir = directoryPath;
         string gitDir = string.Empty;
@@ -56,10 +37,10 @@ public class GitVersionControlHandler : IVersionControl
             repoRootDir = Path.GetDirectoryName(repoRootDir);
         }
 
-        if ((_currentRepo?.Info.Path) == gitDir + '\\')
+        if (_currentRepo?.Info.Path == gitDir + '\\')
         {
             SetFileStates();
-            return true;
+            return SimpleResult.Ok();
         }
 
         _currentRepo?.Dispose();
@@ -69,57 +50,47 @@ public class GitVersionControlHandler : IVersionControl
             {
                 _currentRepo = new Repository(repoRootDir);
                 SetFileStates();
-                return true;
+                return SimpleResult.Ok();
             }
             catch { }
         }
         _currentRepo = null;
-        return false;
+        return SimpleResult.Error();
     }
 
     private string? GetWorkingDir() => _currentRepo?.Info.WorkingDirectory.TrimEnd('\\');
 
-    /// <inheritdoc/>
-    public bool DownloadChanges(out string? errorMessage)
+    public IResult DownloadChanges()
     {
         if (_currentRepo is null)
-        {
-            errorMessage = MissingRepoMessage;
-            return false;
-        }
+            return SimpleResult.Error(MissingRepoMessage);
+
         string command = $"git -C \"{GetWorkingDir()}\" pull";
-        return _fileIOHandler.ExecuteCmd(command, out errorMessage);
+        return _shellHandler.ExecuteCmd(command);
     }
 
-    /// <inheritdoc/>
     public string GetCurrentBranchName() =>
         _currentRepo is null ? string.Empty : _currentRepo.Head.FriendlyName;
 
-    /// <inheritdoc/>
     public string[] GetBranches() =>
         _currentRepo is null
             ? Array.Empty<string>()
             : _currentRepo.Branches.Where(b => !b.IsRemote).Select(b => b.FriendlyName).ToArray();
 
-    /// <inheritdoc/>
-    public bool SwitchBranches(string branchName, out string? errorMessage)
+    public IResult SwitchBranches(string branchName)
     {
         if (_currentRepo is null)
-        {
-            errorMessage = MissingRepoMessage;
-            return false;
-        }
+            return SimpleResult.Error(MissingRepoMessage);
+
         try
         {
             Branch branch = _currentRepo.Branches[branchName];
             Commands.Checkout(_currentRepo, branch);
-            errorMessage = null;
-            return true;
+            return SimpleResult.Ok();
         }
         catch
         {
-            errorMessage = $"branch: \"{branchName}\" not found";
-            return false;
+            return SimpleResult.Error($"branch: \"{branchName}\" not found");
         }
     }
 
@@ -197,81 +168,63 @@ public class GitVersionControlHandler : IVersionControl
         return VCStatus.NotVersionControlled;
     }
 
-    /// <inheritdoc/>
-    public VCStatus GetStatus(string path) =>
+    public VCStatus GetStatus(string filePath) =>
         _currentRepo is not null
-            ? _pathStates.GetValueOrDefault(path, VCStatus.NotVersionControlled)
+            ? _pathStates.GetValueOrDefault(filePath, VCStatus.NotVersionControlled)
             : VCStatus.NotVersionControlled;
 
-    /// <inheritdoc/>
-    public bool StagePath(string path, out string? errorMessage)
+    public IResult StagePath(string path)
     {
         try
         {
             if (_currentRepo is null)
-            {
-                errorMessage = MissingRepoMessage;
-                return false;
-            }
+                return SimpleResult.Error(MissingRepoMessage);
 
             Commands.Stage(_currentRepo, path);
-            errorMessage = null;
-            return true;
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
-            return false;
+            return SimpleResult.Error(ex.Message);
         }
     }
 
-    /// <inheritdoc/>
-    public bool UnstagePath(string filePath, out string? errorMessage)
+    public IResult UnstagePath(string filePath)
     {
         try
         {
             if (_currentRepo is null)
-            {
-                errorMessage = MissingRepoMessage;
-                return false;
-            }
+                return SimpleResult.Error(MissingRepoMessage);
+
             string relativePath = Path.GetRelativePath(
                 _currentRepo.Info.WorkingDirectory,
                 filePath
             );
             Commands.Unstage(_currentRepo, relativePath);
-            errorMessage = null;
-            return true;
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
-            return false;
+            return SimpleResult.Error(ex.Message);
         }
     }
 
-    /// <inheritdoc/>
-    public bool CommitChanges(string commitMessage, out string? errorMessage)
+    public IResult CommitChanges(string commitMessage)
     {
         if (_currentRepo is null)
-        {
-            errorMessage = MissingRepoMessage;
-            return false;
-        }
+            return SimpleResult.Error(MissingRepoMessage);
+
         string command = $"git -C \"{GetWorkingDir()}\" commit -m \"{commitMessage}\"";
-        return _fileIOHandler.ExecuteCmd(command, out errorMessage);
+        return _shellHandler.ExecuteCmd(command);
     }
 
-    /// <inheritdoc/>
-    public bool UploadChanges(out string? errorMessage)
+    public IResult UploadChanges()
     {
         if (_currentRepo is null)
-        {
-            errorMessage = MissingRepoMessage;
-            return false;
-        }
+            return SimpleResult.Error(MissingRepoMessage);
+
         string command = $"git -C \"{GetWorkingDir()}\" push";
-        return _fileIOHandler.ExecuteCmd(command, out errorMessage);
+        return _shellHandler.ExecuteCmd(command);
     }
 
     /// <summary>
