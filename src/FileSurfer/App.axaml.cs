@@ -1,7 +1,10 @@
+using System;
+using System.IO;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
+using FileSurfer.Models;
 using FileSurfer.Models.FileInformation;
 using FileSurfer.Models.FileOperations;
 using FileSurfer.Models.Shell;
@@ -38,6 +41,19 @@ public partial class App : Application
         FileSurferSettings.LoadSettings();
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            SimpleResult result = ValidateArgs(desktop.Args, out string? directory);
+            if (!result.IsOk)
+            {
+                foreach (string error in result.Errors)
+                    Console.WriteLine(error);
+
+                desktop.Shutdown(1);
+                return;
+            }
+
+            if (directory is not null)
+                FileSurferSettings.OpenIn = directory;
+
             RequestedThemeVariant = FileSurferSettings.UseDarkMode
                 ? ThemeVariant.Dark
                 : ThemeVariant.Light;
@@ -46,6 +62,22 @@ public partial class App : Application
             desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnMainWindowClose;
         }
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static SimpleResult ValidateArgs(string[]? args, out string? directory)
+    {
+        directory = null;
+
+        if (args?.Length > 1)
+            return SimpleResult.Error("Incorrect number of arguments.");
+
+        if (args?.Length == 1)
+            if (Directory.Exists(args[0]))
+                directory = args[0];
+            else
+                return SimpleResult.Error($"Directory: \"{args[0]}\" does not exist.");
+
+        return SimpleResult.Ok();
     }
 
     private static MainWindowViewModel GetViewModel()

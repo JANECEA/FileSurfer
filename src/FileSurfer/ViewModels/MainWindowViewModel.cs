@@ -97,22 +97,27 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         get => _currentDir;
         set
         {
-            this.RaiseAndSetIfChanged(ref _currentDir, value);
-            if (IsValidDirectory(value))
+            string directory = value;
+            if (Directory.Exists(directory))
+            {
+                directory = Path.GetFullPath(directory);
+                _lastModified = Directory.GetLastWriteTime(directory);
+            }
+
+            this.RaiseAndSetIfChanged(ref _currentDir, directory);
+            if (IsValidDirectory(directory))
             {
                 if (FileSurferSettings.OpenInLastLocation)
-                    FileSurferSettings.OpenIn = value;
+                    FileSurferSettings.OpenIn = directory;
 
                 if (Searching)
-                    CancelSearch(value);
+                    CancelSearch(directory);
 
                 Reload();
 
-                if (_isActionUserInvoked && value != _pathHistory.Current)
-                    _pathHistory.AddNewNode(value);
+                if (_isActionUserInvoked && directory != _pathHistory.Current)
+                    _pathHistory.AddNewNode(directory);
             }
-            if (Directory.Exists(value))
-                _lastModified = Directory.GetLastWriteTime(value);
         }
     }
     private string _currentDir = string.Empty;
