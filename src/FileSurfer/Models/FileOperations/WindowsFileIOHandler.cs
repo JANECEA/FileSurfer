@@ -174,8 +174,8 @@ public class WindowsFileIOHandler : IFileIOHandler
             if (Path.GetDirectoryName(filePath) is not string parentDir)
                 return SimpleResult.Error($"No parent directory found for \"{filePath}\"");
 
-            string dirName = Path.GetFileName(filePath);
-            if (string.Equals(dirName, newName, StringComparison.OrdinalIgnoreCase))
+            string fileName = Path.GetFileName(filePath);
+            if (string.Equals(fileName, newName, StringComparison.OrdinalIgnoreCase))
             {
                 string tempName = FileNameGenerator.GetAvailableName(
                     parentDir,

@@ -347,7 +347,7 @@ public partial class MainWindow : Window
     {
         if (NameInputBox.Text is string newName)
         {
-            _viewModel?.Rename(newName);
+            _viewModel?.Rename(newName.Trim());
             NewNameBar.IsVisible = false;
         }
     }
@@ -361,7 +361,7 @@ public partial class MainWindow : Window
     {
         if (CommitInputBox.Text is string commitMessage)
         {
-            _viewModel?.Commit(commitMessage);
+            _viewModel?.Commit(commitMessage.Trim());
             CommitMessageBar.IsVisible = false;
             CommitInputBox.Text = string.Empty;
         }

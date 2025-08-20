@@ -1168,7 +1168,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         {
             _undoRedoHistory.AddNewNode(operation);
             Reload();
-            SelectedFiles.Add(FileEntries.First(e => e.Name == newName));
+
+            FileSystemEntryViewModel? newEntry = FileEntries.First(e =>
+                string.Equals(e.Name, newName, StringComparison.OrdinalIgnoreCase)
+            );
+            if (newEntry is not null)
+                SelectedFiles.Add(newEntry);
         }
         ForwardIfError(result);
     }
