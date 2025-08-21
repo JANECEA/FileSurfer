@@ -1,7 +1,9 @@
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Logging;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using FileSurfer.Models;
@@ -41,24 +43,20 @@ public partial class App : Application
         FileSurferSettings.LoadSettings();
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            SimpleResult result = ValidateArgs(desktop.Args, out string? directory);
+            SimpleResult result = ValidateArgs(desktop.Args, out string? initialDir);
             if (!result.IsOk)
             {
-                foreach (string error in result.Errors)
-                    Console.WriteLine(error);
-
                 desktop.Shutdown(1);
                 return;
             }
-
-            if (directory is not null)
-                FileSurferSettings.OpenIn = directory;
-
             RequestedThemeVariant = FileSurferSettings.UseDarkMode
                 ? ThemeVariant.Dark
                 : ThemeVariant.Light;
 
-            desktop.MainWindow = new MainWindow { DataContext = GetViewModel() };
+            desktop.MainWindow = new MainWindow
+            {
+                DataContext = GetViewModel(initialDir ?? FileSurferSettings.OpenIn),
+            };
             desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnMainWindowClose;
         }
         base.OnFrameworkInitializationCompleted();
@@ -80,7 +78,7 @@ public partial class App : Application
         return SimpleResult.Ok();
     }
 
-    private static MainWindowViewModel GetViewModel()
+    private static MainWindowViewModel GetViewModel(string initialDir)
     {
         WindowsFileInfoProvider fileInfoProvider = new();
         WindowsFileIOHandler fileIOHandler =
@@ -88,6 +86,7 @@ public partial class App : Application
         WindowsShellHandler shellHandler = new();
 
         return new MainWindowViewModel(
+            initialDir,
             fileIOHandler,
             fileInfoProvider,
             shellHandler,

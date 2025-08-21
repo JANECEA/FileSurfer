@@ -319,6 +319,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Initializes a new <see cref="MainWindowViewModel"/>.
     /// </summary>
     public MainWindowViewModel(
+        string initialDir,
         IFileIOHandler fileIOHandler,
         IFileInfoProvider fileInfoProvider,
         IShellHandler shellHandler,
@@ -369,9 +370,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ? GetSpecialFolders()
             : Array.Empty<FileSystemEntryViewModel>();
 
-        CurrentDir = IsValidDirectory(FileSurferSettings.OpenIn)
-            ? FileSurferSettings.OpenIn
-            : ThisPCLabel;
+        CurrentDir = IsValidDirectory(initialDir) ? initialDir : ThisPCLabel;
         _pathHistory.AddNewNode(CurrentDir);
 
         if (FileSurferSettings.AutomaticRefresh)
