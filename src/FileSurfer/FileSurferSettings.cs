@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using FileSurfer.ViewModels;
 
 namespace FileSurfer;
@@ -58,30 +59,32 @@ public enum SortBy
     "IDE1006:Naming Styles",
     Justification = "JSON naming convention"
 )]
-public record SettingsRecord(
-    string newImageName,
-    string newFileName,
-    string newDirectoryName,
-    string thisPCLabel,
-    string notepadApp,
-    bool openInLastLocation,
-    string openIn,
-    bool useDarkMode,
-    string displayMode,
-    string defaultSort,
-    int fileSizeUnitLimit,
-    bool sortReversed,
-    bool showSpecialFolders,
-    bool showProtectedFiles,
-    bool showHiddenFiles,
-    bool treatDotFilesAsHidden,
-    bool gitIntegration,
-    bool showUndoRedoErrorDialogs,
-    bool automaticRefresh,
-    int automaticRefreshInterval,
-    bool allowImagePastingFromClipboard,
-    List<string> quickAccess
-);
+public record SettingsRecord
+{
+    private const string ThisPCLabel = "This PC";
+    public string newImageName { get; init; } = "New Image";
+    public string newFileName { get; init; } = "New File";
+    public string newDirectoryName { get; init; } = "New Folder";
+    public string thisPCLabel { get; init; } = ThisPCLabel;
+    public string notepadApp { get; init; } = "notepad.exe";
+    public bool openInLastLocation { get; init; } = true;
+    public string openIn { get; init; } = ThisPCLabel;
+    public bool useDarkMode { get; init; } = true;
+    public string displayMode { get; init; } = DisplayMode.ListView.ToString();
+    public string defaultSort { get; init; } = SortBy.Name.ToString();
+    public int fileSizeUnitLimit { get; init; } = 4096;
+    public bool sortReversed { get; init; } = false;
+    public bool showSpecialFolders { get; init; } = true;
+    public bool showProtectedFiles { get; init; } = false;
+    public bool showHiddenFiles { get; init; } = true;
+    public bool treatDotFilesAsHidden { get; init; } = true;
+    public bool gitIntegration { get; init; } = true;
+    public bool showUndoRedoErrorDialogs { get; init; } = true;
+    public bool automaticRefresh { get; init; } = true;
+    public int automaticRefreshInterval { get; init; } = 3000;
+    public bool allowImagePastingFromClipboard { get; init; } = true;
+    public List<string> quickAccess { get; init; } = new List<string>();
+}
 
 /// <summary>
 /// <para>
@@ -98,6 +101,8 @@ internal static class FileSurferSettings
         {
             Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             WriteIndented = true,
+            UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
+            AllowTrailingCommas = true,
         };
     private static readonly string SettingsFileDir =
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\FileSurfer";
@@ -105,66 +110,37 @@ internal static class FileSurferSettings
     /// <summary>
     /// Returns the default set of settings for the <see cref="FileSurfer"/> app.
     /// </summary>
-    public static SettingsRecord DefaultSettings
-    {
-        get
-        {
-            const string thisPCLabel = "This PC";
-            return new SettingsRecord(
-                "New Image",
-                "New File",
-                "New Folder",
-                thisPCLabel,
-                "notepad.exe",
-                true,
-                thisPCLabel,
-                true,
-                DisplayMode.ListView.ToString(),
-                SortBy.Name.ToString(),
-                4096,
-                false,
-                true,
-                false,
-                true,
-                true,
-                true,
-                true,
-                true,
-                3000,
-                true,
-                new List<string>()
-            );
-        }
-    }
+    public static SettingsRecord DefaultSettings => new();
 
     /// <summary>
     /// Returns the current settings in the form of <see cref="SettingsRecord"/>.
     /// </summary>
     public static SettingsRecord CurrentSettings =>
-        new(
-            NewImageName,
-            NewFileName,
-            NewDirectoryName,
-            ThisPCLabel,
-            NotepadApp,
-            OpenInLastLocation,
-            OpenIn,
-            UseDarkMode,
-            DisplayMode.ToString(),
-            DefaultSort.ToString(),
-            FileSizeUnitLimit,
-            SortReversed,
-            ShowSpecialFolders,
-            ShowProtectedFiles,
-            ShowHiddenFiles,
-            TreatDotFilesAsHidden,
-            GitIntegration,
-            ShowUndoRedoErrorDialogs,
-            AutomaticRefresh,
-            AutomaticRefreshInterval,
-            AllowImagePastingFromClipboard,
-            QuickAccess
-        );
+        new SettingsRecord
+        {
+            newImageName = NewImageName,
+            newFileName = NewFileName,
+            newDirectoryName = NewDirectoryName,
+            thisPCLabel = ThisPCLabel,
+            notepadApp = NotepadApp,
+            openInLastLocation = OpenInLastLocation,
+            openIn = OpenIn,
+            useDarkMode = UseDarkMode,
+            displayMode = DisplayMode.ToString(),
+            defaultSort = DefaultSort.ToString(),
+            fileSizeUnitLimit = FileSizeUnitLimit,
+            sortReversed = SortReversed,
+            showSpecialFolders = ShowSpecialFolders,
+            showProtectedFiles = ShowProtectedFiles,
+            showHiddenFiles = ShowHiddenFiles,
+            treatDotFilesAsHidden = TreatDotFilesAsHidden,
+            gitIntegration = GitIntegration,
+            showUndoRedoErrorDialogs = ShowUndoRedoErrorDialogs,
+            automaticRefresh = AutomaticRefresh,
+            automaticRefreshInterval = AutomaticRefreshInterval,
+            allowImagePastingFromClipboard = AllowImagePastingFromClipboard,
+            quickAccess = QuickAccess,
+        };
 
     /// <summary>
     /// The full path to settings.json.
@@ -298,7 +274,7 @@ internal static class FileSurferSettings
         try
         {
             SettingsRecord settings =
-                JsonSerializer.Deserialize<SettingsRecord>(_previousSettingsJson)
+                JsonSerializer.Deserialize<SettingsRecord>(_previousSettingsJson, SerializerOptions)
                 ?? throw new InvalidDataException();
 
             ImportSettings(settings);

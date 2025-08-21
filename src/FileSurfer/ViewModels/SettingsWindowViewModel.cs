@@ -77,30 +77,31 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     /// </summary>
     public void Save() =>
         FileSurferSettings.ImportSettings(
-            new SettingsRecord(
-                NewImageName,
-                NewFileName,
-                NewDirectoryName,
-                ThisPCLabel,
-                NotepadApp,
-                OpenInLastLocation,
-                OpenIn,
-                UseDarkMode,
-                DisplayMode,
-                DefaultSort,
-                FileSizeUnitLimit,
-                SortReversed,
-                ShowSpecialFolders,
-                ShowProtectedFiles,
-                ShowHiddenFiles,
-                TreatDotFilesAsHidden,
-                GitIntegration,
-                ShowUndoRedoErrorDialogs,
-                AutomaticRefresh,
-                AutomaticRefreshInterval,
-                AllowImagePastingFromClipboard,
-                QuickAccess
-            )
+            new SettingsRecord
+            {
+                newImageName = NewImageName,
+                newFileName = NewFileName,
+                newDirectoryName = NewDirectoryName,
+                thisPCLabel = ThisPCLabel,
+                notepadApp = NotepadApp,
+                openInLastLocation = OpenInLastLocation,
+                openIn = OpenIn,
+                useDarkMode = UseDarkMode,
+                displayMode = DisplayMode,
+                defaultSort = DefaultSort,
+                fileSizeUnitLimit = FileSizeUnitLimit,
+                sortReversed = SortReversed,
+                showSpecialFolders = ShowSpecialFolders,
+                showProtectedFiles = ShowProtectedFiles,
+                showHiddenFiles = ShowHiddenFiles,
+                treatDotFilesAsHidden = TreatDotFilesAsHidden,
+                gitIntegration = GitIntegration,
+                showUndoRedoErrorDialogs = ShowUndoRedoErrorDialogs,
+                automaticRefresh = AutomaticRefresh,
+                automaticRefreshInterval = AutomaticRefreshInterval,
+                allowImagePastingFromClipboard = AllowImagePastingFromClipboard,
+                quickAccess = QuickAccess,
+            }
         );
 
     /// <summary>
