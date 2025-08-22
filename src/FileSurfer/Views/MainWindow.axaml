@@ -90,7 +90,7 @@
                 <Button Classes="FileOperationButton" Content="&#xF0455;" HotKey="F2" Click="OnRenameClicked"/>
                 <Button x:Name="DeleteButton" Classes="FileOperationButton" Content="&#xF014;" HotKey="Delete" Command="{Binding MoveToTrashCommand}"/>
                 <Rectangle Classes="ButtonSeparator"/>
-                <Button Classes="MenuButton" Width="80" Content="&#xF176;&#xF175; Sort">
+                <Button x:Name="MenuButton" Classes="MenuButton" Width="80" Content="&#xF176;&#xF175; Sort">
                     <Button.Flyout>
                         <MenuFlyout>
                             <MenuItem Classes="MenuOption" Header="Name" Command="{Binding SortByNameCommand}"/>

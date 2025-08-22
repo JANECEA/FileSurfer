@@ -1,5 +1,4 @@
 using FileSurfer.Models;
-using FileSurfer.Models.FileOperations;
 using FileSurfer.Models.Shell;
 
 namespace FSTests;

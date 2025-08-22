@@ -442,9 +442,21 @@ public partial class MainWindow : Window
     {
         e.Handled = true;
         if (SearchBox.IsFocused)
-            FocusManager?.ClearFocus();
+            ClearFocus();
         else
             SearchBox.Focus();
+    }
+
+    private void ClearFocus()
+    {
+        if (FileDisplay.ItemCount > 0)
+        {
+            FileDisplay.SelectedIndex = 0;
+            var firstContainer = FileDisplay.ContainerFromIndex(0);
+            firstContainer?.Focus();
+        }
+        else
+            MenuButton.Focus();
     }
 
     /// <summary>
@@ -460,13 +472,13 @@ public partial class MainWindow : Window
             if (CommitMessageBar.IsVisible)
                 CommitMessageEntered();
 
-            FocusManager?.ClearFocus();
+            ClearFocus();
             return;
         }
 
         if (PathBox.IsFocused)
         {
-            FocusManager?.ClearFocus();
+            ClearFocus();
             return;
         }
 
@@ -492,7 +504,7 @@ public partial class MainWindow : Window
         if (SearchBox.IsFocused)
             _viewModel?.CancelSearch();
 
-        FocusManager?.ClearFocus();
+        ClearFocus();
     }
 
     /// <summary>
