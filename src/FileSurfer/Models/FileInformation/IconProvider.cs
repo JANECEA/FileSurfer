@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using Avalonia.Media.Imaging;
@@ -65,10 +66,10 @@ public class IconProvider : IIconProvider, IDisposable
     }
 
     /// <inheritdoc/>
-    public Bitmap GetDirectoryIcon() => DirectoryIcon;
+    public Bitmap GetDirectoryIcon(string dirPath) => DirectoryIcon;
 
     /// <inheritdoc/>
-    public Bitmap GetDriveIcon() => DriveIcon;
+    public Bitmap GetDriveIcon(DriveInfo driveInfo) => DriveIcon;
 
     private Bitmap? GetGenericFileIcon(string genericFilePath) =>
         _fileInfoProvider.GetFileIcon(genericFilePath)?.ConvertToAvaloniaBitmap();
@@ -79,5 +80,16 @@ public class IconProvider : IIconProvider, IDisposable
             icon.Dispose();
 
         _icons.Clear();
+    }
+}
+
+public static class BitmapExtensions
+{
+    public static Bitmap ConvertToAvaloniaBitmap(this System.Drawing.Bitmap bitmap)
+    {
+        using MemoryStream stream = new();
+        bitmap.Save(stream, ImageFormat.Png);
+        stream.Position = 0;
+        return new Bitmap(stream);
     }
 }

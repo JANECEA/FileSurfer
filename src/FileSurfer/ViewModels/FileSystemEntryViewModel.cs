@@ -118,8 +118,9 @@ public sealed class FileSystemEntryViewModel
     {
         FileSystemEntry = entry;
         Icon = IsDirectory
-            ? iconProvider.GetDirectoryIcon()
+            ? iconProvider.GetDirectoryIcon(entry.PathToEntry)
             : iconProvider.GetFileIcon(entry.PathToEntry);
+
         LastModTime = fileInfoProvider.GetFileLastModified(entry.PathToEntry) ?? DateTime.MaxValue;
         LastModified = GetLastModified(fileInfoProvider);
         SizeB = IsDirectory ? null : fileInfoProvider.GetFileSizeB(entry.PathToEntry);
@@ -160,7 +161,7 @@ public sealed class FileSystemEntryViewModel
     {
         FileSystemEntry = new DriveEntry(driveInfo);
         Type = "Drive";
-        Icon = iconProvider.GetDriveIcon();
+        Icon = iconProvider.GetDriveIcon(driveInfo);
         LastModified = string.Empty;
         Size = GetSizeString(driveInfo.TotalSize);
     }

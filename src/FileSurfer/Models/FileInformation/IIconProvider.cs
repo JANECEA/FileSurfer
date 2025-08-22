@@ -1,4 +1,5 @@
 ﻿using Avalonia.Media.Imaging;
+using System.IO;
 
 namespace FileSurfer.Models.FileInformation;
 
@@ -14,10 +15,10 @@ public interface IIconProvider
     /// <summary>
     /// Retrieves the icon associated with directories.
     /// </summary>
-    public Bitmap GetDirectoryIcon();
+    public Bitmap GetDirectoryIcon(string dirPath);
 
     /// <summary>
     /// Retrieves the icon associated with drives.
     /// </summary>
-    public Bitmap GetDriveIcon();
+    public Bitmap GetDriveIcon(DriveInfo driveInfo);
 }
