@@ -8,75 +8,98 @@ hide empty members
 namespace FileSurfer {
     class Program
     class FileSurferSettings
+    class App
+    class ViewLocator
 }
 
 namespace FileSurfer.Models {
     interface IFileSystemEntry
     class FileEntry
     class DirectoryEntry
+    class DriveEntry
     class "UndoRedoHandler<T>"
-    class FileOperationResult
+    interface IResult
+    class SimpleResult
+    class Result
     
     namespace FileOperations {
-	interface IFileOperationHandler
-	class ArchiveManager
-	class ClipboardManager
-	class WindowsFileOperationHandler
-	
-	namespace Undoable {
-	    interface IUndoableFileOperation
-	    class CopyFilesTo
-	    class DuplicateFiles
-	    class MoveFilesTo
-	    class MoveFilesToTrash
-	    class NewDirAt
-	    class NewFileAt
-	    class RenameFiles
-	    class FlattenFolder
-	}
+        interface IFileIOHandler
+        class WindowsFileIOHandler
+        interface IClipboardManager
+        class ClipboardManager
+        class ArchiveManager
+        
+        namespace Undoable {
+            interface IUndoableFileOperation
+            abstract UndoableOperation
+            class CopyFilesTo
+            class DuplicateFiles
+            class MoveFilesTo
+            class MoveFilesToTrash
+            class NewDirAt
+            class NewFileAt
+            class RenameFiles
+            class FlattenFolder
+        }
     }
 
     namespace VersionControl {
-	interface IVersionControl
-	class GitVersionControlHandler
+        interface IVersionControl
+        class GitVersionControl
+        enum VCStatus
     }
-    
+        
     namespace Shell {
-	class WindowsFileRestorer
-	class WindowsFileProperties
-	interface IShellHandler
-	class WindowsShellHandler
+        interface IFileRestorer
+        class WindowsFileRestorer
+        interface IShellHandler
+        class WindowsShellHandler
+        class WindowsFileProperties
     }
 
     namespace FileInformation {
-	interface IFileInfoProvider
-	class IconProvider
-	class FileNameGenerator
-	class WindowsFileInfoProvider
+        interface IFileInfoProvider
+        class WindowsFileInfoProvider
+        interface IIconProvider
+        class IconProvider
+        class FileNameGenerator
     }
 }
 
 namespace FileSurfer.ViewModels {
+    class SettingsWindowViewModel
     class MainWindowViewModel
     class FileSystemEntryViewModel
+    class FileSystemEntryVMFactory
 }
 
 namespace FileSurfer.Views {
     class MainWindow
     class SettingsWindow
-    class ErrorDialog
-    class ConfirmationDialog
+    class ErrorWindow
 }
 
 
-FileSurfer.ViewModels -r-> FileSurfer.Models : interact with
-FileSurfer.ViewModels -d--> FileSurfer.Views : serve data to
+FileSurfer.ViewModels -u--> FileSurfer.Models : interact with
+FileSurfer.ViewModels -r--> FileSurfer.Views : serve data to
 
 FileSurfer.Models.Shell.WindowsShellHandler ..|> FileSurfer.Models.Shell.IShellHandler
+FileSurfer.Models.Shell.WindowsFileRestorer ..|> FileSurfer.Models.Shell.IFileRestorer
+
 FileSurfer.Models.FileInformation.WindowsFileInfoProvider ..|> FileSurfer.Models.FileInformation.IFileInfoProvider
-FileSurfer.Models.VersionControl.GitVersionControlHandler ..|> FileSurfer.Models.VersionControl.IVersionControl
-FileSurfer.Models.FileOperations.WindowsFileOperationHandler ..|> FileSurfer.Models.FileOperations.IFileOperationHandler
+FileSurfer.Models.FileInformation.IconProvider ..|> FileSurfer.Models.FileInformation.IIconProvider
+
+FileSurfer.Models.VersionControl.GitVersionControl ..l|> FileSurfer.Models.VersionControl.IVersionControl
+
+FileSurfer.Models.FileOperations.WindowsFileIOHandler ..|> FileSurfer.Models.FileOperations.IFileIOHandler
+FileSurfer.Models.FileOperations.ClipboardManager ..|> FileSurfer.Models.FileOperations.IClipboardManager
 
 FileSurfer.Models.FileEntry ..d|> FileSurfer.Models.IFileSystemEntry 
 FileSurfer.Models.DirectoryEntry ..l|> FileSurfer.Models.IFileSystemEntry
+FileSurfer.Models.DriveEntry ..u|> FileSurfer.Models.IFileSystemEntry
+FileSurfer.Models.Result ..u|> FileSurfer.Models.IResult
+FileSurfer.Models.SimpleResult ..d|> FileSurfer.Models.IResult
+
+FileSurfer.Models.FileInformation --u[hidden]-> FileSurfer.Models.Shell
+FileSurfer.Models.FileOperations ---d[hidden]-> FileSurfer.Models.VersionControl
 @enduml
