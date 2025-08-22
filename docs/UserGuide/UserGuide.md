@@ -23,7 +23,7 @@ Welcome to the **FileSurfer** User Guide. This guide will help you use the featu
 
 
 ## Installation
-Refer to [README.md](../../README.md) for instructions on how to build the project from source.
+Refer to [README.md](../../README.md) for instructions on how to build the project from source or download the latest release [here](https://github.com/JANECEA/FileSurfer/releases/latest).
 
 
 
@@ -146,7 +146,10 @@ If `"gitIntegration"` is set to `true` and the current directory is a git reposi
 
 
 ## Settings and Preferences
-Access settings from the ellipsis menu in the toolbar to customize the theme, default folder view, and other application behaviors:
+Access the settings window from the ellipsis menu in the toolbar to customize the theme, default folder view, and other application behaviors:
+![Settings Window](./images/settingsWindow.png)
+
+The settings are stored in a JSON file at: `C:\Users\USER_NAME\AppData\Roaming\FileSurfer\settings.json`.
 ```json
 {
   "useDarkMode": true,                      // Choose Dark mode or Light mode
