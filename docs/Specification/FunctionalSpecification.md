@@ -2,7 +2,7 @@
 
 ## Overview  
 FileSurfer is a file explorer for Windows with a graphical interface built with **C#** on the **Avalonia UI** platform.
- The user interface is similar to that of the Windows 11 file explorer, while providing some new features.
+ The user interface is similar to that of the Windows 11 file explorer, while providing a few new features.
 
 ## Features  
 
@@ -29,7 +29,6 @@ FileSurfer is a file explorer for Windows with a graphical interface built with 
 - **Pasting images from clipboard**  
 - **Flatten folder**: Moves all contents of a folder up one level and then deletes the folder  
 - **Undo and Redo**: For most file operations  
-- **Confirmation dialog**: Some file operations may require confirmation via a dialog  
 
 ### 4. Git Integration  
 - **Branch selection**: Switching between repository branches  
@@ -92,9 +91,3 @@ FileSurfer provides an interactive window for adjusting settings. Data is saved 
   "quickAccess": []                         // Paths to your quick access items will be stored here
 }
 ```
-
-#### Upcoming Features:  
-- Flatten folder  
-- Confirmation dialog for file operations  
-- Checkbox for "git add" on directories  
-- Interactive window for changing settings  
