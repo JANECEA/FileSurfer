@@ -23,7 +23,7 @@ public class ClipboardManager : IClipboardManager
 
     public ClipboardManager(IFileIOHandler fileIOHandler, string newImageName)
     {
-        _newImageName = newImageName;
+        _newImageName = newImageName + ".png";
         _fileIOHandler = fileIOHandler;
     }
 
