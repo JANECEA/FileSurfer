@@ -42,7 +42,6 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     public bool AutomaticRefresh { get; set; }
     public int AutomaticRefreshInterval { get; set; }
     public bool AllowImagePastingFromClipboard { get; set; }
-    private List<string> QuickAccess { get; set; }
 
     public SettingsWindowViewModel() => SetValues(FileSurferSettings.CurrentSettings);
 
@@ -69,7 +68,6 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         AutomaticRefresh = settings.automaticRefresh;
         AutomaticRefreshInterval = settings.automaticRefreshInterval;
         AllowImagePastingFromClipboard = settings.allowImagePastingFromClipboard;
-        QuickAccess = settings.quickAccess;
     }
 
     /// <summary>
@@ -100,7 +98,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
                 automaticRefresh = AutomaticRefresh,
                 automaticRefreshInterval = AutomaticRefreshInterval,
                 allowImagePastingFromClipboard = AllowImagePastingFromClipboard,
-                quickAccess = QuickAccess,
+                quickAccess = FileSurferSettings.QuickAccess,
             }
         );
 
