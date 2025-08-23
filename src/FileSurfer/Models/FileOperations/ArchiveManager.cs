@@ -15,6 +15,8 @@ namespace FileSurfer.Models.FileOperations;
 /// </summary>
 internal static class ArchiveManager
 {
+    public const string ArchiveTypeExtension = ".zip";
+
     /// <summary>
     /// Determines if the file is an archive in the context of <see cref="FileSurfer"/>.
     /// </summary>

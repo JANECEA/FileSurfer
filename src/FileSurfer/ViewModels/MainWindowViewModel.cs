@@ -474,7 +474,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     /// <returns>The length of the file name without extension.</returns>
     public int GetNameEndIndex(FileSystemEntryViewModel entry) =>
-        SelectedFiles.Count > 0 ? Path.GetFileNameWithoutExtension(entry.PathToEntry).Length : 0;
+        SelectedFiles.Count > 0 ? entry.FileSystemEntry.NameWOExtension.Length : 0;
 
     private bool IsValidDirectory(string path) =>
         path == ThisPCLabel || (!string.IsNullOrEmpty(path) && Directory.Exists(path));
@@ -1028,19 +1028,20 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (!Directory.Exists(CurrentDir))
             return;
 
-        string fileName = Path.GetFileNameWithoutExtension(SelectedFiles[^1].Name) + ".zip";
-        await ZipFilesWrapperAsync(fileName);
+        string archiveName =
+            SelectedFiles[^1].FileSystemEntry.NameWOExtension + ArchiveManager.ArchiveTypeExtension;
+        await ZipFilesWrapperAsync(archiveName);
         Reload();
     }
 
-    private Task ZipFilesWrapperAsync(string fileName) =>
+    private Task ZipFilesWrapperAsync(string archiveName) =>
         Task.Run(
             () =>
                 ForwardIfError(
                     ArchiveManager.ZipFiles(
                         SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                         CurrentDir,
-                        FileNameGenerator.GetAvailableName(CurrentDir, fileName)
+                        FileNameGenerator.GetAvailableName(CurrentDir, archiveName)
                     )
                 )
         );
@@ -1185,9 +1186,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void RenameMultiple(string namingPattern)
     {
         bool onlyFiles = !SelectedFiles[0].IsDirectory;
-        string extension = onlyFiles
-            ? Path.GetExtension(SelectedFiles[0].PathToEntry)
-            : string.Empty;
+        string extension = onlyFiles ? SelectedFiles[0].FileSystemEntry.Extension : string.Empty;
 
         if (
             !FileNameGenerator.CanBeRenamedCollectively(
