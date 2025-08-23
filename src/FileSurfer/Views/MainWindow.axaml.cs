@@ -347,7 +347,7 @@ public partial class MainWindow : Window
     {
         if (NameInputBox.Text is string newName)
         {
-            _viewModel?.Rename(newName.Trim());
+            _viewModel?.Rename(newName);
             NewNameBar.IsVisible = false;
         }
     }

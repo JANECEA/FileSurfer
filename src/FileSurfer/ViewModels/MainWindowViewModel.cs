@@ -1157,6 +1157,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void Rename(string newName)
     {
+        newName = newName.Trim();   
+
         if (SelectedFiles.Count == 1)
             RenameOne(newName);
         else if (SelectedFiles.Count > 1)

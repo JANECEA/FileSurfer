@@ -42,10 +42,10 @@ internal static class FileNameGenerator
     public static string GetCopyName(string directory, IFileSystemEntry entry)
     {
         string extension =
-            entry is DirectoryEntry ? string.Empty : Path.GetExtension(entry.PathToEntry);
+            entry is DirectoryEntry ? string.Empty : entry.Extension;
         string copyName = entry.Name;
         if (extension != string.Empty)
-            copyName = Path.GetFileNameWithoutExtension(entry.PathToEntry);
+            copyName = entry.NameWOExtension;
 
         return GetAvailableName(directory, copyName + " - Copy" + extension);
     }
@@ -63,7 +63,7 @@ internal static class FileNameGenerator
         foreach (IFileSystemEntry entry in entries)
             if (
                 onlyFiles != entry is not DirectoryEntry
-                || onlyFiles && Path.GetExtension(entry.PathToEntry) != extension
+                || onlyFiles && entry.Extension != extension
             )
                 return false;
 

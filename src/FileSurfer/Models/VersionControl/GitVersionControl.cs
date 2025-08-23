@@ -214,8 +214,23 @@ public class GitVersionControl : IVersionControl
         if (_currentRepo is null)
             return SimpleResult.Error(MissingRepoMessage);
 
-        string command = $"git -C \"{GetWorkingDir()}\" commit -m \"{commitMessage}\"";
+        if (!ValidateCommitMessage(commitMessage))
+            return SimpleResult.Error($"Commit message: \"{commitMessage}\" is invalid.");
+
+        string command = $"git -C \"{GetWorkingDir()}\" commit -m \"{commitMessage.Trim()}\"";
         return _shellHandler.ExecuteCmd(command);
+    }
+
+    private static bool ValidateCommitMessage(string commitMessage)
+    {
+        if (string.IsNullOrWhiteSpace(commitMessage))
+            return false;
+
+        foreach (char c in commitMessage)
+            if (c == '\0' || c == '"' || (c < 0x20 && c != '\t'))
+                return false;
+
+        return true;
     }
 
     public IResult UploadChanges()

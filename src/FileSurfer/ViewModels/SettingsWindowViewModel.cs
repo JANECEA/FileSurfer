@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
@@ -12,17 +14,88 @@ namespace FileSurfer.ViewModels;
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 public sealed class SettingsWindowViewModel : ReactiveObject
 {
-    public string NewImageName { get; set; }
-    public string NewFileName { get; set; }
-    public string NewDirectoryName { get; set; }
-    public string ThisPCLabel { get; set; }
-    public string NotepadApp { get; set; }
+    private string _newImageName;
+    public string NewImageName
+    {
+        get => _newImageName;
+        set =>
+            this.RaiseAndSetIfChanged(
+                ref _newImageName,
+                SanitizeInput(
+                    value,
+                    Path.GetInvalidFileNameChars(),
+                    FileSurferSettings.DefaultSettings.newImageName
+                )
+            );
+    }
+
+    private string _newFileName;
+    public string NewFileName
+    {
+        get => _newFileName;
+        set =>
+            this.RaiseAndSetIfChanged(
+                ref _newFileName,
+                SanitizeInput(
+                    value,
+                    Path.GetInvalidFileNameChars(),
+                    FileSurferSettings.DefaultSettings.newFileName
+                )
+            );
+    }
+
+    private string _newDirectoryName;
+    public string NewDirectoryName
+    {
+        get => _newDirectoryName;
+        set =>
+            this.RaiseAndSetIfChanged(
+                ref _newDirectoryName,
+                SanitizeInput(
+                    value,
+                    Path.GetInvalidFileNameChars(),
+                    FileSurferSettings.DefaultSettings.newDirectoryName
+                )
+            );
+    }
+
+    private string _thisPCLabel;
+    public string ThisPCLabel
+    {
+        get => _thisPCLabel;
+        set =>
+            this.RaiseAndSetIfChanged(
+                ref _thisPCLabel,
+                SanitizeInput(
+                    value,
+                    Path.GetInvalidFileNameChars(),
+                    FileSurferSettings.DefaultSettings.thisPCLabel
+                )
+            );
+    }
+
+    private string _notepadApp;
+    public string NotepadApp
+    {
+        get => _notepadApp;
+        set =>
+            this.RaiseAndSetIfChanged(
+                ref _notepadApp,
+                SanitizeInput(
+                    value,
+                    Path.GetInvalidPathChars(),
+                    FileSurferSettings.DefaultSettings.notepadApp
+                )
+            );
+    }
+
+    private bool _openInLastLocation;
     public bool OpenInLastLocation
     {
         get => _openInLastLocation;
         set => this.RaiseAndSetIfChanged(ref _openInLastLocation, value);
     }
-    private bool _openInLastLocation;
+
     public string OpenIn { get; set; }
     public bool UseDarkMode { get; set; }
     public string DisplayMode { get; set; }
@@ -106,6 +179,18 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     /// Resets current values to default based on <see cref="FileSurferSettings.DefaultSettings"/>
     /// </summary>
     public void ResetToDefault() => SetValues(FileSurferSettings.DefaultSettings);
+
+    private static string SanitizeInput(string input, char[] invalidChars, string defaultName)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return defaultName;
+
+        StringBuilder sb = new(input.Length);
+        foreach (var c in input.Where(ch => !invalidChars.Contains(ch)))
+            sb.Append(c);
+
+        return sb.ToString().Trim().TrimEnd('\\', '/');
+    }
 }
 #pragma warning restore CA1822 // Mark members as static
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
