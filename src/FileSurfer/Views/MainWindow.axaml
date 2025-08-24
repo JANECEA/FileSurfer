@@ -68,8 +68,7 @@
 
             <Grid ColumnDefinitions="* 250">
                 <TextBox x:Name="PathBox" Classes="PathBox TopTextBox" Grid.Column="0" 
-                Text="{Binding CurrentDir, Mode=TwoWay}"  GotFocus="TextBoxGotFocus" 
-                LostFocus="TextBoxLostFocus"/>
+                Text="{Binding CurrentDir, Mode=OneWay}"  GotFocus="TextBoxGotFocus" LostFocus="PathBoxLostFocus"/>
 
                 <Grid Grid.Column="1">
                     <TextBox x:Name="SearchBox" Classes="SearchBox TopTextBox" Watermark="{Binding SearchWaterMark}" LostFocus="SearchBoxLostFocus" GotFocus="TextBoxGotFocus"/>

@@ -67,10 +67,7 @@ public partial class App : Application
             return SimpleResult.Error("Incorrect number of arguments.");
 
         if (args?.Length == 1)
-            if (Directory.Exists(args[0]))
-                directory = args[0];
-            else
-                return SimpleResult.Error($"Directory: \"{args[0]}\" does not exist.");
+            directory = args[0];
 
         return SimpleResult.Ok();
     }

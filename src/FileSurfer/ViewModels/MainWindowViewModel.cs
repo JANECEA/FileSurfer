@@ -30,10 +30,7 @@ namespace FileSurfer.ViewModels;
 public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
     private const string SearchingLabel = "Search Results";
-    private readonly string ThisPCLabel = FileSurferSettings.ThisPCLabel;
-    private readonly string NewFileName = FileSurferSettings.NewFileName;
-    private readonly string NewDirName = FileSurferSettings.NewDirectoryName;
-    private readonly string NewImageName = FileSurferSettings.NewImageName + ".png";
+    private string ThisPCLabel => FileSurferSettings.ThisPCLabel;
 
     private readonly IFileIOHandler _fileIOHandler;
     private readonly IFileInfoProvider _fileInfoProvider;
@@ -102,6 +99,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             {
                 directory = Path.GetFullPath(directory);
                 _lastModified = Directory.GetLastWriteTime(directory);
+            }
+            else if (directory != ThisPCLabel && !Searching)
+            {
+                ForwardError($"Directory \"{directory}\" does not exist.");
+                directory = _pathHistory.Current ?? ThisPCLabel;
             }
 
             this.RaiseAndSetIfChanged(ref _currentDir, directory);
@@ -370,7 +372,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ? GetSpecialFolders()
             : Array.Empty<FileSystemEntryViewModel>();
 
-        CurrentDir = IsValidDirectory(initialDir) ? initialDir : ThisPCLabel;
+        CurrentDir = initialDir;
         _pathHistory.AddNewNode(CurrentDir);
 
         if (FileSurferSettings.AutomaticRefresh)
@@ -629,7 +631,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void GoUp()
     {
-        if (Path.GetDirectoryName(CurrentDir) is not string parentDir)
+        if (Path.GetDirectoryName(CurrentDir.TrimEnd('\\')) is not string parentDir)
             CurrentDir = ThisPCLabel;
         else if (CurrentDir != ThisPCLabel)
             CurrentDir = parentDir;
@@ -861,9 +863,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             oldCTS.Dispose();
         }
         string currentDir = _pathHistory.Current ?? ThisPCLabel;
+        Searching = true;
         CurrentDir = SearchingLabel;
         FileEntries.Clear();
-        Searching = true;
 
         if (currentDir != ThisPCLabel)
             await SearchDirectoryAsync(currentDir, searchQuery, _searchCTS.Token);
@@ -984,7 +986,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void NewFile()
     {
-        string newFileName = FileNameGenerator.GetAvailableName(CurrentDir, NewFileName);
+        string newFileName = FileNameGenerator.GetAvailableName(
+            CurrentDir,
+            FileSurferSettings.NewFileName
+        );
 
         NewFileAt operation = new(_fileIOHandler, CurrentDir, newFileName);
         IResult result = operation.Invoke();
@@ -1007,7 +1012,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void NewDir()
     {
-        string newDirName = FileNameGenerator.GetAvailableName(CurrentDir, NewDirName);
+        string newDirName = FileNameGenerator.GetAvailableName(
+            CurrentDir,
+            FileSurferSettings.NewDirectoryName
+        );
 
         NewDirAt operation = new(_fileIOHandler, CurrentDir, newDirName);
         IResult result = operation.Invoke();
@@ -1157,7 +1165,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void Rename(string newName)
     {
-        newName = newName.Trim();   
+        newName = newName.Trim();
 
         if (SelectedFiles.Count == 1)
             RenameOne(newName);
@@ -1202,14 +1210,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
         }
 
+        IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry);
         RenameMultiple operation =
             new(
                 _fileIOHandler,
-                SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
-                FileNameGenerator.GetAvailableNames(
-                    SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
-                    namingPattern
-                )
+                entries,
+                FileNameGenerator.GetAvailableNames(entries, namingPattern)
             );
         IResult result = operation.Invoke();
         if (result.IsOk)

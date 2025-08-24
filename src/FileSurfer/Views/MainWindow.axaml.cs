@@ -341,6 +341,18 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
+    /// Resets text in <see cref="PathBox"/>.
+    /// <para>
+    /// Invokes <see cref="TextBoxLostFocus(object?, RoutedEventArgs?)"/>.
+    /// </para>
+    /// </summary>
+    private void PathBoxLostFocus(object sender, RoutedEventArgs e)
+    {
+        PathBox.Text = _viewModel?.CurrentDir ?? string.Empty;
+        TextBoxLostFocus();
+    }
+
+    /// <summary>
     /// Relays the new name to <see cref="_viewModel"/> and hides <see cref="NewNameBar"/>.
     /// </summary>
     private void NameEntered()
@@ -478,6 +490,8 @@ public partial class MainWindow : Window
 
         if (PathBox.IsFocused)
         {
+            if (_viewModel is not null)
+                _viewModel.CurrentDir = PathBox.Text ?? string.Empty;
             ClearFocus();
             return;
         }
