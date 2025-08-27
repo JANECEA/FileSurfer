@@ -44,6 +44,14 @@
         <Setter Property="Width" Value="250"/>
     </Style>
 
+    <Style Selector="TextBox.TopTextBox:focus-within /template/ Border,
+           TextBox.TopTextBox:pointerover /template/ Border">
+        <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource TextColor}"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="BorderThickness" Value="0.5"/>
+    </Style>
+
     <Style Selector="Button.CancelSearchButton">
         <Setter Property="Width" Value="30"/>
         <Setter Property="Height" Value="24"/>
@@ -113,8 +121,20 @@
         <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
-    <Style Selector="ComboBox.BranchComboBox:is-pointerover /template/ Border">
-        <Setter Property="Background" Value="{DynamicResource GitHoverColor}"/>
+    <Style Selector="ComboBox.BranchComboBox:pointerover /template/ Border">
+        <Setter Property="Background" Value="{DynamicResource TextBoxColor}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource TextColor}"/>
+        <Setter Property="BorderThickness" Value="0.5"/>
+    </Style>
+
+    <Style Selector="ComboBox.BranchComboBox:dropdownopen /template/ Border">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}"/>
+        <Setter Property="BorderThickness" Value="0.5"/>
+    </Style>
+
+    <Style Selector="ComboBoxItem:selected /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
     </Style>
 
     <Style Selector="Button.GitButton">
@@ -133,6 +153,10 @@
 
     <Style Selector="Button.GitButton:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource GitHoverColor}"/>
+    </Style>
+
+    <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/> 
     </Style>
 
     <Style Selector="ListBox.SideBarListBox">
