@@ -83,7 +83,7 @@ public record SettingsRecord
     public bool automaticRefresh { get; init; } = true;
     public int automaticRefreshInterval { get; init; } = 3000;
     public bool allowImagePastingFromClipboard { get; init; } = true;
-    public List<string> quickAccess { get; init; } = new List<string>();
+    public List<string> quickAccess { get; init; } = new();
 }
 
 /// <summary>
@@ -116,7 +116,7 @@ internal static class FileSurferSettings
     /// Returns the current settings in the form of <see cref="SettingsRecord"/>.
     /// </summary>
     public static SettingsRecord CurrentSettings =>
-        new SettingsRecord
+        new()
         {
             newImageName = NewImageName,
             newFileName = NewFileName,

@@ -14,7 +14,6 @@ using FileSurfer.Models.FileOperations;
 using FileSurfer.Models.FileOperations.Undoable;
 using FileSurfer.Models.Shell;
 using FileSurfer.Models.VersionControl;
-using Microsoft.VisualBasic;
 using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
@@ -104,7 +103,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             else if (directory != ThisPCLabel && !Searching)
             {
                 ForwardError($"Directory \"{directory}\" does not exist.");
-                directory = _pathHistory.Current ?? ThisPCLabel;
+                directory = _pathHistory.Current ?? GetClosestExistingParent(directory);
             }
 
             this.RaiseAndSetIfChanged(ref _currentDir, directory);
@@ -428,16 +427,33 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ShowDrives();
             SetDriveInfo();
         }
-        else
+        else if (Directory.Exists(CurrentDir))
         {
             LoadDirEntries();
             UpdateSelectionInfo();
         }
+        else
+        {
+            ForwardError($"Directory: \"{CurrentDir}\" does not exist.");
+            CurrentDir = GetClosestExistingParent(CurrentDir);
+        }
+
         CheckDirectoryEmpty();
         SetSearchWaterMark();
 
         if (FileSurferSettings.AutomaticRefresh)
             UpdateLastModified();
+    }
+
+    private string GetClosestExistingParent(string dirPath)
+    {
+        string? path = dirPath;
+
+        while (!Directory.Exists(path))
+            if ((path = Path.GetDirectoryName(dirPath)) is null)
+                return ThisPCLabel;
+
+        return path;
     }
 
     /// <summary>
@@ -1206,7 +1222,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             _undoRedoHistory.AddNewNode(operation);
             Reload();
 
-            FileSystemEntryViewModel? newEntry = FileEntries.First(e =>
+            FileSystemEntryViewModel? newEntry = FileEntries.FirstOrDefault(e =>
                 string.Equals(e.Name, newName, StringComparison.OrdinalIgnoreCase)
             );
             if (newEntry is not null)

@@ -17,10 +17,4 @@ public sealed class DirectoryEntry : IFileSystemEntry
     public string NameWOExtension => Name;
 
     public DirectoryEntry(string dirPath) => PathToEntry = dirPath;
-
-    public DirectoryEntry(string dirPath, string dirName)
-    {
-        PathToEntry = dirPath;
-        _name = dirName;
-    }
 }

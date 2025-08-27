@@ -14,7 +14,7 @@ public class WindowsShellHandler : IShellHandler
         try
         {
             using Process process = new();
-            process.StartInfo = new()
+            process.StartInfo = new ProcessStartInfo
             {
                 FileName = "powershell.exe",
                 WorkingDirectory = dirPath,
@@ -35,7 +35,7 @@ public class WindowsShellHandler : IShellHandler
         try
         {
             using Process process = new();
-            process.StartInfo = new(filePath) { UseShellExecute = true };
+            process.StartInfo = new ProcessStartInfo(filePath) { UseShellExecute = true };
             process.Start();
             return SimpleResult.Ok();
         }
@@ -68,7 +68,7 @@ public class WindowsShellHandler : IShellHandler
     public IResult ExecuteCmd(string command)
     {
         using Process process = new();
-        process.StartInfo = new()
+        process.StartInfo = new ProcessStartInfo
         {
             FileName = "cmd.exe",
             Arguments = "/c " + command,

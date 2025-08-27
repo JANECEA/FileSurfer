@@ -11,7 +11,7 @@ public interface IVersionControl : IDisposable
     /// Determines whether the specified directory is under version control.
     /// </summary>
     /// <param name="directoryPath">The path of the directory to check.</param>
-    /// <returns>A <see cref="true"/> if the directory is part of a git repository or <see cref="false"/> otherwise.</returns>
+    /// <returns><see langword="true"/> if the directory is part of a git repository or <see langword="false"/> otherwise.</returns>
     public bool InitIfVersionControlled(string directoryPath);
 
     /// <summary>

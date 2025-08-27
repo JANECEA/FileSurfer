@@ -186,7 +186,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
             return defaultName;
 
         StringBuilder sb = new(input.Length);
-        foreach (var c in input.Where(ch => !invalidChars.Contains(ch)))
+        foreach (char c in input.Where(ch => !invalidChars.Contains(ch)))
             sb.Append(c);
 
         return sb.ToString().Trim().TrimEnd('\\', '/');

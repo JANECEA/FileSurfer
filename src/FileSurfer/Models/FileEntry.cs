@@ -20,10 +20,4 @@ public sealed class FileEntry : IFileSystemEntry
     private string? _nameWOExtension;
 
     public FileEntry(string pathToFile) => PathToEntry = pathToFile;
-
-    public FileEntry(string pathToFile, string fileName)
-    {
-        PathToEntry = pathToFile;
-        _name = fileName;
-    }
 }

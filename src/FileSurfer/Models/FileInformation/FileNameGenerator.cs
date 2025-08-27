@@ -41,8 +41,7 @@ internal static class FileNameGenerator
     /// <returns>Name of a copy, available to use in the path specified in: <paramref name="directory"/>.</returns>
     public static string GetCopyName(string directory, IFileSystemEntry entry)
     {
-        string extension =
-            entry is DirectoryEntry ? string.Empty : entry.Extension;
+        string extension = entry is DirectoryEntry ? string.Empty : entry.Extension;
         string copyName = entry.Name;
         if (extension != string.Empty)
             copyName = entry.NameWOExtension;

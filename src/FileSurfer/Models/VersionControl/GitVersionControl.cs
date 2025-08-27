@@ -88,7 +88,7 @@ public class GitVersionControl : IVersionControl
             Commands.Checkout(_currentRepo, branch);
             return SimpleResult.Ok();
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             return SimpleResult.Error(ex.Message);
         }
