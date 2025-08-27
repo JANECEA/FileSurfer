@@ -14,6 +14,7 @@ using FileSurfer.Models.FileOperations;
 using FileSurfer.Models.FileOperations.Undoable;
 using FileSurfer.Models.Shell;
 using FileSurfer.Models.VersionControl;
+using Microsoft.VisualBasic;
 using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
@@ -172,7 +173,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Currently selected branch in the "Branches" combobox.
     /// </summary>
-    public string? CurrentBranch
+    public string CurrentBranch
     {
         get => _currentBranch;
         set
@@ -185,7 +186,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             }
         }
     }
-    private string? _currentBranch;
+    private string _currentBranch = string.Empty;
 
     /// <summary>
     /// Indicates whether the current directory is version controlled.
@@ -768,18 +769,39 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         IsVersionControlled =
             FileSurferSettings.GitIntegration
             && Directory.Exists(CurrentDir)
-            && _versionControl.InitIfVersionControlled(CurrentDir).IsOk;
+            && _versionControl.InitIfVersionControlled(CurrentDir);
+
+        LoadBranches();
+    }
+
+    /// <summary>
+    /// Updates <see cref="Branches"/>.
+    /// </summary>
+    private void LoadBranches()
+    {
+        if (!IsVersionControlled)
+        {
+            Branches.Clear();
+            return;
+        }
+
+        string currentBranch = _versionControl.GetCurrentBranchName();
+        string[] branches = _versionControl.GetBranches();
+        if (CurrentBranch == currentBranch && Branches.EqualsUnordered(branches))
+            return;
 
         Branches.Clear();
-        if (IsVersionControlled)
+        foreach (string branch in branches)
         {
-            foreach (string branch in _versionControl.GetBranches())
-                Branches.Add(branch);
+            Branches.Add(branch);
 
-            _isActionUserInvoked = false;
-            CurrentBranch = _versionControl.GetCurrentBranchName();
-            _isActionUserInvoked = true;
+            if (string.Equals(currentBranch, branch, StringComparison.Ordinal))
+                currentBranch = branch; // Object references must match
         }
+
+        _isActionUserInvoked = false;
+        CurrentBranch = currentBranch;
+        _isActionUserInvoked = true;
     }
 
     /// <summary>

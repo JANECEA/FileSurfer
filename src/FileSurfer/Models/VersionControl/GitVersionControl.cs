@@ -24,7 +24,7 @@ public class GitVersionControl : IVersionControl
     /// </summary>
     public GitVersionControl(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
-    public IResult InitIfVersionControlled(string directoryPath)
+    public bool InitIfVersionControlled(string directoryPath)
     {
         string? repoRootDir = directoryPath;
         string gitDir = string.Empty;
@@ -40,7 +40,7 @@ public class GitVersionControl : IVersionControl
         if (_currentRepo?.Info.Path == gitDir + '\\')
         {
             SetFileStates();
-            return SimpleResult.Ok();
+            return true;
         }
 
         _currentRepo?.Dispose();
@@ -50,12 +50,12 @@ public class GitVersionControl : IVersionControl
             {
                 _currentRepo = new Repository(repoRootDir);
                 SetFileStates();
-                return SimpleResult.Ok();
+                return true;
             }
             catch { }
         }
         _currentRepo = null;
-        return SimpleResult.Error();
+        return false;
     }
 
     private string? GetWorkingDir() => _currentRepo?.Info.WorkingDirectory.TrimEnd('\\');
@@ -88,9 +88,9 @@ public class GitVersionControl : IVersionControl
             Commands.Checkout(_currentRepo, branch);
             return SimpleResult.Ok();
         }
-        catch
+        catch (Exception ex) 
         {
-            return SimpleResult.Error($"branch: \"{branchName}\" not found");
+            return SimpleResult.Error(ex.Message);
         }
     }
 
