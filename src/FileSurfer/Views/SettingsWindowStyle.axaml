@@ -19,12 +19,31 @@
 
     <Style Selector="TextBox">
         <Setter Property="Background" Value="{DynamicResource TextBoxColor}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource TextBoxColor}"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="TextBox:focus-within /template/ Border,TextBox:pointerover /template/ Border">
         <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource TextColor}"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="BorderThickness" Value="0.5"/>
+    </Style>
+
+    <Style Selector="ComboBox:pointerover /template/ Border">
+        <Setter Property="Background" Value="{DynamicResource TextBoxColor}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource TextColor}"/>
+    </Style>
+
+    <Style Selector="ComboBox:dropdownopen /template/ Border">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}"/>
+    </Style>
+
+    <Style Selector="ComboBoxItem:selected /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
     </Style>
 
     <Style Selector="ComboBox,NumericUpDown">
