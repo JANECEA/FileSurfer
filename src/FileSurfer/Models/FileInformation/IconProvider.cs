@@ -48,21 +48,32 @@ public class IconProvider : IIconProvider, IDisposable
     /// <inheritdoc/>
     public Bitmap? GetFileIcon(string filePath)
     {
-        string extension = Path.GetExtension(filePath);
-        if (HaveUniqueIcons.Contains(extension))
-            return _fileInfoProvider.GetFileIcon(filePath)?.ConvertToAvaloniaBitmap()
-                ?? _genericFileIcon;
+        string extension = Path.GetExtension(filePath).ToLowerInvariant();
 
         if (string.IsNullOrWhiteSpace(extension))
-            return _genericFileIcon ??= GetGenericFileIcon(filePath);
+            return _genericFileIcon ??= RetrieveFileIcon(filePath);
 
-        if (_icons.TryGetValue(filePath, out Bitmap? cachedIcon))
+        if (HaveUniqueIcons.Contains(extension))
+            return RetrieveFileIcon(filePath) ?? _genericFileIcon;
+
+        if (_icons.TryGetValue(extension, out Bitmap? cachedIcon))
             return cachedIcon;
 
-        if (_fileInfoProvider.GetFileIcon(filePath)?.ConvertToAvaloniaBitmap() is Bitmap icon)
+        if (RetrieveFileIcon(filePath) is Bitmap icon)
             return _icons[extension] = icon;
 
         return _genericFileIcon;
+    }
+
+    private Bitmap? RetrieveFileIcon(string filePath)
+    {
+        if ( _fileInfoProvider.GetFileIcon(filePath) is not System.Drawing.Bitmap bitmap)
+            return null;
+
+        using MemoryStream stream = new();
+        bitmap.Save(stream, ImageFormat.Png);
+        stream.Position = 0;
+        return new Bitmap(stream);
     }
 
     /// <inheritdoc/>
@@ -71,25 +82,11 @@ public class IconProvider : IIconProvider, IDisposable
     /// <inheritdoc/>
     public Bitmap GetDriveIcon(DriveInfo driveInfo) => DriveIcon;
 
-    private Bitmap? GetGenericFileIcon(string genericFilePath) =>
-        _fileInfoProvider.GetFileIcon(genericFilePath)?.ConvertToAvaloniaBitmap();
-
     public void Dispose()
     {
         foreach (var icon in _icons.Values)
             icon.Dispose();
 
         _icons.Clear();
-    }
-}
-
-public static class BitmapExtensions
-{
-    public static Bitmap ConvertToAvaloniaBitmap(this System.Drawing.Bitmap bitmap)
-    {
-        using MemoryStream stream = new();
-        bitmap.Save(stream, ImageFormat.Png);
-        stream.Position = 0;
-        return new Bitmap(stream);
     }
 }
