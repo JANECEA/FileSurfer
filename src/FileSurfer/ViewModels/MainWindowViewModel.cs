@@ -1233,22 +1233,13 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private void RenameMultiple(string namingPattern)
     {
-        bool onlyFiles = !SelectedFiles[0].IsDirectory;
-        string extension = onlyFiles ? SelectedFiles[0].FileSystemEntry.Extension : string.Empty;
-
-        if (
-            !FileNameGenerator.CanBeRenamedCollectively(
-                SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
-                onlyFiles,
-                extension
-            )
-        )
+        IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry);
+        if (!FileNameGenerator.CanBeRenamedCollectively(entries))
         {
             ForwardError("Selected entries aren't of the same type.");
             return;
         }
 
-        IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry);
         RenameMultiple operation =
             new(
                 _fileIOHandler,

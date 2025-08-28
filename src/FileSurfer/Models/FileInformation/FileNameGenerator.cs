@@ -39,30 +39,25 @@ internal static class FileNameGenerator
     /// <see cref="ClipboardManager.Duplicate(string, out string[])"/> operation.
     /// </summary>
     /// <returns>Name of a copy, available to use in the path specified in: <paramref name="directory"/>.</returns>
-    public static string GetCopyName(string directory, IFileSystemEntry entry)
-    {
-        string extension = entry is DirectoryEntry ? string.Empty : entry.Extension;
-        string copyName = entry.Name;
-        if (extension != string.Empty)
-            copyName = entry.NameWOExtension;
-
-        return GetAvailableName(directory, copyName + " - Copy" + extension);
-    }
+    public static string GetCopyName(string directory, IFileSystemEntry entry) =>
+        GetAvailableName(directory, $"{entry.NameWOExtension} - Copy{entry.Extension}");
 
     /// <summary>
     /// Determines if the files or directories represented by <paramref name="entries"/> can be collectively renamed.
     /// </summary>
     /// <returns><see langword="true"/> if <paramref name="entries"/> can be collectively renamed, otherwise <see langword="false"/>.</returns>
-    public static bool CanBeRenamedCollectively(
-        IEnumerable<IFileSystemEntry> entries,
-        bool onlyFiles,
-        string extension
-    )
+    public static bool CanBeRenamedCollectively(IList<IFileSystemEntry> entries)
     {
-        foreach (IFileSystemEntry entry in entries)
+        if (entries.Count < 2)
+            return true;
+
+        bool onlyFiles = entries[0] is FileEntry;
+        string extension = entries[0].Extension;
+
+        for (int i = 1; i < entries.Count; i++)
             if (
-                onlyFiles != entry is not DirectoryEntry
-                || onlyFiles && entry.Extension != extension
+                entries[i] is FileEntry != onlyFiles
+                || !string.Equals(entries[i].Extension, extension, StringComparison.OrdinalIgnoreCase)
             )
                 return false;
 
