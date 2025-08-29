@@ -267,10 +267,13 @@ internal static class FileSurferSettings
     public static void LoadSettings()
     {
         if (!File.Exists(SettingsFilePath))
+        {
+            ImportSettings(DefaultSettings);
             SaveSettings();
+            return;
+        }
 
         _previousSettingsJson = File.ReadAllText(SettingsFilePath, Encoding.UTF8);
-
         try
         {
             SettingsRecord settings =
