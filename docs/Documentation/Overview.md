@@ -15,8 +15,8 @@ to the ViewModels while receiving data from the ViewModels to display.
 [ViewModels](#filesurferviewmodels) serve as a layer in between the Views and the Models. 
 They transform data for the UI and routing user input to the appropriate Model functions.
 
-Bellow is a list of classes and interfaces separated into namespaces. If you want to checkout the
-doxygen, visit the [wiki](https://JANECEA.github.io/FileSurfer/).
+Bellow is a list of classes and interfaces separated into namespaces. You can also look around the generated 
+[doxygen](https://JANECEA.github.io/FileSurfer/).
 
 ## FileSurfer
 ### Program
