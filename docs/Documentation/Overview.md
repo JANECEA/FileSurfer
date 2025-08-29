@@ -1,5 +1,22 @@
 # Overview
-Welcome to the technical documentation of the *FileSurfer* project.
+Welcome to the technical documentation of *FileSurfer*. This project was started back in July 2024 as my
+semestral programming project. Since then I have been working on polishing its features and managing its
+github page. It is a program I use every time I find myself on Windows (even though it is not much these days).
+
+FileSurfer is built purely with C# and uses the Reactive UI framework from the AvaloniaUI ecosystem.
+By design of AvaloniaUI application, FileSurfer follows the MVVM (Model-View-ViewModel) architectural pattern.
+
+The [Models](#filesurfermodels) encapsulate functional logic such as file system operations, file system information
+retrieval, interaction with the system clipboard, etc...
+
+[Views](#filesurferviews) represent the UI elements with minimal functional logic. They handle user input and serve it
+to the ViewModels while receiving data from the ViewModels to display.
+
+[ViewModels](#filesurferviewmodels) serve as a layer in between the Views and the Models. 
+They transform data for the UI and routing user input to the appropriate Model functions.
+
+Bellow is a list of classes and interfaces separated into namespaces. If you want to checkout the
+doxygen, visit the [wiki](https://JANECEA.github.io/FileSurfer/).
 
 ## FileSurfer
 ### Program

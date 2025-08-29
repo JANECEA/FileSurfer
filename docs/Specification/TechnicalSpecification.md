@@ -1,6 +1,4 @@
 # Technical specification
-
-## Overview
 **FileSurfer** implements the Model-View-ViewModel (MVVM) architectural pattern.
 It is built with **C#**, using the **Reactive UI** framework within the **Avalonia UI** ecosystem.
 
