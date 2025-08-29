@@ -29,7 +29,7 @@ transforming data for the UI and routing user input to the appropriate Model fun
 - **UndoRedoHandler\<T\>**: Generic class managing undo and redo operations.
 - **IResult**: Interface representing the outcome of an operation in the *FileSurfer* app.
 - **SimpleResult**: Lightweight implementation of `IResult`.
-- **Result**: Flexible but more memory intensive operation of `IResult`.
+- **Result**: Flexible but more memory intensive implementation of `IResult`.
 
 #### FileSurfer.Models.FileInformation
 - **IFileInfoProvider**: Interface for retrieving file metadata and properties.
