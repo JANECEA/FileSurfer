@@ -1,0 +1,5 @@
+<map id="FileSurfer.ViewModels.MainWindowViewModel.OpenPowerShell" name="FileSurfer.ViewModels.MainWindowViewModel.OpenPowerShell">
+<area shape="rect" id="Node000001" title="Opens power&#45;shell in CurrentDir if possible." alt="" coords="5,5,239,48"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a03451d04f2138c0229759f4244da8d0c" title="Opens a new Views.ErrorWindow dialog." alt="" coords="287,5,506,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="239,24,271,24,271,29,239,29"/>
+</map>

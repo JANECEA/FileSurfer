@@ -1,0 +1,17 @@
+<map id="FileSurfer.Views.MainWindow.KeyPressed" name="FileSurfer.Views.MainWindow.KeyPressed">
+<area shape="rect" id="Node000001" title="Handles key presses without keybindings." alt="" coords="5,72,205,115"/>
+<area shape="rect" id="Node000002" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a41580fa3a0496faf254de7a7b1cd1a09" title="Toggles focus on SearchBox." alt="" coords="253,5,452,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,69,255,50,256,55,187,74"/>
+<area shape="rect" id="Node000004" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a7b582d6a4e5b68ab3635ac12bdf32db6" title="Processes currently focused elements and invokes their respective actions." alt="" coords="253,139,452,181"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="187,113,256,131,255,137,186,118"/>
+<area shape="rect" id="Node000007" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a660698df4a8331452f27e1db27e6cfa0" title="Empties selection, cancels searching and clears focus." alt="" coords="253,72,452,115"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="205,91,237,91,237,96,205,96"/>
+<area shape="rect" id="Node000003" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#ae0c3acf33a73d3c8f7ecb01f10e28406" title=" " alt="" coords="500,72,699,115"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="435,46,504,65,502,70,433,51"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="433,136,502,117,504,122,435,141"/>
+<area shape="rect" id="Node000005" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a8c750ac886afb1ca3092d2f9ce899ea9" title="Relays the commit message to _viewModel, hides CommitMessageBar, and clears CommitInputBox text." alt="" coords="500,139,699,181"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="452,157,485,157,485,163,452,163"/>
+<area shape="rect" id="Node000006" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#aeef09496d52ed88e0e09e7aeb7708e1d" title="Relays the new name to _viewModel and hides NewNameBar." alt="" coords="500,205,699,248"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="435,179,504,198,502,203,433,184"/>
+<area shape="poly" id="edge8_Node000007_Node000003" title=" " alt="" coords="452,91,485,91,485,96,452,96"/>
+</map>

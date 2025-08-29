@@ -1,0 +1,11 @@
+<map id="FileSurfer.ViewModels.MainWindowViewModel.CancelSearch" name="FileSurfer.ViewModels.MainWindowViewModel.CancelSearch">
+<area shape="rect" id="Node000001" title="Cancels the search and sets CurrentDir to the current in _pathHistory." alt="" coords="577,64,795,107"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a2107f58bd040209a418961c11c31f1aa" title="Sets the current directory to the previous directory in _pathHistory." alt="" coords="337,5,521,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="574,63,521,50,522,45,575,57"/>
+<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#adbeea4752e95caf3111b69ef2ee287cd" title="Initializes a new MainWindowViewModel." alt="" coords="5,64,281,107"/>
+<area shape="poly" id="edge5_Node000001_Node000003" title=" " alt="" coords="561,88,281,88,281,83,561,83"/>
+<area shape="rect" id="Node000004" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a3eb093d8f4d219f9c88bfaf6e79f6ce5" title="Sets the current directory to the next directory in _pathHistory." alt="" coords="329,123,529,165"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="575,113,526,125,525,119,574,108"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="322,51,251,66,250,61,321,46"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="313,123,250,110,251,105,314,118"/>
+</map>

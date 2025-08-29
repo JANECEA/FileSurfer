@@ -1,0 +1,5 @@
+<map id="FileSurfer.FileSurferSettings.UpdateQuickAccess" name="FileSurfer.FileSurferSettings.UpdateQuickAccess">
+<area shape="rect" id="Node000001" title="Update Quick Access list with the specified FileSystemEntryViewModels." alt="" coords="253,5,442,48"/>
+<area shape="rect" id="Node000002" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a26e5c65e889a9e7f5b30313b3d82879c" title="Invokes FileSurferSettings.UpdateQuickAccess(System.Collections.Generic.IEnumerable&lt;FileSystemEntryVi..." alt="" coords="5,5,205,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,29,205,29,205,24,237,24"/>
+</map>

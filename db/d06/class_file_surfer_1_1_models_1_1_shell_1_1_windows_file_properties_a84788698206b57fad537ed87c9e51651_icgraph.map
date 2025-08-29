@@ -1,0 +1,5 @@
+<map id="FileSurfer.Models.Shell.WindowsFileProperties.ShellExecuteEx" name="FileSurfer.Models.Shell.WindowsFileProperties.ShellExecuteEx">
+<area shape="rect" id="Node000001" title=" " alt="" coords="267,13,519,56"/>
+<area shape="rect" id="Node000002" href="$db/d06/class_file_surfer_1_1_models_1_1_shell_1_1_windows_file_properties.html#af10fa42196483127aa2cfe64333e47ee" title="Calls the ShellExecuteEx(ref ShellExecuteInfo) function to show the properties dialog of the specifie..." alt="" coords="5,5,219,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="251,37,219,37,219,32,251,32"/>
+</map>

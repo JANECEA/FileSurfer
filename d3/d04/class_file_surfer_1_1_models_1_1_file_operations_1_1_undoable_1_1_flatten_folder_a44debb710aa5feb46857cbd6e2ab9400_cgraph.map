@@ -1,0 +1,15 @@
+<map id="FileSurfer.Models.FileOperations.Undoable.FlattenFolder.Invoke" name="FileSurfer.Models.FileOperations.Undoable.FlattenFolder.Invoke">
+<area shape="rect" id="Node000001" title="Invokes the file operation." alt="" coords="5,72,221,115"/>
+<area shape="rect" id="Node000002" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="278,5,446,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,69,265,50,266,55,196,74"/>
+<area shape="rect" id="Node000005" href="$d0/d00/class_file_surfer_1_1_models_1_1_result.html#a8f0bcbef3e61af6e1ede519bf5d9e474" title=" " alt="" coords="277,72,446,115"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="221,91,261,91,261,96,221,96"/>
+<area shape="rect" id="Node000006" href="$d0/d00/class_file_surfer_1_1_models_1_1_result.html#a6225f3491ff55f24694f8be2581dedb7" title=" " alt="" coords="269,139,455,165"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="207,113,288,132,286,137,206,118"/>
+<area shape="rect" id="Node000003" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="504,5,671,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="446,24,488,24,488,29,446,29"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="720,5,888,48"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="672,24,705,24,705,29,672,29"/>
+<area shape="rect" id="Node000007" href="$d0/d00/class_file_surfer_1_1_models_1_1_result.html#af5902de97cf99bfc8a49703414aaf811" title=" " alt="" coords="503,131,672,173"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="455,149,487,149,487,155,455,155"/>
+</map>

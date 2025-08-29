@@ -1,0 +1,17 @@
+var searchData=
+[
+  ['paste_0',['Paste',['../d8/d03/class_file_surfer_1_1_models_1_1_file_operations_1_1_clipboard_manager.html#a88923c8261e93b217f10fc8d1c2bc912',1,'FileSurfer.Models.FileOperations.ClipboardManager.Paste()'],['../d6/d0f/interface_file_surfer_1_1_models_1_1_file_operations_1_1_i_clipboard_manager.html#ae6e3cfce224bcea1f992956ac828fa5c',1,'FileSurfer.Models.FileOperations.IClipboardManager.Paste()'],['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a85db53191b994db578a250f0c75d9487',1,'FileSurfer.ViewModels.MainWindowViewModel.Paste()']]],
+  ['pastecommand_1',['PasteCommand',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a415bd6ea0ba1f10393d6edc1c8e3cd4c',1,'FileSurfer::ViewModels::MainWindowViewModel']]],
+  ['pastefromosclipboard_2',['PasteFromOSClipboard',['../d8/d03/class_file_surfer_1_1_models_1_1_file_operations_1_1_clipboard_manager.html#a27db4c0e5ea05009148be6ce59601333',1,'FileSurfer::Models::FileOperations::ClipboardManager']]],
+  ['pathboxlostfocus_3',['PathBoxLostFocus',['../de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a5079bad8567d5241b1dae87913a6f48d',1,'FileSurfer::Views::MainWindow']]],
+  ['pathcolumn_4',['PathColumn',['../db/d08/class_file_surfer_1_1_models_1_1_shell_1_1_windows_file_restorer.html#ab12697b7a6c303b35a35a5bff7c93d7e',1,'FileSurfer::Models::Shell::WindowsFileRestorer']]],
+  ['pathtoentry_5',['PathToEntry',['../d8/d01/class_file_surfer_1_1_models_1_1_directory_entry.html#a8bf14f135b59faeca356f02b70353af5',1,'FileSurfer.Models.DirectoryEntry.PathToEntry'],['../d3/d0c/class_file_surfer_1_1_models_1_1_drive_entry.html#a6115d020f1b90b1b14283fd1bed428f5',1,'FileSurfer.Models.DriveEntry.PathToEntry'],['../db/d0b/class_file_surfer_1_1_models_1_1_file_entry.html#acbb7cd2dcaeef93c20ddb31c117ef033',1,'FileSurfer.Models.FileEntry.PathToEntry'],['../dd/d05/interface_file_surfer_1_1_models_1_1_i_file_system_entry.html#af48d2533e3ffb0f86e34ad386e1424bd',1,'FileSurfer.Models.IFileSystemEntry.PathToEntry'],['../d0/d04/class_file_surfer_1_1_view_models_1_1_file_system_entry_view_model.html#a0cbfe5188f08f5d8ac2e5ad0a22b2870',1,'FileSurfer.ViewModels.FileSystemEntryViewModel.PathToEntry']]],
+  ['pintoquickaccess_6',['PinToQuickAccess',['../de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#aa503d33d9b518eca4f0deaacebc42b95',1,'FileSurfer::Views::MainWindow']]],
+  ['previous_7',['Previous',['../d9/d09/class_file_surfer_1_1_models_1_1_undo_redo_handler-1-g.html#a6ea1bee6195793166f663423c94a21be',1,'FileSurfer::Models::UndoRedoHandler-1-g']]],
+  ['program_8',['Program',['../de/d0e/class_file_surfer_1_1_program.html',1,'FileSurfer']]],
+  ['program_2ecs_9',['Program.cs',['../dd/d0c/_program_8cs.html',1,'']]],
+  ['pull_10',['Pull',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#acf454a1553b97ca11c3dc8f3563ec80e',1,'FileSurfer::ViewModels::MainWindowViewModel']]],
+  ['pullcommand_11',['PullCommand',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a509c68f3e4034d34a03969a3af60e38d',1,'FileSurfer::ViewModels::MainWindowViewModel']]],
+  ['push_12',['Push',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a6e408a9273a97668f16c575d3fded882',1,'FileSurfer::ViewModels::MainWindowViewModel']]],
+  ['pushcommand_13',['PushCommand',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#aaac2cf9c0cbee5dbdf1a8aea8de94afb',1,'FileSurfer::ViewModels::MainWindowViewModel']]]
+];

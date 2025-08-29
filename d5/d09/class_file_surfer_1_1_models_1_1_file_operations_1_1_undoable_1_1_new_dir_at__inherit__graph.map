@@ -1,0 +1,5 @@
+<map id="FileSurfer.Models.FileOperations.Undoable.NewDirAt" name="FileSurfer.Models.FileOperations.Undoable.NewDirAt">
+<area shape="rect" id="Node000001" title="Represents the action of creating a new directory." alt="" coords="6,96,221,139"/>
+<area shape="rect" id="Node000002" href="$d2/d06/interface_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_i_undoable_file_operation.html" title="Represents an undoable file operation in the context of the FileSurfer app." alt="" coords="5,5,222,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,64,116,96,111,96,111,64"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="FileSurfer.Models.SimpleResult" name="FileSurfer.Models.SimpleResult">
+<area shape="rect" id="Node000001" title="An immutable, lightweight, and memory efficient implementation of IResult that supports at most one e..." alt="" coords="6,80,174,123"/>
+<area shape="rect" id="Node000002" href="$d6/d07/interface_file_surfer_1_1_models_1_1_i_result.html" title="Represents the result of an operation, indicating success or failure, along with error messages." alt="" coords="5,5,175,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="93,48,93,80,87,80,87,48"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="FileSurfer.ViewModels.MainWindowViewModel.FilterPaths" name="FileSurfer.ViewModels.MainWindowViewModel.FilterPaths">
+<area shape="rect" id="Node000001" title=" " alt="" coords="816,5,1016,48"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a3047ada43857fa35d01c7a58c65aeca1" title=" " alt="" coords="583,5,768,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="801,29,769,29,769,24,801,24"/>
+<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a6f19f770c3a4ce54793c00996b401d20" title="Recursively searches CurrentDir and asynchronously adds matching FileSystemEntryViewModels to FileEnt..." alt="" coords="268,5,535,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="567,29,536,29,536,24,567,24"/>
+<area shape="rect" id="Node000004" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a03fd89caeaa500e2c1447601d46f9d3b" title="Prepares the _searchCTS cancellation token, updates CurrentDir, and starts the search." alt="" coords="5,5,220,48"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="252,29,220,29,220,24,252,24"/>
+</map>

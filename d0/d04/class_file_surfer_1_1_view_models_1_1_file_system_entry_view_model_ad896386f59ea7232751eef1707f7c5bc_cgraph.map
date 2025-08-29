@@ -1,0 +1,7 @@
+<map id="FileSurfer.ViewModels.FileSystemEntryViewModel.FileSystemEntryViewModel" name="FileSurfer.ViewModels.FileSystemEntryViewModel.FileSystemEntryViewModel">
+<area shape="rect" id="Node000001" title="Initializes a new instance of the FileSystemEntryViewModel class for a drive." alt="" coords="5,31,237,89"/>
+<area shape="rect" id="Node000002" href="$dd/d00/interface_file_surfer_1_1_models_1_1_file_information_1_1_i_icon_provider.html#a34f4053bb36e16ce3ffca7f7af9da080" title="Retrieves the icon associated with drives." alt="" coords="299,5,516,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,44,284,38,284,44,237,49"/>
+<area shape="rect" id="Node000003" href="$d0/d04/class_file_surfer_1_1_view_models_1_1_file_system_entry_view_model.html#ae3de5be9976c946327ba419d9b7052f0" title="Converts file size in bytes to a human&#45;readable format." alt="" coords="285,72,531,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,71,270,75,269,80,237,76"/>
+</map>

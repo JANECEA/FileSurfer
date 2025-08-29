@@ -1,0 +1,9 @@
+<map id="FileSurfer.Models.VersionControl.GitVersionControl.UploadChanges" name="FileSurfer.Models.VersionControl.GitVersionControl.UploadChanges">
+<area shape="rect" id="Node000001" title="Uploads the committed changes to the remote repository." alt="" coords="5,5,220,64"/>
+<area shape="rect" id="Node000002" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="268,13,435,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,32,252,32,252,37,220,37"/>
+<area shape="rect" id="Node000003" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="483,13,650,56"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="435,32,467,32,467,37,435,37"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="698,13,866,56"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="651,32,682,32,682,37,651,37"/>
+</map>

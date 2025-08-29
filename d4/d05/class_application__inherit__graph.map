@@ -1,0 +1,5 @@
+<map id="Application" name="Application">
+<area shape="rect" id="Node000001" title=" " alt="" coords="15,5,100,32"/>
+<area shape="rect" id="Node000002" href="$d4/d0b/class_file_surfer_1_1_app.html" title="The App class serves as the entry point for the FileSurfer application, handling application&#45;wide ini..." alt="" coords="5,80,110,107"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="60,48,60,80,55,80,55,48"/>
+</map>

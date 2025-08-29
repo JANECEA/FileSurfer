@@ -1,0 +1,12 @@
+var _undoable_file_operations_8cs =
+[
+    [ "FileSurfer.Models.FileOperations.Undoable.MoveFilesToTrash", "dd/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_move_files_to_trash.html", "dd/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_move_files_to_trash" ],
+    [ "FileSurfer.Models.FileOperations.Undoable.MoveFilesTo", "d4/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_move_files_to.html", "d4/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_move_files_to" ],
+    [ "FileSurfer.Models.FileOperations.Undoable.CopyFilesTo", "d3/d08/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_copy_files_to.html", "d3/d08/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_copy_files_to" ],
+    [ "FileSurfer.Models.FileOperations.Undoable.DuplicateFiles", "dc/d03/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_duplicate_files.html", "dc/d03/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_duplicate_files" ],
+    [ "FileSurfer.Models.FileOperations.Undoable.RenameMultiple", "d4/d0f/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_rename_multiple.html", "d4/d0f/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_rename_multiple" ],
+    [ "FileSurfer.Models.FileOperations.Undoable.FlattenFolder", "d3/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_flatten_folder.html", "d3/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_flatten_folder" ],
+    [ "FileSurfer.Models.FileOperations.Undoable.RenameOne", "d2/d0e/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_rename_one.html", "d2/d0e/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_rename_one" ],
+    [ "FileSurfer.Models.FileOperations.Undoable.NewFileAt", "de/d07/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_new_file_at.html", "de/d07/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_new_file_at" ],
+    [ "FileSurfer.Models.FileOperations.Undoable.NewDirAt", "d2/d09/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_new_dir_at.html", "d2/d09/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_new_dir_at" ]
+];

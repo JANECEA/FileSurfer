@@ -1,0 +1,8 @@
+<map id="FileSurfer.Views.MainWindow.FindWrapPanel" name="FileSurfer.Views.MainWindow.FindWrapPanel">
+<area shape="rect" id="Node000001" title="Recursively finds WrapPanel within the visual elements." alt="" coords="253,39,452,81"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="393,26,377,20,352,17,329,19,315,24,309,30,311,38,306,39,304,29,312,20,328,14,352,12,379,14,395,21"/>
+<area shape="rect" id="Node000002" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#ab6d6367e0d50e87702cbe522222e352f" title="Switches the display mode to DisplayMode.IconView." alt="" coords="5,5,205,48"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="237,47,205,43,205,37,238,42"/>
+<area shape="rect" id="Node000003" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a63aa09f8346eef3620224c87a87f201c" title="Switches the display mode to DisplayMode.ListView." alt="" coords="5,72,205,115"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="238,78,205,83,205,77,237,73"/>
+</map>

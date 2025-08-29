@@ -1,0 +1,7 @@
+<map id="FileSurfer.ViewModels.MainWindowViewModel.GoBack" name="FileSurfer.ViewModels.MainWindowViewModel.GoBack">
+<area shape="rect" id="Node000001" title="Sets the current directory to the previous directory in _pathHistory." alt="" coords="5,39,190,81"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a4deaa07eb80712808e9f87909d2e5038" title="Cancels the search and sets CurrentDir to the current in _pathHistory." alt="" coords="243,5,461,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,45,227,40,227,46,190,51"/>
+<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a4c938190544f3ff139f8572f439ac17f" title=" " alt="" coords="238,72,466,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="190,69,223,74,222,79,190,75"/>
+</map>

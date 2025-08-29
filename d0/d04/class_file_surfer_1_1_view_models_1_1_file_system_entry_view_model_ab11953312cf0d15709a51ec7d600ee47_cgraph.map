@@ -1,0 +1,22 @@
+<map id="FileSurfer.ViewModels.FileSystemEntryViewModel.FileSystemEntryViewModel" name="FileSurfer.ViewModels.FileSystemEntryViewModel.FileSystemEntryViewModel">
+<area shape="rect" id="Node000001" title="Initializes a new instance of the FileSystemEntryViewModel class for a file or directory." alt="" coords="5,215,237,273"/>
+<area shape="rect" id="Node000002" href="$dd/d00/interface_file_surfer_1_1_models_1_1_file_information_1_1_i_icon_provider.html#a6c89faeee902af26fe83795e387972ea" title="Retrieves the icon associated with directories." alt="" coords="306,5,524,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,213,163,177,196,135,237,93,283,58,292,53,295,57,286,62,240,97,200,138,167,180,143,216"/>
+<area shape="rect" id="Node000003" href="$dd/d00/interface_file_surfer_1_1_models_1_1_file_information_1_1_i_icon_provider.html#ae2d8b231a7397f8235b0ac5bbddeea40" title="Retrieves the associated icon based on the supplied file path." alt="" coords="306,72,524,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="158,212,215,171,283,131,314,118,317,123,286,136,218,175,161,216"/>
+<area shape="rect" id="Node000004" href="$d6/d0e/interface_file_surfer_1_1_models_1_1_file_information_1_1_i_file_info_provider.html#a73cb306a3a8bc1ba022a8fbdcc6679fc" title="Gets the last modified date of a file." alt="" coords="593,160,829,203"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="179,212,229,191,284,175,359,164,436,160,578,164,578,169,436,165,360,169,285,180,231,196,181,217"/>
+<area shape="rect" id="Node000005" href="$d6/d0e/interface_file_surfer_1_1_models_1_1_file_information_1_1_i_file_info_provider.html#a644aa72476a28abb242322fdf2024359" title="Gets the size of a file in bytes." alt="" coords="306,189,524,232"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="237,228,290,222,291,227,237,234"/>
+<area shape="rect" id="Node000006" href="$d0/d04/class_file_surfer_1_1_view_models_1_1_file_system_entry_view_model.html#a1861dc137c8ac87dc1739ee23b248435" title=" " alt="" coords="285,256,545,299"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="237,254,269,258,269,263,237,260"/>
+<area shape="rect" id="Node000008" href="$d0/d04/class_file_surfer_1_1_view_models_1_1_file_system_entry_view_model.html#ae3de5be9976c946327ba419d9b7052f0" title="Converts file size in bytes to a human&#45;readable format." alt="" coords="292,323,538,365"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="190,271,286,308,309,315,307,320,284,313,189,276"/>
+<area shape="rect" id="Node000009" href="$d6/d0e/interface_file_surfer_1_1_models_1_1_file_information_1_1_i_file_info_provider.html#a57c30be9ad20ca4a8b5bdcfc1bc318d4" title="Checks if a path is hidden." alt="" coords="306,389,524,432"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="152,272,211,325,247,352,286,375,298,381,296,386,283,380,244,356,208,329,149,276"/>
+<area shape="rect" id="Node000010" href="$d3/d01/class_file_surfer_1_1_models_1_1_file_operations_1_1_archive_manager.html#a3b9944935cd3940afec801300f056282" title="Determines if the file is an archive in the context of FileSurfer." alt="" coords="307,456,522,499"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="141,272,164,311,197,357,238,403,286,442,295,447,292,451,283,446,235,407,193,361,160,314,136,275"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="506,253,544,241,642,206,643,211,546,247,507,258"/>
+<area shape="rect" id="Node000007" href="$d6/d0e/interface_file_surfer_1_1_models_1_1_file_information_1_1_i_file_info_provider.html#ac60199910b60ea039cae55be0a5d1853" title="Gets the last modified date of a directory." alt="" coords="595,256,827,299"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="545,275,579,275,579,280,545,280"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="FileSurfer.Views.MainWindow.OnEscapePressed" name="FileSurfer.Views.MainWindow.OnEscapePressed">
+<area shape="rect" id="Node000001" title="Empties selection, cancels searching and clears focus." alt="" coords="253,5,452,48"/>
+<area shape="rect" id="Node000002" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#afb42021e87bf3b1a012e05d3c7b41e4f" title="Handles key presses without keybindings." alt="" coords="5,5,205,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,29,205,29,205,24,237,24"/>
+</map>

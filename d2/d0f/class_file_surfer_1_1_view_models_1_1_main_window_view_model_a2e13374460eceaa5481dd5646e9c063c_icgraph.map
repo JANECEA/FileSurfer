@@ -1,0 +1,77 @@
+<map id="FileSurfer.ViewModels.MainWindowViewModel.GetVCStatus" name="FileSurfer.ViewModels.MainWindowViewModel.GetVCStatus">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1205,191,1419,233"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#ab998b36b7a0ea309734bafc5f310a5c8" title=" " alt="" coords="953,124,1138,167"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1208,189,1133,170,1134,165,1210,184"/>
+<area shape="rect" id="Node000005" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a3047ada43857fa35d01c7a58c65aeca1" title=" " alt="" coords="953,191,1138,233"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1189,215,1138,215,1138,209,1189,209"/>
+<area shape="rect" id="Node000006" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#acb0f8affc1e18dcc84c2d293a2e7f463" title=" " alt="" coords="934,409,1157,452"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="1274,245,1075,411,1071,407,1271,241"/>
+<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a6f19f770c3a4ce54793c00996b401d20" title="Recursively searches CurrentDir and asynchronously adds matching FileSystemEntryViewModels to FileEnt..." alt="" coords="619,124,886,167"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="938,148,887,148,887,143,938,143"/>
+<area shape="rect" id="Node000004" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a03fd89caeaa500e2c1447601d46f9d3b" title="Prepares the _searchCTS cancellation token, updates CurrentDir, and starts the search." alt="" coords="343,5,557,48"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="696,119,636,90,570,62,536,51,538,46,572,58,638,85,698,114"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="937,190,849,170,850,165,938,185"/>
+<area shape="rect" id="Node000007" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#afd406f062412763c412ada5129c066ee" title=" " alt="" coords="660,713,845,756"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="1015,465,777,715,773,711,1011,461"/>
+<area shape="rect" id="Node000008" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a4a0a278a25e50dac4c4e8dab4a9400bc" title="Creates an archive from the FileSystemEntryViewModels in SelectedFiles." alt="" coords="341,72,558,115"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="749,698,744,588,735,514,720,434,698,352,666,271,624,195,598,160,569,129,555,117,558,113,573,125,602,157,628,192,671,268,703,350,726,433,741,514,749,587,755,698"/>
+<area shape="rect" id="Node000009" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a55962b9203ac2f5276fc932d2315e22b" title="Compares _lastModified to the latest Directory.GetLastWriteTime(string)." alt="" coords="329,139,571,181"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="747,698,737,600,726,536,709,467,686,396,656,326,617,260,569,202,544,184,547,180,573,198,622,257,661,323,691,394,714,466,731,535,742,599,752,698"/>
+<area shape="rect" id="Node000010" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#adbeea4752e95caf3111b69ef2ee287cd" title="Initializes a new MainWindowViewModel." alt="" coords="5,847,281,889"/>
+<area shape="poly" id="edge18_Node000007_Node000010" title=" " alt="" coords="748,698,740,602,730,541,715,476,692,410,661,348,621,292,596,268,569,246,537,226,507,211,478,203,449,199,420,202,391,211,362,225,330,246,312,264,295,289,262,357,233,442,208,536,170,720,150,847,145,846,165,719,203,535,228,440,257,355,290,286,308,260,327,242,359,221,390,206,419,197,449,194,479,197,509,206,540,221,573,242,600,264,625,289,665,345,697,408,720,475,735,540,746,601,754,697"/>
+<area shape="rect" id="Node000011" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a68118dd5c9d25232e3bc3835f68a9693" title="Relays the operations to _versionControl." alt="" coords="358,256,542,299"/>
+<area shape="poly" id="edge11_Node000007_Node000011" title=" " alt="" coords="744,699,728,618,697,514,674,459,645,406,611,356,569,313,541,295,543,291,573,309,615,353,650,403,678,457,702,512,733,617,749,697"/>
+<area shape="rect" id="Node000012" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#aee5625b973a27e9d50a8ef8eedbbddff" title="Relays the operation to _fileIOHandler and invokes Reload." alt="" coords="338,323,562,365"/>
+<area shape="poly" id="edge12_Node000007_Node000012" title=" " alt="" coords="741,699,721,630,687,544,664,499,637,455,606,415,569,379,552,368,555,364,573,375,610,411,642,452,669,496,692,541,726,628,746,697"/>
+<area shape="rect" id="Node000013" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#aeca539c8f5261bc8a3d2e085a0f97005" title="Permanently deletes the FileSystemEntryViewModels in SelectedFiles." alt="" coords="358,389,542,432"/>
+<area shape="poly" id="edge13_Node000007_Node000013" title=" " alt="" coords="737,700,713,643,678,575,630,505,601,474,569,446,541,430,544,426,573,442,605,470,634,502,682,572,718,641,741,698"/>
+<area shape="rect" id="Node000014" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a843d49b25f1473daf249ad357b91ebee" title="Extracts the archives selected in SelectedFiles." alt="" coords="339,456,561,499"/>
+<area shape="poly" id="edge15_Node000007_Node000014" title=" " alt="" coords="730,701,704,658,667,607,622,556,570,513,548,501,551,497,572,508,626,552,671,604,708,655,735,699"/>
+<area shape="rect" id="Node000015" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a67c05099e04dbb60fe4b4e720b506a09" title=" " alt="" coords="344,547,556,589"/>
+<area shape="poly" id="edge16_Node000007_Node000015" title=" " alt="" coords="715,705,650,653,611,627,570,604,542,592,544,587,572,599,614,622,653,649,718,701"/>
+<area shape="rect" id="Node000016" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a2ee21f2f0610eb817027d245ffcc2ec3" title="Moves the FileSystemEntryViewModels in SelectedFiles to the system trash using _fileIOHandler." alt="" coords="342,613,558,656"/>
+<area shape="poly" id="edge19_Node000007_Node000016" title=" " alt="" coords="681,710,570,671,533,659,534,654,572,665,682,705"/>
+<area shape="rect" id="Node000017" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a211420ada8eb3273eae7e4e9cb93085d" title="Creates a new directory using _fileIOHandler in CurrentDir with the name specified in FileSurferSetti..." alt="" coords="358,680,542,723"/>
+<area shape="poly" id="edge21_Node000007_Node000017" title=" " alt="" coords="645,726,542,714,543,709,645,720"/>
+<area shape="rect" id="Node000018" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a31020c9fe71402cb34c383f8a075aa88" title="Creates a new file using _fileIOHandler in CurrentDir with the name specified in FileSurferSettings...." alt="" coords="358,747,542,789"/>
+<area shape="poly" id="edge23_Node000007_Node000018" title=" " alt="" coords="645,749,543,761,542,755,645,744"/>
+<area shape="rect" id="Node000019" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a85db53191b994db578a250f0c75d9487" title="Determines the type of paste operation and executes it using _clipboardManager." alt="" coords="358,813,542,856"/>
+<area shape="poly" id="edge25_Node000007_Node000019" title=" " alt="" coords="682,765,572,804,534,815,533,810,570,799,681,760"/>
+<area shape="rect" id="Node000020" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#acf454a1553b97ca11c3dc8f3563ec80e" title="Relays the operations to _versionControl." alt="" coords="358,880,542,923"/>
+<area shape="poly" id="edge27_Node000007_Node000020" title=" " alt="" coords="718,768,653,820,614,847,572,870,543,882,541,877,570,866,611,843,650,816,715,764"/>
+<area shape="rect" id="Node000021" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a21a90d6d053ec441e9582f4ccc1c1853" title="Moves forward in _undoRedoHistory and invokes IUndoableFileOperation.Invoke() on the current IUndoabl..." alt="" coords="358,947,542,989"/>
+<area shape="poly" id="edge29_Node000007_Node000021" title=" " alt="" coords="732,771,704,810,667,854,623,899,572,937,544,951,541,946,570,932,619,895,663,851,700,806,727,768"/>
+<area shape="rect" id="Node000022" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a4d6c0f86250bd2896cd93a5c5af497fd" title=" " alt="" coords="335,1371,565,1413"/>
+<area shape="poly" id="edge31_Node000007_Node000022" title=" " alt="" coords="753,772,744,878,733,949,717,1027,694,1108,663,1189,623,1267,573,1336,550,1357,523,1373,520,1368,546,1353,569,1333,619,1264,658,1187,689,1107,711,1026,728,948,738,878,748,771"/>
+<area shape="rect" id="Node000024" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#aee58980afc72b686559bad7f90c973ce" title=" " alt="" coords="345,1461,554,1504"/>
+<area shape="poly" id="edge34_Node000007_Node000024" title=" " alt="" coords="755,771,750,892,741,974,727,1065,704,1159,672,1254,629,1345,603,1387,573,1427,550,1448,524,1463,521,1459,547,1444,569,1424,598,1384,624,1342,667,1252,699,1158,722,1064,736,973,745,892,749,771"/>
+<area shape="rect" id="Node000025" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#ab22bab9ac0d29fe7dd1f09e01cce4173" title="Sets SortBy to SortBy.Date and determines SortReversed." alt="" coords="348,1013,552,1056"/>
+<area shape="poly" id="edge37_Node000007_Node000025" title=" " alt="" coords="739,772,715,824,678,886,631,950,603,978,573,1004,553,1015,550,1011,569,999,599,974,627,946,674,883,710,821,735,769"/>
+<area shape="rect" id="Node000026" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a791aa204ecb63b94ffb37b960225a053" title="Sets SortBy to SortBy.Name and determines SortReversed." alt="" coords="344,1080,556,1123"/>
+<area shape="poly" id="edge39_Node000007_Node000026" title=" " alt="" coords="745,772,723,836,689,917,666,959,639,999,608,1037,573,1070,554,1082,551,1077,569,1066,604,1034,635,996,661,956,684,914,718,834,739,770"/>
+<area shape="rect" id="Node000027" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a54fb6d8b2840b7a2a9613f498e63d6e0" title="Sets SortBy to SortBy.Size and determines SortReversed." alt="" coords="349,1147,551,1189"/>
+<area shape="poly" id="edge41_Node000007_Node000027" title=" " alt="" coords="748,772,731,848,698,947,675,998,647,1049,613,1096,573,1137,553,1150,550,1145,569,1133,609,1092,642,1046,670,996,693,945,726,847,743,771"/>
+<area shape="rect" id="Node000028" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#acf775cd905610bfdd7341b381a93e28c" title="Sets SortBy to SortBy.Type and determines SortReversed." alt="" coords="348,1213,552,1256"/>
+<area shape="poly" id="edge43_Node000007_Node000028" title=" " alt="" coords="751,772,737,859,725,915,707,976,684,1037,655,1098,618,1154,573,1203,554,1217,551,1212,569,1199,614,1151,650,1095,679,1035,702,974,720,914,732,858,745,771"/>
+<area shape="rect" id="Node000029" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#aaf5c74e82b7875d3a37a2ff53d8110d8" title="Invokes IUndoableFileOperation.Undo() on the current IUndoableFileOperation and goes back in _undoRed..." alt="" coords="358,1280,542,1323"/>
+<area shape="poly" id="edge45_Node000007_Node000029" title=" " alt="" coords="753,771,743,870,732,934,716,1004,693,1076,662,1147,623,1212,573,1270,544,1289,541,1284,569,1266,618,1209,658,1144,688,1074,711,1003,727,933,738,869,748,771"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="342,192,331,202,298,240,270,281,246,325,224,371,191,466,169,562,155,653,148,734,146,846,141,846,143,733,150,652,164,561,186,465,219,369,241,322,266,278,294,237,327,198,338,188"/>
+<area shape="poly" id="edge14_Node000013_Node000010" title=" " alt="" coords="345,436,330,446,286,492,250,546,220,603,196,662,164,770,150,847,145,846,159,769,191,660,215,601,245,543,282,489,327,442,342,431"/>
+<area shape="poly" id="edge17_Node000015_Node000015" title=" " alt="" coords="500,534,481,528,450,525,421,527,403,532,396,538,398,545,393,547,391,537,400,527,420,522,450,520,482,522,501,529"/>
+<area shape="poly" id="edge20_Node000016_Node000010" title=" " alt="" coords="339,665,330,670,275,712,227,761,188,809,160,848,156,845,183,806,223,758,271,708,327,666,337,660"/>
+<area shape="poly" id="edge22_Node000017_Node000010" title=" " alt="" coords="344,731,330,737,283,763,239,793,170,848,166,844,236,789,280,759,327,732,342,726"/>
+<area shape="poly" id="edge24_Node000018_Node000010" title=" " alt="" coords="353,797,330,804,203,849,201,843,328,799,351,792"/>
+<area shape="poly" id="edge26_Node000019_Node000010" title=" " alt="" coords="343,849,281,856,281,850,342,844"/>
+<area shape="poly" id="edge28_Node000020_Node000010" title=" " alt="" coords="342,892,281,886,281,880,343,887"/>
+<area shape="poly" id="edge30_Node000021_Node000010" title=" " alt="" coords="351,944,328,937,201,893,203,887,330,932,353,939"/>
+<area shape="poly" id="edge33_Node000022_Node000022" title=" " alt="" coords="500,1358,481,1352,450,1349,421,1351,403,1356,396,1362,398,1369,393,1371,391,1361,400,1351,420,1346,450,1344,482,1346,501,1353"/>
+<area shape="rect" id="Node000023" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a08d62ab29e3d3d434bb04cd8caa86928" title="Relays the operation to RenameOne(string) or RenameMultiple(string)." alt="" coords="50,1416,236,1459"/>
+<area shape="poly" id="edge32_Node000022_Node000023" title=" " alt="" coords="320,1414,237,1426,236,1421,319,1409"/>
+<area shape="poly" id="edge35_Node000024_Node000023" title=" " alt="" coords="329,1468,236,1454,236,1448,330,1462"/>
+<area shape="poly" id="edge36_Node000024_Node000024" title=" " alt="" coords="500,1448,481,1442,450,1440,421,1442,403,1447,396,1453,398,1460,393,1461,391,1451,400,1442,420,1437,450,1435,482,1437,501,1443"/>
+<area shape="poly" id="edge38_Node000025_Node000010" title=" " alt="" coords="342,1010,327,1004,280,977,236,947,166,892,170,888,239,943,283,973,330,999,344,1005"/>
+<area shape="poly" id="edge40_Node000026_Node000010" title=" " alt="" coords="337,1076,327,1070,271,1028,223,978,183,930,156,891,160,888,188,927,227,975,275,1024,330,1066,339,1071"/>
+<area shape="poly" id="edge42_Node000027_Node000010" title=" " alt="" coords="334,1141,327,1137,294,1109,263,1077,212,1008,174,942,151,891,156,889,179,939,217,1005,267,1074,297,1105,330,1133,337,1137"/>
+<area shape="poly" id="edge44_Node000028_Node000010" title=" " alt="" coords="333,1208,327,1203,289,1168,255,1127,227,1082,203,1037,167,953,147,891,153,889,172,951,207,1035,231,1080,260,1123,293,1164,330,1199,336,1203"/>
+<area shape="poly" id="edge46_Node000029_Node000010" title=" " alt="" coords="342,1281,327,1270,284,1226,248,1175,218,1121,194,1065,161,963,145,890,150,889,166,961,199,1063,223,1118,252,1172,288,1223,330,1266,345,1276"/>
+</map>

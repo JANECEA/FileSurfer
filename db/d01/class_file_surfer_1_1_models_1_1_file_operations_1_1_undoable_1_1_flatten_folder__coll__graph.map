@@ -1,0 +1,13 @@
+<map id="FileSurfer.Models.FileOperations.Undoable.FlattenFolder" name="FileSurfer.Models.FileOperations.Undoable.FlattenFolder">
+<area shape="rect" id="Node000001" title="Represents the action of flattening a directory." alt="" coords="373,132,588,175"/>
+<area shape="rect" id="Node000002" href="$d2/d06/interface_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_i_undoable_file_operation.html" title="Represents an undoable file operation in the context of the FileSurfer app." alt="" coords="6,5,222,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="238,47,294,62,350,80,401,104,446,129,443,134,399,109,348,85,293,67,237,52"/>
+<area shape="rect" id="Node000003" href="$d2/d00/interface_file_surfer_1_1_models_1_1_file_operations_1_1_i_file_i_o_handler.html" title="Defines methods for handling file and directory operations." alt="" coords="6,72,222,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,107,349,124,375,129,374,134,348,129,236,112"/>
+<area shape="rect" id="Node000004" href="$d6/d0e/interface_file_surfer_1_1_models_1_1_file_information_1_1_i_file_info_provider.html" title="Defines methods for retrieving file and directory information." alt="" coords="5,139,223,181"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="238,155,372,153,372,158,238,160"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="87,259,141,285"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="156,272,246,270,298,262,348,248,379,233,409,213,456,173,460,177,412,217,382,237,350,253,299,268,247,275,156,277"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="65,335,163,361"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="179,351,219,351,263,347,306,338,347,320,389,288,423,248,449,208,467,174,472,176,454,210,427,252,393,292,350,325,308,343,263,353,219,357,179,357"/>
+</map>

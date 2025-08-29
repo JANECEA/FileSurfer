@@ -1,0 +1,5 @@
+<map id="FileSurfer.ViewModels.MainWindowViewModel.UpdateSelectionInfo" name="FileSurfer.ViewModels.MainWindowViewModel.UpdateSelectionInfo">
+<area shape="rect" id="Node000001" title="Update SelectionInfo based on the current directory and selection in SelectedFiles." alt="" coords="5,5,260,48"/>
+<area shape="rect" id="Node000002" href="$d0/d04/class_file_surfer_1_1_view_models_1_1_file_system_entry_view_model.html#ae3de5be9976c946327ba419d9b7052f0" title="Converts file size in bytes to a human&#45;readable format." alt="" coords="308,5,554,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="260,24,292,24,292,29,260,29"/>
+</map>

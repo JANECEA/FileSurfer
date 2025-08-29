@@ -1,0 +1,9 @@
+<map id="FileSurfer.Views.MainWindow.TextBoxLostFocus" name="FileSurfer.Views.MainWindow.TextBoxLostFocus">
+<area shape="rect" id="Node000001" title="Rebinds interfering keybindings when the user stops typing." alt="" coords="253,72,452,115"/>
+<area shape="rect" id="Node000002" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#ade08449226b494da79a07e17e264264b" title="Hides NewNameBar and CommitMessageBar when either loose focus." alt="" coords="5,5,205,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="255,70,186,51,188,46,256,65"/>
+<area shape="rect" id="Node000003" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a5079bad8567d5241b1dae87913a6f48d" title="Resets text in PathBox." alt="" coords="5,72,205,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,96,205,96,205,91,237,91"/>
+<area shape="rect" id="Node000004" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a7909cdbb733941b3b6d9821c6a7e27aa" title="Clears SearchBox when it looses focus." alt="" coords="5,139,205,181"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="256,122,188,141,186,135,255,117"/>
+</map>

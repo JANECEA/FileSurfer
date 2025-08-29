@@ -1,0 +1,9 @@
+<map id="FileSurfer.Models.Result" name="FileSurfer.Models.Result">
+<area shape="rect" id="Node000001" title="A flexible implementation of IResult that supports multiple error messages and can be updated after c..." alt="" coords="207,120,373,147"/>
+<area shape="rect" id="Node000002" href="$d6/d07/interface_file_surfer_1_1_models_1_1_i_result.html" title="Represents the result of an operation, indicating success or failure, along with error messages." alt="" coords="5,13,175,40"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="129,45,267,117,265,122,126,50"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="198,5,382,48"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="293,64,293,119,287,119,287,64"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="405,13,511,40"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="447,56,432,78,412,98,387,112,361,122,359,117,385,107,408,94,428,75,443,53"/>
+</map>

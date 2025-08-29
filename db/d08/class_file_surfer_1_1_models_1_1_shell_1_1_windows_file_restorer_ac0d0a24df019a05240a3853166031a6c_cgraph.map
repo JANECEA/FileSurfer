@@ -1,0 +1,14 @@
+<map id="FileSurfer.Models.Shell.WindowsFileRestorer.RestoreEntry" name="FileSurfer.Models.Shell.WindowsFileRestorer.RestoreEntry">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,72,233,115"/>
+<area shape="rect" id="Node000002" href="$db/d08/class_file_surfer_1_1_models_1_1_shell_1_1_windows_file_restorer.html#a7f27dc7006960694bed5fe4e49046566" title=" " alt="" coords="281,5,474,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,69,276,50,278,55,205,74"/>
+<area shape="rect" id="Node000003" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="294,72,461,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="233,91,278,91,278,96,233,96"/>
+<area shape="rect" id="Node000006" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a08aadd4ecd0dd10554f28522b9382a04" title=" " alt="" coords="294,139,461,181"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="205,113,279,132,278,137,204,118"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="522,105,689,148"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="462,103,507,110,506,115,461,108"/>
+<area shape="rect" id="Node000005" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="737,105,905,148"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="690,124,721,124,721,129,690,129"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="461,145,506,138,507,144,462,150"/>
+</map>

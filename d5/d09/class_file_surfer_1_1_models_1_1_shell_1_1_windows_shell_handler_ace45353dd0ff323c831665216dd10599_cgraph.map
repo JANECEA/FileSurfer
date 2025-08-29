@@ -1,0 +1,12 @@
+<map id="FileSurfer.Models.Shell.WindowsShellHandler.OpenFile" name="FileSurfer.Models.Shell.WindowsShellHandler.OpenFile">
+<area shape="rect" id="Node000001" title="Opens a file at the specified path in the application preferred by the OS." alt="" coords="5,39,211,81"/>
+<area shape="rect" id="Node000002" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="259,5,426,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,43,243,38,243,43,212,48"/>
+<area shape="rect" id="Node000005" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a08aadd4ecd0dd10554f28522b9382a04" title=" " alt="" coords="259,72,426,115"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="212,72,243,77,243,82,211,77"/>
+<area shape="rect" id="Node000003" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="474,39,641,81"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="427,37,459,42,458,47,426,42"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="689,39,857,81"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="642,57,673,57,673,63,642,63"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="426,78,458,73,459,78,427,83"/>
+</map>

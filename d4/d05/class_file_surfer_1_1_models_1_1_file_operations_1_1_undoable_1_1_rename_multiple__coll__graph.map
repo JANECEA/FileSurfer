@@ -1,0 +1,13 @@
+<map id="FileSurfer.Models.FileOperations.Undoable.RenameMultiple" name="FileSurfer.Models.FileOperations.Undoable.RenameMultiple">
+<area shape="rect" id="Node000001" title="Represents the action of renaming multiple files or directories." alt="" coords="702,105,917,148"/>
+<area shape="rect" id="Node000002" href="$dc/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_undoable_operation.html" title=" " alt="" coords="358,72,573,115"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="589,101,678,109,702,112,701,117,678,115,588,106"/>
+<area shape="rect" id="Node000003" href="$d2/d06/interface_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_i_undoable_file_operation.html" title="Represents an undoable file operation in the context of the FileSurfer app." alt="" coords="5,5,222,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="237,44,334,61,370,69,369,74,333,67,236,49"/>
+<area shape="rect" id="Node000004" href="$d2/d00/interface_file_surfer_1_1_models_1_1_file_operations_1_1_i_file_i_o_handler.html" title="Defines methods for handling file and directory operations." alt="" coords="6,72,221,115"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="236,91,357,91,357,96,236,96"/>
+<area shape="rect" id="Node000005" href="$dd/d05/interface_file_surfer_1_1_models_1_1_i_file_system_entry.html" title="Represents a file system entry in context of the FileSurfer app." alt="" coords="15,139,212,181"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="227,139,333,120,369,113,370,118,334,125,228,145"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="439,145,492,172"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="507,158,586,160,678,155,727,146,728,151,678,160,586,165,507,164"/>
+</map>

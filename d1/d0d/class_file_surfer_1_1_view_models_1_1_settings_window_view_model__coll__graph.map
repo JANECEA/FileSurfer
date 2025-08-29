@@ -1,0 +1,9 @@
+<map id="FileSurfer.ViewModels.SettingsWindowViewModel" name="FileSurfer.ViewModels.SettingsWindowViewModel">
+<area shape="rect" id="Node000001" title="The SettingsWindowViewModel is the ViewModel for the Views.SettingsWindow." alt="" coords="66,189,270,232"/>
+<area shape="rect" id="Node000002" href="$d3/d06/class_reactive_object.html" title=" " alt="" coords="5,5,117,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="78,44,158,188,154,190,73,47"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="141,5,194,32"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,48,170,189,165,189,165,48"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="302,5,348,32"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="330,47,329,75,325,107,315,139,298,167,283,181,265,191,263,187,279,176,294,164,310,136,320,105,324,74,324,47"/>
+</map>

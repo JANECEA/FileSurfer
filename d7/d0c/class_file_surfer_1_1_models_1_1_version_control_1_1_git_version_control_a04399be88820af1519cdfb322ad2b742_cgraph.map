@@ -1,0 +1,9 @@
+<map id="FileSurfer.Models.VersionControl.GitVersionControl.DownloadChanges" name="FileSurfer.Models.VersionControl.GitVersionControl.DownloadChanges">
+<area shape="rect" id="Node000001" title="Downloads the latest changes from the version control system to the local repository." alt="" coords="5,5,237,64"/>
+<area shape="rect" id="Node000002" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="285,13,452,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,32,269,32,269,37,237,37"/>
+<area shape="rect" id="Node000003" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="500,13,667,56"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,32,484,32,484,37,452,37"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="715,13,883,56"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="668,32,699,32,699,37,668,37"/>
+</map>

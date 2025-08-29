@@ -1,0 +1,7 @@
+<map id="FileSurfer.FileSurferSettings.LoadSettings" name="FileSurfer.FileSurferSettings.LoadSettings">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,195,81"/>
+<area shape="rect" id="Node000002" href="$db/d05/class_file_surfer_1_1_file_surfer_settings.html#a3134ab4ba806922fdbc1acb839c0f31b" title="Loads settings from the SettingsRecord object and applies them to the current session." alt="" coords="243,5,432,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,44,227,40,227,45,195,49"/>
+<area shape="rect" id="Node000003" href="$db/d05/class_file_surfer_1_1_file_surfer_settings.html#a441629c8c9d236832acd54be192f63f2" title="Saves the current settings to the settings file if any changes have been made." alt="" coords="243,72,432,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="195,71,227,75,227,80,195,76"/>
+</map>

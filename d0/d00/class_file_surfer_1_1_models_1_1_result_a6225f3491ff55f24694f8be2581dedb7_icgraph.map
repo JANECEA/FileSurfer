@@ -1,0 +1,29 @@
+<map id="FileSurfer.Models.Result.Ok" name="FileSurfer.Models.Result.Ok">
+<area shape="rect" id="Node000001" title=" " alt="" coords="923,183,1110,209"/>
+<area shape="rect" id="Node000002" href="$d8/d03/class_file_surfer_1_1_models_1_1_file_operations_1_1_clipboard_manager.html#a30385694e80a395cd27c411c2a190dc1" title="Duplicates the files stored in _programClipboard." alt="" coords="634,8,849,51"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="994,172,943,118,910,89,874,65,848,53,850,48,877,60,913,85,947,114,998,169"/>
+<area shape="rect" id="Node000003" href="$d3/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_flatten_folder.html#a44debb710aa5feb46857cbd6e2ab9400" title="Invokes the file operation." alt="" coords="634,75,849,117"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="975,177,928,154,874,132,839,121,840,115,876,127,930,149,978,173"/>
+<area shape="rect" id="Node000005" href="$dc/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_undoable_operation.html#aaf48f3a4d4b642f7f99071a80eb86d87" title="Invokes the file operation." alt="" coords="624,141,858,184"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="907,186,859,180,859,174,908,180"/>
+<area shape="rect" id="Node000010" href="$d8/d03/class_file_surfer_1_1_models_1_1_file_operations_1_1_clipboard_manager.html#a27db4c0e5ea05009148be6ce59601333" title=" " alt="" coords="607,208,875,251"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="908,212,876,216,876,210,907,206"/>
+<area shape="rect" id="Node000012" href="$d3/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_flatten_folder.html#aa067929277048ec51fa6defb58d6f853" title="Undoes the file operation." alt="" coords="634,275,849,317"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="978,219,930,243,876,265,840,277,839,271,874,260,928,238,975,215"/>
+<area shape="rect" id="Node000013" href="$dc/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_undoable_operation.html#afe8be3f88519e942e967671e2c4c85a9" title="Undoes the file operation." alt="" coords="628,341,854,384"/>
+<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="998,223,947,278,913,307,877,332,852,343,849,338,874,327,910,303,943,274,994,220"/>
+<area shape="rect" id="Node000004" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a67c05099e04dbb60fe4b4e720b506a09" title=" " alt="" coords="338,29,550,72"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="618,80,550,70,551,64,619,75"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="493,16,475,10,444,8,415,10,398,15,391,21,393,28,388,29,386,19,395,10,415,5,444,3,476,5,495,11"/>
+<area shape="rect" id="Node000006" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a2ee21f2f0610eb817027d245ffcc2ec3" title="Moves the FileSystemEntryViewModels in SelectedFiles to the system trash using _fileIOHandler." alt="" coords="336,96,552,139"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="608,145,552,136,553,131,609,140"/>
+<area shape="rect" id="Node000008" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a4d6c0f86250bd2896cd93a5c5af497fd" title=" " alt="" coords="329,187,559,229"/>
+<area shape="poly" id="edge8_Node000005_Node000008" title=" " alt="" coords="609,186,560,193,559,188,608,180"/>
+<area shape="rect" id="Node000007" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#adbeea4752e95caf3111b69ef2ee287cd" title="Initializes a new MainWindowViewModel." alt="" coords="5,96,281,139"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="321,120,281,120,281,115,321,115"/>
+<area shape="poly" id="edge10_Node000008_Node000008" title=" " alt="" coords="493,174,475,168,444,165,415,167,398,172,391,178,393,185,388,187,386,177,395,167,415,162,444,160,476,162,495,169"/>
+<area shape="rect" id="Node000009" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a08d62ab29e3d3d434bb04cd8caa86928" title="Relays the operation to RenameOne(string) or RenameMultiple(string)." alt="" coords="50,187,236,229"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="313,211,236,211,236,205,313,205"/>
+<area shape="rect" id="Node000011" href="$d8/d03/class_file_surfer_1_1_models_1_1_file_operations_1_1_clipboard_manager.html#a88923c8261e93b217f10fc8d1c2bc912" title="Pastes the contents of the system clipboard into currentDir ." alt="" coords="336,253,552,296"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="592,255,552,261,552,256,591,249"/>
+</map>

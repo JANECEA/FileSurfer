@@ -1,0 +1,12 @@
+<map id="FileSurfer.Models.Shell.WindowsShellHandler.CreateLink" name="FileSurfer.Models.Shell.WindowsShellHandler.CreateLink">
+<area shape="rect" id="Node000001" title="Creates a symbolic link to the specified file path." alt="" coords="5,39,222,81"/>
+<area shape="rect" id="Node000002" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="270,5,437,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,42,254,38,254,43,223,48"/>
+<area shape="rect" id="Node000005" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a08aadd4ecd0dd10554f28522b9382a04" title=" " alt="" coords="270,72,437,115"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="223,72,254,77,254,82,222,78"/>
+<area shape="rect" id="Node000003" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="485,39,652,81"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="438,37,470,42,469,47,437,42"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="700,39,868,81"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="653,57,684,57,684,63,653,63"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="437,78,469,73,470,78,438,83"/>
+</map>

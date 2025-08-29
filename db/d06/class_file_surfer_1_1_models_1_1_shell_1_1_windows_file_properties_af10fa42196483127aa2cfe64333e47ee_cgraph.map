@@ -1,0 +1,14 @@
+<map id="FileSurfer.Models.Shell.WindowsFileProperties.ShowFileProperties" name="FileSurfer.Models.Shell.WindowsFileProperties.ShowFileProperties">
+<area shape="rect" id="Node000001" title="Calls the ShellExecuteEx(ref ShellExecuteInfo) function to show the properties dialog of the specifie..." alt="" coords="5,64,219,123"/>
+<area shape="rect" id="Node000002" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="309,5,476,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,65,293,47,295,53,220,71"/>
+<area shape="rect" id="Node000005" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a08aadd4ecd0dd10554f28522b9382a04" title=" " alt="" coords="309,72,476,115"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="219,91,294,91,294,96,219,96"/>
+<area shape="rect" id="Node000006" href="$db/d06/class_file_surfer_1_1_models_1_1_shell_1_1_windows_file_properties.html#a84788698206b57fad537ed87c9e51651" title=" " alt="" coords="267,139,519,181"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="220,116,286,132,285,137,219,121"/>
+<area shape="rect" id="Node000003" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="567,39,734,81"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="477,35,552,45,551,50,477,40"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="782,39,950,81"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="735,57,766,57,766,63,735,63"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="477,80,551,70,552,75,477,85"/>
+</map>

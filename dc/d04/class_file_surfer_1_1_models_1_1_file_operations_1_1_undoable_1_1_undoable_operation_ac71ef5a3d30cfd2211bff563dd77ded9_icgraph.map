@@ -1,0 +1,5 @@
+<map id="FileSurfer.Models.FileOperations.Undoable.UndoableOperation.UndoAction" name="FileSurfer.Models.FileOperations.Undoable.UndoableOperation.UndoAction">
+<area shape="rect" id="Node000001" title="Represents a undo&#45;action invoked on IFileSystemEntry from Entries." alt="" coords="280,5,543,48"/>
+<area shape="rect" id="Node000002" href="$dc/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_undoable_operation.html#afe8be3f88519e942e967671e2c4c85a9" title="Undoes the file operation." alt="" coords="5,5,232,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="264,29,232,29,232,24,264,24"/>
+</map>

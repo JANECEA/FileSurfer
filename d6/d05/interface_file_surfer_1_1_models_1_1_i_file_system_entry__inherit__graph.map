@@ -1,0 +1,9 @@
+<map id="FileSurfer.Models.IFileSystemEntry" name="FileSurfer.Models.IFileSystemEntry">
+<area shape="rect" id="Node000001" title="Represents a file system entry in context of the FileSurfer app." alt="" coords="5,64,203,107"/>
+<area shape="rect" id="Node000002" href="$d8/d01/class_file_surfer_1_1_models_1_1_directory_entry.html" title="Lazy implementation of IFileSystemEntry for a directory." alt="" coords="255,5,436,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,57,254,46,255,51,210,62"/>
+<area shape="rect" id="Node000003" href="$d3/d0c/class_file_surfer_1_1_models_1_1_drive_entry.html" title="Implementation of IFileSystemEntry for a drive." alt="" coords="251,72,440,99"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="218,83,250,83,250,88,218,88"/>
+<area shape="rect" id="Node000004" href="$db/d0b/class_file_surfer_1_1_models_1_1_file_entry.html" title="Lazy implementation of IFileSystemEntry for a file." alt="" coords="256,123,435,149"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="219,107,279,119,278,125,217,112"/>
+</map>

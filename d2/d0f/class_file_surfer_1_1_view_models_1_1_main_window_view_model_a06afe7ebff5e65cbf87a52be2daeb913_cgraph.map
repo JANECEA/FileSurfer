@@ -1,0 +1,16 @@
+<map id="FileSurfer.ViewModels.MainWindowViewModel.OpenAs" name="FileSurfer.ViewModels.MainWindowViewModel.OpenAs">
+<area shape="rect" id="Node000001" title="Shows the &quot;Open file with&quot; dialog." alt="" coords="5,43,190,85"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a03451d04f2138c0229759f4244da8d0c" title="Opens a new Views.ErrorWindow dialog." alt="" coords="240,5,459,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,48,224,43,225,48,191,53"/>
+<area shape="rect" id="Node000003" href="$db/d06/class_file_surfer_1_1_models_1_1_shell_1_1_windows_file_properties.html#a61718788d4fb3f47dcab1810a950260a" title="Displays the &quot;Open With&quot; dialog for a specified file using rundll32.exe." alt="" coords="238,72,461,131"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,75,222,80,222,85,190,80"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="509,47,676,89"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="461,83,493,79,494,84,462,89"/>
+<area shape="rect" id="Node000007" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a08aadd4ecd0dd10554f28522b9382a04" title=" " alt="" coords="509,113,676,156"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="462,114,494,118,493,124,461,119"/>
+<area shape="rect" id="Node000005" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="724,80,892,123"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="677,78,709,83,708,89,676,84"/>
+<area shape="rect" id="Node000006" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="940,80,1107,123"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="892,99,924,99,924,104,892,104"/>
+<area shape="poly" id="edge7_Node000007_Node000005" title=" " alt="" coords="676,119,708,114,709,119,677,124"/>
+</map>

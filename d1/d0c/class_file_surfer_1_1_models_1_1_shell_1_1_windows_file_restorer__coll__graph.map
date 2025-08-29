@@ -1,0 +1,9 @@
+<map id="FileSurfer.Models.Shell.WindowsFileRestorer" name="FileSurfer.Models.Shell.WindowsFileRestorer">
+<area shape="rect" id="Node000001" title="Interacts with the Windows Shell and System.Runtime.InteropServices in order to restore files and dir..." alt="" coords="129,163,290,205"/>
+<area shape="rect" id="Node000002" href="$dd/d01/interface_file_surfer_1_1_models_1_1_shell_1_1_i_file_restorer.html" title=" " alt="" coords="5,5,166,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,58,195,161,191,164,109,62"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="190,13,229,40"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="212,56,212,162,207,162,207,56"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="302,13,355,40"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="330,56,322,98,313,120,301,140,271,164,268,160,297,137,309,118,317,97,325,55"/>
+</map>

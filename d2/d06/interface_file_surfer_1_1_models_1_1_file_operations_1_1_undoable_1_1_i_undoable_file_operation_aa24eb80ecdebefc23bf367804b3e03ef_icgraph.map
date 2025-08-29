@@ -1,0 +1,7 @@
+<map id="FileSurfer.Models.FileOperations.Undoable.IUndoableFileOperation.Invoke" name="FileSurfer.Models.FileOperations.Undoable.IUndoableFileOperation.Invoke">
+<area shape="rect" id="Node000001" title="Invokes the file operation." alt="" coords="561,5,820,48"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a21a90d6d053ec441e9582f4ccc1c1853" title="Moves forward in _undoRedoHistory and invokes IUndoableFileOperation.Invoke() on the current IUndoabl..." alt="" coords="329,5,513,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="545,29,513,29,513,24,545,24"/>
+<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#adbeea4752e95caf3111b69ef2ee287cd" title="Initializes a new MainWindowViewModel." alt="" coords="5,5,281,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="313,29,281,29,281,24,313,24"/>
+</map>

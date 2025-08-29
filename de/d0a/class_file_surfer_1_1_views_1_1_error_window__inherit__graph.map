@@ -1,0 +1,5 @@
+<map id="FileSurfer.Views.ErrorWindow" name="FileSurfer.Views.ErrorWindow">
+<area shape="rect" id="Node000001" title="Represents an error dialog in the context of the FileSurfer app." alt="" coords="5,80,202,107"/>
+<area shape="rect" id="Node000002" href="$d9/d0f/class_window.html" title=" " alt="" coords="69,5,138,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,48,106,80,101,80,101,48"/>
+</map>

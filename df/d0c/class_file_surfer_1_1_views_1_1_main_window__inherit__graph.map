@@ -1,0 +1,7 @@
+<map id="FileSurfer.Views.MainWindow" name="FileSurfer.Views.MainWindow">
+<area shape="rect" id="Node000001" title="Represents the main FileSurfer window." alt="" coords="5,80,202,107"/>
+<area shape="rect" id="Node000003" href="$dd/d07/class_file_surfer_1_1_views_1_1_settings_window.html" title="Represents the settings window in the context of the FileSurfer app." alt="" coords="19,155,188,197"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="106,122,106,154,101,154,101,122"/>
+<area shape="rect" id="Node000002" href="$d9/d0f/class_window.html" title=" " alt="" coords="69,5,138,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,48,106,80,101,80,101,48"/>
+</map>

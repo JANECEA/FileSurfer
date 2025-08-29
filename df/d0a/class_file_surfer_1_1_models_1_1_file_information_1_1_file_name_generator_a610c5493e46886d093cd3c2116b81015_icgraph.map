@@ -1,0 +1,8 @@
+<map id="FileSurfer.Models.FileInformation.FileNameGenerator.CanBeRenamedCollectively" name="FileSurfer.Models.FileInformation.FileNameGenerator.CanBeRenamedCollectively">
+<area shape="rect" id="Node000001" title="Determines if the files or directories represented by entries &#160;can be collectively renamed." alt="" coords="517,29,819,72"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a4d6c0f86250bd2896cd93a5c5af497fd" title=" " alt="" coords="239,29,469,72"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="501,53,469,53,469,48,501,48"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="396,16,380,10,354,8,330,10,315,15,309,21,311,28,306,29,304,19,312,10,329,5,354,3,381,5,397,11"/>
+<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a08d62ab29e3d3d434bb04cd8caa86928" title="Relays the operation to RenameOne(string) or RenameMultiple(string)." alt="" coords="5,29,191,72"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="223,53,191,53,191,48,223,48"/>
+</map>

@@ -1,0 +1,14 @@
+<map id="FileSurfer.Models.FileOperations.WindowsFileIOHandler.NewDirAt" name="FileSurfer.Models.FileOperations.WindowsFileIOHandler.NewDirAt">
+<area shape="rect" id="Node000001" title="Creates a new directory at the specified path." alt="" coords="5,72,222,115"/>
+<area shape="rect" id="Node000002" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="311,5,478,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,69,295,47,296,53,207,74"/>
+<area shape="rect" id="Node000005" href="$d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#ae1baf8ac0d538c3d14fa11bc57ab0b2b" title=" " alt="" coords="270,72,520,115"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="222,91,254,91,254,96,222,96"/>
+<area shape="rect" id="Node000006" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a08aadd4ecd0dd10554f28522b9382a04" title=" " alt="" coords="311,139,478,181"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="207,113,296,134,295,139,206,118"/>
+<area shape="rect" id="Node000003" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="568,72,735,115"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="480,46,554,65,552,70,478,51"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="783,72,951,115"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="736,91,767,91,767,96,736,96"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="478,136,552,116,554,121,480,141"/>
+</map>

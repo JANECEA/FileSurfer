@@ -1,0 +1,5 @@
+<map id="FileSurfer.Models.FileOperations.ArchiveManager" name="FileSurfer.Models.FileOperations.ArchiveManager">
+<area shape="rect" id="Node000001" title="Handles interactions with archives using the SharpCompress package." alt="" coords="5,104,221,147"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="68,5,158,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,47,116,103,110,103,110,47"/>
+</map>

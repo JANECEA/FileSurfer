@@ -1,0 +1,12 @@
+<map id="FileSurfer.Models.FileOperations.ArchiveManager.IsZipped" name="FileSurfer.Models.FileOperations.ArchiveManager.IsZipped">
+<area shape="rect" id="Node000001" title="Determines if the file is an archive in the context of FileSurfer." alt="" coords="825,36,1041,79"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a843d49b25f1473daf249ad357b91ebee" title="Extracts the archives selected in SelectedFiles." alt="" coords="5,40,228,83"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="850,34,777,19,704,11,629,9,480,13,342,26,228,43,228,38,342,21,480,8,629,3,704,6,778,13,851,29"/>
+<area shape="rect" id="Node000003" href="$d0/d04/class_file_surfer_1_1_view_models_1_1_file_system_entry_view_model.html#ab11953312cf0d15709a51ec7d600ee47" title="Initializes a new instance of the FileSystemEntryViewModel class for a file or directory." alt="" coords="546,28,777,87"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="809,60,778,60,778,55,809,55"/>
+<area shape="rect" id="Node000004" href="$d3/d01/class_file_surfer_1_1_models_1_1_file_operations_1_1_archive_manager.html#a6ff608578f951b91f4fe94b6122da63b" title="Extracts an archive, overwriting the already existing files." alt="" coords="554,111,769,153"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="839,86,743,112,741,107,837,81"/>
+<area shape="rect" id="Node000005" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a9b261373f023a1b3f59a1f633217d92c" title=" " alt="" coords="276,65,498,124"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="538,118,498,112,499,107,539,113"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="260,82,228,78,228,72,260,76"/>
+</map>

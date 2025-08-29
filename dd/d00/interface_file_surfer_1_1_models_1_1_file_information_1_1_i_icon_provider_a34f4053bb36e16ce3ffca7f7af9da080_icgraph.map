@@ -1,0 +1,5 @@
+<map id="FileSurfer.Models.FileInformation.IIconProvider.GetDriveIcon" name="FileSurfer.Models.FileInformation.IIconProvider.GetDriveIcon">
+<area shape="rect" id="Node000001" title="Retrieves the icon associated with drives." alt="" coords="285,13,502,56"/>
+<area shape="rect" id="Node000002" href="$d0/d04/class_file_surfer_1_1_view_models_1_1_file_system_entry_view_model.html#ad896386f59ea7232751eef1707f7c5bc" title="Initializes a new instance of the FileSystemEntryViewModel class for a drive." alt="" coords="5,5,237,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="269,37,237,37,237,32,269,32"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="FileSurfer.Models.FileOperations.WindowsFileIOHandler.IsValidDirName" name="FileSurfer.Models.FileOperations.WindowsFileIOHandler.IsValidDirName">
+<area shape="rect" id="Node000001" title=" " alt="" coords="292,39,542,81"/>
+<area shape="rect" id="Node000002" href="$d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#aa63ba545161bc14b7a6842af895d0e27" title="Creates a new directory at the specified path." alt="" coords="16,5,233,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="276,47,233,42,234,36,277,41"/>
+<area shape="rect" id="Node000003" href="$d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#a6be8899d629f11c489f830efaac6f93a" title="Renames a directory at the specified path." alt="" coords="5,72,244,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="277,79,244,82,244,77,276,73"/>
+</map>

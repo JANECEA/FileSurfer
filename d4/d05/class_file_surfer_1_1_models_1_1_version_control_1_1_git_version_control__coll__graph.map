@@ -1,0 +1,15 @@
+<map id="FileSurfer.Models.VersionControl.GitVersionControl" name="FileSurfer.Models.VersionControl.GitVersionControl">
+<area shape="rect" id="Node000001" title="Handles git integration within the FileSurfer app." alt="" coords="500,123,671,165"/>
+<area shape="rect" id="Node000002" href="$db/d07/interface_file_surfer_1_1_models_1_1_version_control_1_1_i_version_control.html" title="Defines methods for interacting with a version control system withing the FileSurfer app." alt="" coords="145,5,315,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="331,29,404,41,477,63,525,90,563,120,560,124,522,94,475,68,403,46,330,34"/>
+<area shape="rect" id="Node000003" href="$d2/d05/class_i_disposable.html" title=" " alt="" coords="5,13,96,40"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="111,24,144,24,144,29,111,29"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="204,72,257,99"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="273,86,367,95,477,112,510,119,508,125,476,117,366,101,272,91"/>
+<area shape="rect" id="Node000005" href="$de/d06/interface_file_surfer_1_1_models_1_1_shell_1_1_i_shell_handler.html" title="Represents the layer between the OS shell and the FileSurfer layer." alt="" coords="150,123,310,165"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="326,141,500,141,500,147,326,147"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="159,189,301,232"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="316,198,476,171,507,163,508,169,477,176,317,203"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="184,256,276,283"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="291,264,380,251,429,240,475,223,522,195,560,164,564,168,525,199,477,228,430,245,381,257,292,269"/>
+</map>

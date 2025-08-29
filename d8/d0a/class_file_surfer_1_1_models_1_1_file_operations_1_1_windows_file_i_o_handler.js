@@ -1,0 +1,25 @@
+var class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler =
+[
+    [ "WindowsFileIOHandler", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#afa999bd3e54a3e8a347a2caae9060f40", null ],
+    [ "CopyDirTo", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#adb53cfbebf30f7c30ad2e060a589556e", null ],
+    [ "CopyFileTo", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#aab5eaa520754050636139d17844e7926", null ],
+    [ "DeleteDir", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#abc86b342d040e858f50e5193be5d1a61", null ],
+    [ "DeleteFile", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#a1ae22d90684dbbfff079c1174f5449df", null ],
+    [ "DuplicateDir", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#a6d7029b12d1a80c86c6ba867bdfe1c41", null ],
+    [ "DuplicateFile", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#aa3fd7a6ba6e848b9ad52357aea9dabf3", null ],
+    [ "IsValidDirName", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#ae1baf8ac0d538c3d14fa11bc57ab0b2b", null ],
+    [ "IsValidFileName", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#a66aec8e846ddab513344de8c8bf500fc", null ],
+    [ "MoveDirTo", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#a13b2cd9093e36d2067ba4de3a0095777", null ],
+    [ "MoveDirToTrash", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#ada7d839eab4d2d5d23c3dfde1201fbe5", null ],
+    [ "MoveFileTo", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#a9caaa24dae8bc8f52850d109cf05e040", null ],
+    [ "MoveFileToTrash", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#ae3729cf5e9f4d7c6954cc0545d8701f5", null ],
+    [ "NewDirAt", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#aa63ba545161bc14b7a6842af895d0e27", null ],
+    [ "NewFileAt", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#a28199a9f00cdb8130244534b940f8477", null ],
+    [ "RenameDirAt", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#a6be8899d629f11c489f830efaac6f93a", null ],
+    [ "RenameFileAt", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#a5d6012facc89a9c147314a32cafdbd90", null ],
+    [ "RestoreDir", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#ae34cbaaae5a87193e0d50071c5155934", null ],
+    [ "RestoreFile", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#a7ac6d1e2a5c71653f8d2e4b2d678787f", null ],
+    [ "_fileInfoProvider", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#a4bbe7306e9ac60c8ebc3faf8f9f9b020", null ],
+    [ "_fileRestorer", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#a333289ed467d0cb5c04fa78efaea681b", null ],
+    [ "_showDialogLimit", "d8/d0a/class_file_surfer_1_1_models_1_1_file_operations_1_1_windows_file_i_o_handler.html#a56f083cf10d32b0a61499c383f462e53", null ]
+];

@@ -1,0 +1,9 @@
+<map id="FileSurfer.FileSurferSettings.SaveSettings" name="FileSurfer.FileSurferSettings.SaveSettings">
+<area shape="rect" id="Node000001" title="Saves the current settings to the settings file if any changes have been made." alt="" coords="491,39,680,81"/>
+<area shape="rect" id="Node000002" href="$db/d05/class_file_surfer_1_1_file_surfer_settings.html#abaac4f7bdc56e341c91443bf6a5bae01" title=" " alt="" coords="249,5,438,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="475,48,438,42,439,37,476,42"/>
+<area shape="rect" id="Node000004" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a26e5c65e889a9e7f5b30313b3d82879c" title="Invokes FileSurferSettings.UpdateQuickAccess(System.Collections.Generic.IEnumerable&lt;FileSystemEntryVi..." alt="" coords="244,72,443,115"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="476,78,444,82,443,77,475,72"/>
+<area shape="rect" id="Node000003" href="$d4/d0b/class_file_surfer_1_1_app.html#a34ba10ee4460d1e596aaecfa95ad7cf3" title="Invokes FileSurferSettings.LoadSettings and sets Application.RequestedThemeVariant theme." alt="" coords="5,5,196,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="233,29,196,29,196,24,233,24"/>
+</map>

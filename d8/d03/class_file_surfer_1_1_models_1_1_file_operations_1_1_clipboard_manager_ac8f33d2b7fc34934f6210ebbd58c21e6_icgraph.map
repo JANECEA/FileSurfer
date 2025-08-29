@@ -1,0 +1,7 @@
+<map id="FileSurfer.Models.FileOperations.ClipboardManager.CopyToOSClipboard" name="FileSurfer.Models.FileOperations.ClipboardManager.CopyToOSClipboard">
+<area shape="rect" id="Node000001" title=" " alt="" coords="269,39,518,81"/>
+<area shape="rect" id="Node000002" href="$d8/d03/class_file_surfer_1_1_models_1_1_file_operations_1_1_clipboard_manager.html#a64e9b941f38117e56b6f5cdf1b9c35f8" title="Stores the selection of IFileSystemEntry in _programClipboard and the system clipboard." alt="" coords="5,5,221,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="253,46,221,42,221,37,253,41"/>
+<area shape="rect" id="Node000003" href="$d8/d03/class_file_surfer_1_1_models_1_1_file_operations_1_1_clipboard_manager.html#ace74f4954caf4e8441a828a438220185" title="Stores selectedFiles &#160;to both Clipboard and _programClipboard." alt="" coords="5,72,221,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="253,79,221,83,221,78,253,74"/>
+</map>

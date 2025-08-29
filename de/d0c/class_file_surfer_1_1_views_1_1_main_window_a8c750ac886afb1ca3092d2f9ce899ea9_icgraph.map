@@ -1,0 +1,7 @@
+<map id="FileSurfer.Views.MainWindow.CommitMessageEntered" name="FileSurfer.Views.MainWindow.CommitMessageEntered">
+<area shape="rect" id="Node000001" title="Relays the commit message to _viewModel, hides CommitMessageBar, and clears CommitInputBox text." alt="" coords="500,5,699,48"/>
+<area shape="rect" id="Node000002" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a7b582d6a4e5b68ab3635ac12bdf32db6" title="Processes currently focused elements and invokes their respective actions." alt="" coords="253,5,452,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="484,29,452,29,452,24,484,24"/>
+<area shape="rect" id="Node000003" href="$de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#afb42021e87bf3b1a012e05d3c7b41e4f" title="Handles key presses without keybindings." alt="" coords="5,5,205,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="237,29,205,29,205,24,237,24"/>
+</map>

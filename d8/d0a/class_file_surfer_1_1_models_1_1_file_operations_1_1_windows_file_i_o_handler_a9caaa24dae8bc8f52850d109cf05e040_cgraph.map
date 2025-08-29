@@ -1,0 +1,12 @@
+<map id="FileSurfer.Models.FileOperations.WindowsFileIOHandler.MoveFileTo" name="FileSurfer.Models.FileOperations.WindowsFileIOHandler.MoveFileTo">
+<area shape="rect" id="Node000001" title="Moves a file to a specified destination directory." alt="" coords="5,39,232,81"/>
+<area shape="rect" id="Node000002" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="280,5,447,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="232,42,264,38,264,43,232,47"/>
+<area shape="rect" id="Node000005" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a08aadd4ecd0dd10554f28522b9382a04" title=" " alt="" coords="280,72,447,115"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="232,73,264,77,264,82,232,78"/>
+<area shape="rect" id="Node000003" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="495,39,662,81"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="448,37,480,42,479,47,447,42"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="710,39,878,81"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="663,57,694,57,694,63,663,63"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="447,78,479,73,480,78,448,83"/>
+</map>

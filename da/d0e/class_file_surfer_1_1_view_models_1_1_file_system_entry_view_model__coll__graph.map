@@ -1,0 +1,7 @@
+<map id="FileSurfer.ViewModels.FileSystemEntryViewModel" name="FileSurfer.ViewModels.FileSystemEntryViewModel">
+<area shape="rect" id="Node000001" title="Represents a displayable file system entry (file, directory, or drive) in the FileSurfer application." alt="" coords="5,120,183,163"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="11,13,49,40"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="47,53,70,95,84,118,79,121,66,97,42,55"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="73,5,246,48"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="149,64,132,97,115,121,111,118,128,95,144,61"/>
+</map>

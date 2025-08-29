@@ -1,0 +1,5 @@
+<map id="FileSurfer.Models.FileInformation.IconProvider.GetFileIcon" name="FileSurfer.Models.FileInformation.IconProvider.GetFileIcon">
+<area shape="rect" id="Node000001" title="Retrieves the associated icon based on the supplied file path.The associated icon if file exists,..." alt="" coords="5,5,223,48"/>
+<area shape="rect" id="Node000002" href="$df/d0c/class_file_surfer_1_1_models_1_1_file_information_1_1_icon_provider.html#ae0b0fc94514aa00f3525d2091647fb94" title=" " alt="" coords="271,5,488,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,24,255,24,255,29,223,29"/>
+</map>

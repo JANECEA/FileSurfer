@@ -1,0 +1,7 @@
+<map id="FileSurfer.ViewModels.MainWindowViewModel.OpenEntries" name="FileSurfer.ViewModels.MainWindowViewModel.OpenEntries">
+<area shape="rect" id="Node000001" title="Opens multiple files at once." alt="" coords="5,5,214,48"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#af55ebe5ca0b2b47737a100997a19a310" title="Opens the selected entry." alt="" coords="262,5,460,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,24,246,24,246,29,214,29"/>
+<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a03451d04f2138c0229759f4244da8d0c" title="Opens a new Views.ErrorWindow dialog." alt="" coords="508,5,727,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="460,24,492,24,492,29,460,29"/>
+</map>

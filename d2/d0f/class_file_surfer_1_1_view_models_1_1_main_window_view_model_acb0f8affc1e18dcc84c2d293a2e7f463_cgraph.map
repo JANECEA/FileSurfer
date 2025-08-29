@@ -1,0 +1,11 @@
+<map id="FileSurfer.ViewModels.MainWindowViewModel.LoadDirEntries" name="FileSurfer.ViewModels.MainWindowViewModel.LoadDirEntries">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,72,228,115"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a29fd93a242cc549bcc9bfa3deffac35e" title="Adds directories and files to FileEntries." alt="" coords="293,5,493,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,69,286,50,287,55,208,74"/>
+<area shape="rect" id="Node000004" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a2e13374460eceaa5481dd5646e9c063c" title=" " alt="" coords="286,72,500,115"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="228,91,270,91,270,96,228,96"/>
+<area shape="rect" id="Node000005" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a570d6f4829aff93cfab2056e9c877545" title=" " alt="" coords="276,139,510,181"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="208,113,287,132,286,137,207,118"/>
+<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a83147aaa25c7e66be119aa9f47e945dc" title="Sorts given array of FileSystemEntryViewModels based on SortBy" alt="" coords="558,5,762,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="493,24,543,24,543,29,493,29"/>
+</map>

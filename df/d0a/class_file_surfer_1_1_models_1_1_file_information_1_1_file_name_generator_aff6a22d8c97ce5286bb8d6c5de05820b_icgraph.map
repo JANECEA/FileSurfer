@@ -1,0 +1,5 @@
+<map id="FileSurfer.Models.FileInformation.FileNameGenerator.GetCopyName" name="FileSurfer.Models.FileInformation.FileNameGenerator.GetCopyName">
+<area shape="rect" id="Node000001" title="Finds a name available for a copy in the context of ClipboardManager.Duplicate(string,..." alt="" coords="269,5,494,48"/>
+<area shape="rect" id="Node000002" href="$d8/d03/class_file_surfer_1_1_models_1_1_file_operations_1_1_clipboard_manager.html#a30385694e80a395cd27c411c2a190dc1" title="Duplicates the files stored in _programClipboard." alt="" coords="5,5,221,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="253,29,221,29,221,24,253,24"/>
+</map>

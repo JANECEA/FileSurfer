@@ -1,0 +1,7 @@
+<map id="FileSurfer.ViewModels.FileSystemEntryVMFactory" name="FileSurfer.ViewModels.FileSystemEntryVMFactory">
+<area shape="rect" id="Node000001" title=" " alt="" coords="373,39,550,81"/>
+<area shape="rect" id="Node000002" href="$d6/d0e/interface_file_surfer_1_1_models_1_1_file_information_1_1_i_file_info_provider.html" title="Defines methods for retrieving file and directory information." alt="" coords="5,5,223,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="238,36,372,49,372,54,238,41"/>
+<area shape="rect" id="Node000003" href="$dd/d00/interface_file_surfer_1_1_models_1_1_file_information_1_1_i_icon_provider.html" title=" " alt="" coords="5,72,223,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="238,85,348,76,372,73,373,78,349,81,238,91"/>
+</map>

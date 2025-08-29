@@ -1,0 +1,5 @@
+<map id="FileSurfer.Models.UndoRedoHandler&#45;1&#45;g.AddNewNode" name="FileSurfer.Models.UndoRedoHandler&#45;1&#45;g.AddNewNode">
+<area shape="rect" id="Node000001" title="Adds a new node at the current position in the chain and cuts of following nodes." alt="" coords="5,5,195,48"/>
+<area shape="rect" id="Node000002" href="$d9/d09/class_file_surfer_1_1_models_1_1_undo_redo_handler-1-g.html#a2df4aabdded2febbbfee29350637fbb3" title="Moves to the previous UndoRedoNode in the UndoRedoHandler&lt;T&gt; chain." alt="" coords="243,5,432,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,24,227,24,227,29,195,29"/>
+</map>

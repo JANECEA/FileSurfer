@@ -1,0 +1,14 @@
+<map id="FileSurfer.Models.FileOperations.ClipboardManager.SaveImageToPath" name="FileSurfer.Models.FileOperations.ClipboardManager.SaveImageToPath">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,72,243,115"/>
+<area shape="rect" id="Node000002" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="331,5,498,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,69,315,47,316,52,221,74"/>
+<area shape="rect" id="Node000005" href="$df/d0a/class_file_surfer_1_1_models_1_1_file_information_1_1_file_name_generator.html#af609afbbeea52c0caa9d8204d7f93e6b" title="Finds a name available to use in directory &#160;based on newName ." alt="" coords="291,72,538,115"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="243,91,275,91,275,96,243,96"/>
+<area shape="rect" id="Node000006" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a08aadd4ecd0dd10554f28522b9382a04" title=" " alt="" coords="331,139,498,181"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="221,113,316,135,315,140,219,118"/>
+<area shape="rect" id="Node000003" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="586,72,753,115"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="499,46,571,65,570,70,498,51"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="801,72,969,115"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="754,91,785,91,785,96,754,96"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="498,136,570,117,571,122,499,141"/>
+</map>

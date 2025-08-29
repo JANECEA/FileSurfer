@@ -1,0 +1,16 @@
+<map id="FileSurfer.ViewModels.MainWindowViewModel.SearchAsync" name="FileSurfer.ViewModels.MainWindowViewModel.SearchAsync">
+<area shape="rect" id="Node000001" title="Prepares the _searchCTS cancellation token, updates CurrentDir, and starts the search." alt="" coords="5,72,220,115"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a6f19f770c3a4ce54793c00996b401d20" title="Recursively searches CurrentDir and asynchronously adds matching FileSystemEntryViewModels to FileEnt..." alt="" coords="268,72,535,115"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,91,252,91,252,96,220,96"/>
+<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a7878c25a1dcc722857218f1b3a4cbe2c" title=" " alt="" coords="583,5,779,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="493,69,573,50,574,55,494,74"/>
+<area shape="rect" id="Node000004" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#ab998b36b7a0ea309734bafc5f310a5c8" title=" " alt="" coords="589,72,773,115"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="536,91,574,91,574,96,536,96"/>
+<area shape="rect" id="Node000006" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a3047ada43857fa35d01c7a58c65aeca1" title=" " alt="" coords="588,139,774,181"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="494,113,574,132,573,137,493,118"/>
+<area shape="rect" id="Node000005" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a2e13374460eceaa5481dd5646e9c063c" title=" " alt="" coords="827,72,1042,115"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="774,91,812,91,812,96,774,96"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="764,136,835,117,837,122,766,141"/>
+<area shape="rect" id="Node000007" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#ab5e7040367e4ded51acff1101ed1950c" title=" " alt="" coords="835,139,1034,181"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="774,157,820,157,820,163,774,163"/>
+</map>

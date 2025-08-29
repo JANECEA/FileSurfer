@@ -1,0 +1,12 @@
+<map id="FileSurfer.Models.VersionControl.GitVersionControl.UnstagePath" name="FileSurfer.Models.VersionControl.GitVersionControl.UnstagePath">
+<area shape="rect" id="Node000001" title="Unstages changes in the specified file or directory, reverting it to the previous staged state." alt="" coords="5,39,255,81"/>
+<area shape="rect" id="Node000002" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="303,5,470,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="255,41,287,37,288,42,256,46"/>
+<area shape="rect" id="Node000005" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a08aadd4ecd0dd10554f28522b9382a04" title=" " alt="" coords="303,72,470,115"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="256,74,288,78,287,83,255,79"/>
+<area shape="rect" id="Node000003" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="518,39,685,81"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="471,37,503,42,502,47,470,42"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="733,39,901,81"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="686,57,717,57,717,63,686,63"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="470,78,502,73,503,78,471,83"/>
+</map>

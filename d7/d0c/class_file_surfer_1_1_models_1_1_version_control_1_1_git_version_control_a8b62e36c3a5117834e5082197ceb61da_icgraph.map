@@ -1,0 +1,7 @@
+<map id="FileSurfer.Models.VersionControl.GitVersionControl.ConvertToVCStatus" name="FileSurfer.Models.VersionControl.GitVersionControl.ConvertToVCStatus">
+<area shape="rect" id="Node000001" title=" " alt="" coords="507,5,726,64"/>
+<area shape="rect" id="Node000002" href="$d7/d0c/class_file_surfer_1_1_models_1_1_version_control_1_1_git_version_control.html#a142eed1e9544d4c27022235388062f9a" title=" " alt="" coords="245,5,459,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="491,37,460,37,460,32,491,32"/>
+<area shape="rect" id="Node000003" href="$d7/d0c/class_file_surfer_1_1_models_1_1_version_control_1_1_git_version_control.html#a6adcdaa130e7f6c3f9e1d839628d7185" title="Determines whether the specified directory is under version control." alt="" coords="5,5,197,64"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="229,37,197,37,197,32,229,32"/>
+</map>

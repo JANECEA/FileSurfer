@@ -1,0 +1,14 @@
+<map id="FileSurfer.ViewModels.MainWindowViewModel.SearchDirectoryAsync" name="FileSurfer.ViewModels.MainWindowViewModel.SearchDirectoryAsync">
+<area shape="rect" id="Node000001" title="Recursively searches CurrentDir and asynchronously adds matching FileSystemEntryViewModels to FileEnt..." alt="" coords="5,72,273,115"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a7878c25a1dcc722857218f1b3a4cbe2c" title=" " alt="" coords="321,5,517,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="231,69,311,50,312,55,232,74"/>
+<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#ab998b36b7a0ea309734bafc5f310a5c8" title=" " alt="" coords="327,72,511,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="273,91,311,91,311,96,273,96"/>
+<area shape="rect" id="Node000005" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a3047ada43857fa35d01c7a58c65aeca1" title=" " alt="" coords="326,139,512,181"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="232,113,312,132,311,137,231,118"/>
+<area shape="rect" id="Node000004" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a2e13374460eceaa5481dd5646e9c063c" title=" " alt="" coords="565,72,779,115"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="511,91,549,91,549,96,511,96"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="502,136,573,117,574,122,503,141"/>
+<area shape="rect" id="Node000006" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#ab5e7040367e4ded51acff1101ed1950c" title=" " alt="" coords="572,139,772,181"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="512,157,557,157,557,163,512,163"/>
+</map>

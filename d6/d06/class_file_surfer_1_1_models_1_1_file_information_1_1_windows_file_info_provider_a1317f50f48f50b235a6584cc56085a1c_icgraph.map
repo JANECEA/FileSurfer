@@ -1,0 +1,7 @@
+<map id="FileSurfer.Models.FileInformation.WindowsFileInfoProvider.IsOSProtected" name="FileSurfer.Models.FileInformation.WindowsFileInfoProvider.IsOSProtected">
+<area shape="rect" id="Node000001" title=" " alt="" coords="300,39,556,81"/>
+<area shape="rect" id="Node000002" href="$d6/d06/class_file_surfer_1_1_models_1_1_file_information_1_1_windows_file_info_provider.html#a0d5ec3d2353b5b5f67d78a990a623106" title="Gets directories in a path, with optional inclusion of hidden and system directories." alt="" coords="7,5,250,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="284,47,250,43,250,38,285,41"/>
+<area shape="rect" id="Node000003" href="$d6/d06/class_file_surfer_1_1_models_1_1_file_information_1_1_windows_file_info_provider.html#a20e40850c479b00e4346b045905c5cf3" title="Gets files in a path, with optional inclusion of hidden and system files." alt="" coords="5,72,252,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="285,79,252,82,252,77,284,73"/>
+</map>

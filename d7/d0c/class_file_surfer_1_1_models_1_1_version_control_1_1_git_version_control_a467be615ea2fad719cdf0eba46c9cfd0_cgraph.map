@@ -1,0 +1,11 @@
+<map id="FileSurfer.Models.VersionControl.GitVersionControl.CommitChanges" name="FileSurfer.Models.VersionControl.GitVersionControl.CommitChanges">
+<area shape="rect" id="Node000001" title="Commits the staged changes with the specified commit message." alt="" coords="5,35,225,93"/>
+<area shape="rect" id="Node000002" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="299,5,466,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="225,46,283,38,284,43,226,51"/>
+<area shape="rect" id="Node000005" href="$d7/d0c/class_file_surfer_1_1_models_1_1_version_control_1_1_git_version_control.html#abdd69bf1d963e1223733ac43d0feddf4" title=" " alt="" coords="273,72,492,131"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="226,77,258,81,257,87,225,82"/>
+<area shape="rect" id="Node000003" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="540,5,707,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="466,24,524,24,524,29,466,29"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="755,5,923,48"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="708,24,739,24,739,29,708,29"/>
+</map>

@@ -1,0 +1,6 @@
+var searchData=
+[
+  ['allowimagepastingfromclipboard_0',['AllowImagePastingFromClipboard',['../db/d05/class_file_surfer_1_1_file_surfer_settings.html#a7cac5a15f10697f1b616d449c91ad7d8',1,'FileSurfer.FileSurferSettings.AllowImagePastingFromClipboard'],['../d8/d00/class_file_surfer_1_1_view_models_1_1_settings_window_view_model.html#aa23446d5e895edbef1bef717fd237f40',1,'FileSurfer.ViewModels.SettingsWindowViewModel.AllowImagePastingFromClipboard']]],
+  ['automaticrefresh_1',['AutomaticRefresh',['../db/d05/class_file_surfer_1_1_file_surfer_settings.html#a77be00f3ae886380a31579e446a6d516',1,'FileSurfer.FileSurferSettings.AutomaticRefresh'],['../d8/d00/class_file_surfer_1_1_view_models_1_1_settings_window_view_model.html#a8ec405f816e2290f6ccd850fd184b36b',1,'FileSurfer.ViewModels.SettingsWindowViewModel.AutomaticRefresh']]],
+  ['automaticrefreshinterval_2',['AutomaticRefreshInterval',['../db/d05/class_file_surfer_1_1_file_surfer_settings.html#a77b4f166728e140e28030c75ef29930a',1,'FileSurfer.FileSurferSettings.AutomaticRefreshInterval'],['../d8/d00/class_file_surfer_1_1_view_models_1_1_settings_window_view_model.html#a2f003356ccaa30a854477fd8ab82cf49',1,'FileSurfer.ViewModels.SettingsWindowViewModel.AutomaticRefreshInterval']]]
+];

@@ -1,0 +1,5 @@
+<map id="FileSurfer.Models.FileOperations.ClipboardManager" name="FileSurfer.Models.FileOperations.ClipboardManager">
+<area shape="rect" id="Node000001" title="Interacts with the program and system clipboards using System.Windows.Forms." alt="" coords="5,96,221,139"/>
+<area shape="rect" id="Node000002" href="$d6/d0f/interface_file_surfer_1_1_models_1_1_file_operations_1_1_i_clipboard_manager.html" title="Represents the layer between the FileSurfer app and the system clipboard." alt="" coords="5,5,221,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,64,116,96,110,96,110,64"/>
+</map>

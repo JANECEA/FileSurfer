@@ -1,0 +1,7 @@
+<map id="FileSurfer.ViewModels.MainWindowViewModel" name="FileSurfer.ViewModels.MainWindowViewModel">
+<area shape="rect" id="Node000001" title="The MainWindowViewModel is the ViewModel for the main window of the application." alt="" coords="32,80,216,123"/>
+<area shape="rect" id="Node000002" href="$d3/d06/class_reactive_object.html" title=" " alt="" coords="5,5,117,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="82,43,110,78,106,81,78,46"/>
+<area shape="rect" id="Node000003" href="$d2/d05/class_i_disposable.html" title=" " alt="" coords="141,5,232,32"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="169,46,142,81,137,78,165,43"/>
+</map>

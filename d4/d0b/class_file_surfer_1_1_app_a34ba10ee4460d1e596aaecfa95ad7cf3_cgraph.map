@@ -1,0 +1,22 @@
+<map id="FileSurfer.App.OnFrameworkInitializationCompleted" name="FileSurfer.App.OnFrameworkInitializationCompleted">
+<area shape="rect" id="Node000001" title="Invokes FileSurferSettings.LoadSettings and sets Application.RequestedThemeVariant theme." alt="" coords="5,72,196,115"/>
+<area shape="rect" id="Node000002" href="$d4/d0b/class_file_surfer_1_1_app.html#a4232d7c00375ba8cb8d3c163cf16f0c6" title=" " alt="" coords="244,21,437,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,69,267,50,268,55,191,74"/>
+<area shape="rect" id="Node000003" href="$db/d05/class_file_surfer_1_1_file_surfer_settings.html#abaac4f7bdc56e341c91443bf6a5bae01" title=" " alt="" coords="246,72,435,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="196,91,230,91,230,96,196,96"/>
+<area shape="rect" id="Node000006" href="$d4/d0b/class_file_surfer_1_1_app.html#ae459b6f503edcfd9384d0d5cb85519d6" title=" " alt="" coords="250,147,431,173"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="180,113,276,139,274,145,179,118"/>
+<area shape="rect" id="Node000004" href="$db/d05/class_file_surfer_1_1_file_surfer_settings.html#a3134ab4ba806922fdbc1acb839c0f31b" title="Loads settings from the SettingsRecord object and applies them to the current session." alt="" coords="485,5,674,48"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="418,69,485,50,487,55,420,74"/>
+<area shape="rect" id="Node000005" href="$db/d05/class_file_surfer_1_1_file_surfer_settings.html#a441629c8c9d236832acd54be192f63f2" title="Saves the current settings to the settings file if any changes have been made." alt="" coords="485,72,674,115"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="436,91,469,91,469,96,436,96"/>
+<area shape="rect" id="Node000007" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="496,139,663,181"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="431,157,480,157,480,163,431,163"/>
+<area shape="rect" id="Node000010" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a08aadd4ecd0dd10554f28522b9382a04" title=" " alt="" coords="496,205,663,248"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="392,171,487,198,485,203,391,177"/>
+<area shape="rect" id="Node000008" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="722,172,890,215"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="664,170,707,176,707,181,663,175"/>
+<area shape="rect" id="Node000009" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="938,172,1105,215"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="890,191,922,191,922,196,890,196"/>
+<area shape="poly" id="edge10_Node000010_Node000008" title=" " alt="" coords="663,212,707,205,707,211,664,217"/>
+</map>

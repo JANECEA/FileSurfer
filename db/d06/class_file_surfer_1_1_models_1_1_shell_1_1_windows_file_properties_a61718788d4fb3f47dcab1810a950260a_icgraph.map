@@ -1,0 +1,5 @@
+<map id="FileSurfer.Models.Shell.WindowsFileProperties.ShowOpenAsDialog" name="FileSurfer.Models.Shell.WindowsFileProperties.ShowOpenAsDialog">
+<area shape="rect" id="Node000001" title="Displays the &quot;Open With&quot; dialog for a specified file using rundll32.exe." alt="" coords="238,5,461,64"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a06afe7ebff5e65cbf87a52be2daeb913" title="Shows the &quot;Open file with&quot; dialog." alt="" coords="5,13,190,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,37,190,37,190,32,222,32"/>
+</map>

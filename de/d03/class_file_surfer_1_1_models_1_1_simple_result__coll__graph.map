@@ -1,0 +1,15 @@
+<map id="FileSurfer.Models.SimpleResult" name="FileSurfer.Models.SimpleResult">
+<area shape="rect" id="Node000001" title="An immutable, lightweight, and memory efficient implementation of IResult that supports at most one e..." alt="" coords="679,139,846,182"/>
+<area shape="rect" id="Node000002" href="$d6/d07/interface_file_surfer_1_1_models_1_1_i_result.html" title="Represents the result of an operation, indicating success or failure, along with error messages." alt="" coords="12,55,182,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,48,224,27,317,10,418,3,470,6,520,14,586,37,647,70,699,106,738,137,735,141,696,110,644,75,584,42,518,19,469,11,418,8,317,15,225,33,152,53"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html" title="An immutable, lightweight, and memory efficient implementation of IResult that supports at most one e..." alt="" coords="352,98,519,141"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="198,79,328,98,351,102,351,107,327,103,197,84"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,119,189,162"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="204,156,352,174,435,177,519,174,678,165,679,170,519,179,435,182,351,179,204,162"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="204,131,351,122,351,127,204,136"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="534,129,679,147,678,153,534,134"/>
+<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="407,80,417,74,435,71,452,73,463,79,468,88,467,98,462,97,463,89,460,83,450,78,435,77,419,79,409,85"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="20,233,174,275"/>
+<area shape="poly" id="edge8_Node000001_Node000005" title=" " alt="" coords="189,244,344,228,519,206,678,176,679,181,519,211,344,234,190,249"/>
+<area shape="poly" id="edge7_Node000004_Node000005" title=" " alt="" coords="166,224,378,139,380,144,168,229"/>
+</map>

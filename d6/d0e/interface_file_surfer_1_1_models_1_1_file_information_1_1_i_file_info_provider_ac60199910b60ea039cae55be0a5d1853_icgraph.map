@@ -1,0 +1,7 @@
+<map id="FileSurfer.Models.FileInformation.IFileInfoProvider.GetDirLastModified" name="FileSurfer.Models.FileInformation.IFileInfoProvider.GetDirLastModified">
+<area shape="rect" id="Node000001" title="Gets the last modified date of a directory." alt="" coords="593,13,825,56"/>
+<area shape="rect" id="Node000002" href="$d0/d04/class_file_surfer_1_1_view_models_1_1_file_system_entry_view_model.html#a1861dc137c8ac87dc1739ee23b248435" title=" " alt="" coords="285,13,545,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="577,37,546,37,546,32,577,32"/>
+<area shape="rect" id="Node000003" href="$d0/d04/class_file_surfer_1_1_view_models_1_1_file_system_entry_view_model.html#ab11953312cf0d15709a51ec7d600ee47" title="Initializes a new instance of the FileSystemEntryViewModel class for a file or directory." alt="" coords="5,5,237,64"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="269,37,237,37,237,32,269,32"/>
+</map>

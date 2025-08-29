@@ -1,0 +1,7 @@
+<map id="FileSurfer.Models.FileInformation.WindowsFileInfoProvider.GetPathFiles" name="FileSurfer.Models.FileInformation.WindowsFileInfoProvider.GetPathFiles">
+<area shape="rect" id="Node000001" title="Gets files in a path, with optional inclusion of hidden and system files." alt="" coords="5,39,252,81"/>
+<area shape="rect" id="Node000002" href="$d6/d06/class_file_surfer_1_1_models_1_1_file_information_1_1_windows_file_info_provider.html#ac20985f347f755466efd0df535fade1d" title="Checks if a path is hidden." alt="" coords="317,5,539,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="252,44,301,38,302,43,253,49"/>
+<area shape="rect" id="Node000003" href="$d6/d06/class_file_surfer_1_1_models_1_1_file_information_1_1_windows_file_info_provider.html#a1317f50f48f50b235a6584cc56085a1c" title=" " alt="" coords="300,72,556,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="253,71,284,75,284,80,252,76"/>
+</map>

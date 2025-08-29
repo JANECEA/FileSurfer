@@ -1,0 +1,12 @@
+<map id="FileSurfer.Models.FileOperations.Undoable.UndoableOperation.Invoke" name="FileSurfer.Models.FileOperations.Undoable.UndoableOperation.Invoke">
+<area shape="rect" id="Node000001" title="Invokes the file operation." alt="" coords="607,51,841,93"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a2ee21f2f0610eb817027d245ffcc2ec3" title="Moves the FileSystemEntryViewModels in SelectedFiles to the system trash using _fileIOHandler." alt="" coords="336,5,552,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="591,53,552,47,552,41,592,48"/>
+<area shape="rect" id="Node000004" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a4d6c0f86250bd2896cd93a5c5af497fd" title=" " alt="" coords="329,96,559,139"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="592,96,560,101,559,96,591,91"/>
+<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#adbeea4752e95caf3111b69ef2ee287cd" title="Initializes a new MainWindowViewModel." alt="" coords="5,5,281,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="321,29,281,29,281,24,321,24"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="490,83,473,77,444,75,417,77,401,81,394,87,396,95,391,96,389,86,398,77,416,71,444,69,474,72,492,78"/>
+<area shape="rect" id="Node000005" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a08d62ab29e3d3d434bb04cd8caa86928" title="Relays the operation to RenameOne(string) or RenameMultiple(string)." alt="" coords="50,96,236,139"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="313,120,236,120,236,115,313,115"/>
+</map>

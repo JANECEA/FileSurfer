@@ -1,0 +1,6 @@
+var searchData=
+[
+  ['errormessage_0',['ErrorMessage',['../df/d0c/class_file_surfer_1_1_views_1_1_error_window.html#a48852e4b5589edca82c79bfa07778a42',1,'FileSurfer::Views::ErrorWindow']]],
+  ['errors_1',['Errors',['../d6/d07/interface_file_surfer_1_1_models_1_1_i_result.html#a3366efdeea957fbc59c12cd552b7f8c6',1,'FileSurfer.Models.IResult.Errors'],['../d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a3ca0e44b97f8b703f5d1da2594d7d2f8',1,'FileSurfer.Models.SimpleResult.Errors'],['../d0/d00/class_file_surfer_1_1_models_1_1_result.html#a0565dacb5f33576e916f6840747bb2a6',1,'FileSurfer.Models.Result.Errors']]],
+  ['extension_2',['Extension',['../d8/d01/class_file_surfer_1_1_models_1_1_directory_entry.html#a660e31874e7f076067961b596b078f26',1,'FileSurfer.Models.DirectoryEntry.Extension'],['../d3/d0c/class_file_surfer_1_1_models_1_1_drive_entry.html#a7bb98e995705466226918103deb1e957',1,'FileSurfer.Models.DriveEntry.Extension'],['../db/d0b/class_file_surfer_1_1_models_1_1_file_entry.html#a88c064b32fd951fd08a284e60dd2f6ac',1,'FileSurfer.Models.FileEntry.Extension'],['../dd/d05/interface_file_surfer_1_1_models_1_1_i_file_system_entry.html#a73474cb354a9f83313bcd30f8f3c1a25',1,'FileSurfer.Models.IFileSystemEntry.Extension']]]
+];

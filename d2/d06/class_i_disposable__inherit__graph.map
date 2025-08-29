@@ -1,0 +1,11 @@
+<map id="IDisposable" name="IDisposable">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,80,96,107"/>
+<area shape="rect" id="Node000002" href="$df/d0c/class_file_surfer_1_1_models_1_1_file_information_1_1_icon_provider.html" title="Optimizes icon delivery based on the file extension." alt="" coords="144,5,361,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,72,143,57,178,46,180,51,145,63,104,77"/>
+<area shape="rect" id="Node000003" href="$db/d07/interface_file_surfer_1_1_models_1_1_version_control_1_1_i_version_control.html" title="Defines methods for interacting with a version control system withing the FileSurfer app." alt="" coords="167,72,338,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="111,91,167,91,167,96,111,96"/>
+<area shape="rect" id="Node000005" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html" title="The MainWindowViewModel is the ViewModel for the main window of the application." alt="" coords="160,139,344,181"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="104,110,145,124,180,136,178,141,143,129,102,115"/>
+<area shape="rect" id="Node000004" href="$d7/d0c/class_file_surfer_1_1_models_1_1_version_control_1_1_git_version_control.html" title="Handles git integration within the FileSurfer app." alt="" coords="409,72,579,115"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="353,91,408,91,408,96,353,96"/>
+</map>

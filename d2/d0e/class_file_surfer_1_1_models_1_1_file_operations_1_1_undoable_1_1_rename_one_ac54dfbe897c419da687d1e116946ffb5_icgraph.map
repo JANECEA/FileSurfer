@@ -1,0 +1,8 @@
+<map id="FileSurfer.Models.FileOperations.Undoable.RenameOne.Invoke" name="FileSurfer.Models.FileOperations.Undoable.RenameOne.Invoke">
+<area shape="rect" id="Node000001" title="Invokes the file operation." alt="" coords="496,29,711,72"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#aee58980afc72b686559bad7f90c973ce" title=" " alt="" coords="239,29,448,72"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="481,53,448,53,448,48,481,48"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="383,16,368,10,343,8,320,10,306,15,300,21,302,28,297,29,295,19,303,10,319,5,343,3,370,5,385,11"/>
+<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a08d62ab29e3d3d434bb04cd8caa86928" title="Relays the operation to RenameOne(string) or RenameMultiple(string)." alt="" coords="5,29,191,72"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="223,53,191,53,191,48,223,48"/>
+</map>
