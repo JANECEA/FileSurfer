@@ -84,6 +84,10 @@ public class IconProvider : IIconProvider, IDisposable
 
     public void Dispose()
     {
+        _genericFileIcon?.Dispose();
+        DirectoryIcon.Dispose(); 
+        DriveIcon.Dispose(); 
+
         foreach (var icon in _icons.Values)
             icon.Dispose();
 

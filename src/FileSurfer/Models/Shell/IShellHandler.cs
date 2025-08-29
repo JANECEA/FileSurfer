@@ -12,16 +12,16 @@ public interface IShellHandler
     public IResult CreateLink(string filePath);
 
     /// <summary>
-    /// Opens a file at the specified path.
+    /// Opens a file at the specified path in the application preferred by the OS.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
     public IResult OpenFile(string filePath);
 
     /// <summary>
-    /// Opens a file in Notepad.
+    /// Opens a file in the Notepad app at the path specified.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult OpenInNotepad(string filePath);
+    public IResult OpenInNotepad(string filePath, string notepadPath);
 
     /// <summary>
     /// Opens a command prompt at the specified directory path.

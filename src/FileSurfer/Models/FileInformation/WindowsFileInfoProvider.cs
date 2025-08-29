@@ -14,6 +14,8 @@ public class WindowsFileInfoProvider : IFileInfoProvider
             {
                 try
                 {
+                    // For some drives retrieving these essential values throws an exception
+                    // In that case they are skipped.
                     _ = drive.Name + drive.VolumeLabel + drive.TotalSize.ToString();
                     return drive.IsReady;
                 }

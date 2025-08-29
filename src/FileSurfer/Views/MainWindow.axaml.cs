@@ -50,10 +50,6 @@ public partial class MainWindow : Window
         _invertSelection = KeyBindings.First(keyBinding => keyBinding.Gesture.Key == Key.Multiply);
     }
 
-    /// <summary>
-    /// Sets <see cref="_viewModel"/> after <see cref="MainWindowViewModel"/> has been loaded
-    /// as <see cref="MainWindow"/>'s <see cref="StyledElement.DataContext"/>.
-    /// </summary>
     private void ViewModelLoaded(object? sender, EventArgs e)
     {
         if (DataContext is MainWindowViewModel viewModel && _viewModel is null)

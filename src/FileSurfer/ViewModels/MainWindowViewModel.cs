@@ -601,7 +601,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
             if (!entry.IsDirectory)
-                ForwardIfError(_shellHandler.OpenInNotepad(entry.PathToEntry));
+                ForwardIfError(
+                    _shellHandler.OpenInNotepad(entry.PathToEntry, FileSurferSettings.NotepadApp)
+                );
     }
 
     /// <summary>

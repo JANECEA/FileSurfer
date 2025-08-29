@@ -5,7 +5,8 @@ using System.IO;
 namespace FileSurfer.Models.Shell;
 
 /// <summary>
-/// Provides methods to interact with Windows file properties and dialogs using Windows API calls.
+/// Windows-specific implementation of <see cref="IShellHandler"/> for shell interactions.
+/// Uses <see cref="System.Runtime.InteropServices"/> to interop with the Windows shell.
 /// </summary>
 public class WindowsShellHandler : IShellHandler
 {
@@ -45,14 +46,14 @@ public class WindowsShellHandler : IShellHandler
         }
     }
 
-    public IResult OpenInNotepad(string filePath)
+    public IResult OpenInNotepad(string filePath, string notepadPath)
     {
         try
         {
             Process.Start(
                 new ProcessStartInfo
                 {
-                    FileName = FileSurferSettings.NotepadApp,
+                    FileName = notepadPath,
                     Arguments = filePath,
                     UseShellExecute = true,
                 }

@@ -27,10 +27,16 @@ public class FileSystemEntryVMFactory
     public FileSystemEntryViewModel Directory(string dirPath, VCStatus vcStatus) =>
         new(_fileInfoProvider, _iconProvider, new DirectoryEntry(dirPath), vcStatus);
 
-    public FileSystemEntryViewModel File(
-        string filePath,
-        VCStatus vcStatus = VCStatus.NotVersionControlled
-    ) => new(_fileInfoProvider, _iconProvider, new FileEntry(filePath), vcStatus);
+    public FileSystemEntryViewModel File(string filePath) =>
+        new(
+            _fileInfoProvider,
+            _iconProvider,
+            new FileEntry(filePath),
+            VCStatus.NotVersionControlled
+        );
+
+    public FileSystemEntryViewModel File(string filePath, VCStatus vcStatus) =>
+        new(_fileInfoProvider, _iconProvider, new FileEntry(filePath), vcStatus);
 
     public FileSystemEntryViewModel Drive(DriveInfo driveInfo) => new(_iconProvider, driveInfo);
 }
