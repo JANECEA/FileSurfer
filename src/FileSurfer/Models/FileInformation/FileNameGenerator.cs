@@ -35,6 +35,27 @@ internal static class FileNameGenerator
     }
 
     /// <summary>
+    /// Finds a name available to use in all <paramref name="dirPaths"/> based on <paramref name="newName"/>.
+    /// </para>
+    /// </summary>
+    /// <returns><see cref="string"/> name available to use in <paramref name="directory"/>.</returns>
+    public static string GetNameMultipleDirs(string newName, params string[] dirPaths)
+    {
+        if (dirPaths.All(dirPath => !Path.Exists(Path.Combine(dirPath, newName))))
+            return newName;
+
+        string nameWithoutExtension = Path.GetFileNameWithoutExtension(newName);
+        string extension = Path.GetExtension(newName);
+        for (int index = 1; ; index++)
+        {
+            string newFileName = $"{nameWithoutExtension} ({index}){extension}";
+
+            if (dirPaths.All(dirPath => !Path.Exists(Path.Combine(dirPath, newFileName))))
+                return newFileName;
+        }
+    }
+
+    /// <summary>
     /// Finds a name available for a copy in the context of
     /// <see cref="ClipboardManager.Duplicate(string, out string[])"/> operation.
     /// </summary>
@@ -57,7 +78,11 @@ internal static class FileNameGenerator
         for (int i = 1; i < entries.Count; i++)
             if (
                 entries[i] is FileEntry != onlyFiles
-                || !string.Equals(entries[i].Extension, extension, StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(
+                    entries[i].Extension,
+                    extension,
+                    StringComparison.OrdinalIgnoreCase
+                )
             )
                 return false;
 

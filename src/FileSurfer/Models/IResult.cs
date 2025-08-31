@@ -87,15 +87,17 @@ public sealed class Result : IResult
         _errors.Add(errorMessage);
     }
 
-    public void MergeResult(IResult result)
+    public Result MergeResult(IResult result)
     {
         using IEnumerator<string> enumerator = result.Errors.GetEnumerator();
         if (!enumerator.MoveNext())
-            return;
+            return this;
 
         _errors ??= new List<string>();
 
         do _errors.Add(enumerator.Current);
         while (enumerator.MoveNext());
+
+        return this;
     }
 }

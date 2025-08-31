@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using FileSurfer.Models.FileInformation;
 
 namespace FileSurfer.Models.FileOperations.Undoable;
@@ -158,9 +159,8 @@ public class FlattenFolder : IUndoableFileOperation
     private readonly IFileIOHandler _fileIOHandler;
     private readonly IFileInfoProvider _fileInfoProvider;
     private readonly string _dirPath;
+    private readonly string _dirName;
     private readonly string? _parentDir;
-    private readonly bool _showHidden;
-    private readonly bool _showProtected;
 
     private string[] _containedDirs = Array.Empty<string>();
     private string[] _containedFiles = Array.Empty<string>();
@@ -174,9 +174,8 @@ public class FlattenFolder : IUndoableFileOperation
         _fileIOHandler = fileIOHandler;
         _fileInfoProvider = fileInfoProvider;
         _dirPath = dirPath;
+        _dirName = Path.GetFileName(dirPath);
         _parentDir = Path.GetDirectoryName(dirPath);
-        _showHidden = FileSurferSettings.ShowHiddenFiles;
-        _showProtected = FileSurferSettings.ShowProtectedFiles;
     }
 
     public IResult Invoke()
@@ -184,41 +183,86 @@ public class FlattenFolder : IUndoableFileOperation
         if (_parentDir is null)
             return SimpleResult.Error($"Cannot flatten top level directory: \"{_dirPath}\"");
 
-        _containedDirs = _fileInfoProvider.GetPathDirs(_dirPath, _showHidden, _showProtected);
-        _containedFiles = _fileInfoProvider.GetPathFiles(_dirPath, _showHidden, _showProtected);
-
         Result result = Result.Ok();
+        if (!result.MergeResult(RenameIfConflict(out string newDirPath)).IsOk)
+            return result;
+
+        _containedDirs = _fileInfoProvider.GetPathDirs(newDirPath, true, true);
+        _containedFiles = _fileInfoProvider.GetPathFiles(newDirPath, true, true);
+
         foreach (string containedDir in _containedDirs)
             result.MergeResult(_fileIOHandler.MoveDirTo(containedDir, _parentDir));
 
         foreach (string containedFile in _containedFiles)
             result.MergeResult(_fileIOHandler.MoveFileTo(containedFile, _parentDir));
 
-        return result.IsOk ? _fileIOHandler.DeleteDir(_dirPath) : result;
+        return result.IsOk ? _fileIOHandler.DeleteDir(newDirPath) : result;
+    }
+
+    private IResult RenameIfConflict(out string newDirPath)
+    {
+        newDirPath = _dirPath;
+        if (!Path.Exists(Path.Combine(_dirPath, _dirName)))
+            return SimpleResult.Ok();
+
+        string newName = FileNameGenerator.GetNameMultipleDirs(_dirName, _parentDir!, _dirPath);
+        newDirPath = Path.Combine(_parentDir!, newName);
+        return _fileIOHandler.RenameDirAt(_dirPath, newName);
     }
 
     public IResult Undo()
     {
-        if (_parentDir is null)
-            return SimpleResult.Error($"Cannot create a top level directory: \"{_dirPath}\"");
-
-        IResult newDirResult = _fileIOHandler.NewDirAt(_parentDir, Path.GetFileName(_dirPath));
-        if (!newDirResult.IsOk)
-            return newDirResult;
-
         Result result = Result.Ok();
+        if (!result.MergeResult(CheckConditions(out string newDirName)).IsOk)
+            return result;
+
+        string newDirPath = Path.Combine(_parentDir!, newDirName);
+
+        if (!result.MergeResult(_fileIOHandler.NewDirAt(_parentDir!, newDirName)).IsOk)
+            return result;
+
         foreach (string containedDir in _containedDirs)
         {
-            string dirPath = Path.Combine(_parentDir, Path.GetFileName(containedDir));
-            result.MergeResult(_fileIOHandler.MoveDirTo(dirPath, _dirPath));
+            string dirPath = Path.Combine(_parentDir!, Path.GetFileName(containedDir));
+            result.MergeResult(_fileIOHandler.MoveDirTo(dirPath, newDirPath));
         }
         foreach (string containedFile in _containedFiles)
         {
-            string filePath = Path.Combine(_parentDir, Path.GetFileName(containedFile));
-            result.MergeResult(_fileIOHandler.MoveFileTo(filePath, _dirPath));
+            string filePath = Path.Combine(_parentDir!, Path.GetFileName(containedFile));
+            result.MergeResult(_fileIOHandler.MoveFileTo(filePath, newDirPath));
         }
-        return result;
+
+        if (!result.IsOk)
+            return result;
+
+        return string.Equals(_dirName, newDirName, StringComparison.OrdinalIgnoreCase)
+            ? SimpleResult.Ok()
+            : _fileIOHandler.RenameDirAt(newDirPath, _dirName);
     }
+
+    private SimpleResult CheckConditions(out string newDirName)
+    {
+        newDirName = _dirName;
+        if (_parentDir is null)
+            return SimpleResult.Error($"Cannot create a top level directory: \"{_dirPath}\"");
+
+        if (!Path.Exists(_dirPath))
+            return SimpleResult.Ok();
+
+        if (
+            !ContainsSameName(_dirName, _containedDirs)
+            && !ContainsSameName(_dirName, _containedFiles)
+        )
+            return SimpleResult.Error($"Path: \"{_dirPath}\" already exists.");
+
+        newDirName = FileNameGenerator.GetAvailableName(_parentDir, _dirName);
+        return SimpleResult.Ok();
+    }
+
+    private static bool ContainsSameName(string name, string[] paths) =>
+        paths.Any(path =>
+            string.Equals(name, Path.GetFileName(path), StringComparison.OrdinalIgnoreCase)
+        );
 }
 
 /// <summary>
