@@ -1,0 +1,11 @@
+<map id="FileSurfer.Models.FileOperations.Undoable.FlattenFolder.RenameIfConflict" name="FileSurfer.Models.FileOperations.Undoable.FlattenFolder.RenameIfConflict">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,268,81"/>
+<area shape="rect" id="Node000002" href="$df/d0a/class_file_surfer_1_1_models_1_1_file_information_1_1_file_name_generator.html#a660f06947a08f9834ab7f75e7b33382f" title="Finds a name available to use in all dirPaths &#160;based on newName ." alt="" coords="316,5,579,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="268,43,300,40,300,45,268,49"/>
+<area shape="rect" id="Node000003" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a08aadd4ecd0dd10554f28522b9382a04" title=" " alt="" coords="364,72,531,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="268,71,348,80,348,85,268,77"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="627,72,794,115"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="532,91,611,91,611,96,532,96"/>
+<area shape="rect" id="Node000005" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="842,72,1010,115"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="795,91,826,91,826,96,795,96"/>
+</map>

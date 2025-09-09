@@ -25,7 +25,22 @@
 var NAVTREE =
 [
   [ "FileSurfer", "index.html", [
-    [ "Technical specification", "index.html", "index" ],
+    [ "Overview", "index.html", "index" ],
+    [ "Technical specification", "d0/d0e/md__c_1_2_users_23dklu_2_documents_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html", [
+      [ "Namespaces, Classes, and Interfaces", "d0/d0e/md__c_1_2_users_23dklu_2_documents_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md1", [
+        [ "FileSurfer", "d0/d0e/md__c_1_2_users_23dklu_2_documents_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md2", null ],
+        [ "FileSurfer.Models", "d0/d0e/md__c_1_2_users_23dklu_2_documents_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md3", [
+          [ "FileSurfer.Models.FileInformation", "d0/d0e/md__c_1_2_users_23dklu_2_documents_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md4", null ],
+          [ "FileSurfer.Models.VersionControl", "d0/d0e/md__c_1_2_users_23dklu_2_documents_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md5", null ],
+          [ "FileSurfer.Models.Shell", "d0/d0e/md__c_1_2_users_23dklu_2_documents_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md6", null ],
+          [ "FileSurfer.Models.FileOperations", "d0/d0e/md__c_1_2_users_23dklu_2_documents_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md7", [
+            [ "FileSurfer.Models.FileOperations.Undoable", "d0/d0e/md__c_1_2_users_23dklu_2_documents_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md8", null ]
+          ] ]
+        ] ],
+        [ "FileSurfer.ViewModels", "d0/d0e/md__c_1_2_users_23dklu_2_documents_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md9", null ],
+        [ "FileSurfer.Views", "d0/d0e/md__c_1_2_users_23dklu_2_documents_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md10", null ]
+      ] ]
+    ] ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
       [ "Namespace Members", "namespacemembers.html", [
@@ -53,11 +68,12 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a4fa68d558bd3d00d7311c7d9505de3b5",
-"d4/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_move_files_to.html#a77bfeff25516eb5d2d5a198a7755f7bc",
-"d8/d03/class_file_surfer_1_1_models_1_1_file_operations_1_1_clipboard_manager.html#a30385694e80a395cd27c411c2a190dc1",
-"db/d05/class_file_surfer_1_1_file_surfer_settings.html#a8d8bef776ac63f44f796838b6e750407",
-"de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a7909cdbb733941b3b6d9821c6a7e27aa"
+"d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a452df1b8d4437e5ef1b067898345b6eb",
+"d3/d0c/class_file_surfer_1_1_models_1_1_drive_entry.html#a6115d020f1b90b1b14283fd1bed428f5",
+"d8/d01/class_file_surfer_1_1_models_1_1_directory_entry.html#a8bf14f135b59faeca356f02b70353af5",
+"db/d05/class_file_surfer_1_1_file_surfer_settings.html#a634cbce50d2df5f60d61abf2d7d347fe",
+"de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a56636df451792d3d16efd94328f37199",
+"index.html#autotoc_md42"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronization';

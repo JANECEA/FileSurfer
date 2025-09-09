@@ -24,5 +24,7 @@ var searchData=
   ['openinnotepad_21',['OpenInNotepad',['../de/d06/interface_file_surfer_1_1_models_1_1_shell_1_1_i_shell_handler.html#ab53485724b702fd1657d18623df9b33e',1,'FileSurfer.Models.Shell.IShellHandler.OpenInNotepad()'],['../d5/d09/class_file_surfer_1_1_models_1_1_shell_1_1_windows_shell_handler.html#a04e484c9f97e05ccf6459a5e28b42af4',1,'FileSurfer.Models.Shell.WindowsShellHandler.OpenInNotepad()'],['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a784a12cae325cf6742767d5c42c9e074',1,'FileSurfer.ViewModels.MainWindowViewModel.OpenInNotepad()'],['../de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a7b403383b6e9f81747e7032ed26f0d71',1,'FileSurfer.Views.MainWindow.OpenInNotepad()']]],
   ['openpowershell_22',['OpenPowerShell',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a89daccca485586f8e2daf4f39e499cca',1,'FileSurfer::ViewModels::MainWindowViewModel']]],
   ['openpowershellcommand_23',['OpenPowerShellCommand',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#ab3cfb424139ae45586493f95dcd1e378',1,'FileSurfer::ViewModels::MainWindowViewModel']]],
-  ['opensettings_24',['OpenSettings',['../de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#abc8126a2ba35b8dad8604e1d89e003c1',1,'FileSurfer::Views::MainWindow']]]
+  ['opensettings_24',['OpenSettings',['../de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#abc8126a2ba35b8dad8604e1d89e003c1',1,'FileSurfer::Views::MainWindow']]],
+  ['overview_25',['Overview',['../index.html',1,'']]],
+  ['overview_2emd_26',['Overview.md',['../d4/d0b/_overview_8md.html',1,'']]]
 ];

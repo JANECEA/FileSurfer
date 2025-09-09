@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['technical_20specification_0',['Technical specification',['../index.html',1,'']]],
+  ['technical_20specification_0',['Technical specification',['../d0/d0e/md__c_1_2_users_23dklu_2_documents_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html',1,'']]],
   ['technicalspecification_2emd_1',['TechnicalSpecification.md',['../d5/d09/_technical_specification_8md.html',1,'']]],
   ['textboxgotfocus_2',['TextBoxGotFocus',['../de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a41a6210ac1843892f37c377ff67a31af',1,'FileSurfer::Views::MainWindow']]],
   ['textboxlostfocus_3',['TextBoxLostFocus',['../de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a09c541f327acd453630915d44caa44af',1,'FileSurfer::Views::MainWindow']]],

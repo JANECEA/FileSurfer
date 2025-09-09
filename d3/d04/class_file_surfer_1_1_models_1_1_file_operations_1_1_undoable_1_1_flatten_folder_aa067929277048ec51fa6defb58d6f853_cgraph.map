@@ -1,13 +1,26 @@
 <map id="FileSurfer.Models.FileOperations.Undoable.FlattenFolder.Undo" name="FileSurfer.Models.FileOperations.Undoable.FlattenFolder.Undo">
-<area shape="rect" id="Node000001" title="Undoes the file operation." alt="" coords="5,39,221,81"/>
-<area shape="rect" id="Node000002" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="278,8,446,51"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,44,262,39,263,44,222,49"/>
-<area shape="rect" id="Node000005" href="$d0/d00/class_file_surfer_1_1_models_1_1_result.html#a6225f3491ff55f24694f8be2581dedb7" title=" " alt="" coords="269,76,455,103"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="222,70,254,74,253,79,221,75"/>
-<area shape="rect" id="Node000003" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="504,5,671,48"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="446,26,488,25,488,31,446,31"/>
-<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="720,5,888,48"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="672,24,705,24,705,29,672,29"/>
-<area shape="rect" id="Node000006" href="$d0/d00/class_file_surfer_1_1_models_1_1_result.html#af5902de97cf99bfc8a49703414aaf811" title=" " alt="" coords="503,72,672,115"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="455,88,487,89,487,94,455,94"/>
+<area shape="rect" id="Node000001" title="Undoes the file operation." alt="" coords="5,231,221,273"/>
+<area shape="rect" id="Node000002" href="$d3/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_flatten_folder.html#a085b3c8d4d67230d6d3766a503a5ec96" title=" " alt="" coords="269,139,529,181"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,228,315,184,317,189,183,233"/>
+<area shape="rect" id="Node000008" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a08aadd4ecd0dd10554f28522b9382a04" title=" " alt="" coords="634,205,801,248"/>
+<area shape="poly" id="edge13_Node000001_Node000008" title=" " alt="" coords="221,245,618,228,618,233,221,250"/>
+<area shape="rect" id="Node000009" href="$d0/d00/class_file_surfer_1_1_models_1_1_result.html#a83ec547ebd548de0784561830127f7b0" title=" " alt="" coords="314,260,484,303"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="221,260,299,268,299,274,221,266"/>
+<area shape="rect" id="Node000011" href="$d0/d00/class_file_surfer_1_1_models_1_1_result.html#a6225f3491ff55f24694f8be2581dedb7" title=" " alt="" coords="306,327,492,353"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="162,271,213,293,269,312,300,320,299,325,268,317,212,298,160,276"/>
+<area shape="rect" id="Node000003" href="$d3/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_flatten_folder.html#ad0e75dfa5bb7a479a3c736b59fb532fc" title=" " alt="" coords="577,5,858,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="431,136,496,96,576,58,595,51,597,56,578,62,499,101,433,141"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="634,72,801,115"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="504,135,619,111,620,116,505,141"/>
+<area shape="rect" id="Node000007" href="$df/d0a/class_file_surfer_1_1_models_1_1_file_information_1_1_file_name_generator.html#af609afbbeea52c0caa9d8204d7f93e6b" title="Finds a name available to use in directory &#160;based on newName ." alt="" coords="594,139,841,181"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="529,157,579,157,579,163,529,163"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="505,179,620,204,619,209,504,185"/>
+<area shape="rect" id="Node000005" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="906,139,1074,181"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="803,110,859,124,892,132,891,138,858,129,801,116"/>
+<area shape="rect" id="Node000006" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="1122,139,1289,181"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1074,157,1106,157,1106,163,1074,163"/>
+<area shape="poly" id="edge8_Node000008_Node000005" title=" " alt="" coords="801,204,858,191,891,182,892,188,859,196,803,210"/>
+<area shape="rect" id="Node000010" href="$d0/d00/class_file_surfer_1_1_models_1_1_result.html#af5902de97cf99bfc8a49703414aaf811" title=" " alt="" coords="633,295,802,337"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="484,288,618,303,617,308,484,293"/>
+<area shape="poly" id="edge12_Node000011_Node000010" title=" " alt="" coords="492,330,617,321,618,326,493,336"/>
 </map>

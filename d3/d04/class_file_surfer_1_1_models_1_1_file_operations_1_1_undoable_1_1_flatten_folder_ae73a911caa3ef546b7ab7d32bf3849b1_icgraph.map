@@ -1,0 +1,8 @@
+<map id="FileSurfer.Models.FileOperations.Undoable.FlattenFolder.RenameIfConflict" name="FileSurfer.Models.FileOperations.Undoable.FlattenFolder.RenameIfConflict">
+<area shape="rect" id="Node000001" title=" " alt="" coords="529,29,791,72"/>
+<area shape="rect" id="Node000002" href="$d3/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_flatten_folder.html#a44debb710aa5feb46857cbd6e2ab9400" title="Invokes the file operation." alt="" coords="266,29,481,72"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="513,53,481,53,481,48,513,48"/>
+<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a67c05099e04dbb60fe4b4e720b506a09" title=" " alt="" coords="5,29,218,72"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="250,53,218,53,218,48,250,48"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="154,16,138,10,111,8,87,10,71,15,65,21,67,28,62,29,60,19,68,10,86,5,112,3,139,5,156,11"/>
+</map>

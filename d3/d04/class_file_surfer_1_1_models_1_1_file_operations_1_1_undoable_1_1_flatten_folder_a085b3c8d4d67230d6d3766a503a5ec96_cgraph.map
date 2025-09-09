@@ -1,0 +1,16 @@
+<map id="FileSurfer.Models.FileOperations.Undoable.FlattenFolder.CheckConditions" name="FileSurfer.Models.FileOperations.Undoable.FlattenFolder.CheckConditions">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,105,266,148"/>
+<area shape="rect" id="Node000002" href="$d3/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_flatten_folder.html#ad0e75dfa5bb7a479a3c736b59fb532fc" title=" " alt="" coords="314,5,595,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,102,313,57,339,50,340,55,314,63,191,107"/>
+<area shape="rect" id="Node000003" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#ad5f83ba480c9bf41de06c06cea7e83e0" title=" " alt="" coords="371,72,538,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="266,110,355,101,355,106,266,116"/>
+<area shape="rect" id="Node000006" href="$df/d0a/class_file_surfer_1_1_models_1_1_file_information_1_1_file_name_generator.html#af609afbbeea52c0caa9d8204d7f93e6b" title="Finds a name available to use in directory &#160;based on newName ." alt="" coords="331,139,578,181"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="266,138,316,143,315,148,266,143"/>
+<area shape="rect" id="Node000007" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a08aadd4ecd0dd10554f28522b9382a04" title=" " alt="" coords="371,205,538,248"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="191,146,314,191,356,202,355,208,313,196,189,151"/>
+<area shape="rect" id="Node000004" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a0f88d8153eb402340ae8f825ab8f7cf0" title=" " alt="" coords="643,139,810,181"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="539,110,596,124,629,132,627,138,594,129,538,116"/>
+<area shape="rect" id="Node000005" href="$d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html#a430d5472c4b4d9ea2bede9282537205a" title=" " alt="" coords="858,139,1026,181"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="811,157,842,157,842,163,811,163"/>
+<area shape="poly" id="edge7_Node000007_Node000004" title=" " alt="" coords="538,204,594,191,627,182,629,188,596,196,539,210"/>
+</map>

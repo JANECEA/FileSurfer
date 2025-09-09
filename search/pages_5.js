@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['namespaces_20classes_20and_20interfaces_0',['Namespaces, Classes, and Interfaces',['../index.html#autotoc_md1',1,'']]]
+  ['gitversioncontrol_0',['GitVersionControl',['../index.html#autotoc_md44',1,'']]]
 ];

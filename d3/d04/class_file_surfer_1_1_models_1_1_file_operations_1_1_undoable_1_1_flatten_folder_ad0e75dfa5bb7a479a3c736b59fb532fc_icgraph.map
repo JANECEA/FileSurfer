@@ -1,0 +1,7 @@
+<map id="FileSurfer.Models.FileOperations.Undoable.FlattenFolder.ContainsSameName" name="FileSurfer.Models.FileOperations.Undoable.FlattenFolder.ContainsSameName">
+<area shape="rect" id="Node000001" title=" " alt="" coords="577,5,858,48"/>
+<area shape="rect" id="Node000002" href="$d3/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_flatten_folder.html#a085b3c8d4d67230d6d3766a503a5ec96" title=" " alt="" coords="269,5,529,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="562,29,529,29,529,24,562,24"/>
+<area shape="rect" id="Node000003" href="$d3/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_flatten_folder.html#aa067929277048ec51fa6defb58d6f853" title="Undoes the file operation." alt="" coords="5,5,221,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="253,29,221,29,221,24,253,24"/>
+</map>

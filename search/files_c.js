@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['vcstatus_2ecs_0',['VCStatus.cs',['../da/d03/_v_c_status_8cs.html',1,'']]],
-  ['viewlocator_2ecs_1',['ViewLocator.cs',['../db/d04/_view_locator_8cs.html',1,'']]]
+  ['undoablefileoperations_2ecs_0',['UndoableFileOperations.cs',['../d0/d02/_undoable_file_operations_8cs.html',1,'']]],
+  ['undoableoperation_2ecs_1',['UndoableOperation.cs',['../df/d08/_undoable_operation_8cs.html',1,'']]],
+  ['undoredohandler_2ecs_2',['UndoRedoHandler.cs',['../d2/d0d/_undo_redo_handler_8cs.html',1,'']]]
 ];
