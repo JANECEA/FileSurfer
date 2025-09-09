@@ -24,6 +24,13 @@ Welcome to the **FileSurfer** User Guide. This guide will help you use the featu
 
 ## Installation
 Refer to [README.md](../../README.md) for instructions on how to build the project from source or download the latest release [here](https://github.com/JANECEA/FileSurfer/releases/latest).
+Extract the zip file and open `FileSurfer.exe` to open the application. 
+<br>
+You can also launch the program from the command line with (or without) the initial directory as the first argument like this:
+```bash
+.\FileSurfer.exe SomeDir
+```
+(relative paths supported)
 
 
 
