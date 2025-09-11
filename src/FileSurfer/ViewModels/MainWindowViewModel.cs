@@ -386,6 +386,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             _lastModified = latestModified;
             Reload();
         }
+        else if (IsVersionControlled)
+            Reload();
     }
 
     /// <summary>
