@@ -263,24 +263,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
 
     /// <summary>
-    /// Invokes <see cref="SortByName"/>.
+    /// Invokes <see cref="SetSortBy"/>.
     /// </summary>
-    public ReactiveCommand<Unit, Unit> SortByNameCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="SortByDate"/>.
-    /// </summary>
-    public ReactiveCommand<Unit, Unit> SortByDateCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="SortByType"/>.
-    /// </summary>
-    public ReactiveCommand<Unit, Unit> SortByTypeCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="SortBySize"/>.
-    /// </summary>
-    public ReactiveCommand<Unit, Unit> SortBySizeCommand { get; }
+    public ReactiveCommand<SortBy, Unit> SetSortByCommand { get; }
 
     /// <summary>
     /// Invokes <see cref="Undo"/>.
@@ -354,10 +339,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         PasteCommand = ReactiveCommand.Create(Paste);
         MoveToTrashCommand = ReactiveCommand.Create(MoveToTrash);
         DeleteCommand = ReactiveCommand.Create(Delete);
-        SortByNameCommand = ReactiveCommand.Create(SortByName);
-        SortByDateCommand = ReactiveCommand.Create(SortByDate);
-        SortByTypeCommand = ReactiveCommand.Create(SortByType);
-        SortBySizeCommand = ReactiveCommand.Create(SortBySize);
+        SetSortByCommand = ReactiveCommand.Create<SortBy>(SetSortBy);
         UndoCommand = ReactiveCommand.Create(Undo);
         RedoCommand = ReactiveCommand.Create(Redo);
         SelectAllCommand = ReactiveCommand.Create(SelectAll);
@@ -1312,54 +1294,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Sets <see cref="SortBy"/> to <see cref="SortBy.Name"/> and determines <see cref="SortReversed"/>.
+    /// Sets <see cref="SortBy"/> to the parameter and determines <see cref="SortReversed"/>.
     /// <para>
     /// Invokes <see cref="Reload"/>.
     /// </para>
     /// </summary>
-    private void SortByName()
+    private void SetSortBy(SortBy sortBy)
     {
-        SortReversed = SortBy is SortBy.Name && !SortReversed;
-        SortBy = SortBy.Name;
-        Reload();
-    }
-
-    /// <summary>
-    /// Sets <see cref="SortBy"/> to <see cref="SortBy.Date"/> and determines <see cref="SortReversed"/>.
-    /// <para>
-    /// Invokes <see cref="Reload"/>.
-    /// </para>
-    /// </summary>
-    private void SortByDate()
-    {
-        SortReversed = SortBy is SortBy.Date && !SortReversed;
-        SortBy = SortBy.Date;
-        Reload();
-    }
-
-    /// <summary>
-    /// Sets <see cref="SortBy"/> to <see cref="SortBy.Type"/> and determines <see cref="SortReversed"/>.
-    /// <para>
-    /// Invokes <see cref="Reload"/>.
-    /// </para>
-    /// </summary>
-    private void SortByType()
-    {
-        SortReversed = SortBy is SortBy.Type && !SortReversed;
-        SortBy = SortBy.Type;
-        Reload();
-    }
-
-    /// <summary>
-    /// Sets <see cref="SortBy"/> to <see cref="SortBy.Size"/> and determines <see cref="SortReversed"/>.
-    /// <para>
-    /// Invokes <see cref="Reload"/>.
-    /// </para>
-    /// </summary>
-    private void SortBySize()
-    {
-        SortReversed = SortBy is SortBy.Size && !SortReversed;
-        SortBy = SortBy.Size;
+        SortReversed = SortBy == sortBy && !SortReversed;
+        SortBy = sortBy;
         Reload();
     }
 

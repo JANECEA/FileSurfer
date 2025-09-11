@@ -3,7 +3,8 @@
         xmlns:vm="using:FileSurfer.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:FileSurfer.ViewModels"
+        xmlns:viewmodels="clr-namespace:FileSurfer.ViewModels"
+        xmlns:filesurfer="clr-namespace:FileSurfer"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="450"
         MinWidth="860" MinHeight="400"
         WindowStartupLocation="CenterScreen"
@@ -15,10 +16,6 @@
         DataContextChanged="ViewModelLoaded"
         Closing="OnClosing"
         Title="FileSurfer">
-
-    <Design.DataContext>
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
 
     <Window.Styles>
         <StyleInclude Source="avares://FileSurfer/Views/MainWindowStyle.axaml"/>
@@ -35,7 +32,7 @@
     </Window.KeyBindings>
 
     <Window.Resources>
-        <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type local:FileSystemEntryViewModel}">
+        <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type viewmodels:FileSystemEntryViewModel}">
             <Grid ColumnDefinitions="30 360 160 130 90 Auto" Height="30">
                 <Image Source="{Binding Icon}" Grid.Column="0" Width="20" Height="20" Margin="0 0 12 0" Opacity="{Binding Opacity}"/>
                 <TextBlock Classes="FileInfo" Grid.Column="1" Text="{Binding Name}" FontFamily="Arial"/>
@@ -45,13 +42,13 @@
                 <CheckBox Classes="StagedCheckbox" Grid.Column="5" IsVisible="{Binding VersionControlled}" IsChecked="{Binding Staged}" Click="StagedToggle"/>
             </Grid>
         </DataTemplate>
-        <DataTemplate x:Key="IconViewTemplate" x:DataType="{x:Type local:FileSystemEntryViewModel}">
+        <DataTemplate x:Key="IconViewTemplate" x:DataType="{x:Type viewmodels:FileSystemEntryViewModel}">
             <StackPanel Width="80" Spacing="10">
                 <Image Source="{Binding Icon}" Width="60" Height="60" Margin="5 5 5 2" Opacity="{Binding Opacity}"/>
                 <TextBlock Classes="IconViewInfo" Text="{Binding Name}"/>
             </StackPanel>
         </DataTemplate>
-        <DataTemplate x:Key="SideBarTemplate" x:DataType="{x:Type local:FileSystemEntryViewModel}">
+        <DataTemplate x:Key="SideBarTemplate" x:DataType="{x:Type viewmodels:FileSystemEntryViewModel}">
             <Grid ColumnDefinitions="Auto *" Height="25">
                 <Image Source="{Binding Icon}" Grid.Column="0" Width="18" Height="18" Margin="20 0 12 0"/>
                 <TextBlock Classes="FileInfo" Grid.Column="1" Text="{Binding Name}" FontFamily="Arial"/>
@@ -92,10 +89,10 @@
                 <Button x:Name="MenuButton" Classes="MenuButton" Width="80" Content="&#xF176;&#xF175; Sort">
                     <Button.Flyout>
                         <MenuFlyout>
-                            <MenuItem Classes="MenuOption" Header="Name" Command="{Binding SortByNameCommand}"/>
-                            <MenuItem Classes="MenuOption" Header="Date" Command="{Binding SortByDateCommand}"/>
-                            <MenuItem Classes="MenuOption" Header="Type" Command="{Binding SortByTypeCommand}"/>
-                            <MenuItem Classes="MenuOption" Header="Size" Command="{Binding SortBySizeCommand}"/>
+                            <MenuItem Classes="MenuOption" Header="Name" Command="{Binding SetSortByCommand}" CommandParameter="{x:Static filesurfer:SortBy.Name}"/>
+                            <MenuItem Classes="MenuOption" Header="Date" Command="{Binding SetSortByCommand}" CommandParameter="{x:Static filesurfer:SortBy.Date}"/>
+                            <MenuItem Classes="MenuOption" Header="Type" Command="{Binding SetSortByCommand}" CommandParameter="{x:Static filesurfer:SortBy.Type}"/>
+                            <MenuItem Classes="MenuOption" Header="Size" Command="{Binding SetSortByCommand}" CommandParameter="{x:Static filesurfer:SortBy.Size}"/>
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
@@ -138,7 +135,7 @@
                                     <Setter Property="Padding" Value="10 3 10 3"/>
                                     <Setter Property="ContextMenu">
                                         <Setter.Value>
-                                            <ContextMenu x:DataType="local:FileSystemEntryViewModel">
+                                            <ContextMenu x:DataType="viewmodels:FileSystemEntryViewModel">
                                                 <MenuItem Classes="ContextMenuItem" Header="Move up" Click="MoveUp"/>
                                                 <MenuItem Classes="ContextMenuItem" Header="Move down" Click="MoveDown"/>
                                                 <MenuItem Classes="ContextMenuItem" Header="Remove from quick access" Click="RemoveFromQuickAccess"/>
@@ -202,7 +199,7 @@
                                 <Setter Property="Margin" Value="0 0 4 4"/>
                                 <Setter Property="ContextMenu">
                                     <Setter.Value>
-                                        <ContextMenu Classes="FileContextMenu" x:DataType="local:FileSystemEntryViewModel">
+                                        <ContextMenu Classes="FileContextMenu" x:DataType="viewmodels:FileSystemEntryViewModel">
                                             <MenuItem Classes="ContextMenuItem" Header="Open" Click="OpenClicked"/>
                                             <MenuItem Classes="ContextMenuItem" Header="Open as" Click="OpenAs" IsVisible="{Binding !IsDirectory}"/>
                                             <MenuItem Classes="ContextMenuItem" Header="Open in Notepad" IsVisible="{Binding !IsDirectory}" Click="OpenInNotepad"/>
