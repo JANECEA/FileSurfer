@@ -98,43 +98,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
     private string _currentDir = string.Empty;
 
-    private void SetCurrentDirNoHistory(string dirPath)
-    {
-        if (Directory.Exists(dirPath))
-        {
-            dirPath = Path.GetFullPath(dirPath);
-            _lastModified = Directory.GetLastWriteTime(dirPath);
-        }
-        else if (dirPath != ThisPCLabel && !Searching)
-        {
-            ForwardError($"Directory \"{dirPath}\" does not exist.");
-            dirPath = _pathHistory.Current ?? GetClosestExistingParent(dirPath);
-        }
-
-        CurrentDir = dirPath;
-        if (IsValidDirectory(dirPath))
-        {
-            if (FileSurferSettings.OpenInLastLocation)
-                FileSurferSettings.OpenIn = dirPath;
-
-            if (Searching)
-                CancelSearch(dirPath);
-
-            Reload();
-        }
-    }
-
-    /// <summary>
-    /// Sets the <see cref="CurrentDir"/> and adds the directory to <see cref="_pathHistory"/>,
-    /// </summary>
-    public void SetCurrentDir(string dirPath)
-    {
-        SetCurrentDirNoHistory(dirPath);
-
-        if (IsValidDirectory(dirPath) && CurrentDir != _pathHistory.Current)
-            _pathHistory.AddNewNode(dirPath);
-    }
-
     /// <summary>
     /// Indicates whether the <see cref="CurrentInfoMessage"/> should be shown.
     /// </summary>
@@ -308,6 +271,43 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
+    private void SetCurrentDirNoHistory(string dirPath)
+    {
+        if (Directory.Exists(dirPath))
+        {
+            dirPath = Path.GetFullPath(dirPath);
+            _lastModified = Directory.GetLastWriteTime(dirPath);
+        }
+        else if (dirPath != ThisPCLabel && !Searching)
+        {
+            ForwardError($"Directory \"{dirPath}\" does not exist.");
+            dirPath = _pathHistory.Current ?? GetClosestExistingParent(dirPath);
+        }
+
+        CurrentDir = dirPath;
+        if (IsValidDirectory(dirPath))
+        {
+            if (FileSurferSettings.OpenInLastLocation)
+                FileSurferSettings.OpenIn = dirPath;
+
+            if (Searching)
+                CancelSearch(dirPath);
+
+            Reload();
+        }
+    }
+
+    /// <summary>
+    /// Sets the <see cref="CurrentDir"/> and adds the directory to <see cref="_pathHistory"/>,
+    /// </summary>
+    public void SetCurrentDir(string dirPath)
+    {
+        SetCurrentDirNoHistory(dirPath);
+
+        if (IsValidDirectory(dirPath) && CurrentDir != _pathHistory.Current)
+            _pathHistory.AddNewNode(dirPath);
+    }
+
     /// <summary>
     /// Compares <see cref="_lastModified"/> to the latest <see cref="Directory.GetLastWriteTime(string)"/>.
     /// <para>
@@ -363,7 +363,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         SetSearchWaterMark();
 
         if (FileSurferSettings.AutomaticRefresh)
-            UpdateLastModified();
+            _lastModified = DateTime.Now;
     }
 
     private string GetClosestExistingParent(string dirPath)
@@ -403,11 +403,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
                 new Views.ErrorWindow { ErrorMessage = errorMessage }.Show();
             });
     }
-
-    /// <summary>
-    /// Updates <see cref="_lastModified"/> to suppress unnecessary automatic reloads.
-    /// </summary>
-    private void UpdateLastModified() => _lastModified = DateTime.Now;
 
     /// <summary>
     /// Used for setting the text selection when renaming files.
@@ -1003,28 +998,19 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         string archiveName =
             SelectedFiles[^1].FileSystemEntry.NameWOExtension + ArchiveManager.ArchiveTypeExtension;
-        await ZipFilesWrapperAsync(archiveName);
-        Reload();
-    }
 
-    private Task ZipFilesWrapperAsync(string archiveName) =>
-        Task.Run(
-            () =>
-                ForwardIfError(
+        ForwardIfError(
+            await Task.Run(
+                () =>
                     ArchiveManager.ZipFiles(
                         SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                         CurrentDir,
                         FileNameGenerator.GetAvailableName(CurrentDir, archiveName)
                     )
-                )
+            )
         );
-
-    private Task ExtractArchiveWrapperAsync(string[] archives) =>
-        Task.Run(() =>
-        {
-            foreach (string path in archives)
-                ForwardIfError(ArchiveManager.UnzipArchive(path, CurrentDir));
-        });
+        Reload();
+    }
 
     /// <summary>
     /// Extracts the archives selected in <see cref="SelectedFiles"/>.
@@ -1041,9 +1027,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
                 return;
             }
 
-        await ExtractArchiveWrapperAsync(
-            SelectedFiles.Select(entry => entry.PathToEntry).ToArray()
-        );
+        await Task.Run(() =>
+        {
+            foreach (string path in SelectedFiles.Select(entry => entry.PathToEntry).ToArray())
+                ForwardIfError(ArchiveManager.UnzipArchive(path, CurrentDir));
+        });
         Reload();
     }
 
