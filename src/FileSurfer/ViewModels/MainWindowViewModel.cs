@@ -29,7 +29,14 @@ namespace FileSurfer.ViewModels;
 #pragma warning disable CA1822 // Mark members as static
 public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
-    private const string SearchingLabel = "Search Results";
+    private const string SearchingFinishedLabel = "Searching finished";
+    private static readonly IReadOnlyList<string> SearchingStates =
+    [
+        "Searching",
+        "Searching.",
+        "Searching..",
+        "Searching...",
+    ];
     private string ThisPCLabel => FileSurferSettings.ThisPCLabel;
 
     private readonly IFileIOHandler _fileIOHandler;
@@ -92,37 +99,43 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public string CurrentDir
     {
         get => _currentDir;
-        set
-        {
-            string directory = value;
-            if (Directory.Exists(directory))
-            {
-                directory = Path.GetFullPath(directory);
-                _lastModified = Directory.GetLastWriteTime(directory);
-            }
-            else if (directory != ThisPCLabel && !Searching)
-            {
-                ForwardError($"Directory \"{directory}\" does not exist.");
-                directory = _pathHistory.Current ?? GetClosestExistingParent(directory);
-            }
-
-            this.RaiseAndSetIfChanged(ref _currentDir, directory);
-            if (IsValidDirectory(directory))
-            {
-                if (FileSurferSettings.OpenInLastLocation)
-                    FileSurferSettings.OpenIn = directory;
-
-                if (Searching)
-                    CancelSearch(directory);
-
-                Reload();
-
-                if (_isActionUserInvoked && directory != _pathHistory.Current)
-                    _pathHistory.AddNewNode(directory);
-            }
-        }
+        set => this.RaiseAndSetIfChanged(ref _currentDir, value);
     }
     private string _currentDir = string.Empty;
+
+    private void SetCurrentDirNoHistory(string dirPath)
+    {
+        if (Directory.Exists(dirPath))
+        {
+            dirPath = Path.GetFullPath(dirPath);
+            _lastModified = Directory.GetLastWriteTime(dirPath);
+        }
+        else if (dirPath != ThisPCLabel && !Searching)
+        {
+            ForwardError($"Directory \"{dirPath}\" does not exist.");
+            dirPath = _pathHistory.Current ?? GetClosestExistingParent(dirPath);
+        }
+
+        CurrentDir = dirPath;
+        if (IsValidDirectory(dirPath))
+        {
+            if (FileSurferSettings.OpenInLastLocation)
+                FileSurferSettings.OpenIn = dirPath;
+
+            if (Searching)
+                CancelSearch(dirPath);
+
+            Reload();
+        }
+    }
+
+    public void SetCurrentDir(string dirPath)
+    {
+        SetCurrentDirNoHistory(dirPath);
+
+        if (IsValidDirectory(dirPath) && CurrentDir != _pathHistory.Current)
+                _pathHistory.AddNewNode(dirPath);
+    }
 
     /// <summary>
     /// Indicates whether the current directory contains files or directories.
@@ -326,6 +339,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
         _pathHistory = new UndoRedoHandler<string>();
         SelectedFiles.CollectionChanged += UpdateSelectionInfo;
+        FileEntries.CollectionChanged += UpdateSelectionInfo;
+
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
         GoUpCommand = ReactiveCommand.Create(GoUp);
@@ -354,8 +369,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ? GetSpecialFolders()
             : Array.Empty<FileSystemEntryViewModel>();
 
-        CurrentDir = initialDir;
-        _pathHistory.AddNewNode(CurrentDir);
+        SetCurrentDir(initialDir);
 
         if (FileSurferSettings.AutomaticRefresh)
         {
@@ -406,20 +420,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
 
         CheckVersionControl();
+
         if (CurrentDir == ThisPCLabel)
-        {
             ShowDrives();
-            SetDriveInfo();
-        }
         else if (Directory.Exists(CurrentDir))
-        {
             LoadDirEntries();
-            UpdateSelectionInfo();
-        }
         else
         {
             ForwardError($"Directory: \"{CurrentDir}\" does not exist.");
-            CurrentDir = GetClosestExistingParent(CurrentDir);
+            SetCurrentDir(GetClosestExistingParent(CurrentDir));
         }
 
         CheckDirectoryEmpty();
@@ -489,19 +498,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         SearchWaterMark = $"Search {dirName}";
     }
 
-    private void SetDriveInfo() =>
-        SelectionInfo = Drives.Length == 1 ? "1 drive" : $"{FileEntries.Count} drives";
-
     /// <summary>
     /// Update <see cref="SelectionInfo"/> based on the current directory and selection in <see cref="SelectedFiles"/>.
     /// </summary>
-    private void UpdateSelectionInfo(
-        object? sender = null,
-        NotifyCollectionChangedEventArgs? e = null
-    )
+    private void UpdateSelectionInfo(object? sender, NotifyCollectionChangedEventArgs? args)
     {
         if (CurrentDir == ThisPCLabel)
+        {
+            SelectionInfo = Drives.Length == 1 ? "1 drive" : $"{FileEntries.Count} drives";
             return;
+        }
 
         string selectionInfo = FileEntries.Count == 1 ? "1 item" : $"{FileEntries.Count} items";
 
@@ -540,11 +546,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void OpenEntry(FileSystemEntryViewModel entry)
     {
         if (entry.IsDirectory)
-            CurrentDir = entry.PathToEntry;
+            SetCurrentDir(entry.PathToEntry);
         else if (_fileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? directory))
         {
             if (directory is not null)
-                CurrentDir = directory;
+                SetCurrentDir(directory);
         }
         else
             ForwardIfError(_shellHandler.OpenFile(entry.PathToEntry));
@@ -622,7 +628,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Opens the location of the selected entry during searching.
     /// </summary>
     public void OpenEntryLocation(FileSystemEntryViewModel entry) =>
-        CurrentDir = Path.GetDirectoryName(entry.PathToEntry) ?? ThisPCLabel;
+        SetCurrentDir(Path.GetDirectoryName(entry.PathToEntry) ?? ThisPCLabel);
 
     /// <summary>
     /// Navigates up one directory level from the current directory.
@@ -635,9 +641,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void GoUp()
     {
         if (Path.GetDirectoryName(CurrentDir.TrimEnd('\\')) is not string parentDir)
-            CurrentDir = ThisPCLabel;
+            SetCurrentDir(ThisPCLabel);
         else if (CurrentDir != ThisPCLabel)
-            CurrentDir = parentDir;
+            SetCurrentDir(parentDir);
     }
 
     private FileSystemEntryViewModel[] GetDrives() =>
@@ -828,11 +834,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _pathHistory.MoveToPrevious();
 
         if (IsValidDirectory(previousPath))
-        {
-            _isActionUserInvoked = false;
-            CurrentDir = previousPath;
-            _isActionUserInvoked = true;
-        }
+            SetCurrentDirNoHistory(previousPath);
         else
             _pathHistory.RemoveNode(false);
     }
@@ -854,11 +856,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _pathHistory.MoveToNext();
 
         if (IsValidDirectory(nextPath))
-        {
-            _isActionUserInvoked = false;
-            CurrentDir = nextPath;
-            _isActionUserInvoked = true;
-        }
+            SetCurrentDirNoHistory (nextPath);
         else
             _pathHistory.RemoveNode(true);
     }
@@ -888,14 +886,33 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
         string currentDir = _pathHistory.Current ?? ThisPCLabel;
         Searching = true;
-        CurrentDir = SearchingLabel;
         FileEntries.Clear();
+
+        DispatcherTimer timer = StartAnimationTimer();
 
         if (currentDir != ThisPCLabel)
             await SearchDirectoryAsync(currentDir, searchQuery, _searchCTS.Token);
         else
             foreach (DriveInfo drive in _fileInfoProvider.GetDrives())
                 await SearchDirectoryAsync(drive.Name, searchQuery, _searchCTS.Token);
+
+        timer.Stop();
+        if (!_searchCTS.IsCancellationRequested)
+            CurrentDir = SearchingFinishedLabel;
+    }
+
+    private DispatcherTimer StartAnimationTimer()
+    {
+        int index = 0;
+        DispatcherTimer timer = new() { Interval = TimeSpan.FromMilliseconds(500) };
+        timer.Tick += (_, _) =>
+        {
+            if (!_searchCTS.IsCancellationRequested)
+                CurrentDir = SearchingStates[index = (index + 1) % SearchingStates.Count];
+        };
+        timer.Start();
+        CurrentDir = SearchingStates[0];
+        return timer;
     }
 
     /// <summary>
@@ -987,7 +1004,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         _searchCTS.Cancel();
         Searching = false;
-        CurrentDir = _pathHistory.Current ?? ThisPCLabel;
+        SetCurrentDir(_pathHistory.Current ?? ThisPCLabel);
     }
 
     /// <summary>
@@ -997,7 +1014,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         _searchCTS.Cancel();
         Searching = false;
-        CurrentDir = directory;
+        SetCurrentDir(directory);
     }
 
     /// <summary>

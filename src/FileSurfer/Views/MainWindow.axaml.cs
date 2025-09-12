@@ -486,8 +486,7 @@ public partial class MainWindow : Window
 
         if (PathBox.IsFocused)
         {
-            if (_viewModel is not null)
-                _viewModel.CurrentDir = PathBox.Text ?? string.Empty;
+            _viewModel?.SetCurrentDir(PathBox.Text ?? FileSurferSettings.ThisPCLabel);
             ClearFocus();
             return;
         }
