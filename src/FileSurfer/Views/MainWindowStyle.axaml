@@ -181,7 +181,7 @@
         <Setter Property="Margin" Value="0 0 10 0"/>
     </Style>
 
-    <Style Selector="Label.DirEmptyLabel">
+    <Style Selector="Label.InfoMessage">
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="Margin" Value="40"/>
         <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>

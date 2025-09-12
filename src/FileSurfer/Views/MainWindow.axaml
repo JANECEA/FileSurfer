@@ -189,7 +189,7 @@
                         </Border>
                     </StackPanel>
 
-                    <Label Grid.Row="1" Classes="DirEmptyLabel" Content="This directory is empty" IsVisible="{Binding DirectoryEmpty}"/>
+                    <Label Grid.Row="1" Classes="InfoMessage" Content="{Binding CurrentInfoMessage}" IsVisible="{Binding ShowInfoMessage}"/>
 
                     <ListBox Grid.Row="2" x:Name="FileDisplay" Classes="FileDisplay" SelectionMode="Multiple" Tapped="FilesTapped" ItemTemplate="{StaticResource ListViewTemplate}"
                              ItemsSource="{Binding FileEntries}" SelectedItems="{Binding SelectedFiles}" DoubleTapped="FilesDoubleTapped">

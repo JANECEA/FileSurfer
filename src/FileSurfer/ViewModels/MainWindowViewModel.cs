@@ -132,18 +132,28 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         SetCurrentDirNoHistory(dirPath);
 
         if (IsValidDirectory(dirPath) && CurrentDir != _pathHistory.Current)
-                _pathHistory.AddNewNode(dirPath);
+            _pathHistory.AddNewNode(dirPath);
     }
+
+    /// <summary>
+    /// Indicates whether the <see cref="CurrentInfoMessage"/> should be shown.
+    /// </summary>
+    public bool ShowInfoMessage
+    {
+        get => _showInfoMessage;
+        set => this.RaiseAndSetIfChanged(ref _showInfoMessage, value);
+    }
+    private bool _showInfoMessage;
 
     /// <summary>
     /// Indicates whether the current directory contains files or directories.
     /// </summary>
-    public bool DirectoryEmpty
+    public string CurrentInfoMessage
     {
-        get => _directoryEmpty;
-        set => this.RaiseAndSetIfChanged(ref _directoryEmpty, value);
+        get => _currentInfoMessage;
+        set => this.RaiseAndSetIfChanged(ref _currentInfoMessage, value);
     }
-    private bool _directoryEmpty;
+    private string _currentInfoMessage = string.Empty;
 
     /// <summary>
     /// Text that will be displayed in the Search bar.
@@ -346,7 +356,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SetCurrentDir(GetClosestExistingParent(CurrentDir));
         }
 
-        SetDirectoryEmpty();
+        ShowInfoMessage = FileEntries.Count == 0;
+        if (ShowInfoMessage)
+            CurrentInfoMessage = "This directory is empty";
+
         SetSearchWaterMark();
 
         if (FileSurferSettings.AutomaticRefresh)
@@ -721,8 +734,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _isActionUserInvoked = true;
     }
 
-    private void SetDirectoryEmpty() => DirectoryEmpty = FileEntries.Count == 0;
-
     /// <summary>
     /// Sets the current directory to the previous directory in <see cref="_pathHistory"/>.
     /// <para>
@@ -762,7 +773,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _pathHistory.MoveToNext();
 
         if (IsValidDirectory(nextPath))
-            SetCurrentDirNoHistory (nextPath);
+            SetCurrentDirNoHistory(nextPath);
         else
             _pathHistory.RemoveNode(true);
     }
@@ -804,7 +815,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         timer.Stop();
         if (!_searchCTS.IsCancellationRequested)
+        {
             CurrentDir = SearchingFinishedLabel;
+            if (FileEntries.Count == 0)
+            {
+                ShowInfoMessage = true;
+                CurrentInfoMessage = "No items match your query";
+            }
+        }
     }
 
     private DispatcherTimer StartAnimationTimer()
