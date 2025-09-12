@@ -49,7 +49,7 @@
         <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource TextColor}"/>
         <Setter Property="CornerRadius" Value="3"/>
-        <Setter Property="BorderThickness" Value="0.5"/>
+        <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
     <Style Selector="Button.CancelSearchButton">
@@ -124,13 +124,13 @@
     <Style Selector="ComboBox.BranchComboBox:pointerover /template/ Border">
         <Setter Property="Background" Value="{DynamicResource TextBoxColor}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource TextColor}"/>
-        <Setter Property="BorderThickness" Value="0.5"/>
+        <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
     <Style Selector="ComboBox.BranchComboBox:dropdownopen /template/ Border">
         <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}"/>
-        <Setter Property="BorderThickness" Value="0.5"/>
+        <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
     <Style Selector="ComboBoxItem:selected /template/ ContentPresenter">
@@ -261,6 +261,13 @@
         <Setter Property="Height" Value="30"/>
     </Style>
 
+    <Style Selector="TextBox.InputBox:focus-within /template/ Border,TextBox.InputBox:pointerover /template/ Border">
+        <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource TextColor}"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
     <Style Selector="TextBlock.IconViewInfo">
         <Setter Property="FontFamily" Value="Arial"/>
         <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
@@ -281,6 +288,8 @@
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
         <Setter Property="FontSize" Value="14.5"/>
+        <Setter Property="ToolTip.Placement" Value="TopEdgeAlignedRight"/>
+        <Setter Property="ToolTip.VerticalOffset" Value="0"/>
     </Style>
 
     <Style Selector="TextBlock.SelectInfo">

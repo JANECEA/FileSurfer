@@ -29,7 +29,7 @@
         <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource TextColor}"/>
         <Setter Property="CornerRadius" Value="3"/>
-        <Setter Property="BorderThickness" Value="0.5"/>
+        <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
     <Style Selector="ComboBox:pointerover /template/ Border">
