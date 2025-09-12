@@ -90,11 +90,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     /// <summary>
     /// Holds the path to the current directory displayed in FileSurfer.
-    /// <para>
-    /// Setting this property triggers a reload.
-    /// Also adds the directory to <see cref="_pathHistory"/>,
-    /// if the action was triggered by the user.
-    /// </para>
     /// </summary>
     public string CurrentDir
     {
@@ -129,6 +124,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// Sets the <see cref="CurrentDir"/> and adds the directory to <see cref="_pathHistory"/>,
+    /// </summary>
     public void SetCurrentDir(string dirPath)
     {
         SetCurrentDirNoHistory(dirPath);
@@ -210,109 +208,26 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
     private bool _isVersionControlled = false;
 
-    /// <summary>
-    /// Invokes <see cref="GoBack"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="GoForward"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> GoForwardCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="GoUp"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> GoUpCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="Reload"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> ReloadCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="OpenPowerShell"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> OpenPowerShellCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="CancelSearch"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="NewFile"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> NewFileCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="NewDir"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> NewDirCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="Cut"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> CutCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="Copy"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> CopyCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="Paste"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> PasteCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="MoveToTrash"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> MoveToTrashCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="Delete"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="SetSortBy"/>.
-    /// </summary>
     public ReactiveCommand<SortBy, Unit> SetSortByCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="Undo"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> UndoCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="Redo"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> RedoCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="SelectAll"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> SelectAllCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="SelectNone"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> SelectNoneCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="InvertSelection"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> InvertSelectionCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="Pull"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> PullCommand { get; }
-
-    /// <summary>
-    /// Invokes <see cref="Push"/>.
-    /// </summary>
     public ReactiveCommand<Unit, Unit> PushCommand { get; }
 
     /// <summary>
@@ -431,7 +346,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SetCurrentDir(GetClosestExistingParent(CurrentDir));
         }
 
-        CheckDirectoryEmpty();
+        SetDirectoryEmpty();
         SetSearchWaterMark();
 
         if (FileSurferSettings.AutomaticRefresh)
@@ -462,7 +377,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Opens a new <see cref="Views.ErrorWindow"/> dialog.
+    /// Opens a new <see cref="Views.ErrorWindow"/> dialog if the result is failed.
     /// </summary>
     private void ForwardIfError(IResult result)
     {
@@ -741,9 +656,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
                 FileEntries.Add(files[i]);
     }
 
-    /// <summary>
-    /// Sorts given array of <see cref="FileSystemEntryViewModel"/>s based on <see cref="SortBy"/>
-    /// </summary>
     private void SortInPlace(FileSystemEntryViewModel[] entries, SortBy sortBy)
     {
         switch (sortBy)
@@ -782,9 +694,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         LoadBranches();
     }
 
-    /// <summary>
-    /// Updates <see cref="Branches"/>.
-    /// </summary>
     private void LoadBranches()
     {
         if (!IsVersionControlled)
@@ -812,10 +721,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _isActionUserInvoked = true;
     }
 
-    /// <summary>
-    /// Sets <see cref="DirectoryEmpty"/>.
-    /// </summary>
-    private void CheckDirectoryEmpty() => DirectoryEmpty = FileEntries.Count == 0;
+    private void SetDirectoryEmpty() => DirectoryEmpty = FileEntries.Count == 0;
 
     /// <summary>
     /// Sets the current directory to the previous directory in <see cref="_pathHistory"/>.
@@ -916,7 +822,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Recursively searches <see cref="CurrentDir"/> and asynchronously
+    /// Searches <see cref="CurrentDir"/> using a breadth first search and asynchronously
     /// adds matching <see cref="FileSystemEntryViewModel"/>s to <see cref="FileEntries"/>.
     /// </summary>
     private async Task SearchDirectoryAsync(
@@ -1460,9 +1366,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ForwardIfError(_versionControl.UploadChanges());
     }
 
-    /// <summary>
-    /// Disposes <see cref="MainWindowViewModel"/> resources.
-    /// </summary>
     public void Dispose()
     {
         _versionControl.Dispose();
