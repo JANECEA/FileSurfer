@@ -14,6 +14,10 @@ namespace FileSurfer.ViewModels;
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 public sealed class SettingsWindowViewModel : ReactiveObject
 {
+    private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
+    private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
+    private static readonly SettingsRecord defaultSettings = FileSurferSettings.DefaultSettings;
+
     private string _newImageName;
     public string NewImageName
     {
@@ -21,11 +25,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         set =>
             this.RaiseAndSetIfChanged(
                 ref _newImageName,
-                SanitizeInput(
-                    value,
-                    Path.GetInvalidFileNameChars(),
-                    FileSurferSettings.DefaultSettings.newImageName
-                )
+                SanitizeInput(value, InvalidFileNameChars, defaultSettings.newImageName)
             );
     }
 
@@ -36,11 +36,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         set =>
             this.RaiseAndSetIfChanged(
                 ref _newFileName,
-                SanitizeInput(
-                    value,
-                    Path.GetInvalidFileNameChars(),
-                    FileSurferSettings.DefaultSettings.newFileName
-                )
+                SanitizeInput(value, InvalidFileNameChars, defaultSettings.newFileName)
             );
     }
 
@@ -51,11 +47,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         set =>
             this.RaiseAndSetIfChanged(
                 ref _newDirectoryName,
-                SanitizeInput(
-                    value,
-                    Path.GetInvalidFileNameChars(),
-                    FileSurferSettings.DefaultSettings.newDirectoryName
-                )
+                SanitizeInput(value, InvalidFileNameChars, defaultSettings.newDirectoryName)
             );
     }
 
@@ -66,11 +58,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         set =>
             this.RaiseAndSetIfChanged(
                 ref _thisPCLabel,
-                SanitizeInput(
-                    value,
-                    Path.GetInvalidFileNameChars(),
-                    FileSurferSettings.DefaultSettings.thisPCLabel
-                )
+                SanitizeInput(value, InvalidFileNameChars, defaultSettings.thisPCLabel)
             );
     }
 
@@ -81,11 +69,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         set =>
             this.RaiseAndSetIfChanged(
                 ref _notepadApp,
-                SanitizeInput(
-                    value,
-                    Path.GetInvalidPathChars(),
-                    FileSurferSettings.DefaultSettings.notepadApp
-                )
+                SanitizeInput(value, InvalidPathChars, defaultSettings.notepadApp)
             );
     }
 
@@ -96,7 +80,17 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         set => this.RaiseAndSetIfChanged(ref _openInLastLocation, value);
     }
 
-    public string OpenIn { get; set; }
+    private string _openIn;
+    public string OpenIn
+    {
+        get => _openIn;
+        set =>
+            this.RaiseAndSetIfChanged(
+                ref _openIn,
+                SanitizeInput(value, InvalidPathChars, defaultSettings.openIn)
+            );
+    }
+
     public bool UseDarkMode { get; set; }
     public string DisplayMode { get; set; }
     public IEnumerable<string> DisplayModeOptions { get; } =
@@ -104,7 +98,11 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     public string DefaultSort { get; set; }
     public IEnumerable<string> SortOptions { get; } =
         Enum.GetValues<SortBy>().Select(option => option.ToString());
+
     public int FileSizeUnitLimit { get; set; }
+    public int FileSizeUnitLimitLowerBound => FileSurferSettings.FileSizeUnitLimitLowerBound;
+    public int FileSizeUnitLimitUpperBound => FileSurferSettings.FileSizeUnitLimitUpperBound;
+
     public bool SortReversed { get; set; }
     public bool ShowSpecialFolders { get; set; }
     public bool ShowProtectedFiles { get; set; }
@@ -113,7 +111,11 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     public bool GitIntegration { get; set; }
     public bool ShowUndoRedoErrorDialogs { get; set; }
     public bool AutomaticRefresh { get; set; }
+
     public int AutomaticRefreshInterval { get; set; }
+    public int AutomaticRefreshIntervalLowerBound => FileSurferSettings.AutomaticRefreshIntervalLowerBound;
+    public int AutomaticRefreshIntervalUpperBound => FileSurferSettings.AutomaticRefreshIntervalUpperBound;
+
     public bool AllowImagePastingFromClipboard { get; set; }
 
     public SettingsWindowViewModel() => SetValues(FileSurferSettings.CurrentSettings);
@@ -176,9 +178,9 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         );
 
     /// <summary>
-    /// Resets current values to default based on <see cref="FileSurferSettings.DefaultSettings"/>
+    /// Resets current values to default based on <see cref="defaultSettings"/>
     /// </summary>
-    public void ResetToDefault() => SetValues(FileSurferSettings.DefaultSettings);
+    public void ResetToDefault() => SetValues(defaultSettings);
 
     private static string SanitizeInput(string input, char[] invalidChars, string defaultName)
     {

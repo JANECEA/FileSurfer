@@ -67,7 +67,10 @@
                         
                         <Grid Margin="0,5,0,5" ColumnDefinitions="140 *">
                             <TextBlock Grid.Column="0" Text="File Size Unit Limit:" VerticalAlignment="Center"/>
-                            <NumericUpDown Grid.Column="1" Value="{Binding FileSizeUnitLimit}" Margin="5,0,0,0" Minimum="512" Maximum="16384" Width="150" AllowSpin="True" HorizontalAlignment="Left"/>
+                            <NumericUpDown Grid.Column="1" Value="{Binding FileSizeUnitLimit}" ClipValueToMinMax="True"
+                                Minimum="{CompiledBinding FileSizeUnitLimitLowerBound}"
+                                Maximum="{CompiledBinding FileSizeUnitLimitUpperBound}"
+                                Margin="5,0,0,0" Width="150" AllowSpin="True" HorizontalAlignment="Left"/>
                         </Grid>
 
                         <Grid Margin="0,5,0,5" ColumnDefinitions="140 *">
@@ -110,7 +113,10 @@
                             <CheckBox Content="Automatic Refresh" IsChecked="{Binding AutomaticRefresh}"/>
                             <StackPanel Orientation="Horizontal" Spacing="5" Margin="20,5,0,0">
                                 <TextBlock Text="Refresh Interval:" VerticalAlignment="Center"/>
-                                <NumericUpDown Value="{Binding AutomaticRefreshInterval}" Minimum="100" Maximum="10000" Width="150" Margin="10,0,5,0"/>
+                                <NumericUpDown Value="{Binding AutomaticRefreshInterval}" ClipValueToMinMax="True" 
+                                    Minimum="{CompiledBinding AutomaticRefreshIntervalLowerBound}"
+                                    Maximum="{CompiledBinding AutomaticRefreshIntervalUpperBound}"
+                                    Width="150" Margin="10,0,5,0"/>
                                 <TextBlock Text="ms" VerticalAlignment="Center"/>
                             </StackPanel>
                         </StackPanel>

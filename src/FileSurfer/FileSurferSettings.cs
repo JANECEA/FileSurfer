@@ -52,7 +52,7 @@ public enum SortBy
 }
 
 /// <summary>
-/// Used to (de)serialize the settings.json file.
+/// Used to (de)serialize the settings.json file. Contains default settings values.
 /// </summary>
 [System.Diagnostics.CodeAnalysis.SuppressMessage(
     "Style",
@@ -96,6 +96,8 @@ public record SettingsRecord
 internal static class FileSurferSettings
 {
     public const long ShowDialogLimitB = 250 * 1024 * 1024; // 250 MiB
+    private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
+    private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
     private static readonly JsonSerializerOptions SerializerOptions =
         new()
         {
@@ -202,6 +204,8 @@ internal static class FileSurferSettings
     /// Numerical limit before FileSurfer uses the next byte unit. Defaults to <c>4096</c>.
     /// </summary>
     public static int FileSizeUnitLimit { get; set; }
+    internal static int FileSizeUnitLimitLowerBound => 512;
+    internal static int FileSizeUnitLimitUpperBound => 9999;
 
     /// <summary>
     /// Indicates whether file and folder sorting should be reversed. Defaults to <see langword="false"/>.
@@ -247,6 +251,8 @@ internal static class FileSurferSettings
     /// Sets the interval (in milliseconds) for automatic refreshing of the file explorer. Defaults to <c>3000</c> ms (3 seconds).
     /// </summary>
     public static int AutomaticRefreshInterval { get; set; }
+    internal static int AutomaticRefreshIntervalLowerBound => 100;
+    internal static int AutomaticRefreshIntervalUpperBound => 60 * 1000;
 
     /// <summary>
     /// Specifies if images stored in the system clipboard can be pasted directly into directories. Defaults to <see langword="true"/>.
@@ -257,6 +263,8 @@ internal static class FileSurferSettings
     /// List of directories and files added by the user for quick access. Defaults to an empty list.
     /// </summary>
     public static List<string> QuickAccess { get; set; }
+
+    static FileSurferSettings() => ImportSettings(DefaultSettings);
 
     /// <summary>
     /// <para>
@@ -290,18 +298,50 @@ internal static class FileSurferSettings
     }
 
     /// <summary>
-    /// Loads settings from the <see cref="SettingsRecord"/> object and applies them to the current session.
+    /// Loads and sanitizes settings from the <see cref="SettingsRecord"/> object and applies them to the current session.
     /// </summary>
     public static void ImportSettings(SettingsRecord settings)
     {
-        UseDarkMode = settings.useDarkMode;
-        OpenInLastLocation = settings.openInLastLocation;
-        OpenIn = settings.openIn;
-        if (settings.fileSizeUnitLimit > 0)
-            FileSizeUnitLimit = settings.fileSizeUnitLimit;
+        SettingsRecord defaultSettings = DefaultSettings;
 
-        DisplayMode = Enum.Parse<DisplayMode>(settings.displayMode);
-        DefaultSort = Enum.Parse<SortBy>(settings.defaultSort);
+        NewImageName = SanitizeName(
+            settings.newImageName,
+            InvalidFileNameChars,
+            defaultSettings.newImageName
+        );
+        NewFileName = SanitizeName(
+            settings.newFileName,
+            InvalidFileNameChars,
+            defaultSettings.newFileName
+        );
+        NewDirectoryName = SanitizeName(
+            settings.newDirectoryName,
+            InvalidFileNameChars,
+            defaultSettings.newDirectoryName
+        );
+        ThisPCLabel = SanitizeName(
+            settings.thisPCLabel,
+            InvalidFileNameChars,
+            defaultSettings.thisPCLabel
+        );
+        NotepadApp = SanitizeName(
+            settings.notepadApp,
+            InvalidPathChars,
+            defaultSettings.notepadApp
+        );
+
+        OpenInLastLocation = settings.openInLastLocation;
+        OpenIn = SanitizeName(settings.openIn, InvalidPathChars, defaultSettings.openIn);
+        UseDarkMode = settings.useDarkMode;
+        DisplayMode = SafeParseEnum<DisplayMode>(settings.displayMode);
+        DefaultSort = SafeParseEnum<SortBy>(settings.defaultSort);
+
+        FileSizeUnitLimit = ClampValue(
+            settings.fileSizeUnitLimit,
+            FileSizeUnitLimitLowerBound,
+            FileSizeUnitLimitUpperBound
+        );
+
         SortReversed = settings.sortReversed;
         ShowSpecialFolders = settings.showSpecialFolders;
         ShowProtectedFiles = settings.showProtectedFiles;
@@ -310,24 +350,40 @@ internal static class FileSurferSettings
         GitIntegration = settings.gitIntegration;
         ShowUndoRedoErrorDialogs = settings.showUndoRedoErrorDialogs;
         AutomaticRefresh = settings.automaticRefresh;
-        if (settings.automaticRefreshInterval > 0)
-            AutomaticRefreshInterval = settings.automaticRefreshInterval;
+
+        AutomaticRefreshInterval = ClampValue(
+            settings.automaticRefreshInterval,
+            AutomaticRefreshIntervalLowerBound,
+            AutomaticRefreshIntervalUpperBound
+        );
 
         AllowImagePastingFromClipboard = settings.allowImagePastingFromClipboard;
-        if (!string.IsNullOrWhiteSpace(settings.newImageName))
-            NewImageName = settings.newImageName;
+        QuickAccess = settings.quickAccess ?? new List<string>();
+    }
 
-        if (!string.IsNullOrWhiteSpace(settings.newFileName))
-            NewFileName = settings.newFileName;
+    private static TEnum SafeParseEnum<TEnum>(string? enumValueName)
+        where TEnum : struct, Enum =>
+        enumValueName is not null && Enum.TryParse(enumValueName, true, out TEnum result)
+            ? result
+            : default;
 
-        if (!string.IsNullOrWhiteSpace(settings.newDirectoryName))
-            NewDirectoryName = settings.newDirectoryName;
+    private static string SanitizeName(string? fileName, char[] invalidChars, string defaultName) =>
+        fileName is not null
+        && fileName.Length > 0
+        && fileName.All(ch => !invalidChars.Contains(ch))
+            ? fileName
+            : defaultName;
 
-        if (!string.IsNullOrWhiteSpace(settings.thisPCLabel))
-            ThisPCLabel = settings.thisPCLabel;
+    private static T ClampValue<T>(T value, T lowerBound, T upperBound)
+        where T : IComparable<T>
+    {
+        if (value.CompareTo(lowerBound) < 0)
+            return lowerBound;
 
-        NotepadApp = settings.notepadApp;
-        QuickAccess = settings.quickAccess;
+        if (value.CompareTo(upperBound) > 0)
+            return upperBound;
+
+        return value;
     }
 
     /// <summary>
