@@ -6,6 +6,7 @@ using FileSurfer.Models;
 using FileSurfer.Models.FileInformation;
 using FileSurfer.Models.FileOperations;
 using FileSurfer.Models.VersionControl;
+using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
 
@@ -15,7 +16,7 @@ namespace FileSurfer.ViewModels;
 /// their name, size, type, last modification time, and icon. Also includes data about special conditions
 /// like hidden files, or version control status.
 /// </summary>
-public sealed class FileSystemEntryViewModel
+public sealed class FileSystemEntryViewModel : ReactiveObject
 {
     private static readonly int SizeLimit = FileSurferSettings.FileSizeUnitLimit;
     private static readonly IReadOnlyList<string> ByteUnits =
@@ -81,12 +82,22 @@ public sealed class FileSystemEntryViewModel
     /// <summary>
     /// Specifies if the file represented by this <see cref="FileSystemEntryViewModel"/> is part of a repository.
     /// </summary>
-    public bool VersionControlled { get; } = false;
+    public bool VersionControlled
+    {
+        get => _versionControlled;
+        private set => this.RaiseAndSetIfChanged(ref _versionControlled, value);
+    }
+    private bool _versionControlled;
 
     /// <summary>
     /// Specifies if the file represented by this <see cref="FileSystemEntryViewModel"/> has been staged for the next commit.
     /// </summary>
-    public bool Staged { get; } = false;
+    public bool Staged
+    {
+        get => _staged;
+        private set => this.RaiseAndSetIfChanged(ref _staged, value);
+    }
+    private bool _staged;
 
     /// <summary>
     /// Specifies if the file is in an archived format supported by <see cref="FileSurfer"/>.
@@ -140,8 +151,7 @@ public sealed class FileSystemEntryViewModel
                 ? 0.45
                 : 1;
 
-        VersionControlled = status is not VCStatus.NotVersionControlled;
-        Staged = status is VCStatus.Staged;
+        UpdateVCStatus(status);
         IsArchived = ArchiveManager.IsZipped(entry.PathToEntry);
     }
 
@@ -164,6 +174,12 @@ public sealed class FileSystemEntryViewModel
         Icon = iconProvider.GetDriveIcon(driveInfo);
         LastModified = string.Empty;
         Size = GetSizeString(driveInfo.TotalSize);
+    }
+
+    internal void UpdateVCStatus(VCStatus newStatus)
+    {
+        VersionControlled = newStatus is not VCStatus.NotVersionControlled;
+        Staged = newStatus is VCStatus.Staged;
     }
 
     private string GetLastModified(IFileInfoProvider fileInfoProvider)

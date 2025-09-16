@@ -31,6 +31,7 @@ namespace FileSurfer.ViewModels;
 public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
     private const string SearchingFinishedLabel = "Searching finished";
+    private const int SearchAnimationPeriodMS = 500;
     private static readonly IReadOnlyList<string> SearchingStates =
     [
         "Searching",
@@ -585,12 +586,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void LoadQuickAccess()
     {
         foreach (string path in FileSurferSettings.QuickAccess)
-        {
             if (Directory.Exists(path))
                 QuickAccess.Add(_entryVMFactory.Directory(path));
             else if (File.Exists(path))
                 QuickAccess.Add(_entryVMFactory.File(path));
-        }
     }
 
     private void ShowDrives()
@@ -602,12 +601,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private void LoadDirEntries()
     {
-        string[] dirPaths = _fileInfoProvider.GetPathDirs(
+        IList<string> dirPaths = _fileInfoProvider.GetPathDirs(
             CurrentDir,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
-        string[] filePaths = _fileInfoProvider.GetPathFiles(
+        IList<string> filePaths = _fileInfoProvider.GetPathFiles(
             CurrentDir,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
@@ -615,14 +614,19 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (FileSurferSettings.TreatDotFilesAsHidden && !FileSurferSettings.ShowHiddenFiles)
             RemoveDotFiles(ref dirPaths, ref filePaths);
 
-        FileSystemEntryViewModel[] directories = new FileSystemEntryViewModel[dirPaths.Length];
-        FileSystemEntryViewModel[] files = new FileSystemEntryViewModel[filePaths.Length];
+        if (FileEntries.EntriesEqual(dirPaths, filePaths))
+        {
+            foreach (FileSystemEntryViewModel entry in FileEntries)
+                entry.UpdateVCStatus(GetVCStatus(entry.PathToEntry));
+            return;
+        }
 
-        for (int i = 0; i < dirPaths.Length; i++)
-            directories[i] = _entryVMFactory.Directory(dirPaths[i], GetVCStatus(dirPaths[i]));
-
-        for (int i = 0; i < filePaths.Length; i++)
-            files[i] = _entryVMFactory.File(filePaths[i], GetVCStatus(filePaths[i]));
+        FileSystemEntryViewModel[] directories = dirPaths.ConvertToArray(path =>
+            _entryVMFactory.Directory(path, GetVCStatus(path))
+        );
+        FileSystemEntryViewModel[] files = filePaths.ConvertToArray(path =>
+            _entryVMFactory.File(path, GetVCStatus(path))
+        );
 
         AddEntries(directories, files);
     }
@@ -630,10 +634,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private VCStatus GetVCStatus(string path) =>
         IsVersionControlled ? _versionControl.GetStatus(path) : VCStatus.NotVersionControlled;
 
-    private void RemoveDotFiles(ref string[] dirPaths, ref string[] filePaths)
+    private void RemoveDotFiles(ref IList<string> dirPaths, ref IList<string> filePaths)
     {
-        dirPaths = dirPaths.Where(path => !Path.GetFileName(path).StartsWith('.')).ToArray();
-        filePaths = filePaths.Where(path => !Path.GetFileName(path).StartsWith('.')).ToArray();
+        dirPaths = dirPaths.Where(path => !Path.GetFileName(path).StartsWith('.')).ToList();
+        filePaths = filePaths.Where(path => !Path.GetFileName(path).StartsWith('.')).ToList();
     }
 
     /// <summary>
@@ -650,8 +654,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (SortBy is not SortBy.Name and not SortBy.Type and not SortBy.Size)
             SortInPlace(directories, SortBy);
 
-        FileEntries.Clear();
+        HashSet<string>? selectedPaths = null;
+        if (SelectedFiles.Count > 0)
+            selectedPaths = SelectedFiles.Select(entry => entry.PathToEntry).ToHashSet();
 
+        FileEntries.Clear();
         if (!SortReversed || SortBy is SortBy.Type or SortBy.Size)
             for (int i = 0; i < directories.Length; i++)
                 FileEntries.Add(directories[i]);
@@ -665,6 +672,13 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         else
             for (int i = files.Length - 1; i >= 0; i--)
                 FileEntries.Add(files[i]);
+
+        if (selectedPaths is null)
+            return;
+
+        foreach (var entry in FileEntries)
+            if (selectedPaths.Contains(entry.PathToEntry))
+                SelectedFiles.Add(entry);
     }
 
     private void SortInPlace(FileSystemEntryViewModel[] entries, SortBy sortBy)
@@ -815,7 +829,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private DispatcherTimer StartAnimationTimer()
     {
         int index = 0;
-        DispatcherTimer timer = new() { Interval = TimeSpan.FromMilliseconds(500) };
+        DispatcherTimer timer =
+            new() { Interval = TimeSpan.FromMilliseconds(SearchAnimationPeriodMS) };
+
         timer.Tick += (_, _) =>
         {
             if (!_searchCTS.IsCancellationRequested)

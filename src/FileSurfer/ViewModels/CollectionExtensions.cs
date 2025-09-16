@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FileSurfer.ViewModels;
 
@@ -60,5 +61,26 @@ public static class CollectionExtensions
                 counts[item] = count - 1;
         }
         return counts.Count == 0;
+    }
+
+    public static bool EntriesEqual(
+        this ICollection<FileSystemEntryViewModel> entries,
+        IList<string> dirPaths,
+        IList<string> filePaths
+    )
+    {
+        if (entries.Count != dirPaths.Count + filePaths.Count)
+            return false;
+
+        HashSet<string> dirPathsSet = dirPaths.ToHashSet();
+        HashSet<string> filePathsSet = filePaths.ToHashSet();
+
+        foreach (var entry in entries)
+            if (entry.IsDirectory)
+                dirPathsSet.Remove(entry.PathToEntry);
+            else
+                filePathsSet.Remove(entry.PathToEntry);
+
+        return dirPathsSet.Count == 0 && filePathsSet.Count == 0;
     }
 }
