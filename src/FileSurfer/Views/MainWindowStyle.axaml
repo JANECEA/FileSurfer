@@ -101,7 +101,26 @@
 
     <Style Selector="MenuItem.MenuOption">
         <Setter Property="Width" Value="150"/>
+        <Setter Property="Height" Value="30"/>
         <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+        <Setter Property="Padding" Value="10 8 0 8"/>
+    </Style>
+
+    <Style Selector="TextBlock.SortArrowTextBlock">
+        <Setter Property="Grid.Column" Value="1"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="Margin" Value="0 0 -10 0"/>
+        <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="FontSize" Value="20"/>
+    </Style>
+
+    <Style Selector="TextBlock.SortLabelTextBlock">
+        <Setter Property="Grid.Column" Value="0"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Rectangle.ButtonSeparator">

@@ -14,6 +14,7 @@ using FileSurfer.Models.FileOperations;
 using FileSurfer.Models.FileOperations.Undoable;
 using FileSurfer.Models.Shell;
 using FileSurfer.Models.VersionControl;
+using FileSurfer.Views;
 using ReactiveUI;
 
 namespace FileSurfer.ViewModels;
@@ -62,6 +63,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
     private CancellationTokenSource _searchCTS = new();
     private DateTime _lastModified;
+
+    public SortInfo SortInfo => new(SortBy, SortReversed);
 
     /// <summary>
     /// Holds <see cref="FileSystemEntryViewModel"/>s displayed in the main window.
@@ -666,27 +669,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private void SortInPlace(FileSystemEntryViewModel[] entries, SortBy sortBy)
     {
-        switch (sortBy)
+        Comparison<FileSystemEntryViewModel> comparison = sortBy switch
         {
-            case SortBy.Name:
-                Array.Sort(entries, (x, y) => string.CompareOrdinal(x.Name, y.Name));
-                break;
+            SortBy.Name => (a, b) => string.CompareOrdinal(a.Name, b.Name),
+            SortBy.Date => (a, b) => DateTime.Compare(a.LastModTime, b.LastModTime),
+            SortBy.Type => (a, b) => string.CompareOrdinal(a.Type, b.Type),
+            SortBy.Size => (a, b) => (a.SizeB ?? 0).CompareTo(b.SizeB ?? 0),
+            _ => throw new ArgumentException($"Unsupported sort option: {sortBy}", nameof(sortBy)),
+        };
 
-            case SortBy.Date:
-                Array.Sort(entries, (x, y) => DateTime.Compare(y.LastModTime, x.LastModTime));
-                break;
-
-            case SortBy.Type:
-                Array.Sort(entries, (x, y) => string.CompareOrdinal(x.Type, y.Type));
-                break;
-
-            case SortBy.Size:
-                Array.Sort(entries, (x, y) => (y.SizeB ?? 0).CompareTo(x.SizeB ?? 0));
-                break;
-
-            default:
-                throw new ArgumentException($"Unsupported sort option: {sortBy}", nameof(sortBy));
-        }
+        Array.Sort(entries, comparison);
     }
 
     /// <summary>

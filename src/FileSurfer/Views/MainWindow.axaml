@@ -4,12 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodels="clr-namespace:FileSurfer.ViewModels"
+        xmlns:views="clr-namespace:FileSurfer.Views"
         xmlns:filesurfer="clr-namespace:FileSurfer"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="450"
         MinWidth="860" MinHeight="400"
         WindowStartupLocation="CenterScreen"
         x:Class="FileSurfer.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
+        x:DataType="viewmodels:MainWindowViewModel"
         PointerPressed="MouseButtonPressed"
         KeyDown="KeyPressed"
         Icon="/Assets/FileSurfer-logo.ico"
@@ -20,6 +21,10 @@
     <Window.Styles>
         <StyleInclude Source="avares://FileSurfer/Views/MainWindowStyle.axaml"/>
     </Window.Styles>
+
+    <Window.Resources>
+        <views:SortArrowConverter x:Key="SortArrowConverter"/>
+    </Window.Resources>
 
     <Window.KeyBindings>
         <KeyBinding Gesture="Shift+Delete" Command="{Binding DeleteCommand}"/>
@@ -80,22 +85,53 @@
                 <Button Classes="FileOperationButton" Content="&#xEA7F;" HotKey="Ctrl+N" Command="{Binding NewFileCommand}" ToolTip.Tip="New File"/>
                 <Button Classes="FileOperationButton" Content="&#xEA80;" HotKey="Ctrl+Shift+N" Command="{Binding NewDirCommand}" ToolTip.Tip="New Directory"/>
                 <Rectangle Classes="ButtonSeparator"/>
+
                 <Button x:Name="CutButton" Classes="FileOperationButton" Content="&#xF0190;" HotKey="Ctrl+X" Command="{Binding CutCommand}" ToolTip.Tip="Cut"/>
                 <Button x:Name="CopyButton" Classes="FileOperationButton" Content="&#xF0C5;" HotKey="Ctrl+C" Command="{Binding CopyCommand}" ToolTip.Tip="Copy"/>
                 <Button x:Name="PasteButton" Classes="FileOperationButton" Content="&#xF0192;" HotKey="Ctrl+V" Command="{Binding PasteCommand}" ToolTip.Tip="Paste"/>
                 <Button Classes="FileOperationButton" Content="&#xF0455;" HotKey="F2" Click="OnRenameClicked" ToolTip.Tip="Rename"/>
                 <Button x:Name="DeleteButton" Classes="FileOperationButton" Content="&#xF014;" HotKey="Delete" Command="{Binding MoveToTrashCommand}" ToolTip.Tip="Delete"/>
                 <Rectangle Classes="ButtonSeparator"/>
+
                 <Button x:Name="MenuButton" Classes="MenuButton" Width="80" Content="&#xF176;&#xF175; Sort">
                     <Button.Flyout>
                         <MenuFlyout>
-                            <MenuItem Classes="MenuOption" Header="Name" Command="{Binding SetSortByCommand}" CommandParameter="{x:Static filesurfer:SortBy.Name}"/>
-                            <MenuItem Classes="MenuOption" Header="Date" Command="{Binding SetSortByCommand}" CommandParameter="{x:Static filesurfer:SortBy.Date}"/>
-                            <MenuItem Classes="MenuOption" Header="Type" Command="{Binding SetSortByCommand}" CommandParameter="{x:Static filesurfer:SortBy.Type}"/>
-                            <MenuItem Classes="MenuOption" Header="Size" Command="{Binding SetSortByCommand}" CommandParameter="{x:Static filesurfer:SortBy.Size}"/>
+                            <MenuItem Classes="MenuOption" Command="{Binding SetSortByCommand}" CommandParameter="{x:Static filesurfer:SortBy.Name}">
+                                <MenuItem.Header>
+                                    <Grid ColumnDefinitions="Auto *">
+                                        <TextBlock Classes="SortLabelTextBlock" Text="Name"/>
+                                        <TextBlock Classes="SortArrowTextBlock" Text="{Binding SortInfo, Converter={StaticResource SortArrowConverter}, ConverterParameter={x:Static filesurfer:SortBy.Name}}"/>
+                                    </Grid>
+                                </MenuItem.Header>
+                            </MenuItem>
+                            <MenuItem Classes="MenuOption" Command="{Binding SetSortByCommand}" CommandParameter="{x:Static filesurfer:SortBy.Date}">
+                                <MenuItem.Header>
+                                    <DockPanel>
+                                        <TextBlock Classes="SortLabelTextBlock" Text="Date"/>
+                                        <TextBlock Classes="SortArrowTextBlock" Text="{Binding SortInfo, Converter={StaticResource SortArrowConverter}, ConverterParameter={x:Static filesurfer:SortBy.Date}}"/>
+                                    </DockPanel>
+                                </MenuItem.Header>
+                            </MenuItem>
+                            <MenuItem Classes="MenuOption" Command="{Binding SetSortByCommand}" CommandParameter="{x:Static filesurfer:SortBy.Type}">
+                                <MenuItem.Header>
+                                    <DockPanel>
+                                        <TextBlock Classes="SortLabelTextBlock" Text="Type"/>
+                                        <TextBlock Classes="SortArrowTextBlock" Text="{Binding SortInfo, Converter={StaticResource SortArrowConverter}, ConverterParameter={x:Static filesurfer:SortBy.Type}}"/>
+                                    </DockPanel>
+                                </MenuItem.Header>
+                            </MenuItem>
+                            <MenuItem Classes="MenuOption" Command="{Binding SetSortByCommand}" CommandParameter="{x:Static filesurfer:SortBy.Size}">
+                                <MenuItem.Header>
+                                    <DockPanel>
+                                        <TextBlock Classes="SortLabelTextBlock" Text="Size"/>
+                                        <TextBlock Classes="SortArrowTextBlock" Text="{Binding SortInfo, Converter={StaticResource SortArrowConverter}, ConverterParameter={x:Static filesurfer:SortBy.Size}}"/>
+                                    </DockPanel>
+                                </MenuItem.Header>
+                            </MenuItem>
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
+
                 <Button Classes="MenuButton" Content="&#x00B7;&#x00B7;&#x00B7;" FontWeight="ExtraBold">
                     <Button.Flyout>
                         <MenuFlyout>
