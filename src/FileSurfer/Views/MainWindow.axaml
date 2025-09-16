@@ -38,7 +38,7 @@
 
     <Window.Resources>
         <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type viewmodels:FileSystemEntryViewModel}">
-            <Grid ColumnDefinitions="30 360 160 130 90 Auto" Height="30">
+            <Grid ColumnDefinitions="30 360 160 130 90 *" Height="30">
                 <Image Source="{Binding Icon}" Grid.Column="0" Width="20" Height="20" Margin="0 0 12 0" Opacity="{Binding Opacity}"/>
                 <TextBlock Classes="FileInfo" Grid.Column="1" Text="{Binding Name}" FontFamily="Arial"/>
                 <TextBlock Classes="FileInfo" Grid.Column="2" Text="{Binding LastModified}"/>
