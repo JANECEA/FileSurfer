@@ -1,7 +1,9 @@
 <map id="ReactiveObject" name="ReactiveObject">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,117,73"/>
-<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html" title="The MainWindowViewModel is the ViewModel for the main window of the application." alt="" coords="175,5,359,48"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,46,174,39,174,44,133,51"/>
-<area shape="rect" id="Node000003" href="$d8/d00/class_file_surfer_1_1_view_models_1_1_settings_window_view_model.html" title="The SettingsWindowViewModel is the ViewModel for the Views.SettingsWindow." alt="" coords="165,72,369,115"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="133,69,165,74,164,79,132,74"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,80,117,107"/>
+<area shape="rect" id="Node000002" href="$d0/d04/class_file_surfer_1_1_view_models_1_1_file_system_entry_view_model.html" title="Represents a displayable file system entry (file, directory, or drive) in the FileSurfer application." alt="" coords="178,5,356,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,72,198,46,199,51,120,77"/>
+<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html" title="The MainWindowViewModel is the ViewModel for the main window of the application." alt="" coords="175,72,359,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="133,91,174,91,174,96,133,96"/>
+<area shape="rect" id="Node000004" href="$d8/d00/class_file_surfer_1_1_view_models_1_1_settings_window_view_model.html" title="The SettingsWindowViewModel is the ViewModel for the Views.SettingsWindow." alt="" coords="165,139,369,181"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="120,109,199,136,198,141,118,115"/>
 </map>

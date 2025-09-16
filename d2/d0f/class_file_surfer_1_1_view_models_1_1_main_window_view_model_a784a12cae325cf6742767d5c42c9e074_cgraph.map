@@ -1,5 +1,5 @@
 <map id="FileSurfer.ViewModels.MainWindowViewModel.OpenInNotepad" name="FileSurfer.ViewModels.MainWindowViewModel.OpenInNotepad">
 <area shape="rect" id="Node000001" title="Opens the selected files in the notepad app specified in FileSurferSettings.NotepadApp" alt="" coords="5,5,233,48"/>
-<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a03451d04f2138c0229759f4244da8d0c" title="Opens a new Views.ErrorWindow dialog." alt="" coords="281,5,500,48"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a03451d04f2138c0229759f4244da8d0c" title="Opens a new Views.ErrorWindow dialog if the result is failed." alt="" coords="281,5,500,48"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="233,24,265,24,265,29,233,29"/>
 </map>

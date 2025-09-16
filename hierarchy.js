@@ -7,7 +7,6 @@ var hierarchy =
     [ "FileSurfer.ViewModels.CollectionExtensions", "df/d09/class_file_surfer_1_1_view_models_1_1_collection_extensions.html", null ],
     [ "FileSurfer.Models.FileInformation.FileNameGenerator", "df/d0a/class_file_surfer_1_1_models_1_1_file_information_1_1_file_name_generator.html", null ],
     [ "FileSurfer.FileSurferSettings", "db/d05/class_file_surfer_1_1_file_surfer_settings.html", null ],
-    [ "FileSurfer.ViewModels.FileSystemEntryViewModel", "d0/d04/class_file_surfer_1_1_view_models_1_1_file_system_entry_view_model.html", null ],
     [ "FileSurfer.ViewModels.FileSystemEntryVMFactory", "d9/d02/class_file_surfer_1_1_view_models_1_1_file_system_entry_v_m_factory.html", null ],
     [ "FileSurfer.Models.FileOperations.IClipboardManager", "d6/d0f/interface_file_surfer_1_1_models_1_1_file_operations_1_1_i_clipboard_manager.html", [
       [ "FileSurfer.Models.FileOperations.ClipboardManager", "d8/d03/class_file_surfer_1_1_models_1_1_file_operations_1_1_clipboard_manager.html", null ]
@@ -59,8 +58,12 @@ var hierarchy =
         [ "FileSurfer.Models.FileOperations.Undoable.RenameMultiple", "d4/d0f/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_rename_multiple.html", null ]
       ] ]
     ] ],
+    [ "IValueConverter", "d6/d0d/class_i_value_converter.html", [
+      [ "FileSurfer.Views.SortArrowConverter", "d6/d00/class_file_surfer_1_1_views_1_1_sort_arrow_converter.html", null ]
+    ] ],
     [ "FileSurfer.Program", "de/d0e/class_file_surfer_1_1_program.html", null ],
     [ "ReactiveObject", "d3/d06/class_reactive_object.html", [
+      [ "FileSurfer.ViewModels.FileSystemEntryViewModel", "d0/d04/class_file_surfer_1_1_view_models_1_1_file_system_entry_view_model.html", null ],
       [ "FileSurfer.ViewModels.MainWindowViewModel", "d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html", null ],
       [ "FileSurfer.ViewModels.SettingsWindowViewModel", "d8/d00/class_file_surfer_1_1_view_models_1_1_settings_window_view_model.html", null ]
     ] ],

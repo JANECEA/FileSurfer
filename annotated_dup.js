@@ -59,7 +59,8 @@ var annotated_dup =
       [ "Views", "d1/d08/namespace_file_surfer_1_1_views.html", [
         [ "ErrorWindow", "df/d0c/class_file_surfer_1_1_views_1_1_error_window.html", "df/d0c/class_file_surfer_1_1_views_1_1_error_window" ],
         [ "MainWindow", "de/d0c/class_file_surfer_1_1_views_1_1_main_window.html", "de/d0c/class_file_surfer_1_1_views_1_1_main_window" ],
-        [ "SettingsWindow", "dd/d07/class_file_surfer_1_1_views_1_1_settings_window.html", "dd/d07/class_file_surfer_1_1_views_1_1_settings_window" ]
+        [ "SettingsWindow", "dd/d07/class_file_surfer_1_1_views_1_1_settings_window.html", "dd/d07/class_file_surfer_1_1_views_1_1_settings_window" ],
+        [ "SortArrowConverter", "d6/d00/class_file_surfer_1_1_views_1_1_sort_arrow_converter.html", "d6/d00/class_file_surfer_1_1_views_1_1_sort_arrow_converter" ]
       ] ],
       [ "App", "d4/d0b/class_file_surfer_1_1_app.html", "d4/d0b/class_file_surfer_1_1_app" ],
       [ "FileSurferSettings", "db/d05/class_file_surfer_1_1_file_surfer_settings.html", "db/d05/class_file_surfer_1_1_file_surfer_settings" ],
@@ -69,6 +70,7 @@ var annotated_dup =
     [ "Application", "de/d0b/class_application.html", null ],
     [ "IDataTemplate", "da/d0b/class_i_data_template.html", null ],
     [ "IDisposable", "d2/d05/class_i_disposable.html", null ],
+    [ "IValueConverter", "d6/d0d/class_i_value_converter.html", null ],
     [ "ReactiveObject", "d3/d06/class_reactive_object.html", null ],
     [ "Window", "d9/d0f/class_window.html", null ]
 ];

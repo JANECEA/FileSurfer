@@ -1,7 +1,9 @@
 <map id="FileSurfer.ViewModels.MainWindowViewModel.SearchAsync" name="FileSurfer.ViewModels.MainWindowViewModel.SearchAsync">
-<area shape="rect" id="Node000001" title="Prepares the _searchCTS cancellation token, updates CurrentDir, and starts the search." alt="" coords="5,72,220,115"/>
-<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a6f19f770c3a4ce54793c00996b401d20" title="Recursively searches CurrentDir and asynchronously adds matching FileSystemEntryViewModels to FileEnt..." alt="" coords="268,72,535,115"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,91,252,91,252,96,220,96"/>
+<area shape="rect" id="Node000001" title="Prepares the _searchCTS cancellation token, updates CurrentDir, and starts the search." alt="" coords="5,105,220,148"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a6f19f770c3a4ce54793c00996b401d20" title="Searches CurrentDir using a breadth first search and asynchronously adds matching FileSystemEntryView..." alt="" coords="268,72,535,115"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,112,252,108,253,113,220,117"/>
+<area shape="rect" id="Node000008" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a9c5a95d676c630c9696a1c3516bfbf6f" title=" " alt="" coords="274,139,529,181"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="220,136,258,141,258,146,220,142"/>
 <area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a7878c25a1dcc722857218f1b3a4cbe2c" title=" " alt="" coords="583,5,779,48"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="493,69,573,50,574,55,494,74"/>
 <area shape="rect" id="Node000004" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#ab998b36b7a0ea309734bafc5f310a5c8" title=" " alt="" coords="589,72,773,115"/>

@@ -1,7 +1,5 @@
 <map id="FileSurfer.Models.FileOperations.ArchiveManager.UnzipArchive" name="FileSurfer.Models.FileOperations.ArchiveManager.UnzipArchive">
-<area shape="rect" id="Node000001" title="Extracts an archive, overwriting the already existing files." alt="" coords="546,13,761,56"/>
-<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a9b261373f023a1b3f59a1f633217d92c" title=" " alt="" coords="276,5,498,64"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="531,37,498,37,498,32,531,32"/>
-<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a843d49b25f1473daf249ad357b91ebee" title="Extracts the archives selected in SelectedFiles." alt="" coords="5,13,228,56"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="260,37,228,37,228,32,260,32"/>
+<area shape="rect" id="Node000001" title="Extracts an archive, overwriting the already existing files." alt="" coords="276,5,491,48"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a843d49b25f1473daf249ad357b91ebee" title="Extracts the archives selected in SelectedFiles." alt="" coords="5,5,228,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="260,29,228,29,228,24,260,24"/>
 </map>

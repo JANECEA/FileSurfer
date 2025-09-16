@@ -2,7 +2,7 @@ var searchData=
 [
   ['redo_0',['Redo',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a21a90d6d053ec441e9582f4ccc1c1853',1,'FileSurfer::ViewModels::MainWindowViewModel']]],
   ['reload_1',['Reload',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#afd406f062412763c412ada5129c066ee',1,'FileSurfer::ViewModels::MainWindowViewModel']]],
-  ['removedotfiles_2',['RemoveDotFiles',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a570d6f4829aff93cfab2056e9c877545',1,'FileSurfer::ViewModels::MainWindowViewModel']]],
+  ['removedotfiles_2',['RemoveDotFiles',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a224f09da839ee56ebd498ffcc1ed59cd',1,'FileSurfer::ViewModels::MainWindowViewModel']]],
   ['removefromquickaccess_3',['RemoveFromQuickAccess',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#afdb72347d5c8a57f9c24cb9afcac090c',1,'FileSurfer.ViewModels.MainWindowViewModel.RemoveFromQuickAccess()'],['../de/d0c/class_file_surfer_1_1_views_1_1_main_window.html#a84ae1a52e8fc52a9892ecb38b6eeaaed',1,'FileSurfer.Views.MainWindow.RemoveFromQuickAccess()']]],
   ['removenode_4',['RemoveNode',['../d9/d09/class_file_surfer_1_1_models_1_1_undo_redo_handler-1-g.html#a168d284f070c3fc7685320e9a1ecbdb9',1,'FileSurfer::Models::UndoRedoHandler-1-g']]],
   ['rename_5',['Rename',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a08d62ab29e3d3d434bb04cd8caa86928',1,'FileSurfer::ViewModels::MainWindowViewModel']]],

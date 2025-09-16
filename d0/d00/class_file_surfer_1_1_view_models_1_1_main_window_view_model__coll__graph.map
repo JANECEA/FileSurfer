@@ -1,39 +1,43 @@
 <map id="FileSurfer.ViewModels.MainWindowViewModel" name="FileSurfer.ViewModels.MainWindowViewModel">
-<area shape="rect" id="Node000001" title="The MainWindowViewModel is the ViewModel for the main window of the application." alt="" coords="772,436,956,479"/>
-<area shape="rect" id="Node000002" href="$d3/d06/class_reactive_object.html" title=" " alt="" coords="425,5,536,32"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="552,5,600,3,652,7,704,21,728,33,750,49,772,78,792,121,810,174,825,233,849,350,862,435,857,436,844,351,820,234,805,176,787,123,767,80,746,53,725,38,702,26,652,13,600,8,552,10"/>
-<area shape="rect" id="Node000003" href="$d2/d05/class_i_disposable.html" title=" " alt="" coords="69,73,159,100"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="174,76,310,62,480,52,564,52,641,58,704,70,729,80,750,91,787,128,816,172,837,221,851,271,860,321,865,367,866,436,861,436,860,367,855,321,846,272,832,222,811,174,783,131,746,96,727,85,703,76,640,63,564,58,480,57,311,67,175,82"/>
-<area shape="rect" id="Node000008" href="$db/d07/interface_file_surfer_1_1_models_1_1_version_control_1_1_i_version_control.html" title="Defines methods for interacting with a version control system withing the FileSurfer app." alt="" coords="395,107,566,149"/>
-<area shape="poly" id="edge8_Node000008_Node000003" title=" " alt="" coords="175,91,395,116,394,121,174,96"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="454,211,507,237"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="523,230,749,280,788,316,819,358,842,400,857,435,853,437,838,403,815,361,784,320,747,285,522,235"/>
-<area shape="rect" id="Node000005" href="$d2/d00/interface_file_surfer_1_1_models_1_1_file_operations_1_1_i_file_i_o_handler.html" title="Defines methods for handling file and directory operations." alt="" coords="373,261,588,304"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="604,303,749,335,781,357,809,384,851,434,846,438,806,387,778,361,747,340,602,309"/>
-<area shape="rect" id="Node000006" href="$d6/d0e/interface_file_surfer_1_1_models_1_1_file_information_1_1_i_file_info_provider.html" title="Defines methods for retrieving file and directory information." alt="" coords="5,347,223,389"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="238,358,348,356,477,361,614,375,682,387,749,403,788,417,824,433,822,438,786,422,747,408,681,392,613,381,477,366,348,362,238,363"/>
-<area shape="rect" id="Node000010" href="$d9/d02/class_file_surfer_1_1_view_models_1_1_file_system_entry_v_m_factory.html" title=" " alt="" coords="392,400,569,443"/>
-<area shape="poly" id="edge11_Node000010_Node000006" title=" " alt="" coords="234,390,247,392,391,411,391,416,246,397,233,395"/>
-<area shape="rect" id="Node000007" href="$de/d06/interface_file_surfer_1_1_models_1_1_shell_1_1_i_shell_handler.html" title="Represents the layer between the OS shell and the FileSurfer layer." alt="" coords="400,467,560,509"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="576,486,660,484,748,477,771,474,772,480,748,483,660,490,576,492"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="581,120,679,122,721,129,749,141,783,172,809,209,829,250,843,293,860,375,865,435,860,436,855,376,838,295,824,253,804,212,779,175,747,145,719,134,679,128,581,125"/>
-<area shape="rect" id="Node000009" href="$d6/d0f/interface_file_surfer_1_1_models_1_1_file_operations_1_1_i_clipboard_manager.html" title="Represents the layer between the FileSurfer app and the system clipboard." alt="" coords="373,533,588,576"/>
-<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="603,544,675,533,747,515,789,497,827,477,830,482,792,502,749,520,676,538,604,549"/>
-<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="585,429,772,446,771,451,585,434"/>
-<area shape="rect" id="Node000011" href="$dd/d00/interface_file_surfer_1_1_models_1_1_file_information_1_1_i_icon_provider.html" title=" " alt="" coords="5,429,223,472"/>
-<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="238,452,348,447,391,440,391,446,349,452,238,457"/>
-<area shape="rect" id="Node000012" href="$d9/d09/class_file_surfer_1_1_models_1_1_undo_redo_handler-1-g.html" title="Generic class for browsing FileSurfer&#39;s history, such as file operations and visited directories." alt="" coords="386,600,575,643"/>
-<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="590,626,670,618,709,608,747,592,781,568,810,537,850,478,854,481,814,541,785,572,749,597,711,613,671,624,590,632"/>
-<area shape="rect" id="Node000013" title=" " alt="" coords="95,552,133,579"/>
-<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="149,566,349,592,386,599,385,604,348,597,148,571"/>
-<area shape="rect" id="Node000014" href="$d2/d02/class_file_surfer_1_1_models_1_1_undo_redo_handler-1-g_1_1_undo_redo_node.html" title="Nested class representing a node in the UndoRedoHandler&lt;T&gt; chain." alt="" coords="17,684,211,727"/>
-<area shape="poly" id="edge15_Node000012_Node000014" title=" " alt="" coords="207,727,243,731,279,730,315,722,347,707,357,696,359,683,361,668,371,653,387,641,390,645,375,657,366,670,364,684,361,698,350,712,316,728,280,735,243,736,207,733"/>
-<area shape="rect" id="Node000015" title=" " alt="" coords="392,667,569,693"/>
-<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="584,690,625,690,667,685,709,674,747,655,769,638,789,616,821,567,842,518,855,478,860,480,847,520,825,570,793,619,773,641,749,660,711,679,669,690,626,695,584,696"/>
-<area shape="rect" id="Node000016" title=" " alt="" coords="458,775,503,801"/>
-<area shape="poly" id="edge17_Node000001_Node000016" title=" " alt="" coords="519,797,568,808,628,814,659,813,690,808,720,798,746,783,780,752,807,714,827,671,841,627,856,542,860,479,866,479,862,543,846,628,832,673,811,716,784,755,750,788,722,803,692,813,660,818,628,819,567,814,517,802"/>
-<area shape="rect" id="Node000017" title=" " alt="" coords="396,829,565,856"/>
-<area shape="poly" id="edge18_Node000001_Node000017" title=" " alt="" coords="581,854,679,859,719,855,746,845,768,819,787,780,805,729,820,673,844,561,857,479,862,480,849,562,825,675,810,731,792,782,772,822,750,849,721,860,679,864,581,859"/>
-<area shape="rect" id="Node000018" title=" " alt="" coords="441,884,520,911"/>
-<area shape="poly" id="edge19_Node000001_Node000018" title=" " alt="" coords="535,911,585,920,641,922,697,914,723,904,746,889,769,860,790,815,808,758,823,695,846,570,858,479,863,480,851,570,828,696,813,759,795,817,774,863,750,893,725,908,698,919,641,928,584,925,534,916"/>
+<area shape="rect" id="Node000001" title="The MainWindowViewModel is the ViewModel for the main window of the application." alt="" coords="800,528,984,571"/>
+<area shape="rect" id="Node000002" href="$d3/d06/class_reactive_object.html" title=" " alt="" coords="425,10,536,36"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="551,7,606,3,666,6,725,21,753,35,778,53,804,89,826,143,844,209,860,283,881,426,892,528,886,528,876,427,854,284,839,211,821,145,799,92,774,57,750,39,724,26,665,12,606,8,551,12"/>
+<area shape="rect" id="Node000003" href="$d2/d05/class_i_disposable.html" title=" " alt="" coords="69,78,159,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="174,80,316,63,495,52,583,51,664,57,730,70,757,80,778,93,803,125,825,173,843,234,858,300,880,433,891,528,886,528,875,433,853,301,838,235,820,175,798,127,774,97,754,85,729,75,663,62,583,57,495,57,317,69,175,85"/>
+<area shape="rect" id="Node000010" href="$db/d07/interface_file_surfer_1_1_models_1_1_version_control_1_1_i_version_control.html" title="Defines methods for interacting with a version control system withing the FileSurfer app." alt="" coords="395,111,566,154"/>
+<area shape="poly" id="edge10_Node000010_Node000003" title=" " alt="" coords="175,95,395,120,394,125,174,100"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="454,259,507,286"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="523,272,670,286,739,295,777,306,804,329,826,357,859,419,880,480,890,527,885,528,875,481,854,421,822,360,800,333,775,311,738,300,670,291,522,278"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="461,310,500,336"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="516,323,665,339,737,349,777,361,799,378,819,398,851,444,873,490,887,527,882,529,868,492,846,447,815,402,796,382,775,365,736,355,664,344,515,328"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="394,360,566,403"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="582,382,679,398,730,412,777,433,809,453,836,478,878,526,874,530,833,482,805,457,775,437,728,417,678,403,581,387"/>
+<area shape="rect" id="Node000007" href="$d2/d00/interface_file_surfer_1_1_models_1_1_file_operations_1_1_i_file_i_o_handler.html" title="Defines methods for handling file and directory operations." alt="" coords="373,427,588,470"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="604,460,689,475,777,496,849,525,847,530,775,501,688,480,603,465"/>
+<area shape="rect" id="Node000008" href="$d6/d0e/interface_file_surfer_1_1_models_1_1_file_information_1_1_i_file_info_provider.html" title="Defines methods for retrieving file and directory information." alt="" coords="5,512,223,555"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="238,527,486,525,632,527,776,534,800,535,799,541,776,539,631,533,486,530,238,533"/>
+<area shape="rect" id="Node000012" href="$d9/d02/class_file_surfer_1_1_view_models_1_1_file_system_entry_v_m_factory.html" title=" " alt="" coords="392,566,569,608"/>
+<area shape="poly" id="edge13_Node000012_Node000008" title=" " alt="" coords="234,555,247,558,391,576,391,581,246,563,233,561"/>
+<area shape="rect" id="Node000009" href="$de/d06/interface_file_surfer_1_1_models_1_1_shell_1_1_i_shell_handler.html" title="Represents the layer between the OS shell and the FileSurfer layer." alt="" coords="400,632,560,675"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="576,642,673,627,775,602,815,586,851,569,853,574,817,591,777,607,674,632,577,647"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="581,123,695,123,744,131,778,145,800,173,821,215,838,268,854,326,877,442,891,527,885,528,872,443,849,328,833,270,816,217,796,176,774,149,743,136,695,129,581,128"/>
+<area shape="rect" id="Node000011" href="$d6/d0f/interface_file_surfer_1_1_models_1_1_file_operations_1_1_i_clipboard_manager.html" title="Represents the layer between the FileSurfer app and the system clipboard." alt="" coords="373,699,588,742"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="603,713,690,698,734,684,775,666,806,645,833,620,874,570,878,573,837,623,809,649,777,671,736,689,691,703,604,718"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="584,575,776,558,800,555,800,561,776,563,585,580"/>
+<area shape="rect" id="Node000013" href="$dd/d00/interface_file_surfer_1_1_models_1_1_file_information_1_1_i_icon_provider.html" title=" " alt="" coords="5,595,223,638"/>
+<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="238,618,348,612,391,606,391,611,349,618,238,623"/>
+<area shape="rect" id="Node000014" href="$d9/d09/class_file_surfer_1_1_models_1_1_undo_redo_handler-1-g.html" title="Generic class for browsing FileSurfer&#39;s history, such as file operations and visited directories." alt="" coords="386,766,575,808"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="591,801,637,801,685,796,732,784,775,763,799,744,819,721,851,667,872,614,884,571,889,572,877,615,856,669,824,724,802,748,777,768,734,789,686,801,637,806,591,806"/>
+<area shape="rect" id="Node000015" title=" " alt="" coords="95,718,133,744"/>
+<area shape="poly" id="edge16_Node000014_Node000015" title=" " alt="" coords="149,732,349,758,386,764,385,769,348,763,148,737"/>
+<area shape="rect" id="Node000016" href="$d2/d02/class_file_surfer_1_1_models_1_1_undo_redo_handler-1-g_1_1_undo_redo_node.html" title="Nested class representing a node in the UndoRedoHandler&lt;T&gt; chain." alt="" coords="17,850,211,892"/>
+<area shape="poly" id="edge17_Node000014_Node000016" title=" " alt="" coords="207,893,243,896,279,895,315,888,347,873,357,862,359,848,361,833,371,818,387,807,390,811,375,822,366,835,364,849,361,864,350,877,316,893,280,900,243,902,207,898"/>
+<area shape="rect" id="Node000017" title=" " alt="" coords="392,832,569,859"/>
+<area shape="poly" id="edge18_Node000001_Node000017" title=" " alt="" coords="585,850,696,850,743,843,775,831,804,805,828,772,848,736,862,699,880,626,887,571,892,572,885,627,867,700,852,739,833,775,808,808,777,836,744,849,696,855,585,856"/>
+<area shape="rect" id="Node000018" title=" " alt="" coords="458,935,503,962"/>
+<area shape="poly" id="edge19_Node000001_Node000018" title=" " alt="" coords="519,951,583,958,659,962,729,959,756,954,774,945,796,919,816,878,833,827,849,769,872,655,885,571,891,572,877,656,854,771,839,828,821,880,800,922,778,949,757,959,729,964,659,967,583,963,518,956"/>
+<area shape="rect" id="Node000019" title=" " alt="" coords="396,990,565,1016"/>
+<area shape="poly" id="edge20_Node000001_Node000019" title=" " alt="" coords="581,1009,695,1011,743,1004,774,991,798,962,819,915,837,857,852,792,874,664,886,571,891,572,879,664,857,793,842,858,824,917,802,965,778,996,744,1010,695,1016,580,1015"/>
+<area shape="rect" id="Node000020" title=" " alt="" coords="441,1044,520,1071"/>
+<area shape="poly" id="edge21_Node000001_Node000020" title=" " alt="" coords="535,1070,590,1080,654,1082,687,1079,718,1072,748,1060,774,1042,787,1028,800,1008,822,955,840,890,855,817,876,673,887,571,892,572,882,674,861,818,845,891,827,957,804,1011,792,1031,778,1046,750,1065,720,1077,687,1084,654,1088,590,1085,534,1075"/>
 </map>

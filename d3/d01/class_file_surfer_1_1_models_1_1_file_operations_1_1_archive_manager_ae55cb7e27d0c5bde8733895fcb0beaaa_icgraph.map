@@ -1,0 +1,5 @@
+<map id="FileSurfer.Models.FileOperations.ArchiveManager.ZipFiles" name="FileSurfer.Models.FileOperations.ArchiveManager.ZipFiles">
+<area shape="rect" id="Node000001" title="Compresses specified file paths into a new archive." alt="" coords="271,5,486,48"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a4a0a278a25e50dac4c4e8dab4a9400bc" title="Creates an archive from the FileSystemEntryViewModels in SelectedFiles." alt="" coords="5,5,223,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="255,29,223,29,223,24,255,24"/>
+</map>

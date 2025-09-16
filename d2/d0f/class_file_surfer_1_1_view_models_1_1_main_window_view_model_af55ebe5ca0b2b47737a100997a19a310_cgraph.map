@@ -1,5 +1,44 @@
 <map id="FileSurfer.ViewModels.MainWindowViewModel.OpenEntry" name="FileSurfer.ViewModels.MainWindowViewModel.OpenEntry">
-<area shape="rect" id="Node000001" title="Opens the selected entry." alt="" coords="5,5,204,48"/>
-<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a03451d04f2138c0229759f4244da8d0c" title="Opens a new Views.ErrorWindow dialog." alt="" coords="252,5,471,48"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,24,236,24,236,29,204,29"/>
+<area shape="rect" id="Node000001" title="Opens the selected entry." alt="" coords="5,68,204,111"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a03451d04f2138c0229759f4244da8d0c" title="Opens a new Views.ErrorWindow dialog if the result is failed." alt="" coords="252,35,471,77"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,74,236,70,236,75,204,79"/>
+<area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#abcb792de192bed1561ccc569f16eec76" title="Sets the CurrentDir and adds the directory to _pathHistory,." alt="" coords="253,101,470,144"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="204,100,238,104,237,109,204,105"/>
+<area shape="rect" id="Node000004" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a4c938190544f3ff139f8572f439ac17f" title=" " alt="" coords="800,5,1029,48"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="461,98,519,87,784,43,785,48,519,92,462,103"/>
+<area shape="rect" id="Node000005" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#ad6f06178eb5ccd1579134245907a6781" title=" " alt="" coords="519,127,752,185"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="470,133,504,137,503,143,470,138"/>
+<area shape="poly" id="edge9_Node000005_Node000004" title=" " alt="" coords="680,124,736,90,799,58,815,51,817,56,801,62,738,94,683,128"/>
+<area shape="rect" id="Node000006" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a4deaa07eb80712808e9f87909d2e5038" title="Cancels the search and sets CurrentDir to the current in _pathHistory." alt="" coords="805,72,1024,115"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="752,127,801,116,802,121,754,132"/>
+<area shape="rect" id="Node000007" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#ac7d61eade7a804710bdcc0fd607cf1e0" title="Opens a new Views.ErrorWindow dialog." alt="" coords="1101,179,1312,221"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="753,162,1086,188,1086,193,753,168"/>
+<area shape="rect" id="Node000008" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a27e7e6c89e0c5b7fefe2c16b5e0b1bba" title=" " alt="" coords="1082,96,1332,155"/>
+<area shape="poly" id="edge8_Node000005_Node000008" title=" " alt="" coords="753,147,1066,130,1067,136,753,152"/>
+<area shape="rect" id="Node000009" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#afd406f062412763c412ada5129c066ee" title=" " alt="" coords="822,241,1007,284"/>
+<area shape="poly" id="edge10_Node000005_Node000009" title=" " alt="" coords="711,183,801,219,839,233,837,238,799,224,709,188"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="805,102,485,119,485,113,805,96"/>
+<area shape="poly" id="edge21_Node000009_Node000003" title=" " alt="" coords="821,258,678,237,597,221,518,200,463,179,413,154,415,149,465,174,520,195,598,216,678,232,822,252"/>
+<area shape="poly" id="edge13_Node000009_Node000007" title=" " alt="" coords="1007,240,1089,223,1090,228,1008,246"/>
+<area shape="poly" id="edge14_Node000009_Node000008" title=" " alt="" coords="946,239,1005,202,1076,164,1089,158,1091,163,1078,169,1008,206,949,243"/>
+<area shape="rect" id="Node000010" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#ac578440366afbc47323fcc9c7a9c23de" title="Sets IsVersionControlled and updates Branches." alt="" coords="1077,379,1336,421"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="945,282,1004,324,1078,364,1093,371,1091,375,1076,369,1001,328,942,287"/>
+<area shape="rect" id="Node000012" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#acb0f8affc1e18dcc84c2d293a2e7f463" title=" " alt="" coords="1096,479,1318,521"/>
+<area shape="poly" id="edge15_Node000009_Node000012" title=" " alt="" coords="934,283,994,353,1034,394,1078,431,1141,469,1139,474,1075,435,1031,398,990,357,930,286"/>
+<area shape="rect" id="Node000018" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#aa2efd3610936ecd78773eed38839de9e" title=" " alt="" coords="1077,245,1337,288"/>
+<area shape="poly" id="edge22_Node000009_Node000018" title=" " alt="" coords="1007,261,1061,262,1061,267,1007,267"/>
+<area shape="rect" id="Node000019" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a54ab1a960b3aec4f2583f17e508d80e0" title=" " alt="" coords="1103,312,1310,355"/>
+<area shape="poly" id="edge23_Node000009_Node000019" title=" " alt="" coords="1007,282,1102,305,1100,310,1005,287"/>
+<area shape="rect" id="Node000011" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a11a675c05424260139aaf6a05cd67430" title=" " alt="" coords="1408,345,1627,388"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="1337,383,1392,377,1392,383,1337,389"/>
+<area shape="rect" id="Node000013" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a29fd93a242cc549bcc9bfa3deffac35e" title="Adds directories and files to FileEntries." alt="" coords="1417,612,1617,655"/>
+<area shape="poly" id="edge16_Node000012_Node000013" title=" " alt="" coords="1242,520,1307,559,1386,598,1404,604,1402,609,1384,602,1305,564,1239,524"/>
+<area shape="rect" id="Node000015" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a2e13374460eceaa5481dd5646e9c063c" title=" " alt="" coords="1410,412,1624,455"/>
+<area shape="poly" id="edge18_Node000012_Node000015" title=" " alt="" coords="1309,475,1399,456,1400,461,1310,481"/>
+<area shape="rect" id="Node000016" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a224f09da839ee56ebd498ffcc1ed59cd" title=" " alt="" coords="1400,479,1634,521"/>
+<area shape="poly" id="edge19_Node000012_Node000016" title=" " alt="" coords="1318,497,1385,497,1385,503,1318,503"/>
+<area shape="rect" id="Node000017" href="$d0/d04/class_file_surfer_1_1_view_models_1_1_file_system_entry_view_model.html#a54d994fc2ece6eb6040107ddddb6c2c8" title=" " alt="" coords="1385,545,1649,588"/>
+<area shape="poly" id="edge20_Node000012_Node000017" title=" " alt="" coords="1310,519,1400,539,1399,544,1309,525"/>
+<area shape="rect" id="Node000014" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a83147aaa25c7e66be119aa9f47e945dc" title=" " alt="" coords="1697,612,1902,655"/>
+<area shape="poly" id="edge17_Node000013_Node000014" title=" " alt="" coords="1618,631,1681,631,1681,636,1618,636"/>
 </map>

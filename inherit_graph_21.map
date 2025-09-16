@@ -1,17 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d2/d05/class_i_disposable.html" title=" " alt="" coords="69,80,159,107"/>
-<area shape="rect" id="Node000001" href="$df/d0c/class_file_surfer_1_1_models_1_1_file_information_1_1_icon_provider.html" title="Optimizes icon delivery based on the file extension." alt="" coords="271,5,488,48"/>
-<area shape="poly" id="edge23_Node000000_Node000001" title=" " alt="" coords="173,76,291,46,292,51,175,81"/>
-<area shape="rect" id="Node000003" href="$db/d07/interface_file_surfer_1_1_models_1_1_version_control_1_1_i_version_control.html" title="Defines methods for interacting with a version control system withing the FileSurfer app." alt="" coords="294,72,464,115"/>
-<area shape="poly" id="edge24_Node000000_Node000003" title=" " alt="" coords="174,91,294,91,294,96,174,96"/>
-<area shape="rect" id="Node000005" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html" title="The MainWindowViewModel is the ViewModel for the main window of the application." alt="" coords="287,139,472,181"/>
-<area shape="poly" id="edge26_Node000000_Node000005" title=" " alt="" coords="175,106,292,135,291,141,173,111"/>
-<area shape="rect" id="Node000004" href="$d7/d0c/class_file_surfer_1_1_models_1_1_version_control_1_1_git_version_control.html" title="Handles git integration within the FileSurfer app." alt="" coords="536,72,706,115"/>
-<area shape="poly" id="edge25_Node000003_Node000004" title=" " alt="" coords="480,91,535,91,535,96,480,96"/>
-<area shape="rect" id="Node000002" href="$dd/d00/interface_file_surfer_1_1_models_1_1_file_information_1_1_i_icon_provider.html" title=" " alt="" coords="5,5,223,48"/>
-<area shape="poly" id="edge27_Node000002_Node000001" title=" " alt="" coords="239,24,270,24,270,29,239,29"/>
-<area shape="rect" id="Node000006" href="$d3/d06/class_reactive_object.html" title=" " alt="" coords="58,180,170,207"/>
-<area shape="poly" id="edge28_Node000006_Node000005" title=" " alt="" coords="184,182,287,169,287,174,185,187"/>
-<area shape="rect" id="Node000007" href="$d8/d00/class_file_surfer_1_1_view_models_1_1_settings_window_view_model.html" title="The SettingsWindowViewModel is the ViewModel for the Views.SettingsWindow." alt="" coords="277,205,482,248"/>
-<area shape="poly" id="edge29_Node000006_Node000007" title=" " alt="" coords="185,200,277,211,277,216,185,205"/>
+<area shape="rect" id="Node000000" href="$d6/d0d/class_i_value_converter.html" title=" " alt="" coords="5,13,120,40"/>
+<area shape="rect" id="Node000001" href="$d6/d00/class_file_surfer_1_1_views_1_1_sort_arrow_converter.html" title=" " alt="" coords="168,5,347,48"/>
+<area shape="poly" id="edge31_Node000000_Node000001" title=" " alt="" coords="135,24,167,24,167,29,135,29"/>
 </map>

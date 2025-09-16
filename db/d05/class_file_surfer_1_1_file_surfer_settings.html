@@ -29,7 +29,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="../../FileSurfer-logo-small.ico"/></td>
   <td id="projectalign">
-   <div id="projectname">FileSurfer<span id="projectnumber">&#160;1.1.3</span>
+   <div id="projectname">FileSurfer<span id="projectnumber">&#160;1.1.4</span>
    </div>
    <div id="projectbrief">Modern Windows File Explorer</div>
   </td>
@@ -100,15 +100,17 @@ Collaboration diagram for FileSurfer.FileSurferSettings:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d5/d0d/class_file_surfer_1_1_file_surfer_settings__coll__graph.png" border="0" usemap="#a_file_surfer_8_file_surfer_settings_coll__map" loading="lazy" alt="Collaboration graph"/></div>
 <map name="a_file_surfer_8_file_surfer_settings_coll__map" id="a_file_surfer_8_file_surfer_settings_coll__map">
-<area shape="rect" title=" " alt="" coords="386,103,571,129"/>
-<area shape="rect" title=" " alt="" coords="61,5,142,32"/>
-<area shape="poly" title=" " alt="" coords="158,20,254,33,309,43,363,57,413,78,455,100,452,104,410,83,361,63,308,48,254,38,158,25"/>
-<area shape="rect" title=" " alt="" coords="5,56,198,99"/>
-<area shape="poly" title=" " alt="" coords="214,86,385,104,385,109,213,91"/>
-<area shape="rect" title=" " alt="" coords="30,140,173,167"/>
-<area shape="poly" title=" " alt="" coords="188,157,272,157,361,149,403,140,441,127,443,133,404,145,362,155,273,162,188,162"/>
-<area shape="rect" title=" " alt="" coords="57,195,146,221"/>
-<area shape="poly" title=" " alt="" coords="162,209,257,207,310,200,361,187,390,175,417,159,460,128,463,132,420,163,392,179,363,192,311,205,257,212,162,214"/>
+<area shape="rect" title=" " alt="" coords="386,145,571,172"/>
+<area shape="rect" title=" " alt="" coords="61,13,142,40"/>
+<area shape="poly" title=" " alt="" coords="158,23,256,31,310,42,363,60,395,78,424,100,467,142,463,146,421,105,392,82,361,65,309,47,255,36,158,28"/>
+<area shape="rect" title=" " alt="" coords="30,88,173,114"/>
+<area shape="poly" title=" " alt="" coords="189,106,362,129,423,142,422,147,361,134,188,111"/>
+<area shape="rect" title=" " alt="" coords="5,138,198,181"/>
+<area shape="poly" title=" " alt="" coords="213,157,385,156,385,161,213,162"/>
+<area shape="rect" title=" " alt="" coords="30,221,173,248"/>
+<area shape="poly" title=" " alt="" coords="188,231,273,224,361,208,410,190,452,170,454,175,412,195,362,213,273,229,189,236"/>
+<area shape="rect" title=" " alt="" coords="57,276,146,302"/>
+<area shape="poly" title=" " alt="" coords="162,290,207,289,258,285,310,275,361,259,393,240,422,216,464,170,468,174,426,220,396,244,363,263,312,281,258,290,207,295,162,295"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -116,7 +118,7 @@ Collaboration diagram for FileSurfer.FileSurferSettings:</div>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:abaac4f7bdc56e341c91443bf6a5bae01" id="r_abaac4f7bdc56e341c91443bf6a5bae01"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abaac4f7bdc56e341c91443bf6a5bae01">LoadSettings</a> ()</td></tr>
 <tr class="memitem:a3134ab4ba806922fdbc1acb839c0f31b" id="r_a3134ab4ba806922fdbc1acb839c0f31b"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3134ab4ba806922fdbc1acb839c0f31b">ImportSettings</a> (<a class="el" href="../../d0/d06/namespace_file_surfer.html#ae8acdfc0e2618b86d1a68185bd754dc0">SettingsRecord</a> settings)</td></tr>
-<tr class="memdesc:a3134ab4ba806922fdbc1acb839c0f31b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads settings from the <a class="el" href="../../d0/d06/namespace_file_surfer.html#ae8acdfc0e2618b86d1a68185bd754dc0" title="Used to (de)serialize the settings.json file.">SettingsRecord</a> object and applies them to the current session.  <br /></td></tr>
+<tr class="memdesc:a3134ab4ba806922fdbc1acb839c0f31b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads and sanitizes settings from the <a class="el" href="../../d0/d06/namespace_file_surfer.html#ae8acdfc0e2618b86d1a68185bd754dc0" title="Used to (de)serialize the settings.json file.">SettingsRecord</a> object and applies them to the current session.  <br /></td></tr>
 <tr class="memitem:a6e5780f9e08447a43c83f974aa87afbe" id="r_a6e5780f9e08447a43c83f974aa87afbe"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6e5780f9e08447a43c83f974aa87afbe">UpdateQuickAccess</a> (IEnumerable&lt; <a class="el" href="../../d0/d04/class_file_surfer_1_1_view_models_1_1_file_system_entry_view_model.html">FileSystemEntryViewModel</a> &gt; quickAccess)</td></tr>
 <tr class="memdesc:a6e5780f9e08447a43c83f974aa87afbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update Quick Access list with the specified <a class="el" href="../../d0/d04/class_file_surfer_1_1_view_models_1_1_file_system_entry_view_model.html" title="Represents a displayable file system entry (file, directory, or drive) in the FileSurfer application.">FileSystemEntryViewModel</a>s.  <br /></td></tr>
 <tr class="memitem:a441629c8c9d236832acd54be192f63f2" id="r_a441629c8c9d236832acd54be192f63f2"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a441629c8c9d236832acd54be192f63f2">SaveSettings</a> ()</td></tr>
@@ -156,6 +158,8 @@ Properties</h2></td></tr>
 <tr class="memdesc:a3905caf9b4a0cad661a7f9998853896a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies the default sorting method for files and folders.  <br /></td></tr>
 <tr class="memitem:a8f32ab23d975c937a5a0e530926a75e5" id="r_a8f32ab23d975c937a5a0e530926a75e5"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8f32ab23d975c937a5a0e530926a75e5">FileSizeUnitLimit</a><code> [get, set]</code></td></tr>
 <tr class="memdesc:a8f32ab23d975c937a5a0e530926a75e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Numerical limit before <a class="el" href="../../d0/d06/namespace_file_surfer.html">FileSurfer</a> uses the next byte unit.  <br /></td></tr>
+<tr class="memitem:ae035c9157723fbf665d5b943974a1bf2" id="r_ae035c9157723fbf665d5b943974a1bf2"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae035c9157723fbf665d5b943974a1bf2">FileSizeUnitLimitLowerBound</a><code> [get]</code></td></tr>
+<tr class="memitem:a2c7ece6481e68cae6925ad0d22aea09b" id="r_a2c7ece6481e68cae6925ad0d22aea09b"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2c7ece6481e68cae6925ad0d22aea09b">FileSizeUnitLimitUpperBound</a><code> [get]</code></td></tr>
 <tr class="memitem:a742a60e66d8e420dea59c6a3fa7a6516" id="r_a742a60e66d8e420dea59c6a3fa7a6516"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a742a60e66d8e420dea59c6a3fa7a6516">SortReversed</a><code> [get, set]</code></td></tr>
 <tr class="memdesc:a742a60e66d8e420dea59c6a3fa7a6516"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates whether file and folder sorting should be reversed.  <br /></td></tr>
 <tr class="memitem:a24b2c154a5ae596779e45539b101ef7b" id="r_a24b2c154a5ae596779e45539b101ef7b"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a24b2c154a5ae596779e45539b101ef7b">ShowSpecialFolders</a><code> [get, set]</code></td></tr>
@@ -174,13 +178,24 @@ Properties</h2></td></tr>
 <tr class="memdesc:a77be00f3ae886380a31579e446a6d516"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates whether the file explorer should automatically refresh at intervals.  <br /></td></tr>
 <tr class="memitem:a77b4f166728e140e28030c75ef29930a" id="r_a77b4f166728e140e28030c75ef29930a"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a77b4f166728e140e28030c75ef29930a">AutomaticRefreshInterval</a><code> [get, set]</code></td></tr>
 <tr class="memdesc:a77b4f166728e140e28030c75ef29930a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the interval (in milliseconds) for automatic refreshing of the file explorer.  <br /></td></tr>
+<tr class="memitem:a163d716d4f936c7151890c9cd66f59ee" id="r_a163d716d4f936c7151890c9cd66f59ee"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a163d716d4f936c7151890c9cd66f59ee">AutomaticRefreshIntervalLowerBound</a><code> [get]</code></td></tr>
+<tr class="memitem:a68c8f2eaad1d4e9337478d12ddfeae41" id="r_a68c8f2eaad1d4e9337478d12ddfeae41"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a68c8f2eaad1d4e9337478d12ddfeae41">AutomaticRefreshIntervalUpperBound</a><code> [get]</code></td></tr>
 <tr class="memitem:a7cac5a15f10697f1b616d449c91ad7d8" id="r_a7cac5a15f10697f1b616d449c91ad7d8"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7cac5a15f10697f1b616d449c91ad7d8">AllowImagePastingFromClipboard</a><code> [get, set]</code></td></tr>
 <tr class="memdesc:a7cac5a15f10697f1b616d449c91ad7d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies if images stored in the system clipboard can be pasted directly into directories.  <br /></td></tr>
 <tr class="memitem:a139fd701a2800cf90444d92000e3183d" id="r_a139fd701a2800cf90444d92000e3183d"><td class="memItemLeft" align="right" valign="top">static List&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a139fd701a2800cf90444d92000e3183d">QuickAccess</a><code> [get, set]</code></td></tr>
 <tr class="memdesc:a139fd701a2800cf90444d92000e3183d"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of directories and files added by the user for quick access.  <br /></td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pri-static-methods" class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
+Static Private Member Functions</h2></td></tr>
+<tr class="memitem:a5507c6b30b07be696ab37252f5406d92" id="r_a5507c6b30b07be696ab37252f5406d92"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5507c6b30b07be696ab37252f5406d92">FileSurferSettings</a> ()</td></tr>
+<tr class="memitem:a683dab1f9566b45b434f1c4024e1f689" id="r_a683dab1f9566b45b434f1c4024e1f689"><td class="memItemLeft" align="right" valign="top">static TEnum&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a683dab1f9566b45b434f1c4024e1f689">SafeParseEnum&lt; TEnum &gt;</a> (string? enumValueName)</td></tr>
+<tr class="memitem:ab2ba8d0386a031433cf5e0cac94da4e2" id="r_ab2ba8d0386a031433cf5e0cac94da4e2"><td class="memItemLeft" align="right" valign="top">static string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab2ba8d0386a031433cf5e0cac94da4e2">SanitizeName</a> (string? fileName, char[] invalidChars, string defaultName)</td></tr>
+<tr class="memitem:ac5d9bf8de7643a34e6933f5193b44b9c" id="r_ac5d9bf8de7643a34e6933f5193b44b9c"><td class="memItemLeft" align="right" valign="top">static T&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac5d9bf8de7643a34e6933f5193b44b9c">ClampValue&lt; T &gt;</a> (T value, T lowerBound, T upperBound)</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pri-static-attribs" class="groupheader"><a id="pri-static-attribs" name="pri-static-attribs"></a>
 Static Private Attributes</h2></td></tr>
+<tr class="memitem:a821e36fa23326a066341479ac31ae7dd" id="r_a821e36fa23326a066341479ac31ae7dd"><td class="memItemLeft" align="right" valign="top">static readonly char[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a821e36fa23326a066341479ac31ae7dd">InvalidFileNameChars</a> = Path.GetInvalidFileNameChars()</td></tr>
+<tr class="memitem:a9423931d175062794e3019328e23ae2b" id="r_a9423931d175062794e3019328e23ae2b"><td class="memItemLeft" align="right" valign="top">static readonly char[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9423931d175062794e3019328e23ae2b">InvalidPathChars</a> = Path.GetInvalidPathChars()</td></tr>
 <tr class="memitem:a92db266615c802912b7056c6cd9fa118" id="r_a92db266615c802912b7056c6cd9fa118"><td class="memItemLeft" align="right" valign="top">static readonly JsonSerializerOptions&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a92db266615c802912b7056c6cd9fa118">SerializerOptions</a></td></tr>
 <tr class="memitem:a416cddb1ed48cdb5bbe793e855cb4e0c" id="r_a416cddb1ed48cdb5bbe793e855cb4e0c"><td class="memItemLeft" align="right" valign="top">static readonly string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a416cddb1ed48cdb5bbe793e855cb4e0c">SettingsFileDir</a></td></tr>
 <tr class="memitem:a3686add1030fb43e8838638bbe82a3be" id="r_a3686add1030fb43e8838638bbe82a3be"><td class="memItemLeft" align="right" valign="top">static string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3686add1030fb43e8838638bbe82a3be">_previousSettingsJson</a> = string.Empty</td></tr>
@@ -188,7 +203,75 @@ Static Private Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides application-wide settings management for the <a class="el" href="../../d0/d06/namespace_file_surfer.html">FileSurfer</a> application. </p>
 <p>Handles the loading, saving, and updating of user preferences and settings. </p>
-</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
+</div><a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a5507c6b30b07be696ab37252f5406d92" name="a5507c6b30b07be696ab37252f5406d92"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5507c6b30b07be696ab37252f5406d92">&#9670;&#160;</a></span>FileSurferSettings()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">FileSurfer.FileSurferSettings.FileSurferSettings </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
+<a id="ac5d9bf8de7643a34e6933f5193b44b9c" name="ac5d9bf8de7643a34e6933f5193b44b9c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5d9bf8de7643a34e6933f5193b44b9c">&#9670;&#160;</a></span>ClampValue&lt; T &gt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">T FileSurfer.FileSurferSettings.ClampValue&lt; T &gt; </td>
+          <td>(</td>
+          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>value</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>lowerBound</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>upperBound</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel static">static</span><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<div class="typeconstraint">
+<dl><dt><b>Type Constraints</b></dt><dd>
+<table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em>IComparable&lt;T&gt;</em></td><td>&#160;</td></tr>
+</table>
+</dd>
+</dl>
+</div>
+
+</div>
+</div>
 <a id="a3134ab4ba806922fdbc1acb839c0f31b" name="a3134ab4ba806922fdbc1acb839c0f31b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3134ab4ba806922fdbc1acb839c0f31b">&#9670;&#160;</a></span>ImportSettings()</h2>
 
@@ -212,13 +295,23 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Loads settings from the <a class="el" href="../../d0/d06/namespace_file_surfer.html#ae8acdfc0e2618b86d1a68185bd754dc0" title="Used to (de)serialize the settings.json file.">SettingsRecord</a> object and applies them to the current session. </p>
+<p>Loads and sanitizes settings from the <a class="el" href="../../d0/d06/namespace_file_surfer.html#ae8acdfc0e2618b86d1a68185bd754dc0" title="Used to (de)serialize the settings.json file.">SettingsRecord</a> object and applies them to the current session. </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../db/d05/class_file_surfer_1_1_file_surfer_settings_a3134ab4ba806922fdbc1acb839c0f31b_cgraph.png" border="0" usemap="#adb/d05/class_file_surfer_1_1_file_surfer_settings_a3134ab4ba806922fdbc1acb839c0f31b_cgraph" loading="lazy" alt=""/></div>
+<map name="adb/d05/class_file_surfer_1_1_file_surfer_settings_a3134ab4ba806922fdbc1acb839c0f31b_cgraph" id="adb/d05/class_file_surfer_1_1_file_surfer_settings_a3134ab4ba806922fdbc1acb839c0f31b_cgraph">
+<area shape="rect" title="Loads and sanitizes settings from the SettingsRecord object and applies them to the current session." alt="" coords="5,5,195,48"/>
+<area shape="rect" href="../../db/d05/class_file_surfer_1_1_file_surfer_settings.html#ab2ba8d0386a031433cf5e0cac94da4e2" title=" " alt="" coords="243,5,432,48"/>
+<area shape="poly" title=" " alt="" coords="195,24,227,24,227,29,195,29"/>
+</map>
+</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../db/d05/class_file_surfer_1_1_file_surfer_settings_a3134ab4ba806922fdbc1acb839c0f31b_icgraph.png" border="0" usemap="#adb/d05/class_file_surfer_1_1_file_surfer_settings_a3134ab4ba806922fdbc1acb839c0f31b_icgraph" loading="lazy" alt=""/></div>
 <map name="adb/d05/class_file_surfer_1_1_file_surfer_settings_a3134ab4ba806922fdbc1acb839c0f31b_icgraph" id="adb/d05/class_file_surfer_1_1_file_surfer_settings_a3134ab4ba806922fdbc1acb839c0f31b_icgraph">
-<area shape="rect" title="Loads settings from the SettingsRecord object and applies them to the current session." alt="" coords="481,5,670,48"/>
+<area shape="rect" title="Loads and sanitizes settings from the SettingsRecord object and applies them to the current session." alt="" coords="481,5,670,48"/>
 <area shape="rect" href="../../db/d05/class_file_surfer_1_1_file_surfer_settings.html#abaac4f7bdc56e341c91443bf6a5bae01" title=" " alt="" coords="244,5,433,48"/>
 <area shape="poly" title=" " alt="" coords="465,29,434,29,434,24,465,24"/>
 <area shape="rect" href="../../d4/d0b/class_file_surfer_1_1_app.html#a34ba10ee4460d1e596aaecfa95ad7cf3" title="Invokes FileSurferSettings.LoadSettings and sets Application.RequestedThemeVariant theme." alt="" coords="5,5,196,48"/>
@@ -258,10 +351,12 @@ Here is the call graph for this function:</div>
 <div class="center"><img src="../../db/d05/class_file_surfer_1_1_file_surfer_settings_abaac4f7bdc56e341c91443bf6a5bae01_cgraph.png" border="0" usemap="#adb/d05/class_file_surfer_1_1_file_surfer_settings_abaac4f7bdc56e341c91443bf6a5bae01_cgraph" loading="lazy" alt=""/></div>
 <map name="adb/d05/class_file_surfer_1_1_file_surfer_settings_abaac4f7bdc56e341c91443bf6a5bae01_cgraph" id="adb/d05/class_file_surfer_1_1_file_surfer_settings_abaac4f7bdc56e341c91443bf6a5bae01_cgraph">
 <area shape="rect" title=" " alt="" coords="5,39,195,81"/>
-<area shape="rect" href="../../db/d05/class_file_surfer_1_1_file_surfer_settings.html#a3134ab4ba806922fdbc1acb839c0f31b" title="Loads settings from the SettingsRecord object and applies them to the current session." alt="" coords="243,5,432,48"/>
+<area shape="rect" href="../../db/d05/class_file_surfer_1_1_file_surfer_settings.html#a3134ab4ba806922fdbc1acb839c0f31b" title="Loads and sanitizes settings from the SettingsRecord object and applies them to the current session." alt="" coords="243,5,432,48"/>
 <area shape="poly" title=" " alt="" coords="195,44,227,40,227,45,195,49"/>
 <area shape="rect" href="../../db/d05/class_file_surfer_1_1_file_surfer_settings.html#a441629c8c9d236832acd54be192f63f2" title="Saves the current settings to the settings file if any changes have been made." alt="" coords="243,72,432,115"/>
 <area shape="poly" title=" " alt="" coords="195,71,227,75,227,80,195,76"/>
+<area shape="rect" href="../../db/d05/class_file_surfer_1_1_file_surfer_settings.html#ab2ba8d0386a031433cf5e0cac94da4e2" title=" " alt="" coords="480,5,669,48"/>
+<area shape="poly" title=" " alt="" coords="432,24,464,24,464,29,432,29"/>
 </map>
 </div>
 <div class="dynheader">
@@ -270,6 +365,88 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../db/d05/class_file_surfer_1_1_file_surfer_settings_abaac4f7bdc56e341c91443bf6a5bae01_icgraph.png" border="0" usemap="#adb/d05/class_file_surfer_1_1_file_surfer_settings_abaac4f7bdc56e341c91443bf6a5bae01_icgraph" loading="lazy" alt=""/></div>
 <map name="adb/d05/class_file_surfer_1_1_file_surfer_settings_abaac4f7bdc56e341c91443bf6a5bae01_icgraph" id="adb/d05/class_file_surfer_1_1_file_surfer_settings_abaac4f7bdc56e341c91443bf6a5bae01_icgraph">
 <area shape="rect" title=" " alt="" coords="244,5,433,48"/>
+<area shape="rect" href="../../d4/d0b/class_file_surfer_1_1_app.html#a34ba10ee4460d1e596aaecfa95ad7cf3" title="Invokes FileSurferSettings.LoadSettings and sets Application.RequestedThemeVariant theme." alt="" coords="5,5,196,48"/>
+<area shape="poly" title=" " alt="" coords="228,29,196,29,196,24,228,24"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a683dab1f9566b45b434f1c4024e1f689" name="a683dab1f9566b45b434f1c4024e1f689"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a683dab1f9566b45b434f1c4024e1f689">&#9670;&#160;</a></span>SafeParseEnum&lt; TEnum &gt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TEnum FileSurfer.FileSurferSettings.SafeParseEnum&lt; TEnum &gt; </td>
+          <td>(</td>
+          <td class="paramtype">string?</td>          <td class="paramname"><span class="paramname"><em>enumValueName</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<div class="typeconstraint">
+<dl><dt><b>Type Constraints</b></dt><dd>
+<table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em>TEnum</em></td><td>&#160;:</td><td valign="top"><em>struct</em></td><td>&#160;</td></tr>
+<tr><td valign="top"><em>TEnum</em></td><td>&#160;:</td><td valign="top"><em>Enum</em></td><td>&#160;</td></tr>
+</table>
+</dd>
+</dl>
+</div>
+
+</div>
+</div>
+<a id="ab2ba8d0386a031433cf5e0cac94da4e2" name="ab2ba8d0386a031433cf5e0cac94da4e2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2ba8d0386a031433cf5e0cac94da4e2">&#9670;&#160;</a></span>SanitizeName()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">string FileSurfer.FileSurferSettings.SanitizeName </td>
+          <td>(</td>
+          <td class="paramtype">string?</td>          <td class="paramname"><span class="paramname"><em>fileName</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char[]</td>          <td class="paramname"><span class="paramname"><em>invalidChars</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string</td>          <td class="paramname"><span class="paramname"><em>defaultName</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../db/d05/class_file_surfer_1_1_file_surfer_settings_ab2ba8d0386a031433cf5e0cac94da4e2_icgraph.png" border="0" usemap="#adb/d05/class_file_surfer_1_1_file_surfer_settings_ab2ba8d0386a031433cf5e0cac94da4e2_icgraph" loading="lazy" alt=""/></div>
+<map name="adb/d05/class_file_surfer_1_1_file_surfer_settings_ab2ba8d0386a031433cf5e0cac94da4e2_icgraph" id="adb/d05/class_file_surfer_1_1_file_surfer_settings_ab2ba8d0386a031433cf5e0cac94da4e2_icgraph">
+<area shape="rect" title=" " alt="" coords="718,5,908,48"/>
+<area shape="rect" href="../../db/d05/class_file_surfer_1_1_file_surfer_settings.html#a3134ab4ba806922fdbc1acb839c0f31b" title="Loads and sanitizes settings from the SettingsRecord object and applies them to the current session." alt="" coords="481,5,670,48"/>
+<area shape="poly" title=" " alt="" coords="703,29,671,29,671,24,703,24"/>
+<area shape="rect" href="../../db/d05/class_file_surfer_1_1_file_surfer_settings.html#abaac4f7bdc56e341c91443bf6a5bae01" title=" " alt="" coords="244,5,433,48"/>
+<area shape="poly" title=" " alt="" coords="465,29,434,29,434,24,465,24"/>
 <area shape="rect" href="../../d4/d0b/class_file_surfer_1_1_app.html#a34ba10ee4460d1e596aaecfa95ad7cf3" title="Invokes FileSurferSettings.LoadSettings and sets Application.RequestedThemeVariant theme." alt="" coords="5,5,196,48"/>
 <area shape="poly" title=" " alt="" coords="228,29,196,29,196,24,228,24"/>
 </map>
@@ -373,6 +550,50 @@ Here is the caller graph for this function:</div>
       <table class="memname">
         <tr>
           <td class="memname">string FileSurfer.FileSurferSettings._previousSettingsJson = string.Empty</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a821e36fa23326a066341479ac31ae7dd" name="a821e36fa23326a066341479ac31ae7dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a821e36fa23326a066341479ac31ae7dd">&#9670;&#160;</a></span>InvalidFileNameChars</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">readonly char [] FileSurfer.FileSurferSettings.InvalidFileNameChars = Path.GetInvalidFileNameChars()</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a9423931d175062794e3019328e23ae2b" name="a9423931d175062794e3019328e23ae2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9423931d175062794e3019328e23ae2b">&#9670;&#160;</a></span>InvalidPathChars</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">readonly char [] FileSurfer.FileSurferSettings.InvalidPathChars = Path.GetInvalidPathChars()</td>
         </tr>
       </table>
   </td>
@@ -560,6 +781,50 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a id="a163d716d4f936c7151890c9cd66f59ee" name="a163d716d4f936c7151890c9cd66f59ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a163d716d4f936c7151890c9cd66f59ee">&#9670;&#160;</a></span>AutomaticRefreshIntervalLowerBound</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int FileSurfer.FileSurferSettings.AutomaticRefreshIntervalLowerBound</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel get">get</span><span class="mlabel package">package</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a68c8f2eaad1d4e9337478d12ddfeae41" name="a68c8f2eaad1d4e9337478d12ddfeae41"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a68c8f2eaad1d4e9337478d12ddfeae41">&#9670;&#160;</a></span>AutomaticRefreshIntervalUpperBound</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int FileSurfer.FileSurferSettings.AutomaticRefreshIntervalUpperBound</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel get">get</span><span class="mlabel package">package</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a8d8bef776ac63f44f796838b6e750407" name="a8d8bef776ac63f44f796838b6e750407"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8d8bef776ac63f44f796838b6e750407">&#9670;&#160;</a></span>CurrentSettings</h2>
 
@@ -680,6 +945,50 @@ Here is the caller graph for this function:</div>
 
 <p>Numerical limit before <a class="el" href="../../d0/d06/namespace_file_surfer.html">FileSurfer</a> uses the next byte unit. </p>
 <p>Defaults to <code>4096</code>. </p>
+
+</div>
+</div>
+<a id="ae035c9157723fbf665d5b943974a1bf2" name="ae035c9157723fbf665d5b943974a1bf2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae035c9157723fbf665d5b943974a1bf2">&#9670;&#160;</a></span>FileSizeUnitLimitLowerBound</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int FileSurfer.FileSurferSettings.FileSizeUnitLimitLowerBound</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel get">get</span><span class="mlabel package">package</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a2c7ece6481e68cae6925ad0d22aea09b" name="a2c7ece6481e68cae6925ad0d22aea09b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c7ece6481e68cae6925ad0d22aea09b">&#9670;&#160;</a></span>FileSizeUnitLimitUpperBound</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int FileSurfer.FileSurferSettings.FileSizeUnitLimitUpperBound</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel get">get</span><span class="mlabel package">package</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -1084,7 +1393,7 @@ Here is the caller graph for this function:</div>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>C:/Users/3dklu/Documents/PROJECTS/FileSurfer-gh-pages/src/FileSurfer/<a class="el" href="../../d4/d09/_file_surfer_settings_8cs.html">FileSurferSettings.cs</a></li>
+<li>D:/PROJECTS/FileSurfer/src/FileSurfer/<a class="el" href="../../d4/d09/_file_surfer_settings_8cs.html">FileSurferSettings.cs</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

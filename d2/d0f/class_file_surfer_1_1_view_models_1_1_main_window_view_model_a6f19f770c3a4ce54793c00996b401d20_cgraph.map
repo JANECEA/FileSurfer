@@ -1,5 +1,5 @@
 <map id="FileSurfer.ViewModels.MainWindowViewModel.SearchDirectoryAsync" name="FileSurfer.ViewModels.MainWindowViewModel.SearchDirectoryAsync">
-<area shape="rect" id="Node000001" title="Recursively searches CurrentDir and asynchronously adds matching FileSystemEntryViewModels to FileEnt..." alt="" coords="5,72,273,115"/>
+<area shape="rect" id="Node000001" title="Searches CurrentDir using a breadth first search and asynchronously adds matching FileSystemEntryView..." alt="" coords="5,72,273,115"/>
 <area shape="rect" id="Node000002" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a7878c25a1dcc722857218f1b3a4cbe2c" title=" " alt="" coords="321,5,517,48"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="231,69,311,50,312,55,232,74"/>
 <area shape="rect" id="Node000003" href="$d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#ab998b36b7a0ea309734bafc5f310a5c8" title=" " alt="" coords="327,72,511,115"/>
