@@ -16,12 +16,12 @@ Your feedback is very welcome: if you encounter any bugs or have suggestions, pl
 ## ✨ **Features**  
 All what you'd expect from a file manager plus some more:  
 
-- 📋 **Image Pasting from Clipboard**: Paste images directly from your clipboard into folders.  
-- 🕶️ **Dotfile Handling**: Treats dotfiles (e.g., `.gitignore`) as hidden files, just like on a Unix system.  
-- 🔄 **Batch Renaming**: Rename multiple files or directories at once.  
-- ⏪ **Undo & Redo**: Reverse most file operations with a simple undo/redo feature.  
-- 📁 **Saving Last Opened Directory**: Pick up where you left off.
-- 🐙 **Git Integration**: Speed up basic interactions with Git repositories directly from the app.  
+- **Image Pasting from Clipboard**: Paste images directly from your clipboard into folders.  
+- **Dotfile Handling**: Treats dotfiles (e.g., `.gitignore`) as hidden files, just like on a Unix system.  
+- **Batch Renaming**: Rename multiple files or directories at once.  
+- **Undo & Redo**: Reverse most file operations with a simple undo/redo feature.  
+- **Saving Last Opened Directory**: Pick up where you left off.
+- **Git Integration**: Speed up basic interactions with Git repositories directly from the app.  
 
 ---
 
