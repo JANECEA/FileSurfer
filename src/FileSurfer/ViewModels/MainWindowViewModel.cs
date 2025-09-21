@@ -236,7 +236,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
         GoUpCommand = ReactiveCommand.Create(GoUp);
-        ReloadCommand = ReactiveCommand.Create(Reload);
+        ReloadCommand = ReactiveCommand.Create(() => Reload(true));
         OpenPowerShellCommand = ReactiveCommand.Create(OpenPowerShell);
         CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
         NewFileCommand = ReactiveCommand.Create(NewFile);
@@ -269,7 +269,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             {
                 Interval = TimeSpan.FromMilliseconds(FileSurferSettings.AutomaticRefreshInterval),
             };
-            _lastModified = Directory.GetLastWriteTime(CurrentDir);
+            _lastModified = DateTime.Now;
             _refreshTimer.Tick += CheckForUpdates;
             _refreshTimer.Start();
         }
@@ -297,7 +297,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             if (Searching)
                 CancelSearch(dirPath);
 
-            Reload();
+            SetSearchWaterMark(dirPath);
+            Reload(true);
         }
     }
 
@@ -320,17 +321,23 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void CheckForUpdates(object? sender, EventArgs e)
     {
-        if (!Directory.Exists(CurrentDir))
-            return;
-
-        DateTime latestModified = Directory.GetLastWriteTime(CurrentDir);
-        if (latestModified > _lastModified)
+        if (Directory.Exists(CurrentDir))
         {
-            _lastModified = latestModified;
-            Reload();
+            if (CompareSetLastWriteTime())
+                Reload(true);
+            else if (IsVersionControlled)
+                Reload(false);
         }
-        else if (IsVersionControlled)
-            Reload();
+    }
+
+    private bool CompareSetLastWriteTime()
+    {
+        DateTime lastWriteTime = Directory.GetLastWriteTime(CurrentDir);
+        if (lastWriteTime <= _lastModified)
+            return false;
+
+        _lastModified = lastWriteTime;
+        return true;
     }
 
     /// <summary>
@@ -343,7 +350,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </para>
     /// Sets <see cref="SearchWaterMark"/>.
     /// </summary>
-    private void Reload()
+    private void Reload(bool forceHardReload = false)
     {
         if (Searching)
             return;
@@ -353,21 +360,19 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (CurrentDir == ThisPCLabel)
             ShowDrives();
         else if (Directory.Exists(CurrentDir))
-            LoadDirEntries();
+            LoadEntries(forceHardReload);
         else
         {
             ForwardError($"Directory: \"{CurrentDir}\" does not exist.");
             SetCurrentDir(GetClosestExistingParent(CurrentDir));
+            return;
         }
 
         ShowInfoMessage = FileEntries.Count == 0;
         if (ShowInfoMessage)
             CurrentInfoMessage = "This directory is empty";
 
-        SetSearchWaterMark();
-
-        if (FileSurferSettings.AutomaticRefresh)
-            _lastModified = DateTime.Now;
+        _lastModified = DateTime.Now;
     }
 
     private string GetClosestExistingParent(string dirPath)
@@ -382,30 +387,25 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Opens a new <see cref="Views.ErrorWindow"/> dialog.
+    /// Opens a new <see cref="ErrorWindow"/> dialog.
     /// </summary>
     private void ForwardError(string? errorMessage)
     {
         if (!string.IsNullOrEmpty(errorMessage))
             Dispatcher.UIThread.Post(() =>
             {
-                new Views.ErrorWindow { ErrorMessage = errorMessage }.Show();
+                new ErrorWindow { ErrorMessage = errorMessage }.Show();
             });
     }
 
     /// <summary>
-    /// Opens a new <see cref="Views.ErrorWindow"/> dialog if the result is failed.
+    /// Opens a new <see cref="ErrorWindow"/> dialog if the result is failed.
     /// </summary>
     private void ForwardIfError(IResult result)
     {
-        if (result.IsOk)
-            return;
-
-        foreach (string errorMessage in result.Errors)
-            Dispatcher.UIThread.Post(() =>
-            {
-                new Views.ErrorWindow { ErrorMessage = errorMessage }.Show();
-            });
+        if (!result.IsOk)
+            foreach (string errorMessage in result.Errors)
+                ForwardError(errorMessage);
     }
 
     /// <summary>
@@ -418,10 +418,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private bool IsValidDirectory(string path) =>
         path == ThisPCLabel || (!string.IsNullOrEmpty(path) && Directory.Exists(path));
 
-    private void SetSearchWaterMark()
+    private void SetSearchWaterMark(string dirPath)
     {
-        string? dirName = Path.GetFileName(CurrentDir);
-        dirName = string.IsNullOrEmpty(dirName) ? Path.GetPathRoot(CurrentDir) : dirName;
+        string? dirName = Path.GetFileName(dirPath);
+        dirName = string.IsNullOrEmpty(dirName) ? Path.GetPathRoot(dirPath) : dirName;
         SearchWaterMark = $"Search {dirName}";
     }
 
@@ -599,6 +599,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             FileEntries.Add(drive);
     }
 
+    private void LoadEntries(bool forceHardReload)
+    {
+        if (forceHardReload || CompareSetLastWriteTime())
+            LoadDirEntries();
+        else if (IsVersionControlled)
+            foreach (FileSystemEntryViewModel entry in FileEntries)
+                entry.UpdateVCStatus(GetVCStatus(entry.PathToEntry));
+    }
+
     private void LoadDirEntries()
     {
         IList<string> dirPaths = _fileInfoProvider.GetPathDirs(
@@ -614,21 +623,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (FileSurferSettings.TreatDotFilesAsHidden && !FileSurferSettings.ShowHiddenFiles)
             RemoveDotFiles(ref dirPaths, ref filePaths);
 
-        if (FileEntries.EntriesEqual(dirPaths, filePaths))
-        {
-            foreach (FileSystemEntryViewModel entry in FileEntries)
-                entry.UpdateVCStatus(GetVCStatus(entry.PathToEntry));
-            return;
-        }
-
-        FileSystemEntryViewModel[] directories = dirPaths.ConvertToArray(path =>
+        FileSystemEntryViewModel[] dirs = dirPaths.ConvertToArray(path =>
             _entryVMFactory.Directory(path, GetVCStatus(path))
         );
         FileSystemEntryViewModel[] files = filePaths.ConvertToArray(path =>
             _entryVMFactory.File(path, GetVCStatus(path))
         );
 
-        AddEntries(directories, files);
+        AddEntries(dirs, files);
     }
 
     private VCStatus GetVCStatus(string path) =>
@@ -643,16 +645,13 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Adds directories and files to <see cref="FileEntries"/>.
     /// </summary>
-    private void AddEntries(
-        FileSystemEntryViewModel[] directories,
-        FileSystemEntryViewModel[] files
-    )
+    private void AddEntries(FileSystemEntryViewModel[] dirs, FileSystemEntryViewModel[] files)
     {
         if (SortBy is not SortBy.Name)
             SortInPlace(files, SortBy);
 
         if (SortBy is not SortBy.Name and not SortBy.Type and not SortBy.Size)
-            SortInPlace(directories, SortBy);
+            SortInPlace(dirs, SortBy);
 
         HashSet<string>? selectedPaths = null;
         if (SelectedFiles.Count > 0)
@@ -660,11 +659,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         FileEntries.Clear();
         if (!SortReversed || SortBy is SortBy.Type or SortBy.Size)
-            for (int i = 0; i < directories.Length; i++)
-                FileEntries.Add(directories[i]);
+            for (int i = 0; i < dirs.Length; i++)
+                FileEntries.Add(dirs[i]);
         else
-            for (int i = directories.Length - 1; i >= 0; i--)
-                FileEntries.Add(directories[i]);
+            for (int i = dirs.Length - 1; i >= 0; i--)
+                FileEntries.Add(dirs[i]);
 
         if (!SortReversed)
             for (int i = 0; i < files.Length; i++)
@@ -1076,7 +1075,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <para>
     /// Adds the appropriate <see cref="IUndoableFileOperation"/> to <see cref="_pathHistory"/> if the operation was a success.
     /// </para>
-    /// Invokes <see cref="Reload()"/>.
+    /// Invokes <see cref="Reload"/>.
     /// </summary>
     private void Paste()
     {
@@ -1242,7 +1241,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         SortReversed = SortBy == sortBy && !SortReversed;
         SortBy = sortBy;
-        Reload();
+        Reload(true);
     }
 
     /// <summary>
