@@ -2,8 +2,8 @@ namespace FileSurfer.Models.FileOperations.Undoable;
 
 public abstract class UndoableOperation : IUndoableFileOperation
 {
-    protected readonly IFileIOHandler FileIOHandler;
-    protected readonly IFileSystemEntry[] Entries;
+    protected IFileIOHandler FileIOHandler { get; }
+    protected IFileSystemEntry[] Entries { get; }
 
     protected UndoableOperation(IFileIOHandler fileIOHandler, IFileSystemEntry[] entries)
     {

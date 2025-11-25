@@ -22,10 +22,6 @@
         <StyleInclude Source="avares://FileSurfer/Views/MainWindowStyle.axaml"/>
     </Window.Styles>
 
-    <Window.Resources>
-        <views:SortArrowConverter x:Key="SortArrowConverter"/>
-    </Window.Resources>
-
     <Window.KeyBindings>
         <KeyBinding Gesture="Shift+Delete" Command="{Binding DeleteCommand}"/>
         <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}"/>
@@ -37,6 +33,8 @@
     </Window.KeyBindings>
 
     <Window.Resources>
+        <views:SortArrowConverter x:Key="SortArrowConverter"/>
+
         <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type viewmodels:FileSystemEntryViewModel}">
             <Grid ColumnDefinitions="30 360 160 130 90 *" Height="30">
                 <Image Source="{Binding Icon}" Grid.Column="0" Width="20" Height="20" Margin="0 0 12 0" Opacity="{Binding Opacity}"/>
@@ -47,6 +45,7 @@
                 <CheckBox Classes="StagedCheckbox" Grid.Column="5" IsVisible="{Binding VersionControlled}" IsChecked="{Binding Staged}" Click="StagedToggle"/>
             </Grid>
         </DataTemplate>
+
         <DataTemplate x:Key="IconViewTemplate" x:DataType="{x:Type viewmodels:FileSystemEntryViewModel}">
             <StackPanel Width="80" Spacing="10">
                 <Image Source="{Binding Icon}" Width="60" Height="60" Margin="5 5 5 2" Opacity="{Binding Opacity}"/>

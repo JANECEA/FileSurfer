@@ -1,3 +1,4 @@
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using FileSurfer.ViewModels;
@@ -7,7 +8,7 @@ namespace FileSurfer.Views;
 /// <summary>
 /// Represents the settings window in the context of the <see cref="FileSurfer"/> app.
 /// </summary>
-public partial class SettingsWindow : MainWindow
+public partial class SettingsWindow : Window
 {
     /// <summary>
     /// Creates a new <see cref="SettingsWindow"/>.

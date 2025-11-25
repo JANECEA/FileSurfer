@@ -10,7 +10,7 @@ internal sealed class UndoRedoHandler<T>
     /// <summary>
     /// Nested class representing a node in the <see cref="UndoRedoHandler{T}"/> chain.
     /// </summary>
-    private class UndoRedoNode
+    private sealed class UndoRedoNode
     {
         internal T? Data;
         internal UndoRedoNode? Previous;
