@@ -1,6 +1,6 @@
 ﻿namespace FileSurfer.Models.Shell;
 
-public interface IFileRestorer
+public interface IBinInteraction
 {
     /// <summary>
     /// Moves a file to the trash.

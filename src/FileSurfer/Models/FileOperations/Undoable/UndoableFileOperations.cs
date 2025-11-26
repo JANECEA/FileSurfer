@@ -11,10 +11,10 @@ namespace FileSurfer.Models.FileOperations.Undoable;
 /// </summary>
 public class MoveFilesToTrash : UndoableOperation
 {
-    private IFileRestorer _fileRestorer;
+    private IBinInteraction _fileRestorer;
 
     public MoveFilesToTrash(
-        IFileRestorer fileRestorer,
+        IBinInteraction fileRestorer,
         IFileIOHandler fileIOHandler,
         IFileSystemEntry[] entries
     )

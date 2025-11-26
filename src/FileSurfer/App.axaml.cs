@@ -83,7 +83,7 @@ public partial class App : Application
         return new MainWindowViewModel(
             initialDir,
             fileIOHandler,
-            new WindowsFileRestorer(FileSurferSettings.ShowDialogLimitB, fileInfoProvider),
+            new WindowsBinInteraction(FileSurferSettings.ShowDialogLimitB, fileInfoProvider),
             new WindowsFileProperties(),
             fileInfoProvider,
             shellHandler,

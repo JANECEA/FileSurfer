@@ -42,7 +42,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private string ThisPCLabel => FileSurferSettings.ThisPCLabel;
 
     private readonly IFileIOHandler _fileIOHandler;
-    private readonly IFileRestorer _fileRestorer;
+    private readonly IBinInteraction _fileRestorer;
     private readonly IFileInfoProvider _fileInfoProvider;
     private readonly IFileProperties _fileProperties;
     private readonly IShellHandler _shellHandler;
@@ -215,7 +215,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public MainWindowViewModel(
         string initialDir,
         IFileIOHandler fileIOHandler,
-        IFileRestorer fileRestorer,
+        IBinInteraction fileRestorer,
         IFileProperties fileProperties,
         IFileInfoProvider fileInfoProvider,
         IShellHandler shellHandler,

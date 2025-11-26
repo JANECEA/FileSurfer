@@ -11,7 +11,7 @@ namespace FileSurfer.Models.Shell;
 /// Interacts with the Windows <see cref="Shell"/> and <see cref="System.Runtime.InteropServices"/>
 /// in order to restore files and directories from the system trash.
 /// </summary>
-public class WindowsFileRestorer : IFileRestorer
+public class WindowsBinInteraction : IBinInteraction
 {
     private const int BinFolderID = 10;
     private const int NameColumn = 0;
@@ -21,7 +21,7 @@ public class WindowsFileRestorer : IFileRestorer
     private readonly long _showDialogLimit;
     private readonly IFileInfoProvider _fileInfoProvider;
 
-    public WindowsFileRestorer(long showDialogLimit, IFileInfoProvider fileInfoProvider)
+    public WindowsBinInteraction(long showDialogLimit, IFileInfoProvider fileInfoProvider)
     {
         _fileInfoProvider = fileInfoProvider;
         _showDialogLimit = showDialogLimit;
