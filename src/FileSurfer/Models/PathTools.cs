@@ -8,10 +8,8 @@ internal static class PathTools
 {
     public static char DirSeparator { get; } = Path.DirectorySeparatorChar;
     public static char OtherSeparator { get; } = OperatingSystem.IsWindows() ? '/' : DirSeparator;
-
-    private static readonly StringComparison Comparison = OperatingSystem.IsWindows()
-        ? StringComparison.OrdinalIgnoreCase
-        : StringComparison.Ordinal;
+    public static StringComparison Comparison { get; } =
+        OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 
     internal static string NormalizePath(string path)
     {
