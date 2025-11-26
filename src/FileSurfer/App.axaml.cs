@@ -74,13 +74,17 @@ public partial class App : Application
     private static MainWindowViewModel GetViewModel(string initialDir)
     {
         WindowsFileInfoProvider fileInfoProvider = new();
-        WindowsFileIOHandler fileIOHandler =
-            new(fileInfoProvider, new WindowsFileRestorer(), FileSurferSettings.ShowDialogLimitB);
+        WindowsFileIOHandler fileIOHandler = new(
+            fileInfoProvider,
+            new WindowsFileRestorer(),
+            FileSurferSettings.ShowDialogLimitB
+        );
         WindowsShellHandler shellHandler = new();
 
         return new MainWindowViewModel(
             initialDir,
             fileIOHandler,
+            new WindowsFileProperties(),
             fileInfoProvider,
             shellHandler,
             new GitVersionControl(shellHandler),
