@@ -69,30 +69,6 @@ public interface IFileIOHandler
     public IResult DuplicateDir(string dirPath, string copyName);
 
     /// <summary>
-    /// Moves a file to the trash.
-    /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult MoveFileToTrash(string filePath);
-
-    /// <summary>
-    /// Moves a directory to the trash.
-    /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult MoveDirToTrash(string dirPath);
-
-    /// <summary>
-    /// Restores a file from the trash to its original location.
-    /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult RestoreFile(string ogFilePath);
-
-    /// <summary>
-    /// Restores a directory from the trash to its original location.
-    /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult RestoreDir(string ogDirPath);
-
-    /// <summary>
     /// Deletes a file permanently.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>

@@ -76,7 +76,6 @@ public partial class App : Application
         WindowsFileInfoProvider fileInfoProvider = new();
         WindowsFileIOHandler fileIOHandler = new(
             fileInfoProvider,
-            new WindowsFileRestorer(),
             FileSurferSettings.ShowDialogLimitB
         );
         WindowsShellHandler shellHandler = new();
@@ -84,6 +83,7 @@ public partial class App : Application
         return new MainWindowViewModel(
             initialDir,
             fileIOHandler,
+            new WindowsFileRestorer(FileSurferSettings.ShowDialogLimitB, fileInfoProvider),
             new WindowsFileProperties(),
             fileInfoProvider,
             shellHandler,

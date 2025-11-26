@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Linq;
 using FileSurfer.Models.FileInformation;
-using FileSurfer.Models.Shell;
 using Microsoft.VisualBasic.FileIO;
 
 namespace FileSurfer.Models.FileOperations;
@@ -13,17 +12,11 @@ namespace FileSurfer.Models.FileOperations;
 public class WindowsFileIOHandler : IFileIOHandler
 {
     private readonly IFileInfoProvider _fileInfoProvider;
-    private readonly IFileRestorer _fileRestorer;
     private readonly long _showDialogLimit;
 
-    public WindowsFileIOHandler(
-        IFileInfoProvider fileInfoProvider,
-        IFileRestorer fileRestorer,
-        long showDialogLimit
-    )
+    public WindowsFileIOHandler(IFileInfoProvider fileInfoProvider, long showDialogLimit)
     {
         _fileInfoProvider = fileInfoProvider;
-        _fileRestorer = fileRestorer;
         _showDialogLimit = showDialogLimit;
     }
 
@@ -68,48 +61,6 @@ public class WindowsFileIOHandler : IFileIOHandler
             return SimpleResult.Error(ex.Message);
         }
     }
-
-    public IResult MoveFileToTrash(string filePath)
-    {
-        try
-        {
-            FileSystem.DeleteFile(
-                filePath,
-                _fileInfoProvider.GetFileSizeB(filePath) > _showDialogLimit
-                    ? UIOption.AllDialogs
-                    : UIOption.OnlyErrorDialogs,
-                RecycleOption.SendToRecycleBin,
-                UICancelOption.ThrowException
-            );
-            return SimpleResult.Ok();
-        }
-        catch (Exception ex)
-        {
-            return SimpleResult.Error(ex.Message);
-        }
-    }
-
-    public IResult MoveDirToTrash(string dirPath)
-    {
-        try
-        {
-            FileSystem.DeleteDirectory(
-                dirPath,
-                UIOption.AllDialogs,
-                RecycleOption.SendToRecycleBin,
-                UICancelOption.ThrowException
-            );
-            return SimpleResult.Ok();
-        }
-        catch (Exception ex)
-        {
-            return SimpleResult.Error(ex.Message);
-        }
-    }
-
-    public IResult RestoreFile(string ogFilePath) => _fileRestorer.RestoreFile(ogFilePath);
-
-    public IResult RestoreDir(string ogDirPath) => _fileRestorer.RestoreDir(ogDirPath);
 
     public IResult NewFileAt(string dirPath, string fileName)
     {
