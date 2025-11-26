@@ -98,16 +98,17 @@ internal static class FileSurferSettings
     public const long ShowDialogLimitB = 250 * 1024 * 1024; // 250 MiB
     private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
     private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
-    private static readonly JsonSerializerOptions SerializerOptions =
-        new()
-        {
-            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-            WriteIndented = true,
-            UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
-            AllowTrailingCommas = true,
-        };
-    private static readonly string SettingsFileDir =
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\FileSurfer";
+    private static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        WriteIndented = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
+        AllowTrailingCommas = true,
+    };
+    private static readonly string FileSurferDataDir = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "FileSurfer"
+    );
 
     /// <summary>
     /// Returns the default set of settings for the <see cref="FileSurfer"/> app.
@@ -147,7 +148,8 @@ internal static class FileSurferSettings
     /// <summary>
     /// The full path to settings.json.
     /// </summary>
-    public static readonly string SettingsFilePath = SettingsFileDir + "\\settings.json";
+    public static readonly string SettingsFilePath = Path.Combine(FileSurferDataDir, "settings.json");
+
     private static string _previousSettingsJson = string.Empty;
 
     /// <summary>
@@ -401,8 +403,8 @@ internal static class FileSurferSettings
         SettingsRecord settings = CurrentSettings;
         string settingsJson = JsonSerializer.Serialize(settings, SerializerOptions);
 
-        if (!Directory.Exists(SettingsFileDir))
-            Directory.CreateDirectory(SettingsFileDir);
+        if (!Directory.Exists(FileSurferDataDir))
+            Directory.CreateDirectory(FileSurferDataDir);
 
         if (_previousSettingsJson != settingsJson)
             File.WriteAllText(SettingsFilePath, settingsJson, Encoding.UTF8);
