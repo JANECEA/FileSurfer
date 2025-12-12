@@ -11,6 +11,13 @@ internal static class PathTools
     public static StringComparison Comparison { get; } =
         OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 
+    /// <summary>
+    /// Normalizes the given path to an absolute path without redundant separators and without a trailing separator
+    /// <para/>
+    /// Separators at root level paths are kept.
+    /// </summary>
+    /// <param name="path">Path to normalize</param>
+    /// <returns>Normalized path</returns>
     internal static string NormalizePath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
