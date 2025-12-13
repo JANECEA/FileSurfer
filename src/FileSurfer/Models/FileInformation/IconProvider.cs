@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using Avalonia.Media.Imaging;
@@ -12,14 +11,12 @@ namespace FileSurfer.Models.FileInformation;
 /// </summary>
 public class IconProvider : IIconProvider, IDisposable
 {
-    private static readonly Bitmap DirectoryIcon =
-        new(
-            Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/FolderIcon.png"))
-        );
-    private static readonly Bitmap DriveIcon =
-        new(
-            Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/DriveIcon.png"))
-        );
+    private static readonly Bitmap DirectoryIcon = new(
+        Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/FolderIcon.png"))
+    );
+    private static readonly Bitmap DriveIcon = new(
+        Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/DriveIcon.png"))
+    );
     private static readonly IReadOnlyList<string> HaveUniqueIcons =
     [
         ".exe",
@@ -67,13 +64,8 @@ public class IconProvider : IIconProvider, IDisposable
 
     private Bitmap? RetrieveFileIcon(string filePath)
     {
-        if ( _fileInfoProvider.GetFileIcon(filePath) is not System.Drawing.Bitmap bitmap)
-            return null;
-
-        using MemoryStream stream = new();
-        bitmap.Save(stream, ImageFormat.Png);
-        stream.Position = 0;
-        return new Bitmap(stream);
+        using MemoryStream? bitmapStream = _fileInfoProvider.GetFileIconStream(filePath);
+        return bitmapStream is not null ? new Bitmap(bitmapStream) : null;
     }
 
     /// <inheritdoc/>
@@ -85,8 +77,8 @@ public class IconProvider : IIconProvider, IDisposable
     public void Dispose()
     {
         _genericFileIcon?.Dispose();
-        DirectoryIcon.Dispose(); 
-        DriveIcon.Dispose(); 
+        DirectoryIcon.Dispose();
+        DriveIcon.Dispose();
 
         foreach (var icon in _icons.Values)
             icon.Dispose();

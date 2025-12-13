@@ -148,7 +148,10 @@ internal static class FileSurferSettings
     /// <summary>
     /// The full path to settings.json.
     /// </summary>
-    public static readonly string SettingsFilePath = Path.Combine(FileSurferDataDir, "settings.json");
+    public static readonly string SettingsFilePath = Path.Combine(
+        FileSurferDataDir,
+        "settings.json"
+    );
 
     private static string _previousSettingsJson = string.Empty;
 

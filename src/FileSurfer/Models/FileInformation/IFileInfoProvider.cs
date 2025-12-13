@@ -56,9 +56,11 @@ public interface IFileInfoProvider
 
     /// <summary>
     /// Gets the icon associated with a file.
+    /// <para/>
+    /// Stream must be disposed by caller.
     /// </summary>
     /// <returns>The file's icon, or <see langword="null"/> if the icon cannot be retrieved.</returns>
-    public System.Drawing.Bitmap? GetFileIcon(string path);
+    public MemoryStream? GetFileIconStream(string path);
 
     /// <summary>
     /// Checks if a path is hidden.

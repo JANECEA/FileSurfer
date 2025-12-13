@@ -97,11 +97,20 @@ public class WindowsFileInfoProvider : IFileInfoProvider
         }
     }
 
-    public Bitmap? GetFileIcon(string path)
+    public MemoryStream? GetFileIconStream(string path)
     {
         try
         {
-            return Icon.ExtractAssociatedIcon(path)?.ToBitmap();
+            using Icon? icon = Icon.ExtractAssociatedIcon(path);
+            if (icon == null)
+                return null;
+
+            using Bitmap bitmap = icon.ToBitmap();
+            MemoryStream memoryStream = new();
+            bitmap.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+            memoryStream.Position = 0;
+
+            return memoryStream;
         }
         catch
         {

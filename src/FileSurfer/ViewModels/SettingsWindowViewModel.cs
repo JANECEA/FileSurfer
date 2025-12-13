@@ -113,8 +113,10 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     public bool AutomaticRefresh { get; set; }
 
     public int AutomaticRefreshInterval { get; set; }
-    public int AutomaticRefreshIntervalLowerBound => FileSurferSettings.AutomaticRefreshIntervalLowerBound;
-    public int AutomaticRefreshIntervalUpperBound => FileSurferSettings.AutomaticRefreshIntervalUpperBound;
+    public int AutomaticRefreshIntervalLowerBound =>
+        FileSurferSettings.AutomaticRefreshIntervalLowerBound;
+    public int AutomaticRefreshIntervalUpperBound =>
+        FileSurferSettings.AutomaticRefreshIntervalUpperBound;
 
     public bool AllowImagePastingFromClipboard { get; set; }
 
