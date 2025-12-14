@@ -36,7 +36,6 @@ internal static class FileNameGenerator
 
     /// <summary>
     /// Finds a name available to use in all <paramref name="dirPaths"/> based on <paramref name="newName"/>.
-    /// </para>
     /// </summary>
     /// <returns><see cref="string"/> name available to use in <paramref name="directory"/>.</returns>
     public static string GetNameMultipleDirs(string newName, params string[] dirPaths)

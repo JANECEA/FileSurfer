@@ -62,11 +62,8 @@ public class IconProvider : IIconProvider, IDisposable
         return _genericFileIcon;
     }
 
-    private Bitmap? RetrieveFileIcon(string filePath)
-    {
-        using MemoryStream? bitmapStream = _fileInfoProvider.GetFileIconStream(filePath);
-        return bitmapStream is not null ? new Bitmap(bitmapStream) : null;
-    }
+    private Bitmap? RetrieveFileIcon(string filePath) =>
+        _fileInfoProvider.TryGetFileIcon(filePath, out Bitmap? bitmap) ? bitmap : null;
 
     /// <inheritdoc/>
     public Bitmap GetDirectoryIcon(string dirPath) => DirectoryIcon;
@@ -80,7 +77,7 @@ public class IconProvider : IIconProvider, IDisposable
         DirectoryIcon.Dispose();
         DriveIcon.Dispose();
 
-        foreach (var icon in _icons.Values)
+        foreach (Bitmap icon in _icons.Values)
             icon.Dispose();
 
         _icons.Clear();

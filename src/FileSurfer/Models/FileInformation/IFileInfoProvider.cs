@@ -56,11 +56,9 @@ public interface IFileInfoProvider
 
     /// <summary>
     /// Gets the icon associated with a file.
-    /// <para/>
-    /// Stream must be disposed by caller.
     /// </summary>
-    /// <returns>The file's icon, or <see langword="null"/> if the icon cannot be retrieved.</returns>
-    public MemoryStream? GetFileIconStream(string path);
+    /// <returns>True if the file's icon was successfully retrieved, false otherwise.</returns>
+    public bool TryGetFileIcon(string path, out Avalonia.Media.Imaging.Bitmap? bitmap);
 
     /// <summary>
     /// Checks if a path is hidden.
