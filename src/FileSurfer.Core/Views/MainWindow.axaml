@@ -19,7 +19,7 @@
         Title="FileSurfer">
 
     <Window.Styles>
-        <StyleInclude Source="avares://FileSurfer/Views/MainWindowStyle.axaml"/>
+        <StyleInclude Source="avares://FileSurfer.Core/Views/MainWindowStyle.axaml"/>
     </Window.Styles>
 
     <Window.KeyBindings>

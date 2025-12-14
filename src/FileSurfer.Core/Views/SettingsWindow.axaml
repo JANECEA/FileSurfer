@@ -16,7 +16,7 @@
         Background="{DynamicResource PrimaryColor}">
 
     <Window.Styles>
-        <StyleInclude Source="avares://FileSurfer/Views/SettingsWindowStyle.axaml"/>
+        <StyleInclude Source="avares://FileSurfer.Core/Views/SettingsWindowStyle.axaml"/>
     </Window.Styles>
 
     <Grid RowDefinitions="* 70">

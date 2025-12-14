@@ -14,7 +14,7 @@
         Background="{DynamicResource PrimaryColor}">
 
     <Window.Styles>
-        <StyleInclude Source="avares://FileSurfer/Views/ErrorWindowStyle.axaml"/>
+        <StyleInclude Source="avares://FileSurfer.Core/Views/ErrorWindowStyle.axaml"/>
     </Window.Styles>
 
     <Grid Classes="MainGrid" RowDefinitions="180 40">

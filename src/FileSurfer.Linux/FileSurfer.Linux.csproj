@@ -36,6 +36,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FileSurfer\FileSurfer.csproj" />
+    <ProjectReference Include="..\FileSurfer.Core\FileSurfer.Core.csproj" />
   </ItemGroup>
 </Project>

@@ -15,7 +15,7 @@
 
     <Application.Resources>
         <ResourceDictionary>
-            <FontFamily x:Key="IconFont">avares://FileSurfer/Assets/FiraCodeNerdFont-Regular.ttf#FiraCode Nerd Font</FontFamily>
+            <FontFamily x:Key="IconFont">avares://FileSurfer.Core/Assets/FiraCodeNerdFont-Regular.ttf#FiraCode Nerd Font</FontFamily>
             
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">

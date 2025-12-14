@@ -12,10 +12,10 @@ namespace FileSurfer.Models.FileInformation;
 public class WindowsIconProvider : IIconProvider, IDisposable
 {
     private static readonly Bitmap DirectoryIcon = new(
-        Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/FolderIcon.png"))
+        Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/FolderIcon.png"))
     );
     private static readonly Bitmap DriveIcon = new(
-        Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/DriveIcon.png"))
+        Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/DriveIcon.png"))
     );
     private static readonly IReadOnlyList<string> HaveUniqueIcons =
     [
