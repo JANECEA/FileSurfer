@@ -6,8 +6,7 @@ namespace FSTests;
 
 public class FileIOTests
 {
-    private readonly WindowsFileIOHandler _fileIOHandler =
-        new(new WindowsFileInfoProvider(), new WindowsFileRestorer(), 100);
+    private readonly WindowsFileIOHandler _fileIOHandler = new(new WindowsFileInfoProvider(), 100);
 
     [Fact]
     public void Renaming_File_To_Different_Capital_Letters_Works()

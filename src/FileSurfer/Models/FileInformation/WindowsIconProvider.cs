@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using Avalonia.Media.Imaging;
@@ -8,18 +7,16 @@ using Avalonia.Media.Imaging;
 namespace FileSurfer.Models.FileInformation;
 
 /// <summary>
-/// Optimizes icon delivery based on the file extension.
+/// Optimizes Windows icon delivery based on the file extension.
 /// </summary>
-public class IconProvider : IIconProvider, IDisposable
+public class WindowsIconProvider : IIconProvider, IDisposable
 {
-    private static readonly Bitmap DirectoryIcon =
-        new(
-            Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/FolderIcon.png"))
-        );
-    private static readonly Bitmap DriveIcon =
-        new(
-            Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/DriveIcon.png"))
-        );
+    private static readonly Bitmap DirectoryIcon = new(
+        Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/FolderIcon.png"))
+    );
+    private static readonly Bitmap DriveIcon = new(
+        Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/DriveIcon.png"))
+    );
     private static readonly IReadOnlyList<string> HaveUniqueIcons =
     [
         ".exe",
@@ -43,7 +40,8 @@ public class IconProvider : IIconProvider, IDisposable
     private readonly IFileInfoProvider _fileInfoProvider;
     private readonly Dictionary<string, Bitmap> _icons = new();
 
-    public IconProvider(IFileInfoProvider fileInfoProvider) => _fileInfoProvider = fileInfoProvider;
+    public WindowsIconProvider(IFileInfoProvider fileInfoProvider) =>
+        _fileInfoProvider = fileInfoProvider;
 
     /// <inheritdoc/>
     public Bitmap? GetFileIcon(string filePath)
@@ -65,16 +63,8 @@ public class IconProvider : IIconProvider, IDisposable
         return _genericFileIcon;
     }
 
-    private Bitmap? RetrieveFileIcon(string filePath)
-    {
-        if ( _fileInfoProvider.GetFileIcon(filePath) is not System.Drawing.Bitmap bitmap)
-            return null;
-
-        using MemoryStream stream = new();
-        bitmap.Save(stream, ImageFormat.Png);
-        stream.Position = 0;
-        return new Bitmap(stream);
-    }
+    private Bitmap? RetrieveFileIcon(string filePath) =>
+        _fileInfoProvider.TryGetFileIcon(filePath, out Bitmap? bitmap) ? bitmap : null;
 
     /// <inheritdoc/>
     public Bitmap GetDirectoryIcon(string dirPath) => DirectoryIcon;
@@ -85,10 +75,10 @@ public class IconProvider : IIconProvider, IDisposable
     public void Dispose()
     {
         _genericFileIcon?.Dispose();
-        DirectoryIcon.Dispose(); 
-        DriveIcon.Dispose(); 
+        DirectoryIcon.Dispose();
+        DriveIcon.Dispose();
 
-        foreach (var icon in _icons.Values)
+        foreach (Bitmap icon in _icons.Values)
             icon.Dispose();
 
         _icons.Clear();

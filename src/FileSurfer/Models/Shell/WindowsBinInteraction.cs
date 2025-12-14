@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using FileSurfer.Models.FileInformation;
+using Microsoft.VisualBasic.FileIO;
 using Shell32;
 
 namespace FileSurfer.Models.Shell;
@@ -9,12 +11,21 @@ namespace FileSurfer.Models.Shell;
 /// Interacts with the Windows <see cref="Shell"/> and <see cref="System.Runtime.InteropServices"/>
 /// in order to restore files and directories from the system trash.
 /// </summary>
-public class WindowsFileRestorer : IFileRestorer
+public class WindowsBinInteraction : IBinInteraction
 {
     private const int BinFolderID = 10;
     private const int NameColumn = 0;
     private const int PathColumn = 1;
     private const string RestoreVerb = "ESTORE";
+
+    private readonly long _showDialogLimit;
+    private readonly IFileInfoProvider _fileInfoProvider;
+
+    public WindowsBinInteraction(long showDialogLimit, IFileInfoProvider fileInfoProvider)
+    {
+        _fileInfoProvider = fileInfoProvider;
+        _showDialogLimit = showDialogLimit;
+    }
 
     public IResult RestoreFile(string originalFilePath) => RestoreEntry(originalFilePath);
 
@@ -59,6 +70,44 @@ public class WindowsFileRestorer : IFileRestorer
                 verbObject.DoIt();
                 return;
             }
+        }
+    }
+
+    public IResult MoveFileToTrash(string filePath)
+    {
+        try
+        {
+            FileSystem.DeleteFile(
+                filePath,
+                _fileInfoProvider.GetFileSizeB(filePath) > _showDialogLimit
+                    ? UIOption.AllDialogs
+                    : UIOption.OnlyErrorDialogs,
+                RecycleOption.SendToRecycleBin,
+                UICancelOption.ThrowException
+            );
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public IResult MoveDirToTrash(string dirPath)
+    {
+        try
+        {
+            FileSystem.DeleteDirectory(
+                dirPath,
+                UIOption.AllDialogs,
+                RecycleOption.SendToRecycleBin,
+                UICancelOption.ThrowException
+            );
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
         }
     }
 }

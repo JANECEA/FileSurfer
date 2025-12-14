@@ -5,14 +5,8 @@ using System.Runtime.InteropServices;
 
 namespace FileSurfer.Models.Shell;
 
-/// <summary>
-/// Provides methods to interact with Windows file properties and dialogs using Windows API calls.
-/// </summary>
-internal static class WindowsFileProperties
+public class WindowsFileProperties : IFileProperties
 {
-    /// <summary>
-    /// Used for the ShellExecuteEx API function.
-    /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
     private struct ShellExecuteInfo
     {
@@ -44,13 +38,19 @@ internal static class WindowsFileProperties
     }
 
     [DllImport("shell32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Interoperability",
+        "SYSLIB1054:Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time",
+        Justification = "Wrong suggestion."
+    )]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "CodeQuality",
+        "IDE0079:Remove unnecessary suppression",
+        Justification = "It is necessary."
+    )]
     private static extern bool ShellExecuteEx(ref ShellExecuteInfo lpExecInfo);
 
-    /// <summary>
-    /// Calls the <see cref="ShellExecuteEx(ref ShellExecuteInfo)"/> function to show the properties dialog of the specified <paramref name="filePath"/>.
-    /// </summary>
-    /// <returns><see langword="true"/> if the properties dialog was successfully shown, otherwise <see langword="false"/>.</returns>
-    public static IResult ShowFileProperties(string filePath)
+    public IResult ShowFileProperties(string filePath)
     {
         ShellExecuteInfo info = new();
         info.cbSize = Marshal.SizeOf(info);
@@ -64,11 +64,7 @@ internal static class WindowsFileProperties
             : SimpleResult.Error(new Win32Exception(Marshal.GetLastWin32Error()).Message);
     }
 
-    /// <summary>
-    /// Displays the "Open With" dialog for a specified file using <c>rundll32.exe</c>.
-    /// </summary>
-    /// <returns><see langword="true"/> if the "Open With" dialog was successfully shown; otherwise, <see langword="false"/>.</returns>
-    public static IResult ShowOpenAsDialog(string filePath)
+    public IResult ShowOpenAsDialog(string filePath)
     {
         try
         {

@@ -12,14 +12,18 @@
     <Style Selector="Button.TopLeftButton">
         <Setter Property="Height" Value="30"/>
         <Setter Property="Width" Value="30"/>
-        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Padding" Value="-7.5 0 -10 0"/>
         <Setter Property="Margin" Value="0 0 10 0"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource IconColor}"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
-    </Style>
+	</Style>
+
+    <Style Selector="Button.TopLeftButton.ArrowButton">
+        <Setter Property="Padding" Value="0"/>
+	</Style>
 
     <Style Selector="TextBox.TopTextBox">
         <Setter Property="Height" Value="30"/>
@@ -55,7 +59,7 @@
     <Style Selector="Button.CancelSearchButton">
         <Setter Property="Width" Value="30"/>
         <Setter Property="Height" Value="24"/>
-        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Padding" Value="-0.6 0 0 0"/>
         <Setter Property="Margin" Value="0 0 8 0"/>
         <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
         <Setter Property="Foreground" Value="{DynamicResource IconColor}"/>
@@ -68,17 +72,19 @@
 
     <Style Selector="TextBlock.MagnifyingGlass">
         <Setter Property="Margin" Value="0 0 12 0"/>
+        <Setter Property="Padding" Value="10"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="HorizontalAlignment" Value="Right"/>
         <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="Foreground" Value="{DynamicResource IconColor}"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
     </Style>
 
     <Style Selector="Button.FileOperationButton">
         <Setter Property="Height" Value="35"/>
         <Setter Property="Width" Value="35"/>
-        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Padding" Value="-7 0 -10 0"/>
         <Setter Property="Margin" Value="0 0 10 0"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -300,7 +306,7 @@
         <Setter Property="Height" Value="20"/>
         <Setter Property="Width" Value="20"/>
         <Setter Property="DockPanel.Dock" Value="Right"/>
-        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Padding" Value="-6.5 0 -10 0"/>
         <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
         <Setter Property="Foreground" Value="{DynamicResource IconColor}"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>

@@ -42,7 +42,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private string ThisPCLabel => FileSurferSettings.ThisPCLabel;
 
     private readonly IFileIOHandler _fileIOHandler;
+    private readonly IBinInteraction _fileRestorer;
     private readonly IFileInfoProvider _fileInfoProvider;
+    private readonly IFileProperties _fileProperties;
     private readonly IShellHandler _shellHandler;
     private readonly IVersionControl _versionControl;
     private readonly IClipboardManager _clipboardManager;
@@ -213,21 +215,23 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public MainWindowViewModel(
         string initialDir,
         IFileIOHandler fileIOHandler,
+        IBinInteraction fileRestorer,
+        IFileProperties fileProperties,
         IFileInfoProvider fileInfoProvider,
+        IIconProvider iconProvider,
         IShellHandler shellHandler,
         IVersionControl versionControl,
         IClipboardManager clipboardManager
     )
     {
         _fileIOHandler = fileIOHandler;
+        _fileRestorer = fileRestorer;
+        _fileProperties = fileProperties;
         _fileInfoProvider = fileInfoProvider;
         _shellHandler = shellHandler;
         _versionControl = versionControl;
         _clipboardManager = clipboardManager;
-        _entryVMFactory = new FileSystemEntryVMFactory(
-            _fileInfoProvider,
-            new IconProvider(_fileInfoProvider)
-        );
+        _entryVMFactory = new FileSystemEntryVMFactory(_fileInfoProvider, iconProvider);
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
         _pathHistory = new UndoRedoHandler<string>();
         SelectedFiles.CollectionChanged += UpdateSelectionInfo;
@@ -489,7 +493,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void OpenAs(FileSystemEntryViewModel entry)
     {
         if (!entry.IsDirectory)
-            ForwardIfError(WindowsFileProperties.ShowOpenAsDialog(entry.PathToEntry));
+            ForwardIfError(_fileProperties.ShowOpenAsDialog(entry.PathToEntry));
     }
 
     /// <summary>
@@ -828,8 +832,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private DispatcherTimer StartAnimationTimer()
     {
         int index = 0;
-        DispatcherTimer timer =
-            new() { Interval = TimeSpan.FromMilliseconds(SearchAnimationPeriodMS) };
+        DispatcherTimer timer = new()
+        {
+            Interval = TimeSpan.FromMilliseconds(SearchAnimationPeriodMS),
+        };
 
         timer.Tick += (_, _) =>
         {
@@ -1007,13 +1013,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SelectedFiles[^1].FileSystemEntry.NameWOExtension + ArchiveManager.ArchiveTypeExtension;
 
         ForwardIfError(
-            await Task.Run(
-                () =>
-                    ArchiveManager.ZipFiles(
-                        SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
-                        CurrentDir,
-                        FileNameGenerator.GetAvailableName(CurrentDir, archiveName)
-                    )
+            await Task.Run(() =>
+                ArchiveManager.ZipFiles(
+                    SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
+                    CurrentDir,
+                    FileNameGenerator.GetAvailableName(CurrentDir, archiveName)
+                )
             )
         );
         Reload();
@@ -1118,7 +1123,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Relays the operation to <see cref="_fileIOHandler"/>.
     /// </summary>
     public void ShowProperties(FileSystemEntryViewModel entry) =>
-        ForwardIfError(WindowsFileProperties.ShowFileProperties(entry.PathToEntry));
+        ForwardIfError(_fileProperties.ShowFileProperties(entry.PathToEntry));
 
     /// <summary>
     /// Relays the operation to <see cref="RenameOne(string)"/> or <see cref="RenameMultiple(string)"/>.
@@ -1162,12 +1167,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
         }
 
-        RenameMultiple operation =
-            new(
-                _fileIOHandler,
-                entries,
-                FileNameGenerator.GetAvailableNames(entries, namingPattern)
-            );
+        RenameMultiple operation = new(
+            _fileIOHandler,
+            entries,
+            FileNameGenerator.GetAvailableNames(entries, namingPattern)
+        );
         IResult result = operation.Invoke();
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(operation);
@@ -1185,8 +1189,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void MoveToTrash()
     {
-        MoveFilesToTrash operation =
-            new(_fileIOHandler, SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry));
+        MoveFilesToTrash operation = new(
+            _fileRestorer,
+            _fileIOHandler,
+            SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry)
+        );
 
         IResult result = operation.Invoke();
         if (result.IsOk)

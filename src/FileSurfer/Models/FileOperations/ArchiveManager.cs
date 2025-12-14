@@ -17,21 +17,30 @@ internal static class ArchiveManager
 {
     public const string ArchiveTypeExtension = ".zip";
 
+    private static readonly IReadOnlyList<string> SupportedFormats =
+    [
+        ".zip",
+        ".rar",
+        ".7z",
+        ".gzip",
+        ".tar",
+        "tar.gz",
+    ];
+
     /// <summary>
     /// Determines if the file is an archive in the context of <see cref="FileSurfer"/>.
     /// </summary>
     /// <param name="filePath">Path to the file</param>
     /// <returns><see langword="true"/> if the file has one of the supported extensions, otherwise <see langword="false"/>.</returns>
-    public static bool IsZipped(string filePath) =>
-        Path.GetExtension(filePath).ToLowerInvariant() switch
-        {
-            ".zip" => true,
-            ".rar" => true,
-            ".7z" => true,
-            ".gzip" => true,
-            ".tar" => true,
-            _ => false,
-        };
+    public static bool IsZipped(string filePath)
+    {
+        filePath = PathTools.NormalizePath(filePath);
+        foreach (string format in SupportedFormats)
+            if (filePath.EndsWith(format, PathTools.Comparison))
+                return true;
+
+        return false;
+    }
 
     /// <summary>
     /// Compresses specified file paths into a new archive.
@@ -105,8 +114,11 @@ internal static class ArchiveManager
 
             Directory.CreateDirectory(extractTo);
             using IArchive archive = ArchiveFactory.Open(archivePath);
-            ExtractionOptions extractionOptions =
-                new() { ExtractFullPath = true, Overwrite = true };
+            ExtractionOptions extractionOptions = new()
+            {
+                ExtractFullPath = true,
+                Overwrite = true,
+            };
 
             foreach (IArchiveEntry file in archive.Entries.Where(entry => !entry.IsDirectory))
                 file.WriteToDirectory(extractTo, extractionOptions);

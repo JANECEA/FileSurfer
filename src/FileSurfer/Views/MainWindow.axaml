@@ -62,8 +62,8 @@
 
     <DockPanel Background="{DynamicResource PrimaryColor}">
         <DockPanel DockPanel.Dock="Top" Height="50" Margin="10 0">
-            <Button Classes="TopLeftButton" Content="&#xF053;" HotKey="Alt+Left" Command="{Binding GoBackCommand}" ToolTip.Tip="Go Back"/>
-            <Button Classes="TopLeftButton" Content="&#xF054;" HotKey="Alt+Right" Command="{Binding GoForwardCommand}" ToolTip.Tip="Got Forward"/>
+            <Button Classes="TopLeftButton ArrowButton" Content="&#xF053;" HotKey="Alt+Left" Command="{Binding GoBackCommand}" ToolTip.Tip="Go Back"/>
+            <Button Classes="TopLeftButton ArrowButton" Content="&#xF054;" HotKey="Alt+Right" Command="{Binding GoForwardCommand}" ToolTip.Tip="Got Forward"/>
             <Button Classes="TopLeftButton" Content="&#xF01E;" HotKey="F5" Command="{Binding ReloadCommand}" ToolTip.Tip="Reload"/>
             <Button Classes="TopLeftButton" Content="&#xEBC7;" HotKey="F12" Command="{Binding OpenPowerShellCommand}" ToolTip.Tip="Open PowerShell here"/>
 

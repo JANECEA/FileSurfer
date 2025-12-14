@@ -36,8 +36,7 @@ public class GitVersionControl : IVersionControl
 
             repoRootDir = Path.GetDirectoryName(repoRootDir);
         }
-
-        if (_currentRepo?.Info.Path == gitDir + '\\')
+        if (PathTools.PathsAreEqual(_currentRepo?.Info.Path, gitDir))
         {
             SetFileStates();
             return true;
@@ -58,7 +57,10 @@ public class GitVersionControl : IVersionControl
         return false;
     }
 
-    private string? GetWorkingDir() => _currentRepo?.Info.WorkingDirectory.TrimEnd('\\');
+    private string? GetWorkingDir() =>
+        _currentRepo is not null
+            ? PathTools.NormalizePath(_currentRepo.Info.WorkingDirectory)
+            : null;
 
     public IResult DownloadChanges()
     {
@@ -116,8 +118,9 @@ public class GitVersionControl : IVersionControl
         _pathStates.Clear();
         foreach (StatusEntry? entry in repoStatus)
         {
-            string absolutePath = Path.Combine(_currentRepo.Info.WorkingDirectory, entry.FilePath)
-                .Replace('/', '\\');
+            string absolutePath = PathTools.NormalizePath(
+                Path.Combine(_currentRepo.Info.WorkingDirectory, entry.FilePath)
+            );
             VCStatus status = ConvertToVCStatus(entry.State);
             _pathStates[absolutePath] = status;
 
@@ -170,7 +173,10 @@ public class GitVersionControl : IVersionControl
 
     public VCStatus GetStatus(string filePath) =>
         _currentRepo is not null
-            ? _pathStates.GetValueOrDefault(filePath, VCStatus.NotVersionControlled)
+            ? _pathStates.GetValueOrDefault(
+                PathTools.NormalizePath(filePath),
+                VCStatus.NotVersionControlled
+            )
             : VCStatus.NotVersionControlled;
 
     public IResult StagePath(string path)
@@ -196,11 +202,7 @@ public class GitVersionControl : IVersionControl
             if (_currentRepo is null)
                 return SimpleResult.Error(MissingRepoMessage);
 
-            string relativePath = Path.GetRelativePath(
-                _currentRepo.Info.WorkingDirectory,
-                filePath
-            );
-            Commands.Unstage(_currentRepo, relativePath);
+            Commands.Unstage(_currentRepo, filePath);
             return SimpleResult.Ok();
         }
         catch (Exception ex)

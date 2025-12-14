@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using FileSurfer.Models.FileInformation;
+using FileSurfer.Models.Shell;
 
 namespace FileSurfer.Models.FileOperations.Undoable;
 
@@ -10,18 +11,27 @@ namespace FileSurfer.Models.FileOperations.Undoable;
 /// </summary>
 public class MoveFilesToTrash : UndoableOperation
 {
-    public MoveFilesToTrash(IFileIOHandler fileIOHandler, IFileSystemEntry[] entries)
-        : base(fileIOHandler, entries) { }
+    private IBinInteraction _fileRestorer;
+
+    public MoveFilesToTrash(
+        IBinInteraction fileRestorer,
+        IFileIOHandler fileIOHandler,
+        IFileSystemEntry[] entries
+    )
+        : base(fileIOHandler, entries)
+    {
+        _fileRestorer = fileRestorer;
+    }
 
     protected override IResult InvokeAction(IFileSystemEntry entry, int index) =>
         entry is DirectoryEntry
-            ? FileIOHandler.MoveDirToTrash(entry.PathToEntry)
-            : FileIOHandler.MoveFileToTrash(entry.PathToEntry);
+            ? _fileRestorer.MoveDirToTrash(entry.PathToEntry)
+            : _fileRestorer.MoveFileToTrash(entry.PathToEntry);
 
     protected override IResult UndoAction(IFileSystemEntry entry, int index) =>
         entry is DirectoryEntry
-            ? FileIOHandler.RestoreDir(entry.PathToEntry)
-            : FileIOHandler.RestoreFile(entry.PathToEntry);
+            ? _fileRestorer.RestoreDir(entry.PathToEntry)
+            : _fileRestorer.RestoreFile(entry.PathToEntry);
 }
 
 /// <summary>

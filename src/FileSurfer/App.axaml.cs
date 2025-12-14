@@ -1,5 +1,7 @@
+using System.IO;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input.Platform;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using FileSurfer.Models;
@@ -49,10 +51,12 @@ public partial class App : Application
                 ? ThemeVariant.Dark
                 : ThemeVariant.Light;
 
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = GetViewModel(initialDir ?? FileSurferSettings.OpenIn),
-            };
+            MainWindow mainWindow = new();
+            mainWindow.DataContext = GetViewModel(
+                initialDir ?? FileSurferSettings.OpenIn,
+                mainWindow
+            );
+            desktop.MainWindow = mainWindow;
             desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnMainWindowClose;
         }
         base.OnFrameworkInitializationCompleted();
@@ -71,20 +75,32 @@ public partial class App : Application
         return SimpleResult.Ok();
     }
 
-    private static MainWindowViewModel GetViewModel(string initialDir)
+    private static MainWindowViewModel GetViewModel(string initialDir, MainWindow mainWindow)
     {
         WindowsFileInfoProvider fileInfoProvider = new();
-        WindowsFileIOHandler fileIOHandler =
-            new(fileInfoProvider, new WindowsFileRestorer(), FileSurferSettings.ShowDialogLimitB);
+        WindowsFileIOHandler fileIOHandler = new(
+            fileInfoProvider,
+            FileSurferSettings.ShowDialogLimitB
+        );
         WindowsShellHandler shellHandler = new();
+        IClipboard clipboard = mainWindow.Clipboard ?? throw new InvalidDataException();
+        ClipboardManager clipboardManager = new(
+            clipboard,
+            mainWindow.StorageProvider,
+            fileIOHandler,
+            FileSurferSettings.NewImageName
+        );
 
         return new MainWindowViewModel(
             initialDir,
             fileIOHandler,
+            new WindowsBinInteraction(FileSurferSettings.ShowDialogLimitB, fileInfoProvider),
+            new WindowsFileProperties(),
             fileInfoProvider,
+            new WindowsIconProvider(fileInfoProvider),
             shellHandler,
             new GitVersionControl(shellHandler),
-            new ClipboardManager(fileIOHandler, FileSurferSettings.NewImageName)
+            clipboardManager
         );
     }
 }

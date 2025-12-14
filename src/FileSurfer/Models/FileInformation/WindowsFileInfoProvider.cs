@@ -1,7 +1,7 @@
 using System;
-using System.Drawing;
 using System.IO;
 using System.Linq;
+using Avalonia.Media.Imaging;
 
 namespace FileSurfer.Models.FileInformation;
 
@@ -97,15 +97,25 @@ public class WindowsFileInfoProvider : IFileInfoProvider
         }
     }
 
-    public Bitmap? GetFileIcon(string path)
+    public bool TryGetFileIcon(string path, out Bitmap? bitmap)
     {
+        bitmap = null;
         try
         {
-            return Icon.ExtractAssociatedIcon(path)?.ToBitmap();
+            using System.Drawing.Icon? icon = System.Drawing.Icon.ExtractAssociatedIcon(path);
+            if (icon == null)
+                return false;
+
+            using System.Drawing.Bitmap winBitmap = icon.ToBitmap();
+            using MemoryStream memoryStream = new();
+            winBitmap.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+            memoryStream.Position = 0;
+            bitmap = new Bitmap(memoryStream);
+            return true;
         }
         catch
         {
-            return null;
+            return false;
         }
     }
 
