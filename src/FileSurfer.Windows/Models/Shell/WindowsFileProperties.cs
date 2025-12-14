@@ -2,8 +2,10 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using FileSurfer.Core.Models;
+using FileSurfer.Core.Models.Shell;
 
-namespace FileSurfer.Models.Shell;
+namespace FileSurfer.Windows.Models.Shell;
 
 public class WindowsFileProperties : IFileProperties
 {

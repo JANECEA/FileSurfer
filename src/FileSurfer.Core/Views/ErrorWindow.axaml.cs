@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 
-namespace FileSurfer.Views;
+namespace FileSurfer.Core.Views;
 
 /// <summary>
 /// Represents an error dialog in the context of the <see cref="FileSurfer"/> app.
@@ -11,7 +11,7 @@ namespace FileSurfer.Views;
 public partial class ErrorWindow : Window
 {
     /// <summary>
-    /// Holds text shown in <see cref="ErrorBlock"/>.
+    /// Holds text shown in <see cref="FileSurfer.Views.ErrorWindow.ErrorBlock"/>.
     /// </summary>
     public string ErrorMessage { get; init; } = string.Empty;
 
@@ -24,7 +24,7 @@ public partial class ErrorWindow : Window
     }
 
     /// <summary>
-    /// Assigns <see cref="ErrorMessage"/> to <see cref="ErrorBlock"/> before opening.
+    /// Assigns <see cref="ErrorMessage"/> to <see cref="FileSurfer.Views.ErrorWindow.ErrorBlock"/> before opening.
     /// </summary>
     protected override void OnOpened(EventArgs e)
     {

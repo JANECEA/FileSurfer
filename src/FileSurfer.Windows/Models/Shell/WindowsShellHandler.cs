@@ -1,8 +1,10 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using FileSurfer.Core.Models;
+using FileSurfer.Core.Models.Shell;
 
-namespace FileSurfer.Models.Shell;
+namespace FileSurfer.Windows.Models.Shell;
 
 /// <summary>
 /// Windows-specific implementation of <see cref="IShellHandler"/> for shell interactions.

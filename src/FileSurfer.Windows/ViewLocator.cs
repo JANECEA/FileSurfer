@@ -1,9 +1,9 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using FileSurfer.ViewModels;
+using FileSurfer.Core.ViewModels;
 
-namespace FileSurfer;
+namespace FileSurfer.Windows;
 
 /// <summary>
 /// The ViewLocator class in Avalonia resolves and instantiates views for given view models by following a naming convention.

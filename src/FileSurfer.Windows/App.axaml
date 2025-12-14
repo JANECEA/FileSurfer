@@ -1,12 +1,13 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="FileSurfer.App"
+             x:Class="FileSurfer.Windows.App"
              xmlns:local="using:FileSurfer"
+             xmlns:windows="clr-namespace:FileSurfer.Windows"
              RequestedThemeVariant="Dark">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>
-        <local:ViewLocator/>
+        <windows:ViewLocator/>
     </Application.DataTemplates>
   
     <Application.Styles>

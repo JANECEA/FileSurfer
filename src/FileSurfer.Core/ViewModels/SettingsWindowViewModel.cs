@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using ReactiveUI;
 
-namespace FileSurfer.ViewModels;
+namespace FileSurfer.Core.ViewModels;
 
 /// <summary>
 /// The SettingsWindowViewModel is the ViewModel for the <see cref="Views.SettingsWindow"/>.

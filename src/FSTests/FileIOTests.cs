@@ -1,6 +1,5 @@
-using FileSurfer.Models.FileInformation;
-using FileSurfer.Models.FileOperations;
-using FileSurfer.Models.Shell;
+using FileSurfer.Windows.Models.FileInformation;
+using FileSurfer.Windows.Models.FileOperations;
 
 namespace FSTests;
 

@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Avalonia.Media.Imaging;
-using FileSurfer.Models;
-using FileSurfer.Models.FileInformation;
-using FileSurfer.Models.FileOperations;
-using FileSurfer.Models.VersionControl;
+using FileSurfer.Core.Models;
+using FileSurfer.Core.Models.FileInformation;
+using FileSurfer.Core.Models.FileOperations;
+using FileSurfer.Core.Models.VersionControl;
 using ReactiveUI;
 
-namespace FileSurfer.ViewModels;
+namespace FileSurfer.Core.ViewModels;
 
 /// <summary>
 /// Represents a displayable file system entry (file, directory, or drive) in the FileSurfer application.

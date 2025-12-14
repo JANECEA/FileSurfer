@@ -1,4 +1,4 @@
-namespace FileSurfer.Models.FileOperations.Undoable;
+namespace FileSurfer.Core.Models.FileOperations.Undoable;
 
 /// <summary>
 /// Represents an undoable file operation in the context of the <see cref="FileSurfer"/> app.

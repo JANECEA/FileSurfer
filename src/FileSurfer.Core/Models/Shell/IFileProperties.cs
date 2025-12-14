@@ -1,4 +1,4 @@
-﻿namespace FileSurfer.Models.Shell;
+﻿namespace FileSurfer.Core.Models.Shell;
 
 /// <summary>
 /// Provides methods to interact with file properties and dialogs

@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Avalonia.Media.Imaging;
 
-namespace FileSurfer.Models.FileInformation;
+namespace FileSurfer.Core.Models.FileInformation;
 
 public interface IIconProvider
 {

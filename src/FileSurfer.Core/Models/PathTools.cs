@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace FileSurfer.Models;
+namespace FileSurfer.Core.Models;
 
 internal static class PathTools
 {

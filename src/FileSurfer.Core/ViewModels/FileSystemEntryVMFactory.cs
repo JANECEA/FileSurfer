@@ -1,9 +1,9 @@
 using System.IO;
-using FileSurfer.Models;
-using FileSurfer.Models.FileInformation;
-using FileSurfer.Models.VersionControl;
+using FileSurfer.Core.Models;
+using FileSurfer.Core.Models.FileInformation;
+using FileSurfer.Core.Models.VersionControl;
 
-namespace FileSurfer.ViewModels;
+namespace FileSurfer.Core.ViewModels;
 
 public class FileSystemEntryVMFactory
 {

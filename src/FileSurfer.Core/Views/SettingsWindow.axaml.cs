@@ -1,9 +1,9 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using FileSurfer.ViewModels;
+using FileSurfer.Core.ViewModels;
 
-namespace FileSurfer.Views;
+namespace FileSurfer.Core.Views;
 
 /// <summary>
 /// Represents the settings window in the context of the <see cref="FileSurfer"/> app.

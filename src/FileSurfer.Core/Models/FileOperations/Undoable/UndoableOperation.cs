@@ -1,4 +1,4 @@
-namespace FileSurfer.Models.FileOperations.Undoable;
+namespace FileSurfer.Core.Models.FileOperations.Undoable;
 
 public abstract class UndoableOperation : IUndoableFileOperation
 {

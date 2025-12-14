@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Avalonia.Media.Imaging;
+using FileSurfer.Core.Models.FileInformation;
 
-namespace FileSurfer.Models.FileInformation;
+namespace FileSurfer.Windows.Models.FileInformation;
 
 /// <summary>
 /// Optimizes Windows icon delivery based on the file extension.

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FileSurfer.Models;
+namespace FileSurfer.Core.Models;
 
 /// <summary>
 /// Represents the result of an operation, indicating success or failure,

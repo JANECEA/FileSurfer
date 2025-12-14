@@ -2,7 +2,7 @@
 using Avalonia;
 using ReactiveUI.Avalonia;
 
-namespace FileSurfer;
+namespace FileSurfer.Windows;
 
 sealed class Program
 {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace FileSurfer.ViewModels;
+namespace FileSurfer.Core.ViewModels;
 
 public static class CollectionExtensions
 {

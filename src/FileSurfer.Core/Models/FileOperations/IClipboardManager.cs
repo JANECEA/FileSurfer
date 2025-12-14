@@ -1,4 +1,4 @@
-﻿namespace FileSurfer.Models.FileOperations;
+﻿namespace FileSurfer.Core.Models.FileOperations;
 
 /// <summary>
 /// Represents the layer between the <see cref="FileSurfer"/> app and the system clipboard.

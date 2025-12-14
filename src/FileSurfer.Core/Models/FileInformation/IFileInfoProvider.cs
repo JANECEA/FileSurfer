@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace FileSurfer.Models.FileInformation;
+namespace FileSurfer.Core.Models.FileInformation;
 
 /// <summary>
 /// Defines methods for retrieving file and directory information.

@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FileSurfer.Models.FileInformation;
+using FileSurfer.Core.Models.FileInformation;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
 using SharpCompress.Writers;
 
-namespace FileSurfer.Models.FileOperations;
+namespace FileSurfer.Core.Models.FileOperations;
 
 /// <summary>
 /// Handles interactions with archives using the <see cref="SharpCompress"/> package.

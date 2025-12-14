@@ -1,11 +1,13 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using FileSurfer.Models.FileInformation;
+using FileSurfer.Core.Models;
+using FileSurfer.Core.Models.FileInformation;
+using FileSurfer.Core.Models.Shell;
 using Microsoft.VisualBasic.FileIO;
 using Shell32;
 
-namespace FileSurfer.Models.Shell;
+namespace FileSurfer.Windows.Models.Shell;
 
 /// <summary>
 /// Interacts with the Windows <see cref="Shell"/> and <see cref="System.Runtime.InteropServices"/>

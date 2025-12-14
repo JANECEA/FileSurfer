@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FileSurfer.Models.FileOperations;
+using FileSurfer.Core.Models.FileOperations;
 
-namespace FileSurfer.Models.FileInformation;
+namespace FileSurfer.Core.Models.FileInformation;
 
 /// <summary>
 /// Handles file and directory name validation and generation within the <see cref="FileSurfer"/> app.
@@ -56,7 +56,7 @@ public static class FileNameGenerator
 
     /// <summary>
     /// Finds a name available for a copy in the context of
-    /// <see cref="ClipboardManager.Duplicate(string, out string[])"/> operation.
+    /// <see cref="ClipboardManager.Duplicate"/> operation.
     /// </summary>
     /// <returns>Name of a copy, available to use in the path specified in: <paramref name="directory"/>.</returns>
     public static string GetCopyName(string directory, IFileSystemEntry entry) =>

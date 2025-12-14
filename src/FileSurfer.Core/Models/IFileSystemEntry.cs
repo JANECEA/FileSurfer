@@ -1,4 +1,4 @@
-namespace FileSurfer.Models;
+namespace FileSurfer.Core.Models;
 
 /// <summary>
 /// Represents a file system entry in context of the <see cref="FileSurfer"/> app.

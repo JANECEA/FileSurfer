@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using FileSurfer.ViewModels;
+using FileSurfer.Core.ViewModels;
 
-namespace FileSurfer;
+namespace FileSurfer.Core;
 
 /// <summary>
 /// Defines the display modes available in FileSurfer for viewing <see cref="FileSystemEntryViewModel"/>s.

@@ -1,4 +1,4 @@
-namespace FileSurfer.Models.FileOperations;
+namespace FileSurfer.Core.Models.FileOperations;
 
 /// <summary>
 /// Defines methods for handling file and directory operations.

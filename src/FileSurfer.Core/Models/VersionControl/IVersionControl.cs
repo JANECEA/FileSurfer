@@ -1,6 +1,6 @@
 using System;
 
-namespace FileSurfer.Models.VersionControl;
+namespace FileSurfer.Core.Models.VersionControl;
 
 /// <summary>
 /// Defines methods for interacting with a version control system withing the <see cref="FileSurfer"/> app.

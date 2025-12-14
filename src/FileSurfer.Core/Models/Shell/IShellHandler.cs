@@ -1,4 +1,4 @@
-namespace FileSurfer.Models.Shell;
+namespace FileSurfer.Core.Models.Shell;
 
 /// <summary>
 /// Represents the layer between the OS shell and the <see cref="FileSurfer"/> layer.

@@ -8,16 +8,16 @@ using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
-using FileSurfer.Models;
-using FileSurfer.Models.FileInformation;
-using FileSurfer.Models.FileOperations;
-using FileSurfer.Models.FileOperations.Undoable;
-using FileSurfer.Models.Shell;
-using FileSurfer.Models.VersionControl;
-using FileSurfer.Views;
+using FileSurfer.Core.Models;
+using FileSurfer.Core.Models.FileInformation;
+using FileSurfer.Core.Models.FileOperations;
+using FileSurfer.Core.Models.FileOperations.Undoable;
+using FileSurfer.Core.Models.Shell;
+using FileSurfer.Core.Models.VersionControl;
+using FileSurfer.Core.Views;
 using ReactiveUI;
 
-namespace FileSurfer.ViewModels;
+namespace FileSurfer.Core.ViewModels;
 
 /// <summary>
 /// The MainWindowViewModel is the ViewModel for the main window of the application.

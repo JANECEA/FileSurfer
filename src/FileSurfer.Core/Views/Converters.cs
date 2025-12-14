@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using Avalonia.Data.Converters;
 
-namespace FileSurfer.Views;
+namespace FileSurfer.Core.Views;
 
 public sealed record SortInfo(SortBy SortBy, bool SortReversed);
 

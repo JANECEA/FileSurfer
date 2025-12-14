@@ -6,9 +6,9 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.VisualTree;
-using FileSurfer.ViewModels;
+using FileSurfer.Core.ViewModels;
 
-namespace FileSurfer.Views;
+namespace FileSurfer.Core.Views;
 
 /// <summary>
 /// Represents the main <see cref="FileSurfer"/> window.
@@ -60,7 +60,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Determines if <see cref="SpecialsListBox"/> should be visible after it has been loaded.
+    /// Determines if <see cref="FileSurfer.Views.MainWindow.SpecialsListBox"/> should be visible after it has been loaded.
     /// </summary>
     private void SpecialFoldersLoaded(MainWindowViewModel viewModel)
     {
@@ -107,7 +107,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Determines the visibility of <see cref="QuickAccessListBox"/> based on its number of items.
+    /// Determines the visibility of <see cref="FileSurfer.Views.MainWindow.QuickAccessListBox"/> based on its number of items.
     /// </summary>
     private void OnQuickAccessChanged(object sender, AvaloniaPropertyChangedEventArgs e)
     {
@@ -251,7 +251,7 @@ public partial class MainWindow : Window
 
         if (_viewModel is not null && _viewModel.Searching && properties.IsMiddleButtonPressed)
         {
-            Visual? hitElement = (Visual?)FileDisplay.InputHitTest(e.GetPosition(FileDisplay));
+            Visual? hitElement = (Visual?)InputExtensions.InputHitTest(FileDisplay, e.GetPosition(FileDisplay));
             while (hitElement is not null)
             {
                 if (hitElement is ListBoxItem { DataContext: FileSystemEntryViewModel entry })
@@ -291,7 +291,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Clears <see cref="SearchBox"/> when it looses focus.
+    /// Clears <see cref="FileSurfer.Views.MainWindow.SearchBox"/> when it looses focus.
     /// </summary>
     private void SearchBoxLostFocus(object sender, RoutedEventArgs e)
     {
@@ -300,7 +300,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Shows <see cref="NewNameBar"/> and sets <see cref="NameInputBox"/> properties.
+    /// Shows <see cref="FileSurfer.Views.MainWindow.NewNameBar"/> and sets <see cref="FileSurfer.Views.MainWindow.NameInputBox"/> properties.
     /// </summary>
     private void OnRenameClicked(object sender, RoutedEventArgs e)
     {
@@ -315,7 +315,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Shows <see cref="CommitMessageBar"/> and focuses <see cref="CommitInputBox"/>.
+    /// Shows <see cref="FileSurfer.Views.MainWindow.CommitMessageBar"/> and focuses <see cref="FileSurfer.Views.MainWindow.CommitInputBox"/>.
     /// </summary>
     private void OnCommitClicked(object sender, RoutedEventArgs e)
     {
@@ -324,7 +324,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Hides <see cref="NewNameBar"/> and <see cref="CommitMessageBar"/> when either loose focus.
+    /// Hides <see cref="FileSurfer.Views.MainWindow.NewNameBar"/> and <see cref="FileSurfer.Views.MainWindow.CommitMessageBar"/> when either loose focus.
     /// <para>
     /// Invokes <see cref="TextBoxLostFocus(object?, RoutedEventArgs?)"/>.
     /// </para>
@@ -337,7 +337,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Resets text in <see cref="PathBox"/>.
+    /// Resets text in <see cref="FileSurfer.Views.MainWindow.PathBox"/>.
     /// <para>
     /// Invokes <see cref="TextBoxLostFocus(object?, RoutedEventArgs?)"/>.
     /// </para>
@@ -349,7 +349,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Relays the new name to <see cref="_viewModel"/> and hides <see cref="NewNameBar"/>.
+    /// Relays the new name to <see cref="_viewModel"/> and hides <see cref="FileSurfer.Views.MainWindow.NewNameBar"/>.
     /// </summary>
     private void NameEntered()
     {
@@ -362,8 +362,8 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// Relays the commit message to <see cref="_viewModel"/>,
-    /// hides <see cref="CommitMessageBar"/>,
-    /// and clears <see cref="CommitInputBox"/> text.
+    /// hides <see cref="FileSurfer.Views.MainWindow.CommitMessageBar"/>,
+    /// and clears <see cref="FileSurfer.Views.MainWindow.CommitInputBox"/> text.
     /// </summary>
     private void CommitMessageEntered()
     {
@@ -444,7 +444,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Toggles focus on <see cref="SearchBox"/>.
+    /// Toggles focus on <see cref="FileSurfer.Views.MainWindow.SearchBox"/>.
     /// </summary>
     private void OnCtrlFPressed(KeyEventArgs e)
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace FileSurfer.Models;
+namespace FileSurfer.Core.Models;
 
 /// <summary>
 /// Generic class for browsing <see cref="FileSurfer"/>'s history, such as file operations and visited directories.

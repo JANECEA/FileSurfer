@@ -10,6 +10,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ApplicationIcon>Assets\FileSurfer-logo.ico</ApplicationIcon>
     <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <RootNamespace>FileSurfer.Windows</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

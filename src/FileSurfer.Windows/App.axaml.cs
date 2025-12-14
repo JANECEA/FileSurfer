@@ -4,15 +4,17 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input.Platform;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
-using FileSurfer.Models;
-using FileSurfer.Models.FileInformation;
-using FileSurfer.Models.FileOperations;
-using FileSurfer.Models.Shell;
-using FileSurfer.Models.VersionControl;
-using FileSurfer.ViewModels;
-using FileSurfer.Views;
+using FileSurfer.Core;
+using FileSurfer.Core.Models;
+using FileSurfer.Core.Models.FileOperations;
+using FileSurfer.Core.Models.VersionControl;
+using FileSurfer.Core.ViewModels;
+using FileSurfer.Core.Views;
+using FileSurfer.Windows.Models.FileInformation;
+using FileSurfer.Windows.Models.FileOperations;
+using FileSurfer.Windows.Models.Shell;
 
-namespace FileSurfer;
+namespace FileSurfer.Windows;
 
 /// <summary>
 /// The App class serves as the entry point for the FileSurfer application, handling application-wide initialization and setup.

@@ -2,8 +2,9 @@ using System;
 using System.IO;
 using System.Linq;
 using Avalonia.Media.Imaging;
+using FileSurfer.Core.Models.FileInformation;
 
-namespace FileSurfer.Models.FileInformation;
+namespace FileSurfer.Windows.Models.FileInformation;
 
 public class WindowsFileInfoProvider : IFileInfoProvider
 {

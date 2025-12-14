@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace FileSurfer.Models;
+namespace FileSurfer.Core.Models;
 
 /// <summary>
 /// Lazy implementation of <see cref="IFileSystemEntry"/> for a file.

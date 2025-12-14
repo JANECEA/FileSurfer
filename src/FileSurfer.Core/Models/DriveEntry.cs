@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace FileSurfer.Models;
+namespace FileSurfer.Core.Models;
 
 /// <summary>
 /// Implementation of <see cref="IFileSystemEntry"/> for a drive.

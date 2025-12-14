@@ -1,4 +1,4 @@
-namespace FileSurfer.Models.VersionControl;
+namespace FileSurfer.Core.Models.VersionControl;
 
 /// <summary>
 /// Consolidates complex Git file handling for the <see cref="FileSurfer"/> app's UI.
