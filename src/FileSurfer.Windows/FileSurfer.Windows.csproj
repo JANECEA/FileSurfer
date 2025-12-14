@@ -8,14 +8,10 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <ApplicationIcon>Assets\FileSurfer-logo.ico</ApplicationIcon>
+    <ApplicationIcon>..\FileSurfer.Core\Assets\FileSurfer-logo.ico</ApplicationIcon>
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <RootNamespace>FileSurfer.Windows</RootNamespace>
   </PropertyGroup>
-
-  <ItemGroup>
-    <AvaloniaResource Include="Assets\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <COMReference Include="Shell32">
