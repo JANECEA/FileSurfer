@@ -7,9 +7,9 @@ using Avalonia.Media.Imaging;
 namespace FileSurfer.Models.FileInformation;
 
 /// <summary>
-/// Optimizes icon delivery based on the file extension.
+/// Optimizes Windows icon delivery based on the file extension.
 /// </summary>
-public class IconProvider : IIconProvider, IDisposable
+public class WindowsIconProvider : IIconProvider, IDisposable
 {
     private static readonly Bitmap DirectoryIcon = new(
         Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer/Assets/FolderIcon.png"))
@@ -40,7 +40,8 @@ public class IconProvider : IIconProvider, IDisposable
     private readonly IFileInfoProvider _fileInfoProvider;
     private readonly Dictionary<string, Bitmap> _icons = new();
 
-    public IconProvider(IFileInfoProvider fileInfoProvider) => _fileInfoProvider = fileInfoProvider;
+    public WindowsIconProvider(IFileInfoProvider fileInfoProvider) =>
+        _fileInfoProvider = fileInfoProvider;
 
     /// <inheritdoc/>
     public Bitmap? GetFileIcon(string filePath)

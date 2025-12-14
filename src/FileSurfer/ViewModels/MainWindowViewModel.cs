@@ -218,6 +218,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         IBinInteraction fileRestorer,
         IFileProperties fileProperties,
         IFileInfoProvider fileInfoProvider,
+        IIconProvider iconProvider,
         IShellHandler shellHandler,
         IVersionControl versionControl,
         IClipboardManager clipboardManager
@@ -230,10 +231,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _shellHandler = shellHandler;
         _versionControl = versionControl;
         _clipboardManager = clipboardManager;
-        _entryVMFactory = new FileSystemEntryVMFactory(
-            _fileInfoProvider,
-            new IconProvider(_fileInfoProvider)
-        );
+        _entryVMFactory = new FileSystemEntryVMFactory(_fileInfoProvider, iconProvider);
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
         _pathHistory = new UndoRedoHandler<string>();
         SelectedFiles.CollectionChanged += UpdateSelectionInfo;
