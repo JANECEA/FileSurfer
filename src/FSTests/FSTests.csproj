@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FileSurfer\FileSurfer.csproj" />
+    <ProjectReference Include="..\FileSurfer.Windows\FileSurfer.Windows.csproj" />
   </ItemGroup>
 
   <ItemGroup>

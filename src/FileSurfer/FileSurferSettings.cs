@@ -93,7 +93,7 @@ public record SettingsRecord
 /// Handles the loading, saving, and updating of user preferences and settings.
 /// </summary>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-internal static class FileSurferSettings
+public static class FileSurferSettings
 {
     public const long ShowDialogLimitB = 250 * 1024 * 1024; // 250 MiB
     private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();

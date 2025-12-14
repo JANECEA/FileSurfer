@@ -9,7 +9,7 @@ namespace FileSurfer.Models.FileInformation;
 /// <summary>
 /// Handles file and directory name validation and generation within the <see cref="FileSurfer"/> app.
 /// </summary>
-internal static class FileNameGenerator
+public static class FileNameGenerator
 {
     /// <summary>
     /// Finds a name available to use in <paramref name="directory"/> based on <paramref name="newName"/>.
