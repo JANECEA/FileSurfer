@@ -197,6 +197,15 @@ public class LinuxFileInfoProvider : IFileInfoProvider
     public bool IsLinkedToDirectory(string linkPath, out string? directory)
     {
         directory = null;
-        return false;
+        FileInfo fileInfo = new(linkPath);
+        if (
+            fileInfo.LinkTarget is null
+            || fileInfo.ResolveLinkTarget(true) is not { } linkTarget
+            || !linkTarget.Attributes.HasFlag(FileAttributes.Directory)
+        )
+            return false;
+
+        directory = linkTarget.FullName;
+        return true;
     }
 }
