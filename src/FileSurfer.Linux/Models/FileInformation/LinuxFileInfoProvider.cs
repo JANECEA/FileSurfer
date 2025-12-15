@@ -1,32 +1,46 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Avalonia.Media.Imaging;
+using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 
 namespace FileSurfer.Linux.Models.FileInformation;
 
 public class LinuxFileInfoProvider : IFileInfoProvider
 {
-    public DriveInfo[] GetDrives() =>
-        DriveInfo
-            .GetDrives()
-            .Where(static drive =>
-            {
-                try
-                {
-                    // For some drives retrieving these essential values throws an exception
-                    // In that case they are skipped.
-                    _ = $"{drive.Name}{drive.VolumeLabel}{drive.TotalSize}";
-                    return drive.IsReady;
-                }
-                catch
-                {
-                    return false;
-                }
-            })
-            .ToArray();
+    public DriveEntry[] GetDrives()
+    {
+        List<DriveEntry> drives = new();
+
+        foreach (string dir in Directory.GetDirectories("/sys/block"))
+        {
+            string dev = Path.GetFileName(dir);
+
+            // Skip virtual devices
+            if (dev.StartsWith("loop") || dev.StartsWith("ram"))
+                continue;
+
+            string sizePath = Path.Combine(dir, "size");
+            if (!File.Exists(sizePath))
+                continue;
+
+            // Size is in 512-byte sectors
+            long sectors = long.Parse(File.ReadAllText(sizePath).Trim());
+            long sizeBytes = sectors * 512;
+
+            string model = "Unknown";
+            string modelPath = Path.Combine(dir, "device/model");
+            if (File.Exists(modelPath))
+                model = File.ReadAllText(modelPath).Trim();
+
+            drives.Add(new DriveEntry("/dev/" + dev, model, sizeBytes));
+        }
+
+        return drives.ToArray();
+    }
 
     public string[] GetPathFiles(string path, bool includeHidden, bool includeOS)
     {

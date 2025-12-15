@@ -12,7 +12,7 @@ public interface IFileInfoProvider
     /// <summary>
     /// Gets an array of drives on the system.
     /// </summary>
-    public DriveInfo[] GetDrives();
+    public DriveEntry[] GetDrives();
 
     /// <summary>
     /// Retrieves special folder paths.

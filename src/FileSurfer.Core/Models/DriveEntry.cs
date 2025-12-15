@@ -8,12 +8,10 @@ namespace FileSurfer.Core.Models;
 public sealed class DriveEntry : IFileSystemEntry
 {
     public string PathToEntry { get; }
-
     public string Name { get; }
-
-    public string Extension => string.Empty;
-
-    public string NameWOExtension => Name;
+    string IFileSystemEntry.Extension => string.Empty;
+    string IFileSystemEntry.NameWOExtension => Name;
+    public long SizeB = 0;
 
     public DriveEntry(DriveInfo driveInfo)
     {
@@ -21,5 +19,14 @@ public sealed class DriveEntry : IFileSystemEntry
         Name = !string.IsNullOrEmpty(driveInfo.VolumeLabel)
             ? $"{driveInfo.VolumeLabel} ({driveInfo.Name.TrimEnd(Path.DirectorySeparatorChar)})"
             : driveInfo.Name.TrimEnd(Path.DirectorySeparatorChar);
+
+        SizeB = driveInfo.AvailableFreeSpace;
+    }
+
+    public DriveEntry(string pathToEntry, string name, long sizeB)
+    {
+        PathToEntry = pathToEntry;
+        Name = name;
+        SizeB = sizeB;
     }
 }

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Avalonia.Media.Imaging;
+using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 
 namespace FileSurfer.Windows.Models.FileInformation;
 
 public class WindowsFileInfoProvider : IFileInfoProvider
 {
-    public DriveInfo[] GetDrives() =>
+    public DriveEntry[] GetDrives() =>
         DriveInfo
             .GetDrives()
             .Where(static drive =>
@@ -26,6 +27,7 @@ public class WindowsFileInfoProvider : IFileInfoProvider
                     return false;
                 }
             })
+            .Select(driveInfo => new DriveEntry(driveInfo))
             .ToArray();
 
     public string[] GetPathFiles(string path, bool includeHidden, bool includeOS)
