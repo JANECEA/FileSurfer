@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace FileSurfer.Core.Models.FileInformation;
 
@@ -54,12 +53,6 @@ public interface IFileInfoProvider
     /// </summary>
     /// <returns>The last modified date of the directory, or <see langword="null"/> if the directory does not exist.</returns>
     public DateTime? GetDirLastModified(string dirPath);
-
-    /// <summary>
-    /// Gets the icon associated with a file.
-    /// </summary>
-    /// <returns>True if the file's icon was successfully retrieved, false otherwise.</returns>
-    public bool TryGetFileIcon(string path, out Avalonia.Media.Imaging.Bitmap? bitmap);
 
     /// <summary>
     /// Checks if a path is hidden.

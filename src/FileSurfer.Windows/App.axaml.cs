@@ -99,7 +99,7 @@ public partial class App : Application
             new WindowsBinInteraction(FileSurferSettings.ShowDialogLimitB, fileInfoProvider),
             new WindowsFileProperties(),
             fileInfoProvider,
-            new WindowsIconProvider(fileInfoProvider),
+            new WindowsIconProvider(),
             shellHandler,
             new GitVersionControl(shellHandler),
             clipboardManager

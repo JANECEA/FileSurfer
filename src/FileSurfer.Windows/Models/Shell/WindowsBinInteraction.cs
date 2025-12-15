@@ -5,7 +5,6 @@ using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Models.Shell;
 using Microsoft.VisualBasic.FileIO;
-using Shell32;
 
 namespace FileSurfer.Windows.Models.Shell;
 

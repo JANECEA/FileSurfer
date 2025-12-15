@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using Avalonia.Media.Imaging;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 
@@ -122,12 +121,6 @@ public class LinuxFileInfoProvider : IFileInfoProvider
             }
             yield return folderPath;
         }
-    }
-
-    public bool TryGetFileIcon(string path, out Bitmap? bitmap)
-    {
-        bitmap = null;
-        return false;
     }
 
     public long GetFileSizeB(string path)

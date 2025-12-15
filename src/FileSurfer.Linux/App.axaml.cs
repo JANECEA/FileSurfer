@@ -99,7 +99,7 @@ public partial class App : Application
             new LinuxBinInteraction(FileSurferSettings.ShowDialogLimitB, fileInfoProvider),
             new LinuxFileProperties(),
             fileInfoProvider,
-            new LinuxIconProvider(fileInfoProvider),
+            new LinuxIconProvider(),
             shellHandler,
             new GitVersionControl(shellHandler),
             clipboardManager

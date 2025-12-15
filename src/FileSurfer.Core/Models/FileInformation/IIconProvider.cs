@@ -1,5 +1,4 @@
-﻿using System.IO;
-using Avalonia.Media.Imaging;
+﻿using Avalonia.Media.Imaging;
 
 namespace FileSurfer.Core.Models.FileInformation;
 

@@ -39,36 +39,49 @@ public class WindowsIconProvider : IIconProvider, IDisposable
         ".library-ms",
         ".appref-ms",
     ];
-    private static Bitmap? _genericFileIcon;
 
-    private readonly IFileInfoProvider _fileInfoProvider;
     private readonly Dictionary<string, Bitmap> _icons = new();
-
-    public WindowsIconProvider(IFileInfoProvider fileInfoProvider) =>
-        _fileInfoProvider = fileInfoProvider;
+    private Bitmap? _genericFileIcon;
 
     /// <inheritdoc/>
     public Bitmap? GetFileIcon(string filePath)
     {
         string extension = Path.GetExtension(filePath).ToLowerInvariant();
-
         if (string.IsNullOrWhiteSpace(extension))
-            return _genericFileIcon ??= RetrieveFileIcon(filePath);
+            return _genericFileIcon ??= ExtractFileIcon(filePath);
 
         if (HaveUniqueIcons.Contains(extension))
-            return RetrieveFileIcon(filePath) ?? _genericFileIcon;
+            return ExtractFileIcon(filePath) ?? _genericFileIcon;
 
         if (_icons.TryGetValue(extension, out Bitmap? cachedIcon))
             return cachedIcon;
 
-        if (RetrieveFileIcon(filePath) is Bitmap icon)
+        if (ExtractFileIcon(filePath) is Bitmap icon)
             return _icons[extension] = icon;
 
         return _genericFileIcon;
     }
 
-    private Bitmap? RetrieveFileIcon(string filePath) =>
-        _fileInfoProvider.TryGetFileIcon(filePath, out Bitmap? bitmap) ? bitmap : null;
+    private static Bitmap? ExtractFileIcon(string path)
+    {
+        try
+        {
+            using System.Drawing.Icon? icon = System.Drawing.Icon.ExtractAssociatedIcon(path);
+            if (icon == null)
+                return false;
+
+            using System.Drawing.Bitmap winBitmap = icon.ToBitmap();
+            using MemoryStream memoryStream = new();
+            winBitmap.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+            memoryStream.Position = 0;
+            Bitmap bitmap = new(memoryStream);
+            return bitmap;
+        }
+        catch
+        {
+            return null;
+        }
+    }
 
     /// <inheritdoc/>
     public Bitmap GetDirectoryIcon(string dirPath) => DirectoryIcon;
