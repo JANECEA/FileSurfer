@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
@@ -651,11 +652,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void AddEntries(FileSystemEntryViewModel[] dirs, FileSystemEntryViewModel[] files)
     {
-        if (SortBy is not SortBy.Name)
-            SortInPlace(files, SortBy);
-
-        if (SortBy is not SortBy.Name and not SortBy.Type and not SortBy.Size)
-            SortInPlace(dirs, SortBy);
+        SortInPlace(files, SortBy);
+        SortInPlace(dirs, SortBy);
 
         HashSet<string>? selectedPaths = null;
         if (SelectedFiles.Count > 0)
@@ -679,23 +677,36 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (selectedPaths is null)
             return;
 
-        foreach (var entry in FileEntries)
+        foreach (FileSystemEntryViewModel entry in FileEntries)
             if (selectedPaths.Contains(entry.PathToEntry))
                 SelectedFiles.Add(entry);
     }
 
     private void SortInPlace(FileSystemEntryViewModel[] entries, SortBy sortBy)
     {
-        Comparison<FileSystemEntryViewModel> comparison = sortBy switch
-        {
-            SortBy.Name => (a, b) => string.CompareOrdinal(a.Name, b.Name),
-            SortBy.Date => (a, b) => DateTime.Compare(a.LastModTime, b.LastModTime),
-            SortBy.Type => (a, b) => string.CompareOrdinal(a.Type, b.Type),
-            SortBy.Size => (a, b) => (a.SizeB ?? 0).CompareTo(b.SizeB ?? 0),
-            _ => throw new ArgumentException($"Unsupported sort option: {sortBy}", nameof(sortBy)),
-        };
+        Comparison<FileSystemEntryViewModel>[] comparisons =
+        [
+            (a, b) => string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase),
+            (a, b) => DateTime.Compare(a.LastModTime, b.LastModTime),
+            (a, b) => string.Compare(a.Type, b.Type, StringComparison.OrdinalIgnoreCase),
+            (a, b) => (a.SizeB ?? 0).CompareTo(b.SizeB ?? 0),
+        ];
+        Array.Sort(entries, Comparison);
+        return;
 
-        Array.Sort(entries, comparison);
+        int Comparison(FileSystemEntryViewModel a, FileSystemEntryViewModel b)
+        {
+            Comparison<FileSystemEntryViewModel> preferred = comparisons[(int)sortBy];
+            int compVal;
+            if ((compVal = preferred(a, b)) != 0)
+                return compVal;
+
+            foreach (Comparison<FileSystemEntryViewModel> comp in comparisons)
+                if ((compVal = comp(a, b)) != 0)
+                    return compVal;
+
+            return 0;
+        }
     }
 
     /// <summary>
