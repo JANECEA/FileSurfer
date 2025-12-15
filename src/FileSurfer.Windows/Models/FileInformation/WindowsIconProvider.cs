@@ -67,8 +67,8 @@ public class WindowsIconProvider : IIconProvider, IDisposable
         try
         {
             using System.Drawing.Icon? icon = System.Drawing.Icon.ExtractAssociatedIcon(path);
-            if (icon == null)
-                return false;
+            if (icon is null)
+                return null;
 
             using System.Drawing.Bitmap winBitmap = icon.ToBitmap();
             using MemoryStream memoryStream = new();

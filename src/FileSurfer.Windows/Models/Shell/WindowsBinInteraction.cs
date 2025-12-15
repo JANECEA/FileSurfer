@@ -5,6 +5,7 @@ using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Models.Shell;
 using Microsoft.VisualBasic.FileIO;
+using Shell32;
 
 namespace FileSurfer.Windows.Models.Shell;
 
@@ -65,13 +66,11 @@ public class WindowsBinInteraction : IBinInteraction
     private static void DoVerb(FolderItem item, string verb)
     {
         foreach (FolderItemVerb verbObject in item.Verbs())
-        {
             if (verbObject.Name.Contains(verb, StringComparison.CurrentCultureIgnoreCase))
             {
                 verbObject.DoIt();
                 return;
             }
-        }
     }
 
     public IResult MoveFileToTrash(string filePath)
