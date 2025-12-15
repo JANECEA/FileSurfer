@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace FileSurfer.Core.Models.FileInformation;
@@ -16,7 +17,7 @@ public interface IFileInfoProvider
     /// <summary>
     /// Retrieves special folder paths.
     /// </summary>
-    public string[] GetSpecialFolders();
+    public IEnumerable<string> GetSpecialFolders();
 
     /// <summary>
     /// Checks if a symbolic link is referring to a directory.

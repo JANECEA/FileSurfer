@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Avalonia.Media.Imaging;
@@ -77,24 +78,31 @@ public class LinuxFileInfoProvider : IFileInfoProvider
         }
     }
 
-    public string[] GetSpecialFolders()
+    public IEnumerable<string> GetSpecialFolders()
     {
-        try
+        (Environment.SpecialFolder, string)[] folders =
+        [
+            (Environment.SpecialFolder.UserProfile, string.Empty),
+            (Environment.SpecialFolder.UserProfile, "Downloads"),
+            (Environment.SpecialFolder.MyDocuments, string.Empty),
+            (Environment.SpecialFolder.MyPictures, string.Empty),
+            (Environment.SpecialFolder.Desktop, string.Empty),
+            (Environment.SpecialFolder.MyMusic, string.Empty),
+            (Environment.SpecialFolder.MyVideos, string.Empty),
+            (Environment.SpecialFolder.Templates, string.Empty),
+        ];
+        foreach ((Environment.SpecialFolder folder, string suffix) in folders)
         {
-            return new[]
+            string folderPath;
+            try
             {
-                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Downloads",
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
-                Environment.GetFolderPath(Environment.SpecialFolder.MyMusic),
-                Environment.GetFolderPath(Environment.SpecialFolder.MyVideos),
-            };
-        }
-        catch
-        {
-            return Array.Empty<string>();
+                folderPath = Path.Combine(Environment.GetFolderPath(folder), suffix);
+            }
+            catch
+            {
+                continue;
+            }
+            yield return folderPath;
         }
     }
 
