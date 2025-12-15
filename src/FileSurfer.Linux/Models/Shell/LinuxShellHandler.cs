@@ -37,10 +37,7 @@ public class LinuxShellHandler : IShellHandler
         try
         {
             using Process process = new();
-            process.StartInfo = new ProcessStartInfo(filePath)
-            {
-                UseShellExecute = true,
-            };
+            process.StartInfo = new ProcessStartInfo(filePath) { UseShellExecute = true };
             process.Start();
             return SimpleResult.Ok();
         }
@@ -97,9 +94,7 @@ public class LinuxShellHandler : IShellHandler
         if (success)
             return SimpleResult.Ok();
 
-        return errorMessage is null
-            ? SimpleResult.Error()
-            : SimpleResult.Error(errorMessage);
+        return errorMessage is null ? SimpleResult.Error() : SimpleResult.Error(errorMessage);
     }
 
     public IResult CreateLink(string filePath)

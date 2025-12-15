@@ -27,11 +27,7 @@ public class LinuxFileInfoProvider : IFileInfoProvider
             })
             .ToArray();
 
-    public string[] GetPathFiles(
-        string path,
-        bool includeHidden,
-        bool includeOS
-    )
+    public string[] GetPathFiles(string path, bool includeHidden, bool includeOS)
     {
         try
         {
@@ -73,9 +69,7 @@ public class LinuxFileInfoProvider : IFileInfoProvider
                 )
                     directories[i] = string.Empty;
             }
-            return directories
-                .Where(dirPath => dirPath != string.Empty)
-                .ToArray();
+            return directories.Where(dirPath => dirPath != string.Empty).ToArray();
         }
         catch
         {
@@ -90,14 +84,9 @@ public class LinuxFileInfoProvider : IFileInfoProvider
             return new[]
             {
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
-                    + "\\Downloads",
-                Environment.GetFolderPath(
-                    Environment.SpecialFolder.MyDocuments
-                ),
-                Environment.GetFolderPath(
-                    Environment.SpecialFolder.ApplicationData
-                ),
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Downloads",
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
                 Environment.GetFolderPath(Environment.SpecialFolder.MyMusic),
                 Environment.GetFolderPath(Environment.SpecialFolder.MyVideos),
@@ -156,9 +145,7 @@ public class LinuxFileInfoProvider : IFileInfoProvider
         try
         {
             return isDirectory
-                ? new DirectoryInfo(path).Attributes.HasFlag(
-                    FileAttributes.Hidden
-                )
+                ? new DirectoryInfo(path).Attributes.HasFlag(FileAttributes.Hidden)
                 : new FileInfo(path).Attributes.HasFlag(FileAttributes.Hidden);
         }
         catch
@@ -172,9 +159,7 @@ public class LinuxFileInfoProvider : IFileInfoProvider
         try
         {
             return isDirectory
-                ? new DirectoryInfo(path).Attributes.HasFlag(
-                    FileAttributes.System
-                )
+                ? new DirectoryInfo(path).Attributes.HasFlag(FileAttributes.System)
                 : new FileInfo(path).Attributes.HasFlag(FileAttributes.System);
         }
         catch

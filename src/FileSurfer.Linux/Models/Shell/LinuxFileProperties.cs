@@ -63,19 +63,14 @@ public class LinuxFileProperties : IFileProperties
 
         return ShellExecuteEx(ref info)
             ? SimpleResult.Ok()
-            : SimpleResult.Error(
-                new Win32Exception(Marshal.GetLastWin32Error()).Message
-            );
+            : SimpleResult.Error(new Win32Exception(Marshal.GetLastWin32Error()).Message);
     }
 
     public IResult ShowOpenAsDialog(string filePath)
     {
         try
         {
-            Process.Start(
-                "rundll32.exe",
-                "shell32.dll,OpenAs_RunDLL " + filePath
-            );
+            Process.Start("rundll32.exe", "shell32.dll,OpenAs_RunDLL " + filePath);
             return SimpleResult.Ok();
         }
         catch (Exception ex)

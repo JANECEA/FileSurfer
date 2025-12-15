@@ -18,9 +18,7 @@ public class LinuxIconProvider : IIconProvider, IDisposable
         )
     );
     private static readonly Bitmap DriveIcon = new(
-        Avalonia.Platform.AssetLoader.Open(
-            new Uri("avares://FileSurfer.Core/Assets/DriveIcon.png")
-        )
+        Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/DriveIcon.png"))
     );
     private static readonly IReadOnlyList<string> HaveUniqueIcons =
     [
@@ -69,9 +67,7 @@ public class LinuxIconProvider : IIconProvider, IDisposable
     }
 
     private Bitmap? RetrieveFileIcon(string filePath) =>
-        _fileInfoProvider.TryGetFileIcon(filePath, out Bitmap? bitmap)
-            ? bitmap
-            : null;
+        _fileInfoProvider.TryGetFileIcon(filePath, out Bitmap? bitmap) ? bitmap : null;
 
     /// <inheritdoc/>
     public Bitmap GetDirectoryIcon(string dirPath) => DirectoryIcon;

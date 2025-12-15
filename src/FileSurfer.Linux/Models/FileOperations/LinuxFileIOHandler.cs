@@ -16,10 +16,7 @@ public class LinuxFileIOHandler : IFileIOHandler
     private readonly IFileInfoProvider _fileInfoProvider;
     private readonly long _showDialogLimit;
 
-    public LinuxFileIOHandler(
-        IFileInfoProvider fileInfoProvider,
-        long showDialogLimit
-    )
+    public LinuxFileIOHandler(IFileInfoProvider fileInfoProvider, long showDialogLimit)
     {
         _fileInfoProvider = fileInfoProvider;
         _showDialogLimit = showDialogLimit;
@@ -30,9 +27,7 @@ public class LinuxFileIOHandler : IFileIOHandler
         try
         {
             if (!File.Exists(filePath))
-                return SimpleResult.Error(
-                    $"Could not find file: \"{filePath}\""
-                );
+                return SimpleResult.Error($"Could not find file: \"{filePath}\"");
 
             FileSystem.DeleteFile(
                 filePath,
@@ -53,9 +48,7 @@ public class LinuxFileIOHandler : IFileIOHandler
         try
         {
             if (!Directory.Exists(dirPath))
-                return SimpleResult.Error(
-                    $"Could not find directory: \"{dirPath}\""
-                );
+                return SimpleResult.Error($"Could not find directory: \"{dirPath}\"");
 
             FileSystem.DeleteDirectory(
                 dirPath,
@@ -80,9 +73,7 @@ public class LinuxFileIOHandler : IFileIOHandler
         {
             string filePath = Path.Combine(dirPath, fileName);
             if (File.Exists(filePath))
-                return SimpleResult.Error(
-                    $"File: \"{filePath}\" already exists"
-                );
+                return SimpleResult.Error($"File: \"{filePath}\" already exists");
 
             using FileStream file = File.Create(filePath);
             file.Close();
@@ -98,17 +89,13 @@ public class LinuxFileIOHandler : IFileIOHandler
     public IResult NewDirAt(string dirPath, string dirName)
     {
         if (!IsValidDirName(dirName))
-            return SimpleResult.Error(
-                $"Directory name: \"{dirName}\" is invalid."
-            );
+            return SimpleResult.Error($"Directory name: \"{dirName}\" is invalid.");
 
         try
         {
             string newDirPath = Path.Combine(dirPath, dirName);
             if (Directory.Exists(newDirPath))
-                return SimpleResult.Error(
-                    $"Directory: \"{newDirPath}\" already exists"
-                );
+                return SimpleResult.Error($"Directory: \"{newDirPath}\" already exists");
 
             Directory.CreateDirectory(newDirPath);
 
@@ -123,16 +110,12 @@ public class LinuxFileIOHandler : IFileIOHandler
     private static bool IsValidFileName(string fileName) =>
         !string.IsNullOrWhiteSpace(fileName)
         && Path.GetInvalidFileNameChars()
-            .All(ch =>
-                !fileName.Contains(ch, StringComparison.OrdinalIgnoreCase)
-            );
+            .All(ch => !fileName.Contains(ch, StringComparison.OrdinalIgnoreCase));
 
     private static bool IsValidDirName(string dirName) =>
         !string.IsNullOrWhiteSpace(dirName)
         && Path.GetInvalidPathChars()
-            .All(ch =>
-                !dirName.Contains(ch, StringComparison.OrdinalIgnoreCase)
-            );
+            .All(ch => !dirName.Contains(ch, StringComparison.OrdinalIgnoreCase));
 
     public IResult RenameFileAt(string filePath, string newName)
     {
@@ -142,18 +125,10 @@ public class LinuxFileIOHandler : IFileIOHandler
         try
         {
             if (Path.GetDirectoryName(filePath) is not string parentDir)
-                return SimpleResult.Error(
-                    $"No parent directory found for \"{filePath}\""
-                );
+                return SimpleResult.Error($"No parent directory found for \"{filePath}\"");
 
             string fileName = Path.GetFileName(filePath);
-            if (
-                string.Equals(
-                    fileName,
-                    newName,
-                    StringComparison.OrdinalIgnoreCase
-                )
-            )
+            if (string.Equals(fileName, newName, StringComparison.OrdinalIgnoreCase))
             {
                 string tempName = FileNameGenerator.GetAvailableName(
                     parentDir,
@@ -181,9 +156,7 @@ public class LinuxFileIOHandler : IFileIOHandler
     public IResult RenameDirAt(string dirPath, string newName)
     {
         if (!IsValidDirName(newName))
-            return SimpleResult.Error(
-                $"Directory name: \"{newName}\" is invalid."
-            );
+            return SimpleResult.Error($"Directory name: \"{newName}\" is invalid.");
 
         try
         {
@@ -191,13 +164,7 @@ public class LinuxFileIOHandler : IFileIOHandler
                 return SimpleResult.Error($"\"{dirPath}\" is a root directory");
 
             string dirName = Path.GetFileName(dirPath);
-            if (
-                string.Equals(
-                    dirName,
-                    newName,
-                    StringComparison.OrdinalIgnoreCase
-                )
-            )
+            if (string.Equals(dirName, newName, StringComparison.OrdinalIgnoreCase))
             {
                 string tempName = FileNameGenerator.GetAvailableName(
                     parentDir,
@@ -226,10 +193,7 @@ public class LinuxFileIOHandler : IFileIOHandler
     {
         try
         {
-            string newFilePath = Path.Combine(
-                destinationDir,
-                Path.GetFileName(filePath)
-            );
+            string newFilePath = Path.Combine(destinationDir, Path.GetFileName(filePath));
             FileSystem.MoveFile(
                 filePath,
                 newFilePath,
@@ -248,10 +212,7 @@ public class LinuxFileIOHandler : IFileIOHandler
     {
         try
         {
-            string newDirPath = Path.Combine(
-                destinationDir,
-                Path.GetFileName(dirPath)
-            );
+            string newDirPath = Path.Combine(destinationDir, Path.GetFileName(dirPath));
             FileSystem.MoveDirectory(
                 dirPath,
                 newDirPath,
@@ -270,10 +231,7 @@ public class LinuxFileIOHandler : IFileIOHandler
     {
         try
         {
-            string newFilePath = Path.Combine(
-                destinationDir,
-                Path.GetFileName(filePath)
-            );
+            string newFilePath = Path.Combine(destinationDir, Path.GetFileName(filePath));
             FileSystem.CopyFile(
                 filePath,
                 newFilePath,
@@ -292,10 +250,7 @@ public class LinuxFileIOHandler : IFileIOHandler
     {
         try
         {
-            string newDirPath = Path.Combine(
-                destinationDir,
-                Path.GetFileName(dirPath)
-            );
+            string newDirPath = Path.Combine(destinationDir, Path.GetFileName(dirPath));
             FileSystem.CopyDirectory(
                 dirPath,
                 newDirPath,
@@ -312,8 +267,7 @@ public class LinuxFileIOHandler : IFileIOHandler
 
     public IResult DuplicateFile(string filePath, string copyName)
     {
-        bool showDialog =
-            _fileInfoProvider.GetFileSizeB(filePath) > _showDialogLimit;
+        bool showDialog = _fileInfoProvider.GetFileSizeB(filePath) > _showDialogLimit;
         try
         {
             if (Path.GetDirectoryName(filePath) is not string parentDir)

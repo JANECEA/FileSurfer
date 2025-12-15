@@ -41,15 +41,9 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         FileSurferSettings.LoadSettings();
-        if (
-            ApplicationLifetime
-            is IClassicDesktopStyleApplicationLifetime desktop
-        )
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            SimpleResult result = ValidateArgs(
-                desktop.Args,
-                out string? initialDir
-            );
+            SimpleResult result = ValidateArgs(desktop.Args, out string? initialDir);
             if (!result.IsOk)
             {
                 desktop.Shutdown(1);
@@ -65,18 +59,12 @@ public partial class App : Application
                 mainWindow
             );
             desktop.MainWindow = mainWindow;
-            desktop.ShutdownMode = Avalonia
-                .Controls
-                .ShutdownMode
-                .OnMainWindowClose;
+            desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnMainWindowClose;
         }
         base.OnFrameworkInitializationCompleted();
     }
 
-    private static SimpleResult ValidateArgs(
-        string[]? args,
-        out string? directory
-    )
+    private static SimpleResult ValidateArgs(string[]? args, out string? directory)
     {
         directory = null;
 
@@ -89,10 +77,7 @@ public partial class App : Application
         return SimpleResult.Ok();
     }
 
-    private static MainWindowViewModel GetViewModel(
-        string initialDir,
-        MainWindow mainWindow
-    )
+    private static MainWindowViewModel GetViewModel(string initialDir, MainWindow mainWindow)
     {
         LinuxFileInfoProvider fileInfoProvider = new();
         LinuxFileIOHandler fileIOHandler = new(
@@ -100,8 +85,7 @@ public partial class App : Application
             FileSurferSettings.ShowDialogLimitB
         );
         LinuxShellHandler shellHandler = new();
-        IClipboard clipboard =
-            mainWindow.Clipboard ?? throw new InvalidDataException();
+        IClipboard clipboard = mainWindow.Clipboard ?? throw new InvalidDataException();
         ClipboardManager clipboardManager = new(
             clipboard,
             mainWindow.StorageProvider,
@@ -112,10 +96,7 @@ public partial class App : Application
         return new MainWindowViewModel(
             initialDir,
             fileIOHandler,
-            new LinuxBinInteraction(
-                FileSurferSettings.ShowDialogLimitB,
-                fileInfoProvider
-            ),
+            new LinuxBinInteraction(FileSurferSettings.ShowDialogLimitB, fileInfoProvider),
             new LinuxFileProperties(),
             fileInfoProvider,
             new LinuxIconProvider(fileInfoProvider),

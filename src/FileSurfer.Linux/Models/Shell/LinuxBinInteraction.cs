@@ -18,20 +18,15 @@ public class LinuxBinInteraction : IBinInteraction
     private readonly long _showDialogLimit;
     private readonly IFileInfoProvider _fileInfoProvider;
 
-    public LinuxBinInteraction(
-        long showDialogLimit,
-        IFileInfoProvider fileInfoProvider
-    )
+    public LinuxBinInteraction(long showDialogLimit, IFileInfoProvider fileInfoProvider)
     {
         _fileInfoProvider = fileInfoProvider;
         _showDialogLimit = showDialogLimit;
     }
 
-    public IResult RestoreFile(string originalFilePath) =>
-        RestoreEntry(originalFilePath);
+    public IResult RestoreFile(string originalFilePath) => RestoreEntry(originalFilePath);
 
-    public IResult RestoreDir(string originalDirPath) =>
-        RestoreEntry(originalDirPath);
+    public IResult RestoreDir(string originalDirPath) => RestoreEntry(originalDirPath);
 
     private static SimpleResult RestoreEntry(string originalPath)
     {
