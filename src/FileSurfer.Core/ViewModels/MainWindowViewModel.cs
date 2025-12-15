@@ -825,8 +825,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (currentDir != ThisPCLabel)
             await SearchDirectoryAsync(currentDir, searchQuery, _searchCTS.Token);
         else
-            foreach (DriveInfo drive in _fileInfoProvider.GetDrives())
-                await SearchDirectoryAsync(drive.Name, searchQuery, _searchCTS.Token);
+            foreach (DriveEntry drive in _fileInfoProvider.GetDrives())
+                await SearchDirectoryAsync(drive.PathToEntry, searchQuery, _searchCTS.Token);
 
         timer.Stop();
         if (!_searchCTS.IsCancellationRequested)

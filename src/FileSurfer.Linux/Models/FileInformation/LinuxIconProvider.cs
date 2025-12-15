@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Avalonia.Media.Imaging;
+using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 
 namespace FileSurfer.Linux.Models.FileInformation;
@@ -73,7 +74,7 @@ public class LinuxIconProvider : IIconProvider, IDisposable
     public Bitmap GetDirectoryIcon(string dirPath) => DirectoryIcon;
 
     /// <inheritdoc/>
-    public Bitmap GetDriveIcon(DriveInfo driveInfo) => DriveIcon;
+    public Bitmap GetDriveIcon(DriveEntry driveEntry) => DriveIcon;
 
     public void Dispose()
     {

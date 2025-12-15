@@ -20,5 +20,5 @@ public interface IIconProvider
     /// <summary>
     /// Retrieves the icon associated with drives.
     /// </summary>
-    public Bitmap GetDriveIcon(DriveInfo driveInfo);
+    public Bitmap GetDriveIcon(DriveEntry driveEntry);
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace FileSurfer.Core.Models;
 
-internal static class PathTools
+public static class PathTools
 {
     public static char DirSeparator { get; } = Path.DirectorySeparatorChar;
     public static char OtherSeparator { get; } = OperatingSystem.IsWindows() ? '/' : DirSeparator;

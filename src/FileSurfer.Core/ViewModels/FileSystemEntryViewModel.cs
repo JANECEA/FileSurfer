@@ -166,14 +166,14 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// </para>
     /// </summary>
     /// <param name="iconProvider">Provides the drive icon.</param>
-    /// <param name="driveInfo">The drive information associated with this entry.</param>
-    public FileSystemEntryViewModel(IIconProvider iconProvider, DriveInfo driveInfo)
+    /// <param name="driveEntry">The drive information associated with this entry.</param>
+    public FileSystemEntryViewModel(IIconProvider iconProvider, DriveEntry driveEntry)
     {
-        FileSystemEntry = new DriveEntry(driveInfo);
+        FileSystemEntry = driveEntry;
         Type = "Drive";
-        Icon = iconProvider.GetDriveIcon(driveInfo);
+        Icon = iconProvider.GetDriveIcon(driveEntry);
         LastModified = string.Empty;
-        Size = GetSizeString(driveInfo.TotalSize);
+        Size = GetSizeString(driveEntry.SizeB);
     }
 
     internal void UpdateVCStatus(VCStatus newStatus)

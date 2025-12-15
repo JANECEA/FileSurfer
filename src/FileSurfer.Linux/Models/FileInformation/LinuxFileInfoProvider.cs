@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -13,33 +14,36 @@ public class LinuxFileInfoProvider : IFileInfoProvider
 {
     public DriveEntry[] GetDrives()
     {
-        List<DriveEntry> drives = new();
-
-        foreach (string dir in Directory.GetDirectories("/sys/block"))
+        ProcessStartInfo psi = new("lsblk", " -rnbpo LABEL,MOUNTPOINT,SIZE,TYPE")
         {
-            string dev = Path.GetFileName(dir);
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+        };
+        try
+        {
+            List<DriveEntry> drives = new();
+            Process? proc = Process.Start(psi);
+            if (proc is null)
+                return Array.Empty<DriveEntry>();
 
-            // Skip virtual devices
-            if (dev.StartsWith("loop") || dev.StartsWith("ram"))
-                continue;
+            while (proc.StandardOutput.ReadLine() is { } line)
+            {
+                string[] parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (parts is not [_, _, _, "part"])
+                    continue;
 
-            string sizePath = Path.Combine(dir, "size");
-            if (!File.Exists(sizePath))
-                continue;
-
-            // Size is in 512-byte sectors
-            long sectors = long.Parse(File.ReadAllText(sizePath).Trim());
-            long sizeBytes = sectors * 512;
-
-            string model = "Unknown";
-            string modelPath = Path.Combine(dir, "device/model");
-            if (File.Exists(modelPath))
-                model = File.ReadAllText(modelPath).Trim();
-
-            drives.Add(new DriveEntry("/dev/" + dev, model, sizeBytes));
+                string path = parts[1];
+                string friendlyName = parts[0];
+                long sizeB = long.Parse(parts[2], CultureInfo.InvariantCulture);
+                drives.Add(new DriveEntry(path, friendlyName, sizeB));
+            }
+            proc.WaitForExit();
+            return drives.ToArray();
         }
-
-        return drives.ToArray();
+        catch
+        {
+            return Array.Empty<DriveEntry>();
+        }
     }
 
     public string[] GetPathFiles(string path, bool includeHidden, bool includeOS)

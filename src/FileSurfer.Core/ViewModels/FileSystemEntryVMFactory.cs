@@ -38,5 +38,5 @@ public class FileSystemEntryVMFactory
     public FileSystemEntryViewModel File(string filePath, VCStatus vcStatus) =>
         new(_fileInfoProvider, _iconProvider, new FileEntry(filePath), vcStatus);
 
-    public FileSystemEntryViewModel Drive(DriveInfo driveInfo) => new(_iconProvider, driveInfo);
+    public FileSystemEntryViewModel Drive(DriveEntry drive) => new(_iconProvider, drive);
 }
