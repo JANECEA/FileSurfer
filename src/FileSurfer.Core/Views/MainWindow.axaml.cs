@@ -251,7 +251,8 @@ public partial class MainWindow : Window
 
         if (_viewModel is not null && _viewModel.Searching && properties.IsMiddleButtonPressed)
         {
-            Visual? hitElement = (Visual?)InputExtensions.InputHitTest(FileDisplay, e.GetPosition(FileDisplay));
+            Visual? hitElement = (Visual?)
+                InputExtensions.InputHitTest(FileDisplay, e.GetPosition(FileDisplay));
             while (hitElement is not null)
             {
                 if (hitElement is ListBoxItem { DataContext: FileSystemEntryViewModel entry })

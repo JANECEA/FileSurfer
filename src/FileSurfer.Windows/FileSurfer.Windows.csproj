@@ -11,6 +11,7 @@
     <ApplicationIcon>..\FileSurfer.Core\Assets\FileSurfer-logo.ico</ApplicationIcon>
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <RootNamespace>FileSurfer.Windows</RootNamespace>
+    <AssemblyName>FileSurfer</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
