@@ -12,9 +12,8 @@ public sealed class DirectoryEntry : IFileSystemEntry
     public string Name => _name ??= Path.GetFileName(PathToEntry);
     private string? _name;
 
-    public string Extension => string.Empty;
-
-    public string NameWOExtension => Name;
+    string IFileSystemEntry.Extension => string.Empty;
+    string IFileSystemEntry.NameWOExtension => Name;
 
     public DirectoryEntry(string dirPath) => PathToEntry = dirPath;
 }

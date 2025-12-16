@@ -9,9 +9,9 @@ public sealed class DriveEntry : IFileSystemEntry
 {
     public string PathToEntry { get; }
     public string Name { get; }
+    public long SizeB { get; }
     string IFileSystemEntry.Extension => string.Empty;
     string IFileSystemEntry.NameWOExtension => Name;
-    public long SizeB = 0;
 
     public DriveEntry(DriveInfo driveInfo)
     {
@@ -20,7 +20,7 @@ public sealed class DriveEntry : IFileSystemEntry
             ? $"{driveInfo.VolumeLabel} ({driveInfo.Name.TrimEnd(Path.DirectorySeparatorChar)})"
             : driveInfo.Name.TrimEnd(Path.DirectorySeparatorChar);
 
-        SizeB = driveInfo.AvailableFreeSpace;
+        SizeB = driveInfo.TotalFreeSpace;
     }
 
     public DriveEntry(string pathToEntry, string name, long sizeB)
