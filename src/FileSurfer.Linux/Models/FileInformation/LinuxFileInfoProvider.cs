@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 
@@ -11,38 +13,42 @@ namespace FileSurfer.Linux.Models.FileInformation;
 
 public class LinuxFileInfoProvider : IFileInfoProvider
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming"), SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+    public record LsblkEntry(string? label, string? mountpoint, long size, string? type);
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    public record LsblkOutput(List<LsblkEntry> blockdevices);
+
     public DriveEntry[] GetDrives()
     {
-        ProcessStartInfo psi = new("lsblk", " -rnbpo LABEL,MOUNTPOINT,SIZE,TYPE")
+        ProcessStartInfo psi = new("lsblk", " -Jnbpo LABEL,MOUNTPOINT,SIZE,TYPE")
         {
             RedirectStandardOutput = true,
             UseShellExecute = false,
         };
+        List<DriveEntry> drives = new();
+        LsblkOutput entries;
         try
         {
-            List<DriveEntry> drives = new();
             Process? proc = Process.Start(psi);
             if (proc is null)
                 return Array.Empty<DriveEntry>();
 
-            while (proc.StandardOutput.ReadLine() is { } line)
-            {
-                string[] parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                if (parts is not [_, _, _, "part"])
-                    continue;
-
-                string path = parts[1];
-                string friendlyName = parts[0];
-                long sizeB = long.Parse(parts[2], CultureInfo.InvariantCulture);
-                drives.Add(new DriveEntry(path, friendlyName, sizeB));
-            }
+            string output = proc.StandardOutput.ReadToEnd();
+            entries =
+                JsonSerializer.Deserialize<LsblkOutput>(output)
+                ?? throw new InvalidDataException();
+            
             proc.WaitForExit();
-            return drives.ToArray();
         }
         catch
         {
             return Array.Empty<DriveEntry>();
         }
+        foreach (LsblkEntry entry in entries.blockdevices)
+            if (entry is { type: "part", label: not null, mountpoint: not null })
+                drives.Add(new DriveEntry(entry.mountpoint, entry.label, entry.size));
+
+        return drives.ToArray();
     }
 
     public string[] GetPathFiles(string path, bool includeHidden, bool includeOS)
