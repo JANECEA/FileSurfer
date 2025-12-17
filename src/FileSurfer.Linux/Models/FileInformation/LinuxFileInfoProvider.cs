@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -13,10 +12,14 @@ namespace FileSurfer.Linux.Models.FileInformation;
 
 public class LinuxFileInfoProvider : IFileInfoProvider
 {
-    [SuppressMessage("ReSharper", "InconsistentNaming"), SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-    public record LsblkEntry(string? label, string? mountpoint, long size, string? type);
+    [
+        SuppressMessage("ReSharper", "InconsistentNaming"),
+        SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")
+    ]
+    private sealed record LsblkEntry(string? label, string? mountpoint, long size, string? type);
+
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public record LsblkOutput(List<LsblkEntry> blockdevices);
+    private sealed record LsblkOutput(List<LsblkEntry> blockdevices);
 
     public DriveEntry[] GetDrives()
     {
@@ -35,9 +38,8 @@ public class LinuxFileInfoProvider : IFileInfoProvider
 
             string output = proc.StandardOutput.ReadToEnd();
             entries =
-                JsonSerializer.Deserialize<LsblkOutput>(output)
-                ?? throw new InvalidDataException();
-            
+                JsonSerializer.Deserialize<LsblkOutput>(output) ?? throw new InvalidDataException();
+
             proc.WaitForExit();
         }
         catch

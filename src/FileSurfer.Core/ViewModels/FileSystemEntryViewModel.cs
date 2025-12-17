@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
@@ -42,7 +43,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// <summary>
     /// Holds a <see cref="Bitmap"/> representing the file.
     /// </summary>
-    public Bitmap? Icon { get; private set; }
+    public IImage? Icon { get; private set; }
 
     /// <summary>
     /// Holds the name of file, directory, or drive represented by this <see cref="FileSystemEntryViewModel"/>.

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
@@ -44,7 +45,7 @@ public class WindowsIconProvider : IIconProvider, IDisposable
     private Bitmap? _genericFileIcon;
 
     /// <inheritdoc/>
-    public Bitmap? GetFileIcon(string filePath)
+    public IImage? GetFileIcon(string filePath)
     {
         string extension = Path.GetExtension(filePath).ToLowerInvariant();
         if (string.IsNullOrWhiteSpace(extension))
@@ -84,10 +85,10 @@ public class WindowsIconProvider : IIconProvider, IDisposable
     }
 
     /// <inheritdoc/>
-    public Bitmap GetDirectoryIcon(string dirPath) => DirectoryIcon;
+    public IImage GetDirectoryIcon(string dirPath) => DirectoryIcon;
 
     /// <inheritdoc/>
-    public Bitmap GetDriveIcon(DriveEntry driveEntry) => DriveIcon;
+    public IImage GetDriveIcon(DriveEntry driveEntry) => DriveIcon;
 
     public void Dispose()
     {
