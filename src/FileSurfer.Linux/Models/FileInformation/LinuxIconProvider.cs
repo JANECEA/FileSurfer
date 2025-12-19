@@ -17,9 +17,15 @@ namespace FileSurfer.Linux.Models.FileInformation;
 /// </summary>
 public class LinuxIconProvider : IIconProvider, IDisposable
 {
-    private const string GlobsPath = "/usr/share/mime/globs";
     private const string GenericMimeType = "unknown";
-
+    private static readonly IReadOnlyList<string> SearchPaths =
+    [
+        "/usr/share/icons/hicolor/64x64/mimetypes",
+        "/usr/share/icons/breeze-dark/mimetypes/64",
+        "/usr/share/icons/breeze-dark/mimetypes/32",
+        "/usr/share/icons/breeze/mimetypes/64",
+        "/usr/share/icons/breeze/mimetypes/32",
+    ];
     private static readonly Bitmap DirectoryIcon = new(
         Avalonia.Platform.AssetLoader.Open(
             new Uri("avares://FileSurfer.Core/Assets/FolderIcon.png")
@@ -28,86 +34,58 @@ public class LinuxIconProvider : IIconProvider, IDisposable
     private static readonly Bitmap DriveIcon = new(
         Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/DriveIcon.png"))
     );
-    private readonly IContentInspector _mimeInspector = new ContentInspectorBuilder
+    private static readonly IContentInspector MimeInspector = new ContentInspectorBuilder
     {
-        Definitions = new MimeDetective.Definitions.ExhaustiveBuilder
-        {
-            UsageType = MimeDetective.Definitions.Licensing.UsageType.PersonalNonCommercial,
-        }.Build(),
+        Definitions = MimeDetective.Definitions.DefaultDefinitions.All(),
     }.Build();
-    private readonly Dictionary<string, string> _mimeTypes = new();
-    private readonly Dictionary<string, IImage> _icons = new();
 
+    private readonly Dictionary<string, string> _extToMime = new();
+    private readonly Dictionary<string, IImage> _mimeToIcon = new();
     private IImage? _genericFileIcon;
 
-    private IImage? GetGenericFileIcon() => _genericFileIcon ??= LoadIcon(GenericMimeType);
+    private IImage? GetGenericFileIcon() => _genericFileIcon ??= ExtractIcon(GenericMimeType);
 
     public LinuxIconProvider()
     {
-        if (!File.Exists(GlobsPath))
+        if (!File.Exists(GlobsParser.GlobsPath))
             return;
 
-        using StreamReader reader = File.OpenText(GlobsPath);
-        _mimeTypes = GlobsParser.Parse(reader);
+        using StreamReader reader = File.OpenText(GlobsParser.GlobsPath);
+        _extToMime = GlobsParser.Parse(reader);
     }
 
     /// <inheritdoc/>
     public IImage? GetFileIcon(string filePath)
     {
         string mimeType = GetMimeType(filePath);
-        if (!_icons.TryGetValue(mimeType, out IImage? icon))
+        if (!_mimeToIcon.TryGetValue(mimeType, out IImage? icon))
         {
-            icon = LoadIcon(mimeType);
+            icon = ExtractIcon(mimeType);
             if (icon is not null)
-                _icons[mimeType] = icon;
+                _mimeToIcon[mimeType] = icon;
         }
         return icon ?? GetGenericFileIcon();
     }
 
     private string GetMimeType(string filePath)
     {
-        if (
-            GetExtension(filePath) is { } extension
-            && _mimeTypes.TryGetValue(extension, out string? mime)
-        )
-            return mime;
+        foreach (string extension in PathTools.EnumerateExtensions(filePath))
+            if (_extToMime.TryGetValue(extension, out string? mime))
+                return mime;
 
-        ImmutableArray<FileExtensionMatch> result = _mimeInspector
+        ImmutableArray<FileExtensionMatch> result = MimeInspector
             .Inspect(filePath)
             .ByFileExtension();
+
         if (result.Length > 0 && result[0].Matches[^1].Definition.File.MimeType is string mimeType)
             return mimeType.ToLowerInvariant().Replace('/', '-');
 
-        return "unknown";
+        return GenericMimeType;
     }
 
-    private static string? GetExtension(string path)
+    private static IImage? ExtractIcon(string mimeType)
     {
-        int extensionIndex = -1;
-        for (int i = path.Length - 1; i >= 0; i--)
-        {
-            if (path[i] == '.')
-                extensionIndex = i;
-
-            if (path[i] == '/')
-                break;
-        }
-        if (extensionIndex < 0 || extensionIndex == path.Length - 1)
-            return null;
-
-        return path[(extensionIndex + 1)..];
-    }
-
-    IImage? LoadIcon(string mimeType)
-    {
-        string[] searchPaths =
-        {
-            "/usr/share/icons/hicolor/mimetypes/64",
-            "/usr/share/icons/breeze-dark/mimetypes/64",
-            "/usr/share/icons/breeze/mimetypes/64",
-        };
-
-        foreach (string path in searchPaths)
+        foreach (string path in SearchPaths)
         {
             string svgPath = Path.Combine(path, mimeType + ".svg");
             if (File.Exists(svgPath))
@@ -130,23 +108,22 @@ public class LinuxIconProvider : IIconProvider, IDisposable
     {
         DirectoryIcon.Dispose();
         DriveIcon.Dispose();
-        _icons.Clear();
+        _extToMime.Clear();
+        _mimeToIcon.Clear();
     }
 }
 
 internal static class GlobsParser
 {
+    internal const string GlobsPath = "/usr/share/mime/globs";
+
     internal static Dictionary<string, string> Parse(StreamReader reader)
     {
         Dictionary<string, string> result = new();
+
         while (reader.ReadLine() is { } line)
-            if (
-                line.Length != 0
-                && line[0] != '#'
-                && GetExtension(line) is { } extension
-                && !result.ContainsKey(extension)
-            )
-                result[extension] = GetMimeType(line);
+            if (line.Length != 0 && line[0] != '#' && GetExtension(line) is { } extension)
+                _ = result.TryAdd(extension, GetMimeType(line));
 
         return result;
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -18,7 +19,7 @@ public static class PathTools
     /// </summary>
     /// <param name="path">Path to normalize</param>
     /// <returns>Normalized path</returns>
-    internal static string NormalizePath(string path)
+    public static string NormalizePath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
             return path;
@@ -44,11 +45,37 @@ public static class PathTools
         return sb.ToString();
     }
 
-    internal static bool PathsAreEqual(string? pathA, string? pathB) =>
+    public static bool PathsAreEqual(string? pathA, string? pathB) =>
         pathA is not null
         && pathB is not null
         && string.Equals(NormalizePath(pathA), NormalizePath(pathB), Comparison);
 
-    internal static bool NamesAreEqual(string? nameA, string? nameB) =>
+    public static bool NamesAreEqual(string? nameA, string? nameB) =>
         nameA is not null && nameB is not null && string.Equals(nameA, nameB, Comparison);
+
+    public static string? GetExtensionNoDot(string path)
+    {
+        int extensionIndex = -1;
+        for (int i = path.Length - 1; i >= 0; i--)
+        {
+            if (path[i] == '.')
+                extensionIndex = i;
+
+            if (path[i] == DirSeparator)
+                break;
+        }
+        if (extensionIndex < 0 || extensionIndex == path.Length - 1)
+            return null;
+
+        return path[(extensionIndex + 1)..];
+    }
+
+    public static IEnumerable<string> EnumerateExtensions(string path)
+    {
+        int lastSep = path.LastIndexOf(DirSeparator);
+
+        for (int index = lastSep + 1; index <= path.Length - 3; index++)
+            if (path[index] == '.')
+                yield return path[(index + 1)..];
+    }
 }
