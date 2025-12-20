@@ -2,6 +2,9 @@
 
 namespace FileSurfer.Core.Models.FileInformation;
 
+/// <summary>
+/// Optimizes icon delivery based on relevant criteria.
+/// </summary>
 public interface IIconProvider
 {
     /// <summary>

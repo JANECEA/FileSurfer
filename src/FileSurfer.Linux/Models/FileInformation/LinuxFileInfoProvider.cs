@@ -23,6 +23,7 @@ public class LinuxFileInfoProvider : IFileInfoProvider
 
     public DriveEntry[] GetDrives()
     {
+        // To ShellHandler
         ProcessStartInfo psi = new("lsblk", " -Jnbpo LABEL,MOUNTPOINT,SIZE,TYPE")
         {
             RedirectStandardOutput = true,

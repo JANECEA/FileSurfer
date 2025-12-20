@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Svg.Skia;
@@ -12,9 +14,6 @@ using MimeDetective.Engine;
 
 namespace FileSurfer.Linux.Models.FileInformation;
 
-/// <summary>
-/// Optimizes Windows icon delivery based on the file extension.
-/// </summary>
 public class LinuxIconProvider : IIconProvider, IDisposable
 {
     private const string GenericMimeType = "unknown";
@@ -34,10 +33,15 @@ public class LinuxIconProvider : IIconProvider, IDisposable
     private static readonly Bitmap DriveIcon = new(
         Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/DriveIcon.png"))
     );
-    private static readonly IContentInspector MimeInspector = new ContentInspectorBuilder
-    {
-        Definitions = MimeDetective.Definitions.DefaultDefinitions.All(),
-    }.Build();
+    private static readonly Task<IContentInspector> MimeInspectorTask = Task.Run(() =>
+        new ContentInspectorBuilder
+        {
+            Definitions = new MimeDetective.Definitions.ExhaustiveBuilder
+            {
+                UsageType = MimeDetective.Definitions.Licensing.UsageType.PersonalNonCommercial,
+            }.Build(),
+        }.Build()
+    );
 
     private readonly Dictionary<string, string> _extToMime = new();
     private readonly Dictionary<string, IImage> _mimeToIcon = new();
@@ -73,14 +77,39 @@ public class LinuxIconProvider : IIconProvider, IDisposable
             if (_extToMime.TryGetValue(extension, out string? mime))
                 return mime;
 
-        ImmutableArray<FileExtensionMatch> result = MimeInspector
-            .Inspect(filePath)
-            .ByFileExtension();
+        if (!MimeInspectorTask.IsCompleted)
+            return GenericMimeType;
 
-        if (result.Length > 0 && result[0].Matches[^1].Definition.File.MimeType is string mimeType)
-            return mimeType.ToLowerInvariant().Replace('/', '-');
+        ImmutableArray<MimeTypeMatch> result = MimeInspectorTask
+            .Result.Inspect(filePath)
+            .ByMimeType();
 
-        return GenericMimeType;
+        return result.IsEmpty
+            ? GetXdgMimeType(filePath)
+            : result[0].MimeType.ToLowerInvariant().Replace('/', '-');
+    }
+
+    // To ShellHandler
+    private static string GetXdgMimeType(string filePath)
+    {
+        ProcessStartInfo psi = new()
+        {
+            FileName = "xdg-mime",
+            Arguments = $"query filetype \"{filePath}\"",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+
+        using Process? process = Process.Start(psi);
+        if (process == null)
+            return GenericMimeType;
+
+        string output = process.StandardOutput.ReadToEnd();
+        process.WaitForExit();
+
+        return process.ExitCode == 0 ? output.Trim().Replace('/', '-') : GenericMimeType;
     }
 
     private static IImage? ExtractIcon(string mimeType)
