@@ -77,16 +77,20 @@ public class LinuxIconProvider : IIconProvider, IDisposable
             if (_extToMime.TryGetValue(extension, out string? mime))
                 return mime;
 
-        if (!MimeInspectorTask.IsCompleted)
+        try
+        {
+            ImmutableArray<MimeTypeMatch> result = MimeInspectorTask.IsCompleted
+                ? MimeInspectorTask.Result.Inspect(filePath).ByMimeType()
+                : new ImmutableArray<MimeTypeMatch>();
+
+            if (!result.IsEmpty)
+                return result[0].MimeType.ToLowerInvariant().Replace('/', '-');
+        }
+        catch
+        {
             return GenericMimeType;
-
-        ImmutableArray<MimeTypeMatch> result = MimeInspectorTask
-            .Result.Inspect(filePath)
-            .ByMimeType();
-
-        return result.IsEmpty
-            ? GetXdgMimeType(filePath)
-            : result[0].MimeType.ToLowerInvariant().Replace('/', '-');
+        }
+        return GetXdgMimeType(filePath);
     }
 
     // To ShellHandler
