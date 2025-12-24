@@ -194,12 +194,7 @@ public class LinuxFileIOHandler : IFileIOHandler
         try
         {
             string newDirPath = Path.Combine(destinationDir, Path.GetFileName(dirPath));
-            FileSystem.CopyDirectory(
-                dirPath,
-                newDirPath,
-                UIOption.OnlyErrorDialogs,
-                UICancelOption.DoNothing
-            );
+            FileSystem.CopyDirectory(dirPath, newDirPath, false);
             return SimpleResult.Ok();
         }
         catch (Exception ex)
@@ -233,12 +228,7 @@ public class LinuxFileIOHandler : IFileIOHandler
                 return SimpleResult.Error("Can't duplicate a root directory.");
 
             string newDirPath = Path.Combine(parentDir, copyName);
-            FileSystem.CopyDirectory(
-                dirPath,
-                newDirPath,
-                UIOption.AllDialogs,
-                UICancelOption.ThrowException
-            );
+            FileSystem.CopyDirectory(dirPath, newDirPath, false);
             return SimpleResult.Ok();
         }
         catch (Exception ex)
