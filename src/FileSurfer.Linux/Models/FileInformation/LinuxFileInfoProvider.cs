@@ -170,16 +170,12 @@ public class LinuxFileInfoProvider : IFileInfoProvider
 
     public bool IsHidden(string path, bool isDirectory)
     {
-        try
-        {
-            return isDirectory
-                ? new DirectoryInfo(path).Attributes.HasFlag(FileAttributes.Hidden)
-                : new FileInfo(path).Attributes.HasFlag(FileAttributes.Hidden);
-        }
-        catch
-        {
-            return false;
-        }
+        int i = path.Length - 2;
+        for (; i >= 0; i--)
+            if (path[i] == PathTools.DirSeparator)
+                break;
+
+        return path[i + 1] == '.';
     }
 
     private static bool IsOSProtected(string path, bool isDirectory)
