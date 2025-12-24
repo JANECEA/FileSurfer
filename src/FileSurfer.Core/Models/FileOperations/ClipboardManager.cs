@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Avalonia.Input.Platform;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using FileSurfer.Core.Models.FileInformation;
 
 namespace FileSurfer.Core.Models.FileOperations;
@@ -38,34 +39,37 @@ public class ClipboardManager : IClipboardManager
         _storageProvider = storageProvider;
     }
 
-    private void ClearSystemClipboard() => _systemClipboard.ClearAsync().Wait();
+    public bool IsDuplicateOperation(string currentDir) =>
+        !IsCutOperation && _copyFromDir == currentDir && _programClipboard.Length > 0;
 
-    private async Task<SimpleResult> CopyToOSClipboard(IFileSystemEntry[] entries)
+    private Task ClearSystemClipboardAsync() => Task.FromResult(_systemClipboard.ClearAsync());
+
+    private async Task<SimpleResult> CopyToOSClipboardAsync(IFileSystemEntry[] entries)
     {
-        List<Task<IStorageFile?>> fileTasks = new();
-        List<Task<IStorageFolder?>> folderTasks = new();
-        foreach (IFileSystemEntry entry in entries)
-            if (entry is DirectoryEntry)
-                folderTasks.Add(_storageProvider.TryGetFolderFromPathAsync(entry.PathToEntry));
-            else if (entry is FileEntry)
-                fileTasks.Add(_storageProvider.TryGetFileFromPathAsync(entry.PathToEntry));
-
-        IEnumerable<IStorageItem> files = (await Task.WhenAll(fileTasks))
-            .Where(file => file is not null)
-            .Cast<IStorageItem>();
-        IEnumerable<IStorageItem> folders = (await Task.WhenAll(folderTasks))
-            .Where(folder => folder is not null)
-            .Cast<IStorageItem>();
-
         try
         {
+            List<Task<IStorageFile?>> fileTasks = new();
+            List<Task<IStorageFolder?>> folderTasks = new();
+            foreach (IFileSystemEntry entry in entries)
+                if (entry is DirectoryEntry)
+                    folderTasks.Add(_storageProvider.TryGetFolderFromPathAsync(entry.PathToEntry));
+                else if (entry is FileEntry)
+                    fileTasks.Add(_storageProvider.TryGetFileFromPathAsync(entry.PathToEntry));
+
+            IEnumerable<IStorageItem> files = (await Task.WhenAll(fileTasks))
+                .Where(file => file is not null)
+                .Cast<IStorageItem>();
+            IEnumerable<IStorageItem> folders = (await Task.WhenAll(folderTasks))
+                .Where(folder => folder is not null)
+                .Cast<IStorageItem>();
+
             IEnumerable<IStorageItem> storageItems = files.Concat(folders);
             await _systemClipboard.SetFilesAsync(storageItems);
             return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            ClearSystemClipboard();
+            await ClearSystemClipboardAsync();
             return SimpleResult.Error(ex.Message);
         }
     }
@@ -120,14 +124,9 @@ public class ClipboardManager : IClipboardManager
         return true;
     }
 
-    public void CopyPathToFile(string filePath) =>
-        _systemClipboard.SetTextAsync('\"' + filePath + '\"').Wait();
-
-    public IFileSystemEntry[] GetClipboard() => _programClipboard.ToArray();
-
-    public IResult Cut(IFileSystemEntry[] selectedFiles, string currentDir)
+    public async Task<IResult> Cut(IFileSystemEntry[] selectedFiles, string currentDir)
     {
-        SimpleResult result = CopyToOSClipboard(selectedFiles).Result;
+        SimpleResult result = await CopyToOSClipboardAsync(selectedFiles);
         if (result.IsOk)
         {
             _copyFromDir = currentDir;
@@ -137,9 +136,9 @@ public class ClipboardManager : IClipboardManager
         return result;
     }
 
-    public IResult Copy(IFileSystemEntry[] selectedFiles, string currentDir)
+    public async Task<IResult> Copy(IFileSystemEntry[] selectedFiles, string currentDir)
     {
-        SimpleResult result = CopyToOSClipboard(selectedFiles).Result;
+        SimpleResult result = await CopyToOSClipboardAsync(selectedFiles);
         if (result.IsOk)
         {
             _copyFromDir = currentDir;
@@ -149,12 +148,9 @@ public class ClipboardManager : IClipboardManager
         return result;
     }
 
-    public bool IsDuplicateOperation(string currentDir) =>
-        !IsCutOperation && _copyFromDir == currentDir && _programClipboard.Length > 0;
-
-    private IResult PasteFromOSClipboard(string destinationPath)
+    private async Task<IResult> PasteFromOSClipboard(string destinationPath)
     {
-        if (_systemClipboard.TryGetFilesAsync().Result is not IStorageItem[] items)
+        if (await _systemClipboard.TryGetFilesAsync() is not IStorageItem[] items)
             return SimpleResult.Ok();
 
         Result result = Result.Ok();
@@ -177,25 +173,24 @@ public class ClipboardManager : IClipboardManager
         return result;
     }
 
-    public IResult Paste(string currentDir)
+    public async Task<IResult> Paste(string currentDir)
     {
         if (
             FileSurferSettings.AllowImagePastingFromClipboard
-            && _systemClipboard.TryGetBitmapAsync().Result is Bitmap image
+            && await _systemClipboard.TryGetBitmapAsync() is Bitmap image
         )
         {
             SaveImageToPath(currentDir, image);
             return SimpleResult.Error();
         }
 
-        IsCutOperation = IsCutOperation && CompareClipboards().Result;
-        IResult result = PasteFromOSClipboard(currentDir);
+        IsCutOperation = IsCutOperation && await CompareClipboards();
+        IResult result = await PasteFromOSClipboard(currentDir);
         if (IsCutOperation)
         {
             _programClipboard = Array.Empty<IFileSystemEntry>();
-            ClearSystemClipboard();
+            await ClearSystemClipboardAsync();
         }
-
         if (!result.IsOk)
             _programClipboard = Array.Empty<IFileSystemEntry>();
 
@@ -219,9 +214,14 @@ public class ClipboardManager : IClipboardManager
         }
         if (!result.IsOk)
         {
-            ClearSystemClipboard();
+            ClearSystemClipboardAsync();
             _programClipboard = Array.Empty<IFileSystemEntry>();
         }
         return result;
     }
+
+    public async Task CopyPathToFile(string filePath) =>
+        await _systemClipboard.SetTextAsync('\"' + filePath + '\"');
+
+    public IFileSystemEntry[] GetClipboard() => _programClipboard.ToArray();
 }

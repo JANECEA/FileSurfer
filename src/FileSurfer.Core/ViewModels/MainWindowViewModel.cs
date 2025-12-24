@@ -195,9 +195,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
     public ReactiveCommand<Unit, Unit> NewFileCommand { get; }
     public ReactiveCommand<Unit, Unit> NewDirCommand { get; }
-    public ReactiveCommand<Unit, Unit> CutCommand { get; }
-    public ReactiveCommand<Unit, Unit> CopyCommand { get; }
-    public ReactiveCommand<Unit, Unit> PasteCommand { get; }
+    public ReactiveCommand<Unit, Task> CutCommand { get; }
+    public ReactiveCommand<Unit, Task> CopyCommand { get; }
+    public ReactiveCommand<Unit, Task> PasteCommand { get; }
     public ReactiveCommand<Unit, Unit> MoveToTrashCommand { get; }
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
     public ReactiveCommand<SortBy, Unit> SetSortByCommand { get; }
@@ -1066,9 +1066,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="_clipboardManager"/>.
     /// </summary>
-    public void Cut() =>
+    public async Task Cut() =>
         ForwardIfError(
-            _clipboardManager.Cut(
+            await _clipboardManager.Cut(
                 SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                 CurrentDir
             )
@@ -1077,9 +1077,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="_clipboardManager"/>.
     /// </summary>
-    public void Copy() =>
+    public async Task Copy() =>
         ForwardIfError(
-            _clipboardManager.Copy(
+            await _clipboardManager.Copy(
                 SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                 CurrentDir
             )
@@ -1092,7 +1092,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </para>
     /// Invokes <see cref="Reload"/>.
     /// </summary>
-    private void Paste()
+    private async Task Paste()
     {
         IFileSystemEntry[] clipboard = _clipboardManager.GetClipboard();
 
@@ -1105,12 +1105,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
         else if (_clipboardManager.IsCutOperation)
         {
-            result = _clipboardManager.Paste(CurrentDir);
+            result = await _clipboardManager.Paste(CurrentDir);
             operation = new MoveFilesTo(_fileIOHandler, clipboard, CurrentDir);
         }
         else
         {
-            result = _clipboardManager.Paste(CurrentDir);
+            result = await _clipboardManager.Paste(CurrentDir);
             operation = new CopyFilesTo(_fileIOHandler, clipboard, CurrentDir);
         }
 
