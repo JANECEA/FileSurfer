@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 using Avalonia.Input.Platform;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
-using Avalonia.Threading;
 using FileSurfer.Core.Models.FileInformation;
 
 namespace FileSurfer.Core.Models.FileOperations;
 
 /// <summary>
-/// Interacts with the program and system clipboards using <see cref="System.Windows.Forms"/>.
+/// Interacts with the program and system clipboards using <see cref="Avalonia.Input.Platform.IClipboard"/>.
 /// </summary>
 public class ClipboardManager : IClipboardManager
 {
@@ -42,8 +41,6 @@ public class ClipboardManager : IClipboardManager
     public bool IsDuplicateOperation(string currentDir) =>
         !IsCutOperation && _copyFromDir == currentDir && _programClipboard.Length > 0;
 
-    private Task ClearSystemClipboardAsync() => Task.FromResult(_systemClipboard.ClearAsync());
-
     private async Task<SimpleResult> CopyToOSClipboardAsync(IFileSystemEntry[] entries)
     {
         try
@@ -69,7 +66,7 @@ public class ClipboardManager : IClipboardManager
         }
         catch (Exception ex)
         {
-            await ClearSystemClipboardAsync();
+            await _systemClipboard.ClearAsync();
             return SimpleResult.Error(ex.Message);
         }
     }
@@ -124,7 +121,7 @@ public class ClipboardManager : IClipboardManager
         return true;
     }
 
-    public async Task<IResult> Cut(IFileSystemEntry[] selectedFiles, string currentDir)
+    public async Task<IResult> CutAsync(IFileSystemEntry[] selectedFiles, string currentDir)
     {
         SimpleResult result = await CopyToOSClipboardAsync(selectedFiles);
         if (result.IsOk)
@@ -136,7 +133,7 @@ public class ClipboardManager : IClipboardManager
         return result;
     }
 
-    public async Task<IResult> Copy(IFileSystemEntry[] selectedFiles, string currentDir)
+    public async Task<IResult> CopyAsync(IFileSystemEntry[] selectedFiles, string currentDir)
     {
         SimpleResult result = await CopyToOSClipboardAsync(selectedFiles);
         if (result.IsOk)
@@ -173,23 +170,24 @@ public class ClipboardManager : IClipboardManager
         return result;
     }
 
-    public async Task<IResult> Paste(string currentDir)
+    public async Task<IResult> PasteAsync(string currentDir)
     {
+        IResult result;
         if (
             FileSurferSettings.AllowImagePastingFromClipboard
             && await _systemClipboard.TryGetBitmapAsync() is Bitmap image
         )
         {
-            SaveImageToPath(currentDir, image);
-            return SimpleResult.Error();
+            result = SaveImageToPath(currentDir, image);
+            return result.IsOk ? SimpleResult.Error() : result;
         }
 
         IsCutOperation = IsCutOperation && await CompareClipboards();
-        IResult result = await PasteFromOSClipboard(currentDir);
+        result = await PasteFromOSClipboard(currentDir);
         if (IsCutOperation)
         {
             _programClipboard = Array.Empty<IFileSystemEntry>();
-            await ClearSystemClipboardAsync();
+            await _systemClipboard.ClearAsync();
         }
         if (!result.IsOk)
             _programClipboard = Array.Empty<IFileSystemEntry>();
@@ -214,13 +212,13 @@ public class ClipboardManager : IClipboardManager
         }
         if (!result.IsOk)
         {
-            ClearSystemClipboardAsync();
+            _systemClipboard.ClearAsync().Wait();
             _programClipboard = Array.Empty<IFileSystemEntry>();
         }
         return result;
     }
 
-    public async Task CopyPathToFile(string filePath) =>
+    public async Task CopyPathToFileAsymc(string filePath) =>
         await _systemClipboard.SetTextAsync('\"' + filePath + '\"');
 
     public IFileSystemEntry[] GetClipboard() => _programClipboard.ToArray();

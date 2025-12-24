@@ -1061,14 +1061,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Copies the path to the selected <see cref="FileSystemEntryViewModel"/> to the system clipboard.
     /// </summary>
     public void CopyPath(FileSystemEntryViewModel entry) =>
-        _clipboardManager.CopyPathToFile(entry.PathToEntry);
+        _clipboardManager.CopyPathToFileAsymc(entry.PathToEntry);
 
     /// <summary>
     /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="_clipboardManager"/>.
     /// </summary>
     public async Task Cut() =>
         ForwardIfError(
-            await _clipboardManager.Cut(
+            await _clipboardManager.CutAsync(
                 SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                 CurrentDir
             )
@@ -1079,7 +1079,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public async Task Copy() =>
         ForwardIfError(
-            await _clipboardManager.Copy(
+            await _clipboardManager.CopyAsync(
                 SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                 CurrentDir
             )
@@ -1105,12 +1105,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
         else if (_clipboardManager.IsCutOperation)
         {
-            result = await _clipboardManager.Paste(CurrentDir);
+            result = await _clipboardManager.PasteAsync(CurrentDir);
             operation = new MoveFilesTo(_fileIOHandler, clipboard, CurrentDir);
         }
         else
         {
-            result = await _clipboardManager.Paste(CurrentDir);
+            result = await _clipboardManager.PasteAsync(CurrentDir);
             operation = new CopyFilesTo(_fileIOHandler, clipboard, CurrentDir);
         }
 
