@@ -30,7 +30,6 @@
     <PackageReference Include="Mime-Detective.Definitions.Exhaustive" Version="25.8.1" />
     <PackageReference Include="ReactiveUI.Avalonia" Version="11.3.8" />
     <PackageReference Include="SharpCompress" Version="0.41.0" />
-    <PackageReference Include="Svg.Controls.Avalonia" Version="11.3.6.2" />
     <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.6.2" />
     <PackageReference Include="xunit" Version="2.9.3" />
   </ItemGroup>

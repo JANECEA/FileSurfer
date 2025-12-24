@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using Avalonia.Svg.Skia;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 
@@ -14,14 +16,18 @@ namespace FileSurfer.Windows.Models.FileInformation;
 /// </summary>
 public class WindowsIconProvider : IIconProvider, IDisposable
 {
-    private static readonly Bitmap DirectoryIcon = new(
-        Avalonia.Platform.AssetLoader.Open(
-            new Uri("avares://FileSurfer.Core/Assets/FolderIcon.png")
-        )
-    );
-    private static readonly Bitmap DriveIcon = new(
-        Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/DriveIcon.png"))
-    );
+    private static readonly SvgImage DirectoryIcon = new()
+    {
+        Source = SvgSource.LoadFromStream(
+            AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/FolderIcon.svg"))
+        ),
+    };
+    private static readonly SvgImage DriveIcon = new()
+    {
+        Source = SvgSource.LoadFromStream(
+            AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/DriveIcon.svg"))
+        ),
+    };
     private static readonly IReadOnlyList<string> HaveUniqueIcons =
     [
         ".exe",
@@ -93,9 +99,6 @@ public class WindowsIconProvider : IIconProvider, IDisposable
     public void Dispose()
     {
         _genericFileIcon?.Dispose();
-        DirectoryIcon.Dispose();
-        DriveIcon.Dispose();
-
         foreach (Bitmap icon in _icons.Values)
             icon.Dispose();
 

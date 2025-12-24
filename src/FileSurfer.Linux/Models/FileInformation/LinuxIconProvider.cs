@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using Avalonia.Svg.Skia;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
@@ -17,22 +18,18 @@ namespace FileSurfer.Linux.Models.FileInformation;
 public class LinuxIconProvider : IIconProvider, IDisposable
 {
     private const string GenericMimeType = "unknown";
-    private static readonly IReadOnlyList<string> SearchPaths =
-    [
-        "/usr/share/icons/hicolor/64x64/mimetypes",
-        "/usr/share/icons/breeze-dark/mimetypes/64",
-        "/usr/share/icons/breeze-dark/mimetypes/32",
-        "/usr/share/icons/breeze/mimetypes/64",
-        "/usr/share/icons/breeze/mimetypes/32",
-    ];
-    private static readonly Bitmap DirectoryIcon = new(
-        Avalonia.Platform.AssetLoader.Open(
-            new Uri("avares://FileSurfer.Core/Assets/FolderIcon.png")
-        )
-    );
-    private static readonly Bitmap DriveIcon = new(
-        Avalonia.Platform.AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/DriveIcon.png"))
-    );
+    private static readonly SvgImage DirectoryIcon = new()
+    {
+        Source = SvgSource.LoadFromStream(
+            AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/FolderIcon.svg"))
+        ),
+    };
+    private static readonly SvgImage DriveIcon = new()
+    {
+        Source = SvgSource.LoadFromStream(
+            AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/DriveIcon.svg"))
+        ),
+    };
     private static readonly Task<IContentInspector> MimeInspectorTask = Task.Run(() =>
         new ContentInspectorBuilder
         {
@@ -43,6 +40,7 @@ public class LinuxIconProvider : IIconProvider, IDisposable
         }.Build()
     );
 
+    private readonly IReadOnlyList<string> _searchPaths;
     private readonly Dictionary<string, string> _extToMime = new();
     private readonly Dictionary<string, IImage> _mimeToIcon = new();
     private IImage? _genericFileIcon;
@@ -51,6 +49,8 @@ public class LinuxIconProvider : IIconProvider, IDisposable
 
     public LinuxIconProvider()
     {
+        _searchPaths = IconPathResolver.GetSearchPaths();
+
         if (!File.Exists(GlobsParser.GlobsPath))
             return;
 
@@ -73,24 +73,33 @@ public class LinuxIconProvider : IIconProvider, IDisposable
 
     private string GetMimeType(string filePath)
     {
-        foreach (string extension in PathTools.EnumerateExtensions(filePath))
-            if (_extToMime.TryGetValue(extension, out string? mime))
+        string? extension = null;
+        foreach (string ext in PathTools.EnumerateExtensions(filePath))
+        {
+            extension = ext;
+            if (_extToMime.TryGetValue(ext, out string? mime))
                 return mime;
+        }
 
+        string mimeType;
         try
         {
             ImmutableArray<MimeTypeMatch> result = MimeInspectorTask.IsCompleted
                 ? MimeInspectorTask.Result.Inspect(filePath).ByMimeType()
                 : new ImmutableArray<MimeTypeMatch>();
 
-            if (!result.IsEmpty)
-                return result[0].MimeType.ToLowerInvariant().Replace('/', '-');
+            mimeType = result.IsEmpty
+                ? GetXdgMimeType(filePath)
+                : result[0].MimeType.ToLowerInvariant().Replace('/', '-');
         }
         catch
         {
-            return GenericMimeType;
+            mimeType = GenericMimeType;
         }
-        return GetXdgMimeType(filePath);
+        if (!string.IsNullOrEmpty(extension) && mimeType != GenericMimeType)
+            _extToMime.Add(extension, mimeType);
+
+        return mimeType;
     }
 
     // To ShellHandler
@@ -116,9 +125,9 @@ public class LinuxIconProvider : IIconProvider, IDisposable
         return process.ExitCode == 0 ? output.Trim().Replace('/', '-') : GenericMimeType;
     }
 
-    private static IImage? ExtractIcon(string mimeType)
+    private IImage? ExtractIcon(string mimeType)
     {
-        foreach (string path in SearchPaths)
+        foreach (string path in _searchPaths)
         {
             string svgPath = Path.Combine(path, mimeType + ".svg");
             if (File.Exists(svgPath))
@@ -139,48 +148,7 @@ public class LinuxIconProvider : IIconProvider, IDisposable
 
     public void Dispose()
     {
-        DirectoryIcon.Dispose();
-        DriveIcon.Dispose();
         _extToMime.Clear();
         _mimeToIcon.Clear();
-    }
-}
-
-internal static class GlobsParser
-{
-    internal const string GlobsPath = "/usr/share/mime/globs";
-
-    internal static Dictionary<string, string> Parse(StreamReader reader)
-    {
-        Dictionary<string, string> result = new();
-
-        while (reader.ReadLine() is { } line)
-            if (line.Length != 0 && line[0] != '#' && GetExtension(line) is { } extension)
-                _ = result.TryAdd(extension, GetMimeType(line));
-
-        return result;
-    }
-
-    private static string? GetExtension(string str)
-    {
-        int i = str.Length - 1;
-        for (; i >= 0; i--)
-            if (str[i] == '*')
-                break;
-
-        if (i < 0 || i >= str.Length - 3)
-            return null;
-
-        return str[(i + 2)..];
-    }
-
-    private static string GetMimeType(string str)
-    {
-        int i = str.Length - 1;
-        for (; i >= 0; i--)
-            if (str[i] == ':')
-                break;
-
-        return str[..i].Replace('/', '-');
     }
 }
