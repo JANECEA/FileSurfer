@@ -24,11 +24,11 @@ public static class PathTools
         if (string.IsNullOrWhiteSpace(path))
             return path;
 
-        path = Path.GetFullPath(path);
-        StringBuilder sb = new();
+        string absolutePath = Path.GetFullPath(path);
+        StringBuilder sb = new(absolutePath.Length);
 
         bool previousWasDirSep = false;
-        foreach (char ch in path)
+        foreach (char ch in absolutePath)
         {
             bool isSep = ch == DirSeparator || ch == OtherSeparator;
             if (!isSep)
@@ -38,7 +38,7 @@ public static class PathTools
 
             previousWasDirSep = isSep;
         }
-        string root = Path.GetPathRoot(path) ?? string.Empty;
+        string root = Path.GetPathRoot(absolutePath) ?? string.Empty;
         if (sb.Length != 1 && sb.Length != root.Length && sb[^1] == DirSeparator)
             sb.Remove(sb.Length - 1, 1);
 
@@ -49,6 +49,9 @@ public static class PathTools
         pathA is not null
         && pathB is not null
         && string.Equals(NormalizePath(pathA), NormalizePath(pathB), Comparison);
+
+    public static bool PathsAreEqualNormalized(string? pathA, string? pathB) =>
+        pathA is not null && pathB is not null && string.Equals(pathA, pathB, Comparison);
 
     public static bool NamesAreEqual(string? nameA, string? nameB) =>
         nameA is not null && nameB is not null && string.Equals(nameA, nameB, Comparison);
