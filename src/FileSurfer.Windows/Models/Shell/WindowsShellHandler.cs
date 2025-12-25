@@ -52,14 +52,14 @@ public class WindowsShellHandler : IShellHandler
     {
         try
         {
-            Process.Start(
-                new ProcessStartInfo
-                {
-                    FileName = notepadPath,
-                    Arguments = filePath,
-                    UseShellExecute = true,
-                }
-            );
+            using Process process = new();
+            process.StartInfo = new ProcessStartInfo
+            {
+                FileName = notepadPath,
+                Arguments = filePath,
+                UseShellExecute = true,
+            };
+            process.Start();
             return SimpleResult.Ok();
         }
         catch (Exception ex)
