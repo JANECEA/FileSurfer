@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -25,10 +26,9 @@ public interface IResult
 /// An immutable, lightweight, and memory efficient implementation of <see cref="IResult"/>
 /// that supports at most one error message.
 /// </summary>
-public sealed class SimpleResult : IResult
+public class SimpleResult : IResult
 {
     private static readonly IEnumerable<string> EmptyEnumerable = Enumerable.Empty<string>();
-
     private static readonly SimpleResult OkResult = new(true, null);
     private static readonly SimpleResult ErrorEmptyResult = new(false, null);
 
@@ -36,7 +36,7 @@ public sealed class SimpleResult : IResult
     public IEnumerable<string> Errors => _errors ?? EmptyEnumerable;
     private readonly IEnumerable<string>? _errors;
 
-    private SimpleResult(bool isOk, string? errorMessage)
+    protected SimpleResult(bool isOk, string? errorMessage)
     {
         if (!isOk)
             _errors = errorMessage is null ? EmptyEnumerable : GetEnumerable(errorMessage);
@@ -52,6 +52,29 @@ public sealed class SimpleResult : IResult
     public static SimpleResult Error() => ErrorEmptyResult;
 
     public static SimpleResult Error(string errorMessage) => new(false, errorMessage);
+}
+
+/// <summary>
+/// An immutable, lightweight, and memory efficient implementation of <see cref="IResult"/>
+/// that extends <see cref="SimpleResult"/> and includes a value if <c>IsOk</c> is <see langword="true"/>
+/// <br/>
+/// Supports at most one error message.
+/// </summary>
+public sealed class ValueResult<T> : SimpleResult
+{
+    private static readonly ValueResult<T> ErrorEmptyResult = new(default, false, null);
+
+    private readonly T? _value = default;
+    public T Value => IsOk ? _value! : throw new InvalidOperationException();
+
+    private ValueResult(T? value, bool isOk, string? errorMessage)
+        : base(isOk, errorMessage) => _value = value;
+
+    public static ValueResult<T> Ok(T value) => new(value, true, null);
+
+    public static ValueResult<T> Error() => ErrorEmptyResult;
+
+    public static ValueResult<T> Error(string errorMessage) => new(default, false, errorMessage);
 }
 
 /// <summary>
