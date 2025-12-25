@@ -19,7 +19,7 @@ public class LinuxBinInteraction : IBinInteraction
 
     private IResult RestoreEntry(string originalPath)
     {
-        // TODO implement when ExecuteCmd returns STDOUT
+        // TODO implement when ExecuteCommand returns STDOUT
         return SimpleResult.Error("Not implemented");
     }
 
@@ -28,5 +28,5 @@ public class LinuxBinInteraction : IBinInteraction
     public IResult MoveDirToTrash(string dirPath) => MoveEntryToTrash(dirPath);
 
     private IResult MoveEntryToTrash(string path) =>
-        _shellHandler.ExecuteCmd($"gio trash \"{path}\"");
+        _shellHandler.ExecuteCommand("gio", $"trash \"{path}\"");
 }

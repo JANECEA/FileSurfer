@@ -68,13 +68,13 @@ public class WindowsShellHandler : IShellHandler
         }
     }
 
-    public IResult ExecuteCmd(string command)
+    public ValueResult<string> ExecuteCommand(string programName, string? args = null)
     {
         using Process process = new();
         process.StartInfo = new ProcessStartInfo
         {
             FileName = "cmd.exe",
-            Arguments = "/c " + command,
+            Arguments = $"/c {programName} {args ?? string.Empty}",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
@@ -82,20 +82,19 @@ public class WindowsShellHandler : IShellHandler
         };
         process.Start();
         string stdOut = process.StandardOutput.ReadToEnd();
-        string? errorMessage = process.StandardError.ReadToEnd();
+        string errorMessage = process.StandardError.ReadToEnd();
         process.WaitForExit();
 
         bool success = process.ExitCode == 0;
         if (!success && string.IsNullOrWhiteSpace(errorMessage))
             errorMessage = stdOut;
 
-        if (string.IsNullOrWhiteSpace(errorMessage))
-            errorMessage = null;
-
         if (success)
-            return SimpleResult.Ok();
+            return ValueResult<string>.Ok(stdOut.Trim());
 
-        return errorMessage is null ? SimpleResult.Error() : SimpleResult.Error(errorMessage);
+        return string.IsNullOrWhiteSpace(errorMessage)
+            ? ValueResult<string>.Error()
+            : ValueResult<string>.Error(errorMessage);
     }
 
     public IResult CreateLink(string filePath)

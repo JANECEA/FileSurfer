@@ -51,7 +51,10 @@ public class GitVersionControl : IVersionControl
                 SetFileStates();
                 return true;
             }
-            catch { }
+            catch
+            {
+                // Not a valid Git repository
+            }
         }
         _currentRepo = null;
         return false;
@@ -62,14 +65,10 @@ public class GitVersionControl : IVersionControl
             ? PathTools.NormalizePath(_currentRepo.Info.WorkingDirectory)
             : null;
 
-    public IResult DownloadChanges()
-    {
-        if (_currentRepo is null)
-            return SimpleResult.Error(MissingRepoMessage);
-
-        string command = $"git -C \"{GetWorkingDir()}\" pull";
-        return _shellHandler.ExecuteCmd(command);
-    }
+    public IResult DownloadChanges() =>
+        _currentRepo is null
+            ? SimpleResult.Error(MissingRepoMessage)
+            : _shellHandler.ExecuteCommand("git", $"-C \"{GetWorkingDir()}\" pull");
 
     public string GetCurrentBranchName() =>
         _currentRepo is null ? string.Empty : _currentRepo.Head.FriendlyName;
@@ -219,8 +218,8 @@ public class GitVersionControl : IVersionControl
         if (!ValidateCommitMessage(commitMessage))
             return SimpleResult.Error($"Commit message: \"{commitMessage}\" is invalid.");
 
-        string command = $"git -C \"{GetWorkingDir()}\" commit -m \"{commitMessage.Trim()}\"";
-        return _shellHandler.ExecuteCmd(command);
+        string args = $"-C \"{GetWorkingDir()}\" commit -m \"{commitMessage.Trim()}\"";
+        return _shellHandler.ExecuteCommand("git", args);
     }
 
     private static bool ValidateCommitMessage(string commitMessage)
@@ -235,14 +234,10 @@ public class GitVersionControl : IVersionControl
         return true;
     }
 
-    public IResult UploadChanges()
-    {
-        if (_currentRepo is null)
-            return SimpleResult.Error(MissingRepoMessage);
-
-        string command = $"git -C \"{GetWorkingDir()}\" push";
-        return _shellHandler.ExecuteCmd(command);
-    }
+    public IResult UploadChanges() =>
+        _currentRepo is null
+            ? SimpleResult.Error(MissingRepoMessage)
+            : _shellHandler.ExecuteCommand("git", $"-C \"{GetWorkingDir()}\" push");
 
     /// <summary>
     /// Disposes of <see cref="_currentRepo"/>.

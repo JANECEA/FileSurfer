@@ -32,6 +32,6 @@ public interface IShellHandler
     /// <summary>
     /// Executes a command in the command prompt.
     /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult ExecuteCmd(string command);
+    /// <returns>A <see cref="ValueResult{string}"/> representing the result stdout of the operation and potential errors.</returns>
+    public ValueResult<string> ExecuteCommand(string programName, string? args = null);
 }

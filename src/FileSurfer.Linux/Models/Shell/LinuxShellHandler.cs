@@ -24,7 +24,6 @@ public class LinuxShellHandler : IShellHandler
                 Arguments = "start --cwd .",
                 WorkingDirectory = dirPath,
                 UseShellExecute = true,
-                WindowStyle = ProcessWindowStyle.Normal,
             };
             process.Start();
             return SimpleResult.Ok();
@@ -71,19 +70,13 @@ public class LinuxShellHandler : IShellHandler
         }
     }
 
-    // TODO make return STDOUT, include optional args
-    public IResult ExecuteCmd(string command)
+    public ValueResult<string> ExecuteCommand(string programName, string? args = null)
     {
-        command = command.Trim();
-        int firstSpace = command.IndexOf(' ');
-        string program = firstSpace != -1 ? command[..firstSpace] : command;
-        string args = firstSpace != -1 ? command[(firstSpace + 1)..] : string.Empty;
-
         using Process process = new();
         process.StartInfo = new ProcessStartInfo
         {
-            FileName = program,
-            Arguments = args,
+            FileName = programName,
+            Arguments = args ?? string.Empty,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
@@ -91,20 +84,19 @@ public class LinuxShellHandler : IShellHandler
         };
         process.Start();
         string stdOut = process.StandardOutput.ReadToEnd();
-        string? errorMessage = process.StandardError.ReadToEnd();
+        string errorMessage = process.StandardError.ReadToEnd();
         process.WaitForExit();
 
         bool success = process.ExitCode == 0;
         if (!success && string.IsNullOrWhiteSpace(errorMessage))
             errorMessage = stdOut;
 
-        if (string.IsNullOrWhiteSpace(errorMessage))
-            errorMessage = null;
-
         if (success)
-            return SimpleResult.Ok();
+            return ValueResult<string>.Ok(stdOut.Trim());
 
-        return errorMessage is null ? SimpleResult.Error() : SimpleResult.Error(errorMessage);
+        return string.IsNullOrWhiteSpace(errorMessage)
+            ? ValueResult<string>.Error()
+            : ValueResult<string>.Error(errorMessage);
     }
 
     public IResult CreateLink(string filePath)
