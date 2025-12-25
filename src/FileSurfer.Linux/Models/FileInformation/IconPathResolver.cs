@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Models.Shell;
 
 namespace FileSurfer.Linux.Models.FileInformation;
 
@@ -82,9 +82,21 @@ internal static class IconPathResolver
         return baseIconDirs.Where(Directory.Exists).ToList();
     }
 
-    internal static List<string> GetSearchPaths()
+    private static string? GetCurrentTheme(IShellHandler shellHandler)
     {
-        string? theme = GetCurrentTheme();
+        ValueResult<string> result = shellHandler.ExecuteCommand(
+            "gsettings",
+            "get org.gnome.desktop.interface icon-theme"
+        );
+        if (!result.IsOk || string.IsNullOrEmpty(result.Value))
+            return null;
+
+        return result.Value.Trim('\'');
+    }
+
+    internal static List<string> GetSearchPaths(IShellHandler shellHandler)
+    {
+        string? theme = GetCurrentTheme(shellHandler);
         List<IconPath> result = SearchPaths();
 
         result.Sort(new IconPathComparer(theme));
@@ -157,35 +169,5 @@ internal static class IconPathResolver
             restOfPath = dirName;
         }
         return -1;
-    }
-
-    private static string? GetCurrentTheme()
-    {
-        ProcessStartInfo psi = new()
-        {
-            FileName = "gsettings",
-            Arguments = "get org.gnome.desktop.interface icon-theme",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-        };
-        try
-        {
-            using Process? process = Process.Start(psi);
-            if (process == null)
-                return null;
-
-            string output = process.StandardOutput.ReadToEnd().Trim();
-            process.WaitForExit();
-            if (process.ExitCode != 0 || string.IsNullOrWhiteSpace(output))
-                return null;
-
-            return output.Trim('\'');
-        }
-        catch
-        {
-            return null;
-        }
     }
 }

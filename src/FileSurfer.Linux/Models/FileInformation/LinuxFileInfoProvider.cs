@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
+using FileSurfer.Core.Models.Shell;
 
 namespace FileSurfer.Linux.Models.FileInformation;
 
@@ -15,45 +15,45 @@ namespace FileSurfer.Linux.Models.FileInformation;
 /// </summary>
 public class LinuxFileInfoProvider : IFileInfoProvider
 {
-    [
-        SuppressMessage("ReSharper", "InconsistentNaming"),
-        SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")
-    ]
-    private sealed record LsblkEntry(string? label, string? mountpoint, long size, string? type);
+    private readonly IShellHandler _shellHandler;
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true,
+    };
 
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    private sealed record LsblkOutput(List<LsblkEntry> blockdevices);
+    public LinuxFileInfoProvider(IShellHandler shellHandler) => _shellHandler = shellHandler;
+
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
+    private sealed record LsblkEntry(string? Label, string? MountPoint, long Size, string? Type);
+
+    private sealed record LsblkOutput(List<LsblkEntry> BlockDevices);
 
     public DriveEntry[] GetDrives()
     {
-        // To ShellHandler
         // TODO dependencies: lsblk
-        ProcessStartInfo psi = new("lsblk", "-Jnbpo LABEL,MOUNTPOINT,SIZE,TYPE")
-        {
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-        };
+        ValueResult<string> result = _shellHandler.ExecuteCommand(
+            "lsblk",
+            "-Jnbpo LABEL,MOUNTPOINT,SIZE,TYPE"
+        );
+        if (!result.IsOk || string.IsNullOrEmpty(result.Value))
+            return Array.Empty<DriveEntry>();
+
         List<DriveEntry> drives = new();
         LsblkOutput entries;
         try
         {
-            Process? proc = Process.Start(psi);
-            if (proc is null)
-                return Array.Empty<DriveEntry>();
-
-            string output = proc.StandardOutput.ReadToEnd();
             entries =
-                JsonSerializer.Deserialize<LsblkOutput>(output) ?? throw new InvalidDataException();
-
-            proc.WaitForExit();
+                JsonSerializer.Deserialize<LsblkOutput>(result.Value, _jsonSerializerOptions)
+                ?? throw new InvalidDataException();
         }
-        catch
+        catch (Exception ex) when (ex is JsonException or NotSupportedException)
         {
             return Array.Empty<DriveEntry>();
         }
-        foreach (LsblkEntry entry in entries.blockdevices)
-            if (entry is { type: "part", label: not null, mountpoint: not null })
-                drives.Add(new DriveEntry(entry.mountpoint, entry.label, entry.size));
+        foreach (LsblkEntry entry in entries.BlockDevices)
+            if (entry is { Type: "part", Label: not null, MountPoint: not null })
+                drives.Add(new DriveEntry(entry.MountPoint, entry.Label, entry.Size));
 
         return drives.ToArray();
     }

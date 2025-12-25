@@ -82,21 +82,28 @@ public class LinuxShellHandler : IShellHandler
             UseShellExecute = false,
             CreateNoWindow = true,
         };
-        process.Start();
-        string stdOut = process.StandardOutput.ReadToEnd();
-        string errorMessage = process.StandardError.ReadToEnd();
-        process.WaitForExit();
+        try
+        {
+            process.Start();
+            string stdOut = process.StandardOutput.ReadToEnd();
+            string errorMessage = process.StandardError.ReadToEnd();
+            process.WaitForExit();
 
-        bool success = process.ExitCode == 0;
-        if (!success && string.IsNullOrWhiteSpace(errorMessage))
-            errorMessage = stdOut;
+            bool success = process.ExitCode == 0;
+            if (!success && string.IsNullOrWhiteSpace(errorMessage))
+                errorMessage = stdOut;
 
-        if (success)
-            return ValueResult<string>.Ok(stdOut.Trim());
+            if (success)
+                return ValueResult<string>.Ok(stdOut.Trim());
 
-        return string.IsNullOrWhiteSpace(errorMessage)
-            ? ValueResult<string>.Error()
-            : ValueResult<string>.Error(errorMessage);
+            return string.IsNullOrWhiteSpace(errorMessage)
+                ? ValueResult<string>.Error()
+                : ValueResult<string>.Error(errorMessage);
+        }
+        catch (Exception ex)
+        {
+            return ValueResult<string>.Error(ex.Message);
+        }
     }
 
     public IResult CreateLink(string filePath)

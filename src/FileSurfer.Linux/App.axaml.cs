@@ -79,9 +79,9 @@ public partial class App : Application
 
     private static MainWindowViewModel GetViewModel(string initialDir, MainWindow mainWindow)
     {
-        LinuxFileInfoProvider fileInfoProvider = new();
         LinuxFileIOHandler fileIOHandler = new();
         LinuxShellHandler shellHandler = new();
+        LinuxFileInfoProvider fileInfoProvider = new(shellHandler);
         IClipboard clipboard = mainWindow.Clipboard ?? throw new InvalidDataException();
         ClipboardManager clipboardManager = new(
             clipboard,
@@ -96,7 +96,7 @@ public partial class App : Application
             new LinuxBinInteraction(shellHandler),
             new LinuxFileProperties(),
             fileInfoProvider,
-            new LinuxIconProvider(),
+            new LinuxIconProvider(shellHandler),
             shellHandler,
             new GitVersionControl(shellHandler),
             clipboardManager

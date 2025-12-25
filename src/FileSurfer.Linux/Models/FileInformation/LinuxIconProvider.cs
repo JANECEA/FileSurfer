@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Media;
@@ -10,6 +9,7 @@ using Avalonia.Platform;
 using Avalonia.Svg.Skia;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
+using FileSurfer.Core.Models.Shell;
 using MimeDetective;
 using MimeDetective.Engine;
 
@@ -40,6 +40,7 @@ public class LinuxIconProvider : IIconProvider, IDisposable
         }.Build()
     );
 
+    private readonly IShellHandler _shellHandler;
     private readonly IReadOnlyList<string> _searchPaths;
     private readonly Dictionary<string, string> _extToMime = new();
     private readonly Dictionary<string, IImage> _mimeToIcon = new();
@@ -47,9 +48,10 @@ public class LinuxIconProvider : IIconProvider, IDisposable
 
     private IImage? GetGenericFileIcon() => _genericFileIcon ??= ExtractIcon(GenericMimeType);
 
-    public LinuxIconProvider()
+    public LinuxIconProvider(IShellHandler shellHandler)
     {
-        _searchPaths = IconPathResolver.GetSearchPaths();
+        _shellHandler = shellHandler;
+        _searchPaths = IconPathResolver.GetSearchPaths(shellHandler);
 
         if (!File.Exists(GlobsParser.GlobsPath))
             return;
@@ -102,27 +104,16 @@ public class LinuxIconProvider : IIconProvider, IDisposable
         return mimeType;
     }
 
-    // To ShellHandler
-    private static string GetXdgMimeType(string filePath)
+    private string GetXdgMimeType(string filePath)
     {
-        ProcessStartInfo psi = new()
-        {
-            FileName = "xdg-mime",
-            Arguments = $"query filetype \"{filePath}\"",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-        };
-
-        using Process? process = Process.Start(psi);
-        if (process == null)
+        ValueResult<string> result = _shellHandler.ExecuteCommand(
+            "xdg-mime",
+            $"query filetype \"{filePath}\""
+        );
+        if (!result.IsOk || string.IsNullOrEmpty(result.Value))
             return GenericMimeType;
 
-        string output = process.StandardOutput.ReadToEnd();
-        process.WaitForExit();
-
-        return process.ExitCode == 0 ? output.Trim().Replace('/', '-') : GenericMimeType;
+        return result.Value.Replace('/', '-');
     }
 
     private IImage? ExtractIcon(string mimeType)
