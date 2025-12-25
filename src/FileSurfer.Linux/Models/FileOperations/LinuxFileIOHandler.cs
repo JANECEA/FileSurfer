@@ -13,15 +13,6 @@ namespace FileSurfer.Linux.Models.FileOperations;
 /// </summary>
 public class LinuxFileIOHandler : IFileIOHandler
 {
-    private readonly IFileInfoProvider _fileInfoProvider;
-    private readonly long _showDialogLimit;
-
-    public LinuxFileIOHandler(IFileInfoProvider fileInfoProvider, long showDialogLimit)
-    {
-        _fileInfoProvider = fileInfoProvider;
-        _showDialogLimit = showDialogLimit;
-    }
-
     public IResult DeleteFile(string filePath)
     {
         try

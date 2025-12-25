@@ -80,10 +80,7 @@ public partial class App : Application
     private static MainWindowViewModel GetViewModel(string initialDir, MainWindow mainWindow)
     {
         LinuxFileInfoProvider fileInfoProvider = new();
-        LinuxFileIOHandler fileIOHandler = new(
-            fileInfoProvider,
-            FileSurferSettings.ShowDialogLimitB
-        );
+        LinuxFileIOHandler fileIOHandler = new();
         LinuxShellHandler shellHandler = new();
         IClipboard clipboard = mainWindow.Clipboard ?? throw new InvalidDataException();
         ClipboardManager clipboardManager = new(

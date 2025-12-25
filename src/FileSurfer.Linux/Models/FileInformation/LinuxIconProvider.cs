@@ -130,6 +130,7 @@ public class LinuxIconProvider : IIconProvider, IDisposable
         foreach (string path in _searchPaths)
         {
             string svgPath = Path.Combine(path, mimeType + ".svg");
+            // TODO fix icon transparency
             if (File.Exists(svgPath))
                 return new SvgImage { Source = SvgSource.Load(svgPath) };
 
