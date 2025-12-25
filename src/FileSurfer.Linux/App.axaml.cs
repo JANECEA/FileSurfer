@@ -93,7 +93,7 @@ public partial class App : Application
         return new MainWindowViewModel(
             initialDir,
             fileIOHandler,
-            new LinuxBinInteraction(FileSurferSettings.ShowDialogLimitB, fileInfoProvider),
+            new LinuxBinInteraction(shellHandler),
             new LinuxFileProperties(),
             fileInfoProvider,
             new LinuxIconProvider(),

@@ -10,6 +10,9 @@ using FileSurfer.Core.Models.FileInformation;
 
 namespace FileSurfer.Linux.Models.FileInformation;
 
+/// <summary>
+/// Optimizes icon delivery on Linux using the mime-type.
+/// </summary>
 public class LinuxFileInfoProvider : IFileInfoProvider
 {
     [
@@ -24,7 +27,8 @@ public class LinuxFileInfoProvider : IFileInfoProvider
     public DriveEntry[] GetDrives()
     {
         // To ShellHandler
-        ProcessStartInfo psi = new("lsblk", " -Jnbpo LABEL,MOUNTPOINT,SIZE,TYPE")
+        // TODO dependencies: lsblk
+        ProcessStartInfo psi = new("lsblk", "-Jnbpo LABEL,MOUNTPOINT,SIZE,TYPE")
         {
             RedirectStandardOutput = true,
             UseShellExecute = false,

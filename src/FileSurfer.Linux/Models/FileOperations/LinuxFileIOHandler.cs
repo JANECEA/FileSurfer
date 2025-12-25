@@ -2,14 +2,13 @@ using System;
 using System.IO;
 using System.Linq;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Models.FileOperations;
 using Microsoft.VisualBasic.FileIO;
 
 namespace FileSurfer.Linux.Models.FileOperations;
 
 /// <summary>
-/// Handles file IO operations in the Windows environment within the context of the <see cref="FileSurfer"/> app.
+/// Handles file IO operations in the Linux environment.
 /// </summary>
 public class LinuxFileIOHandler : IFileIOHandler
 {
