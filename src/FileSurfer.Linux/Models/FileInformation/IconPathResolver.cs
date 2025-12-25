@@ -13,8 +13,14 @@ internal sealed class IconPathComparer : IComparer<IconPath>
 
     internal IconPathComparer(string? theme) => _theme = theme;
 
-    public int Compare(IconPath a, IconPath b)
+    public int Compare(IconPath? a, IconPath? b)
     {
+        if (ReferenceEquals(a, b))
+            return 0;
+
+        if (a is null || b is null)
+            return a is null ? -1 : 1;
+
         bool aIsTheme =
             _theme is not null
             && a.RestOfPath.Contains($"{PathTools.DirSeparator}{_theme}{PathTools.DirSeparator}");
@@ -44,7 +50,7 @@ internal sealed class IconPathComparer : IComparer<IconPath>
     }
 }
 
-internal record IconPath(
+internal sealed record IconPath(
     int Size,
     int IconCount,
     string RestOfPath,
