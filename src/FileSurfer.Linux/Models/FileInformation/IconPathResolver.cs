@@ -3,8 +3,54 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using FileSurfer.Core.Models;
 
 namespace FileSurfer.Linux.Models.FileInformation;
+
+internal sealed class IconPathComparer : IComparer<IconPath>
+{
+    private readonly string? _theme;
+
+    internal IconPathComparer(string? theme) => _theme = theme;
+
+    public int Compare(IconPath a, IconPath b)
+    {
+        bool aIsTheme =
+            _theme is not null
+            && a.RestOfPath.Contains($"{PathTools.DirSeparator}{_theme}{PathTools.DirSeparator}");
+        bool bIsTheme =
+            _theme is not null
+            && b.RestOfPath.Contains($"{PathTools.DirSeparator}{_theme}{PathTools.DirSeparator}");
+        if (aIsTheme != bIsTheme)
+            return aIsTheme ? -1 : 1;
+
+        bool aContainsTheme = _theme is not null && a.RestOfPath.Contains(_theme);
+        bool bContainsTheme = _theme is not null && b.RestOfPath.Contains(_theme);
+        if (aContainsTheme != bContainsTheme)
+            return aContainsTheme ? -1 : 1;
+
+        if (a.IconCount != b.IconCount)
+            return a.IconCount > b.IconCount ? -1 : 1;
+
+        bool aIsLocal = a.BaseDir.Contains($"{PathTools.DirSeparator}home{PathTools.DirSeparator}");
+        bool bIsLocal = b.BaseDir.Contains($"{PathTools.DirSeparator}home{PathTools.DirSeparator}");
+        if (aIsLocal != bIsLocal)
+            return aIsLocal ? -1 : 1;
+
+        if (a.Size != b.Size)
+            return a.Size < b.Size ? -1 : 1;
+
+        return 0;
+    }
+}
+
+internal record IconPath(
+    int Size,
+    int IconCount,
+    string RestOfPath,
+    string BaseDir,
+    string PathToIcons
+);
 
 internal static class IconPathResolver
 {
@@ -33,39 +79,54 @@ internal static class IconPathResolver
     internal static List<string> GetSearchPaths()
     {
         string? theme = GetCurrentTheme();
-        List<string> result = new();
+        List<IconPath> result = SearchPaths();
 
-        if (theme is not null)
-            SearchPaths(result, theme);
-
-        if (result.Count == 0)
-            SearchPaths(result, null);
-
-        return result.Distinct().ToList();
+        result.Sort(new IconPathComparer(theme));
+        return result.Select(iconPath => iconPath.PathToIcons).Distinct().ToList();
     }
 
-    private static void SearchPaths(List<string> result, string? theme)
+    private static List<IconPath> SearchPaths()
     {
+        List<IconPath> result = new();
         foreach (string baseIconDir in BaseIconDirs)
         foreach (string extension in SupportedExtensions)
         foreach (
-            string iconPath in Directory.EnumerateFiles(
+            string path in Directory.EnumerateFiles(
                 baseIconDir,
                 $"{RequiredIcon}.{extension}",
                 SearchOption.AllDirectories
             )
         )
-            if (ValidatePath(iconPath, baseIconDir, theme))
-                result.Add(Path.GetDirectoryName(iconPath)!);
+            if (TryGetIconPath(path, baseIconDir, out IconPath? iconPath))
+                result.Add(iconPath!);
+
+        return result;
     }
 
-    private static bool ValidatePath(string iconPath, string baseIconDir, string? theme)
+    private static bool TryGetIconPath(string path, string baseIconDir, out IconPath? iconPath)
     {
-        string restOfPath = iconPath[baseIconDir.Length..];
-        if (restOfPath.Contains('@') || (theme is not null && !restOfPath.Contains(theme)))
+        iconPath = null;
+        string restOfPath = path[baseIconDir.Length..];
+        if (restOfPath.Contains('@'))
             return false;
 
-        return GetSize(restOfPath) >= PreferredSize;
+        int size = GetSize(restOfPath);
+        if (size < PreferredSize)
+            return false;
+
+        string? pathToIcons = Path.GetDirectoryName(path);
+        if (pathToIcons is null)
+            return false;
+
+        int iconCount = Directory.EnumerateFiles(pathToIcons).Count();
+        iconPath = new IconPath(
+            size,
+            iconCount,
+            path[baseIconDir.Length..],
+            baseIconDir,
+            pathToIcons
+        );
+        return true;
     }
 
     private static int GetSize(string restOfPath)
@@ -94,17 +155,17 @@ internal static class IconPathResolver
 
     private static string? GetCurrentTheme()
     {
+        ProcessStartInfo psi = new()
+        {
+            FileName = "gsettings",
+            Arguments = "get org.gnome.desktop.interface icon-theme",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
         try
         {
-            ProcessStartInfo psi = new()
-            {
-                FileName = "gsettings",
-                Arguments = "get org.gnome.desktop.interface icon-theme",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            };
             using Process? process = Process.Start(psi);
             if (process == null)
                 return null;
