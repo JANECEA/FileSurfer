@@ -6,14 +6,19 @@
 public interface IFileProperties
 {
     /// <summary>
-    /// Calls the <see cref="ShellExecuteEx(ref ShellExecuteInfo)"/> function to show the properties dialog of the specified <paramref name="filePath"/>.
+    /// Shows the file properties dialog
     /// </summary>
     /// <returns><see langword="true"/> if the properties dialog was successfully shown, otherwise <see langword="false"/>.</returns>
-    public IResult ShowFileProperties(string filePath);
+    public IResult ShowFileProperties(IFileSystemEntry entry);
+
+    /// <summary>
+    /// Displays the "Open With" dialog for a specified file
+    /// </summary>
+    public bool SupportsOpenAs(IFileSystemEntry entry);
 
     /// <summary>
     /// Displays the "Open With" dialog for a specified file
     /// </summary>
     /// <returns><see langword="true"/> if the "Open With" dialog was successfully shown; otherwise, <see langword="false"/>.</returns>
-    public IResult ShowOpenAsDialog(string filePath);
+    public IResult ShowOpenAsDialog(IFileSystemEntry entry);
 }

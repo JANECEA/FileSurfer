@@ -6,6 +6,7 @@ using Avalonia.Media.Imaging;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Models.FileOperations;
+using FileSurfer.Core.Models.Shell;
 using FileSurfer.Core.Models.VersionControl;
 using ReactiveUI;
 
@@ -106,6 +107,11 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     public bool IsArchived { get; } = false;
 
     /// <summary>
+    /// Specifies if the open as dialog can be invoked on this entry
+    /// </summary>
+    public bool SupportsOpenAs { get; }
+
+    /// <summary>
     /// Holds the underlying <see cref="IFileSystemEntry"/>.
     /// </summary>
     public IFileSystemEntry FileSystemEntry { get; }
@@ -118,11 +124,13 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// </para>
     /// </summary>
     /// <param name="fileInfoProvider">Provider for file operations like retrieving file size and modification time.</param>
+    /// <param name="fileProperties">Determines if the open as dialogue can be invoked on this entry</param>
     /// <param name="iconProvider">Provider for retrieving file icons.</param>
     /// <param name="entry">The file or directory entry.</param>
     /// <param name="status">Optional version control status of the entry, defaulting to not version controlled.</param>
     public FileSystemEntryViewModel(
         IFileInfoProvider fileInfoProvider,
+        IFileProperties fileProperties,
         IIconProvider iconProvider,
         IFileSystemEntry entry,
         VCStatus status
@@ -154,6 +162,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
 
         UpdateVCStatus(status);
         IsArchived = ArchiveManager.IsZipped(entry.PathToEntry);
+        SupportsOpenAs = fileProperties.SupportsOpenAs(entry);
     }
 
     /// <summary>
@@ -167,14 +176,20 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// </para>
     /// </summary>
     /// <param name="iconProvider">Provides the drive icon.</param>
+    /// <param name="fileProperties">Determines if the open as dialogue can be invoked on this entry</param>
     /// <param name="driveEntry">The drive information associated with this entry.</param>
-    public FileSystemEntryViewModel(IIconProvider iconProvider, DriveEntry driveEntry)
+    public FileSystemEntryViewModel(
+        IIconProvider iconProvider,
+        IFileProperties fileProperties,
+        DriveEntry driveEntry
+    )
     {
         FileSystemEntry = driveEntry;
         Type = "Drive";
         Icon = iconProvider.GetDriveIcon(driveEntry);
         LastModified = string.Empty;
         Size = GetSizeString(driveEntry.SizeB);
+        SupportsOpenAs = fileProperties.SupportsOpenAs(driveEntry);
     }
 
     internal void UpdateVCStatus(VCStatus newStatus)

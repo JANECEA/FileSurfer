@@ -31,7 +31,7 @@ public class LinuxFileInfoProvider : IFileInfoProvider
 
     public DriveEntry[] GetDrives()
     {
-        // TODO dependencies: lsblk
+        // DEP: lsblk
         ValueResult<string> result = _shellHandler.ExecuteCommand(
             "lsblk",
             "-Jnbpo LABEL,MOUNTPOINT,SIZE,TYPE"

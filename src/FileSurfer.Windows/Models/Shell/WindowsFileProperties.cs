@@ -52,12 +52,12 @@ public class WindowsFileProperties : IFileProperties
     )]
     private static extern bool ShellExecuteEx(ref ShellExecuteInfo lpExecInfo);
 
-    public IResult ShowFileProperties(string filePath)
+    public IResult ShowFileProperties(IFileSystemEntry entry)
     {
         ShellExecuteInfo info = new();
         info.cbSize = Marshal.SizeOf(info);
         info.lpVerb = "properties";
-        info.lpFile = filePath;
+        info.lpFile = entry.PathToEntry;
         info.nShow = 0;
         info.fMask = 0x0000000C;
 
@@ -66,11 +66,13 @@ public class WindowsFileProperties : IFileProperties
             : SimpleResult.Error(new Win32Exception(Marshal.GetLastWin32Error()).Message);
     }
 
-    public IResult ShowOpenAsDialog(string filePath)
+    public bool SupportsOpenAs(IFileSystemEntry entry) => entry is FileEntry;
+
+    public IResult ShowOpenAsDialog(IFileSystemEntry entry)
     {
         try
         {
-            Process.Start("rundll32.exe", "shell32.dll,OpenAs_RunDLL " + filePath);
+            Process.Start("rundll32.exe", "shell32.dll,OpenAs_RunDLL " + entry.PathToEntry);
             return SimpleResult.Ok();
         }
         catch (Exception ex)

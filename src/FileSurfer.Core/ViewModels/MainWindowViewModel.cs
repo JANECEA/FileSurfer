@@ -231,7 +231,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _shellHandler = shellHandler;
         _versionControl = versionControl;
         _clipboardManager = clipboardManager;
-        _entryVMFactory = new FileSystemEntryVMFactory(_fileInfoProvider, iconProvider);
+        _entryVMFactory = new FileSystemEntryVMFactory(
+            _fileInfoProvider,
+            _fileProperties,
+            iconProvider
+        );
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
         _pathHistory = new UndoRedoHandler<string>();
         SelectedFiles.CollectionChanged += UpdateSelectionInfo;
@@ -493,7 +497,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void OpenAs(FileSystemEntryViewModel entry)
     {
         if (!entry.IsDirectory)
-            ForwardIfError(_fileProperties.ShowOpenAsDialog(entry.PathToEntry));
+            ForwardIfError(_fileProperties.ShowOpenAsDialog(entry.FileSystemEntry));
     }
 
     /// <summary>
@@ -1137,7 +1141,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Relays the operation to <see cref="_fileIOHandler"/>.
     /// </summary>
     public void ShowProperties(FileSystemEntryViewModel entry) =>
-        ForwardIfError(_fileProperties.ShowFileProperties(entry.PathToEntry));
+        ForwardIfError(_fileProperties.ShowFileProperties(entry.FileSystemEntry));
 
     /// <summary>
     /// Relays the operation to <see cref="RenameOne(string)"/> or <see cref="RenameMultiple(string)"/>.

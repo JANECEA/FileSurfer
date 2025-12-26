@@ -51,6 +51,7 @@
                 <TextBlock Classes="IconViewInfo" Text="{Binding Name}"/>
             </StackPanel>
         </DataTemplate>
+        
         <DataTemplate x:Key="SideBarTemplate" x:DataType="{x:Type viewmodels:FileSystemEntryViewModel}">
             <Grid ColumnDefinitions="Auto *" Height="25">
                 <Image Source="{Binding Icon}" Grid.Column="0" Width="18" Height="18" Margin="20 0 12 0"/>
@@ -235,7 +236,7 @@
                                     <Setter.Value>
                                         <ContextMenu Classes="FileContextMenu" x:DataType="viewmodels:FileSystemEntryViewModel">
                                             <MenuItem Classes="ContextMenuItem" Header="Open" Click="OpenClicked"/>
-                                            <MenuItem Classes="ContextMenuItem" Header="Open as" Click="OpenAs" IsVisible="{Binding !IsDirectory}"/>
+                                            <MenuItem Classes="ContextMenuItem" Header="Open as" Click="OpenAs" IsVisible="{Binding SupportsOpenAs}"/>
                                             <MenuItem Classes="ContextMenuItem" Header="Open in Notepad" IsVisible="{Binding !IsDirectory}" Click="OpenInNotepad"/>
                                             <MenuItem Classes="ContextMenuItem" Header="Add to quick access" Click="PinToQuickAccess"/>
                                             <Separator Classes="ContextMenuSeparator"/>
