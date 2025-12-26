@@ -70,10 +70,23 @@ public class LinuxShellHandler : IShellHandler
         }
     }
 
+    public ValueResult<string> ExecuteShellCommand(string command)
+    {
+        ProcessStartInfo startInfo = new()
+        {
+            FileName = "/bin/sh",
+            Arguments = $"-c \"{command.Replace("\"", "\\\"")}\"",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        return ManageProcess(startInfo);
+    }
+
     public ValueResult<string> ExecuteCommand(string programName, string? args = null)
     {
-        using Process process = new();
-        process.StartInfo = new ProcessStartInfo
+        ProcessStartInfo startInfo = new()
         {
             FileName = programName,
             Arguments = args ?? string.Empty,
@@ -82,6 +95,13 @@ public class LinuxShellHandler : IShellHandler
             UseShellExecute = false,
             CreateNoWindow = true,
         };
+        return ManageProcess(startInfo);
+    }
+
+    private static ValueResult<string> ManageProcess(ProcessStartInfo processStartInfo)
+    {
+        using Process process = new();
+        process.StartInfo = processStartInfo;
         try
         {
             process.Start();

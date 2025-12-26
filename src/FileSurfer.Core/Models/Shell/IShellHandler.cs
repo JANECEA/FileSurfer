@@ -34,4 +34,10 @@ public interface IShellHandler
     /// </summary>
     /// <returns>A <see cref="ValueResult{string}"/> representing the result stdout of the operation and potential errors.</returns>
     public ValueResult<string> ExecuteCommand(string programName, string? args = null);
+
+    /// <summary>
+    /// Executes a shell command in the command prompt.
+    /// </summary>
+    /// <returns>A <see cref="ValueResult{string}"/> representing the result stdout of the operation and potential errors.</returns>
+    public ValueResult<string> ExecuteShellCommand(string command);
 }

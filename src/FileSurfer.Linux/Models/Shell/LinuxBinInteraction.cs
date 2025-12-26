@@ -9,7 +9,7 @@ namespace FileSurfer.Linux.Models.Shell;
 /// </summary>
 public class LinuxBinInteraction : IBinInteraction
 {
-    // TODO dependencies: gio, gvfs, gvfs-client, gvfs-fuse
+    // TODO dependencies: trash-cli
     private readonly IShellHandler _shellHandler;
 
     public LinuxBinInteraction(IShellHandler shellHandler) => _shellHandler = shellHandler;
@@ -20,68 +20,37 @@ public class LinuxBinInteraction : IBinInteraction
 
     private IResult RestoreEntry(string originalPath)
     {
-        ValueResult<string> result = _shellHandler.ExecuteCommand("gio", "trash --list");
+        ValueResult<string> result = _shellHandler.ExecuteCommand("trash-list");
         if (!result.IsOk)
-            return SimpleResult.Error("Could not access system trash");
+            return SimpleResult.Error("Failed to access system trash.");
 
-        StringReader reader = new(result.Value);
-        string? trashUri = GetTrashUri(reader, originalPath);
+        if (string.IsNullOrEmpty(result.Value))
+            return SimpleResult.Error("Trash list is empty.");
 
-        if (trashUri is null && _shellHandler.ExecuteCommand("killall", "gvfsd-trash").IsOk)
-        {
-            result = _shellHandler.ExecuteCommand("gio", "trash --list");
-            if (!result.IsOk)
-                return SimpleResult.Error("Restart did not succeed.");
+        int newestIndex = GetNewestIndex(result.Value, originalPath);
+        if (newestIndex < 0)
+            return SimpleResult.Error($"Could not find \"{originalPath}\" in trash.");
 
-            if (string.IsNullOrEmpty(result.Value))
-                return SimpleResult.Error("Trash is empty");
-
-            reader = new StringReader(result.Value);
-            trashUri = GetTrashUri(reader, originalPath);
-        }
-
-        return trashUri is null
-            ? SimpleResult.Error("Could not find path in system trash.")
-            : _shellHandler.ExecuteCommand("gio", $"trash --restore {trashUri}");
+        return _shellHandler.ExecuteShellCommand(
+            $"echo {newestIndex} | trash-restore \"{originalPath}\""
+        );
     }
 
-    private static string? GetTrashUri(StringReader reader, string originalTrashedPath)
+    private static int GetNewestIndex(string stdOut, string originalPath)
     {
-        originalTrashedPath = PathTools.NormalizePath(originalTrashedPath);
+        originalPath = PathTools.NormalizePath(originalPath);
+        StringReader reader = new(stdOut);
 
-        int largestIndex = int.MinValue;
-        string? largestIndexUri = null;
-        while (reader.ReadLine() is { } line)
+        int index = -1;
+        while (reader.ReadLine() is string line)
         {
-            int tabIndex = line.IndexOf('\t');
-            if (tabIndex == -1)
-                continue;
+            int secondSpaceIdx = line.IndexOf(' ', line.IndexOf(' ') + 1);
+            string path = line[(secondSpaceIdx + 1)..];
 
-            string origPath = line[(tabIndex + 1)..];
-            if (!PathTools.PathsAreEqualNormalized(origPath, originalTrashedPath))
-                continue;
-
-            string trashUri = line[..tabIndex];
-            int index = GetUriIndex(trashUri);
-            if (index > largestIndex)
-            {
-                largestIndex = index;
-                largestIndexUri = trashUri;
-            }
+            if (PathTools.PathsAreEqualNormalized(PathTools.NormalizePath(path), originalPath))
+                index++;
         }
-        return largestIndexUri;
-    }
-
-    private static int GetUriIndex(string trashItemUri)
-    {
-        string? extension = PathTools.GetExtensionNoDot(trashItemUri);
-        if (string.IsNullOrEmpty(extension))
-            return 0;
-
-        int dotIndex = extension.IndexOf('.');
-        string numberPart = dotIndex != -1 ? extension[..dotIndex] : extension;
-
-        return uint.TryParse(numberPart, out uint number) ? (int)number : 0;
+        return index;
     }
 
     public IResult MoveFileToTrash(string filePath) => MoveEntryToTrash(filePath);
@@ -89,5 +58,5 @@ public class LinuxBinInteraction : IBinInteraction
     public IResult MoveDirToTrash(string dirPath) => MoveEntryToTrash(dirPath);
 
     private ValueResult<string> MoveEntryToTrash(string path) =>
-        _shellHandler.ExecuteCommand("gio", $"trash \"{path}\"");
+        _shellHandler.ExecuteCommand("trash-put", $"\"{path}\"");
 }
