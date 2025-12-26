@@ -53,36 +53,6 @@ public enum SortBy
 }
 
 /// <summary>
-/// Used to (de)serialize the settings.json file.
-/// </summary>
-[SuppressMessage("ReSharper", "InconsistentNaming")]
-public record SettingsRecord
-{
-    public required string newImageName { get; init; }
-    public required string newFileName { get; init; }
-    public required string newDirectoryName { get; init; }
-    public required string thisPCLabel { get; init; }
-    public required string notepadApp { get; init; }
-    public required bool openInLastLocation { get; init; }
-    public required string openIn { get; init; }
-    public required bool useDarkMode { get; init; }
-    public required string displayMode { get; init; }
-    public required string defaultSort { get; init; }
-    public required int fileSizeUnitLimit { get; init; }
-    public required bool sortReversed { get; init; }
-    public required bool showSpecialFolders { get; init; }
-    public required bool showProtectedFiles { get; init; }
-    public required bool showHiddenFiles { get; init; }
-    public required bool treatDotFilesAsHidden { get; init; }
-    public required bool gitIntegration { get; init; }
-    public required bool showUndoRedoErrorDialogs { get; init; }
-    public required bool automaticRefresh { get; init; }
-    public required int automaticRefreshInterval { get; init; }
-    public required bool allowImagePastingFromClipboard { get; init; }
-    public required List<string> quickAccess { get; init; }
-}
-
-/// <summary>
 /// <para>
 /// Provides application-wide settings management for the FileSurfer application.
 /// </para>
@@ -101,21 +71,17 @@ public static class FileSurferSettings
         WriteIndented = true,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
         AllowTrailingCommas = true,
+        PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate,
     };
     private static readonly string FileSurferDataDir = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "FileSurfer"
     );
 
-    private static IDefaultSettingsProvider? _defaultSettingsProvider;
-
     /// <summary>
     /// Returns the default set of settings for the <see cref="FileSurfer"/> app.
     /// </summary>
-    public static SettingsRecord DefaultSettings =>
-        _defaultSettingsProvider is null
-            ? throw new InvalidOperationException("Settings need to be initialized during startup.")
-            : _defaultSettingsProvider.GetDefaultSettings();
+    public static SettingsRecord DefaultSettings => new();
 
     /// <summary>
     /// Returns the current settings in the form of <see cref="SettingsRecord"/>.
@@ -279,7 +245,7 @@ public static class FileSurferSettings
     /// </summary>
     public static void Initialize(IDefaultSettingsProvider settingsProvider)
     {
-        _defaultSettingsProvider = settingsProvider;
+        SettingsRecord.Initialize(settingsProvider);
         if (!File.Exists(SettingsFilePath))
         {
             ImportSettings(DefaultSettings);

@@ -1,35 +1,35 @@
 using System.Collections.Generic;
+using FileSurfer.Core;
 
-namespace FileSurfer.Core;
+namespace FileSurfer.Windows;
 
 public class WindowsDefaultSettingsProvider : IDefaultSettingsProvider
 {
     private const string ThisPCLabel = "This PC";
 
-    public SettingsRecord GetDefaultSettings() =>
-        new()
-        {
-            newImageName = "New Image",
-            newFileName = "New File",
-            newDirectoryName = "New Folder",
-            thisPCLabel = ThisPCLabel,
-            notepadApp = "notepad.exe",
-            openInLastLocation = true,
-            openIn = ThisPCLabel,
-            useDarkMode = true,
-            displayMode = DisplayMode.ListView.ToString(),
-            defaultSort = SortBy.Name.ToString(),
-            fileSizeUnitLimit = 4096,
-            sortReversed = false,
-            showSpecialFolders = true,
-            showProtectedFiles = false,
-            showHiddenFiles = true,
-            treatDotFilesAsHidden = true,
-            gitIntegration = true,
-            showUndoRedoErrorDialogs = true,
-            automaticRefresh = true,
-            automaticRefreshInterval = 3000,
-            allowImagePastingFromClipboard = true,
-            quickAccess = new List<string>(),
-        };
+    public void PopulateDefaults(SettingsRecord settingsRecord)
+    {
+        settingsRecord.newImageName = "New Image";
+        settingsRecord.newFileName = "New File";
+        settingsRecord.newDirectoryName = "New Folder";
+        settingsRecord.thisPCLabel = ThisPCLabel;
+        settingsRecord.notepadApp = "notepad.exe";
+        settingsRecord.openInLastLocation = true;
+        settingsRecord.openIn = ThisPCLabel;
+        settingsRecord.useDarkMode = true;
+        settingsRecord.displayMode = DisplayMode.ListView.ToString();
+        settingsRecord.defaultSort = SortBy.Name.ToString();
+        settingsRecord.fileSizeUnitLimit = 4096;
+        settingsRecord.sortReversed = false;
+        settingsRecord.showSpecialFolders = true;
+        settingsRecord.showProtectedFiles = false;
+        settingsRecord.showHiddenFiles = true;
+        settingsRecord.treatDotFilesAsHidden = true;
+        settingsRecord.gitIntegration = true;
+        settingsRecord.showUndoRedoErrorDialogs = true;
+        settingsRecord.automaticRefresh = true;
+        settingsRecord.automaticRefreshInterval = 3000;
+        settingsRecord.allowImagePastingFromClipboard = true;
+        settingsRecord.quickAccess = new List<string>();
+    }
 }

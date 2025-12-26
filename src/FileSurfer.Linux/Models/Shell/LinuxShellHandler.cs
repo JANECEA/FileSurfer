@@ -56,7 +56,6 @@ public class LinuxShellHandler : IShellHandler
             using Process process = new();
             process.StartInfo = new ProcessStartInfo
             {
-                // TODO Make separate default Linux settings
                 FileName = notepadPath,
                 Arguments = filePath,
                 UseShellExecute = true,

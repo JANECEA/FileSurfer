@@ -6,7 +6,7 @@ namespace FileSurfer.Core;
 public interface IDefaultSettingsProvider
 {
     /// <summary>
-    /// Returns new platform specific default settings.
+    /// Populates a <see cref="SettingsRecord"/> instance with the default settings
     /// </summary>
-    public SettingsRecord GetDefaultSettings();
+    public void PopulateDefaults(SettingsRecord settingsRecord);
 }
