@@ -33,14 +33,14 @@ public partial class App : Application
     }
 
     /// <summary>
-    /// Invokes <see cref="FileSurferSettings.LoadSettings"/> and sets <see cref="Application.RequestedThemeVariant"/> theme.
+    /// Invokes <see cref="FileSurferSettings.Initialize"/> and sets <see cref="Application.RequestedThemeVariant"/> theme.
     /// <para>
     /// Configures the main window with the appropriate DataContext.
     /// </para>
     /// </summary>
     public override void OnFrameworkInitializationCompleted()
     {
-        FileSurferSettings.LoadSettings();
+        FileSurferSettings.Initialize(new WindowsDefaultSettingsProvider());
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             SimpleResult result = ValidateArgs(desktop.Args, out string? initialDir);
