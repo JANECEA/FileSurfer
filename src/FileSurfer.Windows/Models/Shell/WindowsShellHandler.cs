@@ -68,13 +68,16 @@ public class WindowsShellHandler : IShellHandler
         }
     }
 
-    public ValueResult<string> ExecuteCommand(string programName, string? args = null)
+    public ValueResult<string> ExecuteCommand(string programName, string? args = null) =>
+        ExecuteShellCommand($"{programName} {args ?? string.Empty}");
+
+    public ValueResult<string> ExecuteShellCommand(string command)
     {
         using Process process = new();
         process.StartInfo = new ProcessStartInfo
         {
             FileName = "cmd.exe",
-            Arguments = $"/c {programName} {args ?? string.Empty}",
+            Arguments = $"/c {command}",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
@@ -97,22 +100,26 @@ public class WindowsShellHandler : IShellHandler
             : ValueResult<string>.Error(errorMessage);
     }
 
-    public IResult CreateLink(string filePath)
+    public IResult CreateFileLink(string filePath) => CreateLink(filePath);
+
+    public IResult CreateDirectoryLink(string dirPath) => CreateLink(dirPath);
+
+    private static SimpleResult CreateLink(string path)
     {
         try
         {
-            string linkName = Path.GetFileName(filePath) + " - Shortcut.lnk";
+            string linkName = Path.GetFileName(path) + " - Shortcut.lnk";
             string parentDir =
-                Path.GetDirectoryName(filePath)
-                ?? Path.GetPathRoot(filePath)
-                ?? throw new ArgumentNullException(filePath);
+                Path.GetDirectoryName(path)
+                ?? Path.GetPathRoot(path)
+                ?? throw new ArgumentNullException(path);
             string linkPath = Path.Combine(parentDir, linkName);
 
             IWshRuntimeLibrary.WshShell wshShell = new();
             IWshRuntimeLibrary.IWshShortcut shortcut = wshShell.CreateShortcut(linkPath);
 
-            shortcut.TargetPath = filePath;
-            shortcut.WorkingDirectory = Path.GetDirectoryName(filePath);
+            shortcut.TargetPath = path;
+            shortcut.WorkingDirectory = Path.GetDirectoryName(path);
             shortcut.Save();
             return SimpleResult.Ok();
         }

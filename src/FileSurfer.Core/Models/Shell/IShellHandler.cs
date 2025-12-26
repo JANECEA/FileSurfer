@@ -9,7 +9,13 @@ public interface IShellHandler
     /// Creates a symbolic link to the specified file path.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult CreateLink(string filePath);
+    public IResult CreateFileLink(string filePath);
+
+    /// <summary>
+    /// Creates a symbolic link to the specified directory path.
+    /// </summary>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult CreateDirectoryLink(string dirPath);
 
     /// <summary>
     /// Opens a file at the specified path in the application preferred by the OS.

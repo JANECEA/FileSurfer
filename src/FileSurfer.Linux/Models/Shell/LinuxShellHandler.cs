@@ -126,7 +126,7 @@ public class LinuxShellHandler : IShellHandler
         }
     }
 
-    public IResult CreateLink(string filePath)
+    public IResult CreateFileLink(string filePath)
     {
         try
         {
@@ -138,12 +138,27 @@ public class LinuxShellHandler : IShellHandler
                 ?? throw new ArgumentNullException(filePath);
 
             string linkPath = Path.Combine(parentDir, linkName);
+            File.CreateSymbolicLink(linkPath, filePath);
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
 
-            // TODO refine interface to IFileSystemEntry
-            _ = File.Exists(filePath)
-                ? File.CreateSymbolicLink(linkPath, filePath)
-                : Directory.CreateSymbolicLink(linkPath, filePath);
+    public IResult CreateDirectoryLink(string dirPath)
+    {
+        try
+        {
+            string linkName = $"{Path.GetFileName(dirPath)} - link";
+            string parentDir =
+                Path.GetDirectoryName(dirPath)
+                ?? Path.GetPathRoot(dirPath)
+                ?? throw new ArgumentNullException(dirPath);
 
+            string linkPath = Path.Combine(parentDir, linkName);
+            Directory.CreateSymbolicLink(linkPath, dirPath);
             return SimpleResult.Ok();
         }
         catch (Exception ex)

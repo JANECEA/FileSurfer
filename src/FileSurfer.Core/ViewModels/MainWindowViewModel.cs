@@ -1125,7 +1125,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void CreateShortcut(FileSystemEntryViewModel entry)
     {
-        ForwardIfError(_shellHandler.CreateLink(entry.PathToEntry));
+        IResult result = entry.IsDirectory
+            ? _shellHandler.CreateDirectoryLink(entry.PathToEntry)
+            : _shellHandler.CreateFileLink(entry.PathToEntry);
+
+        ForwardIfError(result);
         Reload();
     }
 
