@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FileSurfer.Core;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 
@@ -144,6 +145,16 @@ public class WindowsFileInfoProvider : IFileInfoProvider
 
     public bool IsHidden(string path, bool isDirectory)
     {
+        if (FileSurferSettings.TreatDotFilesAsHidden)
+        {
+            int i = path.Length - 2;
+            for (; i >= 0; i--)
+                if (path[i] == PathTools.DirSeparator)
+                    break;
+
+            if (path[i + 1] == '.')
+                return true;
+        }
         try
         {
             return isDirectory

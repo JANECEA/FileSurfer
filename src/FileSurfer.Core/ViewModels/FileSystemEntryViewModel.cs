@@ -154,11 +154,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
             Type = string.IsNullOrEmpty(extension) ? "File" : extension + " File";
         }
 
-        Opacity =
-            fileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory)
-            || FileSurferSettings.TreatDotFilesAsHidden && Name.StartsWith('.')
-                ? 0.45
-                : 1;
+        Opacity = fileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory) ? 0.45 : 1;
 
         UpdateVCStatus(status);
         IsArchived = ArchiveManager.IsZipped(entry.PathToEntry);

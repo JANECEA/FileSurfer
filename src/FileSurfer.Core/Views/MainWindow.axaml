@@ -65,7 +65,7 @@
             <Button Classes="TopLeftButton ArrowButton" Content="&#xF053;" HotKey="Alt+Left" Command="{Binding GoBackCommand}" ToolTip.Tip="Go Back"/>
             <Button Classes="TopLeftButton ArrowButton" Content="&#xF054;" HotKey="Alt+Right" Command="{Binding GoForwardCommand}" ToolTip.Tip="Got Forward"/>
             <Button Classes="TopLeftButton" Content="&#xF01E;" HotKey="F5" Command="{Binding ReloadCommand}" ToolTip.Tip="Reload"/>
-            <Button Classes="TopLeftButton" Content="&#xEBC7;" HotKey="F12" Command="{Binding OpenPowerShellCommand}" ToolTip.Tip="Open PowerShell here"/>
+            <Button Classes="TopLeftButton" Content="&#xEBC7;" HotKey="F12" Command="{Binding OpenPowerShellCommand}" ToolTip.Tip="Open terminal here"/>
 
             <Grid ColumnDefinitions="* 250">
                 <TextBox x:Name="PathBox" Classes="PathBox TopTextBox" Grid.Column="0" 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,13 +11,20 @@ namespace FileSurfer.Core.ViewModels;
 /// <summary>
 /// The SettingsWindowViewModel is the ViewModel for the <see cref="Views.SettingsWindow"/>.
 /// </summary>
-#pragma warning disable CA1822 // Mark members as static
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+#pragma warning disable CA1822
+[
+    SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
+    SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
+    SuppressMessage("ReSharper", "UnusedMember.Global"),
+]
 public sealed class SettingsWindowViewModel : ReactiveObject
 {
     private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
     private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
-    private static readonly SettingsRecord defaultSettings = FileSurferSettings.DefaultSettings;
+    private static readonly SettingsRecord DefaultSettings = FileSurferSettings.DefaultSettings;
+
+    public bool IsWindows { get; } = OperatingSystem.IsWindows();
 
     private string _newImageName;
     public string NewImageName
@@ -25,7 +33,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         set =>
             this.RaiseAndSetIfChanged(
                 ref _newImageName,
-                SanitizeInput(value, InvalidFileNameChars, defaultSettings.newImageName)
+                SanitizeInput(value, InvalidFileNameChars, DefaultSettings.newImageName)
             );
     }
 
@@ -36,7 +44,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         set =>
             this.RaiseAndSetIfChanged(
                 ref _newFileName,
-                SanitizeInput(value, InvalidFileNameChars, defaultSettings.newFileName)
+                SanitizeInput(value, InvalidFileNameChars, DefaultSettings.newFileName)
             );
     }
 
@@ -47,7 +55,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         set =>
             this.RaiseAndSetIfChanged(
                 ref _newDirectoryName,
-                SanitizeInput(value, InvalidFileNameChars, defaultSettings.newDirectoryName)
+                SanitizeInput(value, InvalidFileNameChars, DefaultSettings.newDirectoryName)
             );
     }
 
@@ -58,7 +66,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         set =>
             this.RaiseAndSetIfChanged(
                 ref _thisPCLabel,
-                SanitizeInput(value, InvalidFileNameChars, defaultSettings.thisPCLabel)
+                SanitizeInput(value, InvalidFileNameChars, DefaultSettings.thisPCLabel)
             );
     }
 
@@ -69,7 +77,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         set =>
             this.RaiseAndSetIfChanged(
                 ref _notepadApp,
-                SanitizeInput(value, InvalidPathChars, defaultSettings.notepadApp)
+                SanitizeInput(value, InvalidPathChars, DefaultSettings.notepadApp)
             );
     }
 
@@ -87,7 +95,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         set =>
             this.RaiseAndSetIfChanged(
                 ref _openIn,
-                SanitizeInput(value, InvalidPathChars, defaultSettings.openIn)
+                SanitizeInput(value, InvalidPathChars, DefaultSettings.openIn)
             );
     }
 
@@ -180,9 +188,9 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         );
 
     /// <summary>
-    /// Resets current values to default based on <see cref="defaultSettings"/>
+    /// Resets current values to default based on <see cref="DefaultSettings"/>
     /// </summary>
-    public void ResetToDefault() => SetValues(defaultSettings);
+    public void ResetToDefault() => SetValues(DefaultSettings);
 
     private static string SanitizeInput(string input, char[] invalidChars, string defaultName)
     {
@@ -196,5 +204,5 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         return sb.ToString().Trim().TrimEnd('\\', '/');
     }
 }
-#pragma warning restore CA1822 // Mark members as static
+#pragma warning restore CA1822
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.

@@ -94,7 +94,7 @@
                             <CheckBox Content="Show Special Folders" IsChecked="{Binding ShowSpecialFolders}"/>
                             <CheckBox Content="Show Protected Files" IsChecked="{Binding ShowProtectedFiles}"/>
                             <CheckBox Content="Show Hidden Files" IsChecked="{Binding ShowHiddenFiles}"/>
-                            <CheckBox Content="Treat Dot Files as Hidden" IsChecked="{Binding TreatDotFilesAsHidden}"/>
+                            <CheckBox Content="Treat Dot Files as Hidden" IsChecked="{Binding TreatDotFilesAsHidden}" IsVisible="{Binding IsWindows}"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>

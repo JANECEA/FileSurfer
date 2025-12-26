@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -28,6 +29,10 @@ namespace FileSurfer.Core.ViewModels;
 /// Handles data directly bound to the View.
 /// </summary>
 #pragma warning disable CA1822 // Mark members as static
+[
+    SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global"),
+    SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
+]
 public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
     private const string SearchingFinishedLabel = "Searching finished";
@@ -618,18 +623,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private void LoadDirEntries()
     {
-        IList<string> dirPaths = _fileInfoProvider.GetPathDirs(
+        string[] dirPaths = _fileInfoProvider.GetPathDirs(
             CurrentDir,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
-        IList<string> filePaths = _fileInfoProvider.GetPathFiles(
+        string[] filePaths = _fileInfoProvider.GetPathFiles(
             CurrentDir,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
-        if (FileSurferSettings.TreatDotFilesAsHidden && !FileSurferSettings.ShowHiddenFiles)
-            RemoveDotFiles(ref dirPaths, ref filePaths);
 
         FileSystemEntryViewModel[] dirs = dirPaths.ConvertToArray(path =>
             _entryVMFactory.Directory(path, GetVCStatus(path))
@@ -643,12 +646,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private VCStatus GetVCStatus(string path) =>
         IsVersionControlled ? _versionControl.GetStatus(path) : VCStatus.NotVersionControlled;
-
-    private void RemoveDotFiles(ref IList<string> dirPaths, ref IList<string> filePaths)
-    {
-        dirPaths = dirPaths.Where(path => !Path.GetFileName(path).StartsWith('.')).ToList();
-        filePaths = filePaths.Where(path => !Path.GetFileName(path).StartsWith('.')).ToList();
-    }
 
     /// <summary>
     /// Adds directories and files to <see cref="FileEntries"/>.
@@ -912,9 +909,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
-        if (!FileSurferSettings.ShowHiddenFiles && FileSurferSettings.TreatDotFilesAsHidden)
-            filePaths = filePaths.Where(path => !Path.GetFileName(path).StartsWith('.'));
-
         return FilterPaths(filePaths, query)
             .Select(filePath => _entryVMFactory.File(filePath, GetVCStatus(filePath)))
             .ToList();
@@ -927,9 +921,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
-        if (!FileSurferSettings.ShowHiddenFiles && FileSurferSettings.TreatDotFilesAsHidden)
-            return dirPaths.Where(path => !Path.GetFileName(path).StartsWith('.'));
-
         return dirPaths;
     }
 
