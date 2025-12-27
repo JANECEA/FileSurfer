@@ -18,6 +18,10 @@
     <Window.Styles>
         <StyleInclude Source="avares://FileSurfer.Core/Views/SettingsWindowStyle.axaml"/>
     </Window.Styles>
+    
+    <Window.DataContext>
+        <vm:SettingsWindowViewModel/>
+    </Window.DataContext>
 
     <Grid RowDefinitions="* 70">
         <ScrollViewer Grid.Row="0" Padding="20">
@@ -27,7 +31,7 @@
                     <StackPanel Spacing="12">
                         <TextBlock Classes="Section" Text="General"/>
 
-                        <Grid ColumnDefinitions="200 *" RowDefinitions="Auto Auto Auto Auto Auto">
+                        <Grid ColumnDefinitions="200 *" RowDefinitions="Auto Auto Auto Auto Auto Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="New Image Name:" VerticalAlignment="Center"/>
                             <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding NewImageName}" Margin="5,0,0,5"/>
 
@@ -41,7 +45,10 @@
                             <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding ThisPCLabel}" Margin="5,0,0,5"/>
 
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="Path to Notepad App:" VerticalAlignment="Center"/>
-                            <TextBox  Grid.Row="4" Grid.Column="1" Margin="5,0,0,5" Text="{Binding NotepadApp}"/>
+                            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding NotepadApp}" Margin="5,0,0,5"/>
+
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Preferred terminal:" VerticalAlignment="Center"/>
+                            <TextBox  Grid.Row="5" Grid.Column="1" Text="{Binding Terminal}"  Margin="5,0,0,5"/>
                         </Grid>
                     </StackPanel>
                 </Border>

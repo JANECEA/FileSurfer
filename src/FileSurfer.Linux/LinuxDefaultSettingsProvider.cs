@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FileSurfer.Core;
 
@@ -7,13 +8,20 @@ public class LinuxDefaultSettingsProvider : IDefaultSettingsProvider
 {
     private const string ThisPCLabel = "This PC";
 
+    private static string? Variable(string varName)
+    {
+        string? result = Environment.GetEnvironmentVariable(varName);
+        return string.IsNullOrWhiteSpace(result) ? null : result;
+    }
+
     public void PopulateDefaults(SettingsRecord settingsRecord)
     {
         settingsRecord.newImageName = "New Image";
         settingsRecord.newFileName = "New File";
         settingsRecord.newDirectoryName = "New Folder";
         settingsRecord.thisPCLabel = ThisPCLabel;
-        settingsRecord.notepadApp = "nano";
+        settingsRecord.notepadApp = Variable("EDITOR") ?? "nano";
+        settingsRecord.terminal = string.Empty;
         settingsRecord.openInLastLocation = true;
         settingsRecord.openIn = ThisPCLabel;
         settingsRecord.useDarkMode = true;

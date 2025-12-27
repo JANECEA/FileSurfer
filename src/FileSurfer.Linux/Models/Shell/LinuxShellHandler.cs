@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using FileSurfer.Core;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.Shell;
 
@@ -14,16 +15,19 @@ public class LinuxShellHandler : IShellHandler
 {
     public IResult OpenCmdAt(string dirPath)
     {
+        if (string.IsNullOrWhiteSpace(FileSurferSettings.Terminal))
+            return SimpleResult.Error("Set terminal in settings.");
+
+        string fullCommand = $"{FileSurferSettings.Terminal} {dirPath}";
         try
         {
             using Process process = new();
             process.StartInfo = new ProcessStartInfo
             {
-                // TODO add preferred terminal setting
-                FileName = "wezterm",
-                Arguments = "start --cwd .",
-                WorkingDirectory = dirPath,
+                FileName = "/bin/sh",
+                Arguments = $"-c \"{fullCommand.Replace("\"", "\\\"")}\"",
                 UseShellExecute = true,
+                CreateNoWindow = false,
             };
             process.Start();
             return SimpleResult.Ok();

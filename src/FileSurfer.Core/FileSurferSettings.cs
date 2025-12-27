@@ -94,6 +94,7 @@ public static class FileSurferSettings
             newDirectoryName = NewDirectoryName,
             thisPCLabel = ThisPCLabel,
             notepadApp = NotepadApp,
+            terminal = Terminal,
             openInLastLocation = OpenInLastLocation,
             openIn = OpenIn,
             useDarkMode = UseDarkMode,
@@ -147,6 +148,11 @@ public static class FileSurferSettings
     /// The application, the 'Open in Notepad' context menu option will open. Defaults to <c>"notepad.exe"</c>.
     /// </summary>
     public static string NotepadApp { get; set; }
+
+    /// <summary>
+    /// The preferred terminal app
+    /// </summary>
+    public static string Terminal { get; set; }
 
     /// <summary>
     /// Specifies if the app should reopen files or folders in their last accessed location. Defaults to <see langword="true"/>.
@@ -301,6 +307,7 @@ public static class FileSurferSettings
             InvalidPathChars,
             defaultSettings.notepadApp
         );
+        Terminal = settings.terminal.Trim();
 
         OpenInLastLocation = settings.openInLastLocation;
         OpenIn = SanitizeName(settings.openIn, InvalidPathChars, defaultSettings.openIn);

@@ -22,6 +22,7 @@ public record SettingsRecord
     public string newDirectoryName { get; set; }
     public string thisPCLabel { get; set; }
     public string notepadApp { get; set; }
+    public string terminal { get; set; }
     public bool openInLastLocation { get; set; }
     public string openIn { get; set; }
     public bool useDarkMode { get; set; }

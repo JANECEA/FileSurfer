@@ -72,9 +72,10 @@ public sealed class ValueResult<T> : SimpleResult
 
     public static ValueResult<T> Ok(T value) => new(value, true, null);
 
-    public static ValueResult<T> Error() => ErrorEmptyResult;
+    public static new ValueResult<T> Error() => ErrorEmptyResult;
 
-    public static ValueResult<T> Error(string errorMessage) => new(default, false, errorMessage);
+    public static new ValueResult<T> Error(string errorMessage) =>
+        new(default, false, errorMessage);
 }
 
 /// <summary>

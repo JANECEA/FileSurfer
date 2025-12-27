@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -31,7 +32,7 @@ public partial class SettingsWindow : Window
 
     private void CloseWindow(object? sender = null, RoutedEventArgs? args = null) => Close();
 
-    private void SaveAndClose(object sender, RoutedEventArgs args)
+    private void SaveAndClose(object? sender = null, RoutedEventArgs? args = null)
     {
         if (DataContext is SettingsWindowViewModel viewModel)
             viewModel.Save();
@@ -43,5 +44,8 @@ public partial class SettingsWindow : Window
     {
         if (e.Key == Key.Escape)
             CloseWindow();
+
+        if (e.Key == Key.Enter)
+            SaveAndClose();
     }
 }

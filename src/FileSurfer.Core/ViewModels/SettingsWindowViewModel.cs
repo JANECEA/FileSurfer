@@ -81,6 +81,13 @@ public sealed class SettingsWindowViewModel : ReactiveObject
             );
     }
 
+    private string _terminal;
+    public string Terminal
+    {
+        get => _terminal;
+        set => this.RaiseAndSetIfChanged(ref _terminal, value);
+    }
+
     private bool _openInLastLocation;
     public bool OpenInLastLocation
     {
@@ -137,6 +144,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         NewDirectoryName = settings.newDirectoryName;
         ThisPCLabel = settings.thisPCLabel;
         NotepadApp = settings.notepadApp;
+        Terminal = settings.terminal;
         OpenInLastLocation = settings.openInLastLocation;
         OpenIn = settings.openIn;
         UseDarkMode = settings.useDarkMode;
@@ -167,6 +175,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
                 newDirectoryName = NewDirectoryName,
                 thisPCLabel = ThisPCLabel,
                 notepadApp = NotepadApp,
+                terminal = Terminal.Trim(),
                 openInLastLocation = OpenInLastLocation,
                 openIn = OpenIn,
                 useDarkMode = UseDarkMode,
