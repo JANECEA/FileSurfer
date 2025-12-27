@@ -59,5 +59,5 @@ public class LinuxBinInteraction : IBinInteraction
     public IResult MoveDirToTrash(string dirPath) => MoveEntryToTrash(dirPath);
 
     private ValueResult<string> MoveEntryToTrash(string path) =>
-        _shellHandler.ExecuteCommand("trash-put", $"\"{path}\"");
+        _shellHandler.ExecuteCommand("trash-put", path);
 }

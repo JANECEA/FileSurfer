@@ -68,7 +68,7 @@ public class GitVersionControl : IVersionControl
     public IResult DownloadChanges() =>
         _currentRepo is null
             ? SimpleResult.Error(MissingRepoMessage)
-            : _shellHandler.ExecuteCommand("git", $"-C \"{GetWorkingDir()}\" pull");
+            : _shellHandler.ExecuteCommand("git", "-C", GetWorkingDir()!, "pull");
 
     public string GetCurrentBranchName() =>
         _currentRepo is null ? string.Empty : _currentRepo.Head.FriendlyName;
@@ -218,8 +218,14 @@ public class GitVersionControl : IVersionControl
         if (!ValidateCommitMessage(commitMessage))
             return SimpleResult.Error($"Commit message: \"{commitMessage}\" is invalid.");
 
-        string args = $"-C \"{GetWorkingDir()}\" commit -m \"{commitMessage.Trim()}\"";
-        return _shellHandler.ExecuteCommand("git", args);
+        return _shellHandler.ExecuteCommand(
+            "git",
+            "-C",
+            GetWorkingDir()!,
+            "commit",
+            "-m",
+            commitMessage.Trim()
+        );
     }
 
     private static bool ValidateCommitMessage(string commitMessage)
@@ -237,7 +243,7 @@ public class GitVersionControl : IVersionControl
     public IResult UploadChanges() =>
         _currentRepo is null
             ? SimpleResult.Error(MissingRepoMessage)
-            : _shellHandler.ExecuteCommand("git", $"-C \"{GetWorkingDir()}\" push");
+            : _shellHandler.ExecuteCommand("git", "-C", GetWorkingDir()!, "push");
 
     /// <summary>
     /// Disposes of <see cref="_currentRepo"/>.

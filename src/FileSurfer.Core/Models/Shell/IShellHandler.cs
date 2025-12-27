@@ -39,11 +39,13 @@ public interface IShellHandler
     /// Executes a command in the command prompt.
     /// </summary>
     /// <returns>A <see cref="ValueResult{string}"/> representing the result stdout of the operation and potential errors.</returns>
-    public ValueResult<string> ExecuteCommand(string programName, string? args = null);
+    public ValueResult<string> ExecuteCommand(string programName, params string[] args);
 
     /// <summary>
     /// Executes a shell command in the command prompt.
     /// </summary>
+    /// <param name="shellCommand">Shell command to execute</param>
+    /// <param name="args">Arguments for the shell command's $variables</param>
     /// <returns>A <see cref="ValueResult{string}"/> representing the result stdout of the operation and potential errors.</returns>
     public ValueResult<string> ExecuteShellCommand(string shellCommand, params string[] args);
 }

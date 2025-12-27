@@ -34,7 +34,8 @@ public class LinuxFileInfoProvider : IFileInfoProvider
         // DEP: lsblk
         ValueResult<string> result = _shellHandler.ExecuteCommand(
             "lsblk",
-            "-Jnbpo LABEL,MOUNTPOINT,SIZE,TYPE"
+            "-Jnbpo",
+            "LABEL,MOUNTPOINT,SIZE,TYPE"
         );
         if (!result.IsOk || string.IsNullOrEmpty(result.Value))
             return Array.Empty<DriveEntry>();

@@ -72,17 +72,19 @@ public class LinuxShellHandler : IShellHandler
     public ValueResult<string> ExecuteShellCommand(string shellCommand, params string[] args) =>
         RunProcess(GetShellPsi(shellCommand, args));
 
-    public ValueResult<string> ExecuteCommand(string programName, string? args = null)
+    public ValueResult<string> ExecuteCommand(string programName, params string[] args)
     {
         ProcessStartInfo startInfo = new()
         {
             FileName = programName,
-            Arguments = args ?? string.Empty,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
         };
+        foreach (string arg in args)
+            startInfo.ArgumentList.Add(arg);
+
         return RunProcess(startInfo);
     }
 

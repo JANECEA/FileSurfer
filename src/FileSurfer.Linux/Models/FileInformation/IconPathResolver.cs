@@ -86,7 +86,9 @@ internal static class IconPathResolver
     {
         ValueResult<string> result = shellHandler.ExecuteCommand(
             "gsettings",
-            "get org.gnome.desktop.interface icon-theme"
+            "get",
+            "org.gnome.desktop.interface",
+            "icon-theme"
         );
         if (!result.IsOk || string.IsNullOrEmpty(result.Value))
             return null;

@@ -108,7 +108,9 @@ public class LinuxIconProvider : IIconProvider, IDisposable
     {
         ValueResult<string> result = _shellHandler.ExecuteCommand(
             "xdg-mime",
-            $"query filetype \"{filePath}\""
+            "query",
+            "filetype",
+            filePath
         );
         if (!result.IsOk || string.IsNullOrEmpty(result.Value))
             return GenericMimeType;
