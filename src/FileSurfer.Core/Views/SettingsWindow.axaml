@@ -44,11 +44,18 @@
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="This PC Label:" VerticalAlignment="Center"/>
                             <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding ThisPCLabel}" Margin="5,0,0,5"/>
 
-                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Path to Notepad App:" VerticalAlignment="Center"/>
-                            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding NotepadApp}" Margin="5,0,0,5"/>
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Preferred terminal:" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Row="4" Grid.Column="1" Margin="5,0,0,5">
+                                <TextBox Text="{Binding Terminal}"/>
+                                <TextBlock Classes="Subtext" Text="*Arguments must be specified so the target directory can be appended (e.g. `wezterm start --cwd`)."/>
+                            </StackPanel>
 
-                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Preferred terminal:" VerticalAlignment="Center"/>
-                            <TextBox  Grid.Row="5" Grid.Column="1" Text="{Binding Terminal}"  Margin="5,0,0,5"/>
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Path to Notepad App:" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Row="5" Grid.Column="1" Margin="5,0,0,5">
+                                <TextBox Text="{Binding NotepadApp}"/>
+                                <TextBlock Classes="Subtext" Text="*The file path will be appended to this command."/>
+                                <TextBlock Classes="Subtext" Text="*For terminal-based editors, specify the full launch command (e.g. `konsole -e vim`)."/>
+                            </StackPanel>
                         </Grid>
                     </StackPanel>
                 </Border>

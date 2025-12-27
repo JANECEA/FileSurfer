@@ -27,7 +27,7 @@ public interface IShellHandler
     /// Opens a file in the Notepad app at the path specified.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult OpenInNotepad(string filePath, string notepadPath);
+    public IResult OpenInNotepad(string filePath);
 
     /// <summary>
     /// Opens a command prompt at the specified directory path.
@@ -45,5 +45,5 @@ public interface IShellHandler
     /// Executes a shell command in the command prompt.
     /// </summary>
     /// <returns>A <see cref="ValueResult{string}"/> representing the result stdout of the operation and potential errors.</returns>
-    public ValueResult<string> ExecuteShellCommand(string command);
+    public ValueResult<string> ExecuteShellCommand(string shellCommand, params string[] args);
 }

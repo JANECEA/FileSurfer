@@ -32,7 +32,8 @@ public class LinuxBinInteraction : IBinInteraction
             return SimpleResult.Error($"Could not find \"{originalPath}\" in trash.");
 
         return _shellHandler.ExecuteShellCommand(
-            $"echo {newestIndex} | trash-restore \"{originalPath}\""
+            $"echo {newestIndex} | trash-restore \"$1\"",
+            originalPath
         );
     }
 

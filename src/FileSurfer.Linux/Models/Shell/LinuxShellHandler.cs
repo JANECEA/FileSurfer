@@ -13,122 +13,6 @@ namespace FileSurfer.Linux.Models.Shell;
 /// </summary>
 public class LinuxShellHandler : IShellHandler
 {
-    public IResult OpenCmdAt(string dirPath)
-    {
-        if (string.IsNullOrWhiteSpace(FileSurferSettings.Terminal))
-            return SimpleResult.Error("Set terminal in settings.");
-
-        string fullCommand = $"{FileSurferSettings.Terminal} {dirPath}";
-        try
-        {
-            using Process process = new();
-            process.StartInfo = new ProcessStartInfo
-            {
-                FileName = "/bin/sh",
-                Arguments = $"-c \"{fullCommand.Replace("\"", "\\\"")}\"",
-                UseShellExecute = true,
-                CreateNoWindow = false,
-            };
-            process.Start();
-            return SimpleResult.Ok();
-        }
-        catch (Exception ex)
-        {
-            return SimpleResult.Error(ex.Message);
-        }
-    }
-
-    public IResult OpenFile(string filePath)
-    {
-        try
-        {
-            using Process process = new();
-            process.StartInfo = new ProcessStartInfo(filePath) { UseShellExecute = true };
-            process.Start();
-            return SimpleResult.Ok();
-        }
-        catch (Exception ex)
-        {
-            return SimpleResult.Error(ex.Message);
-        }
-    }
-
-    public IResult OpenInNotepad(string filePath, string notepadPath)
-    {
-        try
-        {
-            using Process process = new();
-            process.StartInfo = new ProcessStartInfo
-            {
-                FileName = notepadPath,
-                Arguments = filePath,
-                UseShellExecute = true,
-            };
-            process.Start();
-            return SimpleResult.Ok();
-        }
-        catch (Exception ex)
-        {
-            return SimpleResult.Error(ex.Message);
-        }
-    }
-
-    public ValueResult<string> ExecuteShellCommand(string command)
-    {
-        ProcessStartInfo startInfo = new()
-        {
-            FileName = "/bin/sh",
-            Arguments = $"-c \"{command.Replace("\"", "\\\"")}\"",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-        };
-        return ManageProcess(startInfo);
-    }
-
-    public ValueResult<string> ExecuteCommand(string programName, string? args = null)
-    {
-        ProcessStartInfo startInfo = new()
-        {
-            FileName = programName,
-            Arguments = args ?? string.Empty,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-        };
-        return ManageProcess(startInfo);
-    }
-
-    private static ValueResult<string> ManageProcess(ProcessStartInfo processStartInfo)
-    {
-        using Process process = new();
-        process.StartInfo = processStartInfo;
-        try
-        {
-            process.Start();
-            string stdOut = process.StandardOutput.ReadToEnd();
-            string errorMessage = process.StandardError.ReadToEnd();
-            process.WaitForExit();
-
-            bool success = process.ExitCode == 0;
-            if (!success && string.IsNullOrWhiteSpace(errorMessage))
-                errorMessage = stdOut;
-
-            if (success)
-                return ValueResult<string>.Ok(stdOut.Trim());
-
-            return string.IsNullOrWhiteSpace(errorMessage)
-                ? ValueResult<string>.Error()
-                : ValueResult<string>.Error(errorMessage);
-        }
-        catch (Exception ex)
-        {
-            return ValueResult<string>.Error(ex.Message);
-        }
-    }
-
     public IResult CreateFileLink(string filePath)
     {
         try
@@ -167,6 +51,119 @@ public class LinuxShellHandler : IShellHandler
         catch (Exception ex)
         {
             return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public IResult OpenFile(string filePath)
+    {
+        try
+        {
+            using Process process = new();
+            process.StartInfo = new ProcessStartInfo(filePath) { UseShellExecute = true };
+            process.Start();
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public ValueResult<string> ExecuteShellCommand(string shellCommand, params string[] args) =>
+        RunProcess(GetShellPsi(shellCommand, args));
+
+    public ValueResult<string> ExecuteCommand(string programName, string? args = null)
+    {
+        ProcessStartInfo startInfo = new()
+        {
+            FileName = programName,
+            Arguments = args ?? string.Empty,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        return RunProcess(startInfo);
+    }
+
+    public IResult OpenCmdAt(string dirPath)
+    {
+        if (string.IsNullOrWhiteSpace(FileSurferSettings.Terminal))
+            return SimpleResult.Error("Set terminal in settings.");
+
+        try
+        {
+            using Process process = new();
+            process.StartInfo = GetShellPsi($"{FileSurferSettings.Terminal} \"$1\"", dirPath);
+            process.Start();
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public IResult OpenInNotepad(string filePath)
+    {
+        if (string.IsNullOrWhiteSpace(FileSurferSettings.NotepadApp))
+            return SimpleResult.Error("Set notepad app in settings.");
+
+        try
+        {
+            using Process process = new();
+            process.StartInfo = GetShellPsi($"{FileSurferSettings.NotepadApp} \"$1\"", filePath);
+            process.Start();
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    private static ProcessStartInfo GetShellPsi(string shellCommand, params string[] args)
+    {
+        ProcessStartInfo startInfo = new()
+        {
+            FileName = "/bin/sh",
+            ArgumentList = { "-c", shellCommand, "--" },
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        foreach (string arg in args)
+            startInfo.ArgumentList.Add(arg);
+
+        return startInfo;
+    }
+
+    private static ValueResult<string> RunProcess(ProcessStartInfo processStartInfo)
+    {
+        using Process process = new();
+        process.StartInfo = processStartInfo;
+        try
+        {
+            process.Start();
+            string stdOut = process.StandardOutput.ReadToEnd();
+            string errorMessage = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+
+            bool success = process.ExitCode == 0;
+            if (!success && string.IsNullOrWhiteSpace(errorMessage))
+                errorMessage = stdOut;
+
+            if (success)
+                return ValueResult<string>.Ok(stdOut.Trim());
+
+            return string.IsNullOrWhiteSpace(errorMessage)
+                ? ValueResult<string>.Error()
+                : ValueResult<string>.Error(errorMessage);
+        }
+        catch (Exception ex)
+        {
+            return ValueResult<string>.Error(ex.Message);
         }
     }
 }

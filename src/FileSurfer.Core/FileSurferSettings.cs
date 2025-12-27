@@ -145,7 +145,7 @@ public static class FileSurferSettings
     public static string ThisPCLabel { get; set; }
 
     /// <summary>
-    /// The application, the 'Open in Notepad' context menu option will open. Defaults to <c>"notepad.exe"</c>.
+    /// The application, the 'Open in Notepad' context menu option will open.
     /// </summary>
     public static string NotepadApp { get; set; }
 

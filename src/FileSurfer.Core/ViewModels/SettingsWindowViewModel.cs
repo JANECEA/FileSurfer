@@ -22,7 +22,6 @@ public sealed class SettingsWindowViewModel : ReactiveObject
 {
     private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
     private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
-    private static readonly SettingsRecord DefaultSettings = FileSurferSettings.DefaultSettings;
 
     public bool IsWindows { get; } = OperatingSystem.IsWindows();
 
@@ -33,7 +32,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         set =>
             this.RaiseAndSetIfChanged(
                 ref _newImageName,
-                SanitizeInput(value, InvalidFileNameChars, DefaultSettings.newImageName)
+                SanitizeInput(value, InvalidFileNameChars)
             );
     }
 
@@ -42,10 +41,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     {
         get => _newFileName;
         set =>
-            this.RaiseAndSetIfChanged(
-                ref _newFileName,
-                SanitizeInput(value, InvalidFileNameChars, DefaultSettings.newFileName)
-            );
+            this.RaiseAndSetIfChanged(ref _newFileName, SanitizeInput(value, InvalidFileNameChars));
     }
 
     private string _newDirectoryName;
@@ -55,7 +51,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         set =>
             this.RaiseAndSetIfChanged(
                 ref _newDirectoryName,
-                SanitizeInput(value, InvalidFileNameChars, DefaultSettings.newDirectoryName)
+                SanitizeInput(value, InvalidFileNameChars)
             );
     }
 
@@ -64,21 +60,14 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     {
         get => _thisPCLabel;
         set =>
-            this.RaiseAndSetIfChanged(
-                ref _thisPCLabel,
-                SanitizeInput(value, InvalidFileNameChars, DefaultSettings.thisPCLabel)
-            );
+            this.RaiseAndSetIfChanged(ref _thisPCLabel, SanitizeInput(value, InvalidFileNameChars));
     }
 
     private string _notepadApp;
     public string NotepadApp
     {
         get => _notepadApp;
-        set =>
-            this.RaiseAndSetIfChanged(
-                ref _notepadApp,
-                SanitizeInput(value, InvalidPathChars, DefaultSettings.notepadApp)
-            );
+        set => this.RaiseAndSetIfChanged(ref _notepadApp, value);
     }
 
     private string _terminal;
@@ -99,11 +88,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     public string OpenIn
     {
         get => _openIn;
-        set =>
-            this.RaiseAndSetIfChanged(
-                ref _openIn,
-                SanitizeInput(value, InvalidPathChars, DefaultSettings.openIn)
-            );
+        set => this.RaiseAndSetIfChanged(ref _openIn, SanitizeInput(value, InvalidPathChars));
     }
 
     public bool UseDarkMode { get; set; }
@@ -197,14 +182,14 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         );
 
     /// <summary>
-    /// Resets current values to default based on <see cref="DefaultSettings"/>
+    /// Resets current values to default
     /// </summary>
-    public void ResetToDefault() => SetValues(DefaultSettings);
+    public void ResetToDefault() => SetValues(new SettingsRecord());
 
-    private static string SanitizeInput(string input, char[] invalidChars, string defaultName)
+    private static string SanitizeInput(string input, char[] invalidChars)
     {
         if (string.IsNullOrWhiteSpace(input))
-            return defaultName;
+            return input;
 
         StringBuilder sb = new(input.Length);
         foreach (char c in input.Where(ch => !invalidChars.Contains(ch)))

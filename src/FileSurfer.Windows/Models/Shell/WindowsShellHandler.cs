@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using FileSurfer.Core;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.Shell;
 
@@ -12,6 +13,7 @@ namespace FileSurfer.Windows.Models.Shell;
 /// </summary>
 public class WindowsShellHandler : IShellHandler
 {
+    // TODO fix on Windows
     public IResult OpenCmdAt(string dirPath)
     {
         try
@@ -48,14 +50,15 @@ public class WindowsShellHandler : IShellHandler
         }
     }
 
-    public IResult OpenInNotepad(string filePath, string notepadPath)
+    // TODO fix on Windows
+    public IResult OpenInNotepad(string filePath)
     {
         try
         {
             using Process process = new();
             process.StartInfo = new ProcessStartInfo
             {
-                FileName = notepadPath,
+                FileName = FileSurferSettings.NotepadApp,
                 Arguments = filePath,
                 UseShellExecute = true,
             };
