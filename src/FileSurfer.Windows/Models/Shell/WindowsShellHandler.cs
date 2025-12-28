@@ -13,96 +13,6 @@ namespace FileSurfer.Windows.Models.Shell;
 /// </summary>
 public class WindowsShellHandler : IShellHandler
 {
-    // TODO fix on Windows
-    public IResult OpenCmdAt(string dirPath)
-    {
-        try
-        {
-            using Process process = new();
-            process.StartInfo = new ProcessStartInfo
-            {
-                FileName = "powershell.exe",
-                WorkingDirectory = dirPath,
-                Arguments = "-NoExit",
-                UseShellExecute = true,
-            };
-            process.Start();
-            return SimpleResult.Ok();
-        }
-        catch (Exception ex)
-        {
-            return SimpleResult.Error(ex.Message);
-        }
-    }
-
-    public IResult OpenFile(string filePath)
-    {
-        try
-        {
-            using Process process = new();
-            process.StartInfo = new ProcessStartInfo(filePath) { UseShellExecute = true };
-            process.Start();
-            return SimpleResult.Ok();
-        }
-        catch (Exception ex)
-        {
-            return SimpleResult.Error(ex.Message);
-        }
-    }
-
-    // TODO fix on Windows
-    public IResult OpenInNotepad(string filePath)
-    {
-        try
-        {
-            using Process process = new();
-            process.StartInfo = new ProcessStartInfo
-            {
-                FileName = FileSurferSettings.NotepadApp,
-                Arguments = filePath,
-                UseShellExecute = true,
-            };
-            process.Start();
-            return SimpleResult.Ok();
-        }
-        catch (Exception ex)
-        {
-            return SimpleResult.Error(ex.Message);
-        }
-    }
-
-    public ValueResult<string> ExecuteCommand(string programName, string? args = null) =>
-        ExecuteShellCommand($"{programName} {args ?? string.Empty}");
-
-    public ValueResult<string> ExecuteShellCommand(string command)
-    {
-        using Process process = new();
-        process.StartInfo = new ProcessStartInfo
-        {
-            FileName = "cmd.exe",
-            Arguments = $"/c {command}",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-        };
-        process.Start();
-        string stdOut = process.StandardOutput.ReadToEnd();
-        string errorMessage = process.StandardError.ReadToEnd();
-        process.WaitForExit();
-
-        bool success = process.ExitCode == 0;
-        if (!success && string.IsNullOrWhiteSpace(errorMessage))
-            errorMessage = stdOut;
-
-        if (success)
-            return ValueResult<string>.Ok(stdOut.Trim());
-
-        return string.IsNullOrWhiteSpace(errorMessage)
-            ? ValueResult<string>.Error()
-            : ValueResult<string>.Error(errorMessage);
-    }
-
     public IResult CreateFileLink(string filePath) => CreateLink(filePath);
 
     public IResult CreateDirectoryLink(string dirPath) => CreateLink(dirPath);
@@ -129,6 +39,126 @@ public class WindowsShellHandler : IShellHandler
         catch (Exception ex)
         {
             return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public IResult OpenFile(string filePath)
+    {
+        try
+        {
+            using Process process = new();
+            process.StartInfo = new ProcessStartInfo(filePath) { UseShellExecute = true };
+            process.Start();
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public IResult OpenInNotepad(string filePath)
+    {
+        if (string.IsNullOrWhiteSpace(FileSurferSettings.NotepadApp))
+            return SimpleResult.Error("Set terminal in settings.");
+
+        try
+        {
+            using Process process = new();
+            process.StartInfo = new ProcessStartInfo
+            {
+                FileName = FileSurferSettings.NotepadApp,
+                Arguments = filePath,
+                UseShellExecute = false,
+                CreateNoWindow = false,
+            };
+            process.Start();
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public IResult OpenCmdAt(string dirPath)
+    {
+        if (string.IsNullOrWhiteSpace(FileSurferSettings.Terminal))
+            return SimpleResult.Error("Set terminal in settings.");
+
+        if (!Directory.Exists(dirPath))
+            return SimpleResult.Error("Current directory does not exist.");
+
+        try
+        {
+            using Process process = new();
+            process.StartInfo = GetShellPsi($"{FileSurferSettings.Terminal} $args[0]", dirPath);
+            process.Start();
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public ValueResult<string> ExecuteCommand(string programName, params string[] args)
+    {
+        ProcessStartInfo startInfo =
+            new()
+            {
+                FileName = programName,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
+        foreach (string arg in args)
+            startInfo.ArgumentList.Add(arg);
+
+        return RunProcess(startInfo);
+    }
+
+    private static ProcessStartInfo GetShellPsi(string shellCommand, params string[] args)
+    {
+        ProcessStartInfo startInfo =
+            new()
+            {
+                FileName = "powershell.exe",
+                ArgumentList = { "-NoProfile", "-Command", $"& {{ {shellCommand} }}" },
+                UseShellExecute = true,
+            };
+        foreach (string arg in args)
+            startInfo.ArgumentList.Add(arg);
+
+        return startInfo;
+    }
+
+    private static ValueResult<string> RunProcess(ProcessStartInfo processStartInfo)
+    {
+        using Process process = new();
+        process.StartInfo = processStartInfo;
+        try
+        {
+            process.Start();
+            string stdOut = process.StandardOutput.ReadToEnd();
+            string errorMessage = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+
+            bool success = process.ExitCode == 0;
+            if (!success && string.IsNullOrWhiteSpace(errorMessage))
+                errorMessage = stdOut;
+
+            if (success)
+                return ValueResult<string>.Ok(stdOut.Trim());
+
+            return string.IsNullOrWhiteSpace(errorMessage)
+                ? ValueResult<string>.Error()
+                : ValueResult<string>.Error(errorMessage);
+        }
+        catch (Exception ex)
+        {
+            return ValueResult<string>.Error(ex.Message);
         }
     }
 }

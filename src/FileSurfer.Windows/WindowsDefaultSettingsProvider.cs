@@ -14,7 +14,7 @@ public class WindowsDefaultSettingsProvider : IDefaultSettingsProvider
         settingsRecord.newDirectoryName = "New Folder";
         settingsRecord.thisPCLabel = ThisPCLabel;
         settingsRecord.notepadApp = "notepad.exe";
-        settingsRecord.terminal = "powershell.exe -NoExit";
+        settingsRecord.terminal = "powershell -NoExit -Command Set-Location";
         settingsRecord.openInLastLocation = true;
         settingsRecord.openIn = ThisPCLabel;
         settingsRecord.useDarkMode = true;

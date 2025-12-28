@@ -53,8 +53,8 @@
                             <TextBlock Grid.Row="5" Grid.Column="0" Text="Path to Notepad App:" VerticalAlignment="Center"/>
                             <StackPanel Grid.Row="5" Grid.Column="1" Margin="5,0,0,5">
                                 <TextBox Text="{Binding NotepadApp}"/>
-                                <TextBlock Classes="Subtext" Text="*The file path will be appended to this command."/>
-                                <TextBlock Classes="Subtext" Text="*For terminal-based editors, specify the full launch command (e.g. `konsole -e vim`)."/>
+                                <TextBlock Classes="Subtext" IsVisible="{Binding !IsWindows}" Text="*The file path will be appended to this command."/>
+                                <TextBlock Classes="Subtext" IsVisible="{Binding !IsWindows}" Text="*For terminal-based editors, specify the full launch command (e.g. `konsole -e vim`)."/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>

@@ -7,11 +7,22 @@ using FileSurfer.Core.Models.Shell;
 
 namespace FileSurfer.Linux.Models.Shell;
 
+public interface IShellCommandHandler : IShellHandler
+{
+    /// <summary>
+    /// Executes a shell command in the command prompt.
+    /// </summary>
+    /// <param name="shellCommand">Shell command to execute</param>
+    /// <param name="args">Arguments for the shell command's $variables</param>
+    /// <returns>A <see cref="ValueResult{string}"/> representing the result stdout of the operation and potential errors.</returns>
+    public ValueResult<string> ExecuteShellCommand(string shellCommand, params string[] args);
+}
+
 /// <summary>
 /// Linux-specific implementation of <see cref="IShellHandler"/> for shell interactions.
 /// Uses <see cref="System.Runtime.InteropServices"/> to interop with the Linux shell.
 /// </summary>
-public class LinuxShellHandler : IShellHandler
+public class LinuxShellHandler : IShellCommandHandler
 {
     public IResult CreateFileLink(string filePath)
     {
@@ -69,43 +80,6 @@ public class LinuxShellHandler : IShellHandler
         }
     }
 
-    public ValueResult<string> ExecuteShellCommand(string shellCommand, params string[] args) =>
-        RunProcess(GetShellPsi(shellCommand, args));
-
-    public ValueResult<string> ExecuteCommand(string programName, params string[] args)
-    {
-        ProcessStartInfo startInfo = new()
-        {
-            FileName = programName,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-        };
-        foreach (string arg in args)
-            startInfo.ArgumentList.Add(arg);
-
-        return RunProcess(startInfo);
-    }
-
-    public IResult OpenCmdAt(string dirPath)
-    {
-        if (string.IsNullOrWhiteSpace(FileSurferSettings.Terminal))
-            return SimpleResult.Error("Set terminal in settings.");
-
-        try
-        {
-            using Process process = new();
-            process.StartInfo = GetShellPsi($"{FileSurferSettings.Terminal} \"$1\"", dirPath);
-            process.Start();
-            return SimpleResult.Ok();
-        }
-        catch (Exception ex)
-        {
-            return SimpleResult.Error(ex.Message);
-        }
-    }
-
     public IResult OpenInNotepad(string filePath)
     {
         if (string.IsNullOrWhiteSpace(FileSurferSettings.NotepadApp))
@@ -123,6 +97,46 @@ public class LinuxShellHandler : IShellHandler
             return SimpleResult.Error(ex.Message);
         }
     }
+
+    public IResult OpenCmdAt(string dirPath)
+    {
+        if (string.IsNullOrWhiteSpace(FileSurferSettings.Terminal))
+            return SimpleResult.Error("Set terminal in settings.");
+
+        if (!Directory.Exists(dirPath))
+            return SimpleResult.Error("Current directory does not exist.");
+
+        try
+        {
+            using Process process = new();
+            process.StartInfo = GetShellPsi($"{FileSurferSettings.Terminal} \"$1\"", dirPath);
+            process.Start();
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public ValueResult<string> ExecuteCommand(string programName, params string[] args)
+    {
+        ProcessStartInfo startInfo = new()
+        {
+            FileName = programName,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        foreach (string arg in args)
+            startInfo.ArgumentList.Add(arg);
+
+        return RunProcess(startInfo);
+    }
+
+    public ValueResult<string> ExecuteShellCommand(string shellCommand, params string[] args) =>
+        RunProcess(GetShellPsi(shellCommand, args));
 
     private static ProcessStartInfo GetShellPsi(string shellCommand, params string[] args)
     {

@@ -144,11 +144,13 @@ public static class FileSurferSettings
     /// </summary>
     public static string ThisPCLabel { get; set; }
 
+    // TODO split into program + args
     /// <summary>
     /// The application, the 'Open in Notepad' context menu option will open.
     /// </summary>
     public static string NotepadApp { get; set; }
 
+    // TODO split into program + args
     /// <summary>
     /// The preferred terminal app
     /// </summary>

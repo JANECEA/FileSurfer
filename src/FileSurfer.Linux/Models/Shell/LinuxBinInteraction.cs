@@ -10,9 +10,9 @@ namespace FileSurfer.Linux.Models.Shell;
 public class LinuxBinInteraction : IBinInteraction
 {
     // DEP: trash-cli
-    private readonly IShellHandler _shellHandler;
+    private readonly IShellCommandHandler _shellHandler;
 
-    public LinuxBinInteraction(IShellHandler shellHandler) => _shellHandler = shellHandler;
+    public LinuxBinInteraction(IShellCommandHandler shellHandler) => _shellHandler = shellHandler;
 
     public IResult RestoreFile(string originalFilePath) => RestoreEntry(originalFilePath);
 
