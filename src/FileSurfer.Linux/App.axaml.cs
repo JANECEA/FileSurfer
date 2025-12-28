@@ -40,7 +40,7 @@ public partial class App : Application
     /// </summary>
     public override void OnFrameworkInitializationCompleted()
     {
-        FileSurferSettings.Initialize(new LinuxDefaultSettingsProvider());
+        FileSurferSettings.Initialize(new LinuxDefaultSettingsProvider(new LinuxShellHandler()));
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             SimpleResult result = ValidateArgs(desktop.Args, out string? initialDir);
@@ -81,7 +81,6 @@ public partial class App : Application
     {
         LinuxFileIOHandler fileIOHandler = new();
         LinuxShellHandler shellHandler = new();
-        LinuxFileInfoProvider fileInfoProvider = new(shellHandler);
         IClipboard clipboard = mainWindow.Clipboard ?? throw new InvalidDataException();
         ClipboardManager clipboardManager = new(
             clipboard,
@@ -95,7 +94,7 @@ public partial class App : Application
             fileIOHandler,
             new LinuxBinInteraction(shellHandler),
             new LinuxFileProperties(),
-            fileInfoProvider,
+            new LinuxFileInfoProvider(shellHandler),
             new LinuxIconProvider(shellHandler),
             shellHandler,
             new GitVersionControl(shellHandler),
