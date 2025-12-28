@@ -60,18 +60,18 @@ public class WindowsShellHandler : IShellHandler
     public IResult OpenInNotepad(string filePath)
     {
         if (string.IsNullOrWhiteSpace(FileSurferSettings.NotepadApp))
-            return SimpleResult.Error("Set terminal in settings.");
+            return SimpleResult.Error("Set notepad app in settings.");
 
         try
         {
             using Process process = new();
-            process.StartInfo = new ProcessStartInfo
-            {
-                FileName = FileSurferSettings.NotepadApp,
-                Arguments = filePath,
-                UseShellExecute = false,
-                CreateNoWindow = false,
-            };
+            process.StartInfo = GetCmdPsi(
+                new ProcessStartInfo(),
+                "\"%1\" %2 \"%3\"",
+                FileSurferSettings.NotepadApp,
+                FileSurferSettings.NotepadAppArgs,
+                filePath
+            );
             process.Start();
             return SimpleResult.Ok();
         }
@@ -92,7 +92,13 @@ public class WindowsShellHandler : IShellHandler
         try
         {
             using Process process = new();
-            process.StartInfo = GetShellPsi($"{FileSurferSettings.Terminal} $args[0]", dirPath);
+            process.StartInfo = GetCmdPsi(
+                new ProcessStartInfo(),
+                "\"%1\" %2 \"%3\"",
+                FileSurferSettings.Terminal,
+                FileSurferSettings.TerminalArgs,
+                dirPath
+            );
             process.Start();
             return SimpleResult.Ok();
         }
@@ -102,36 +108,38 @@ public class WindowsShellHandler : IShellHandler
         }
     }
 
+    private static ProcessStartInfo GetCmdPsi(
+        ProcessStartInfo? baseInfo,
+        string shellCommand,
+        params string[] args
+    )
+    {
+        baseInfo ??= new ProcessStartInfo
+        {
+            FileName = "cmd.exe",
+            ArgumentList = { "/c", shellCommand },
+            UseShellExecute = true,
+        };
+        foreach (string arg in args)
+            baseInfo.ArgumentList.Add(arg);
+
+        return baseInfo;
+    }
+
     public ValueResult<string> ExecuteCommand(string programName, params string[] args)
     {
-        ProcessStartInfo startInfo =
-            new()
-            {
-                FileName = programName,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            };
+        ProcessStartInfo startInfo = new()
+        {
+            FileName = programName,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
         foreach (string arg in args)
             startInfo.ArgumentList.Add(arg);
 
         return RunProcess(startInfo);
-    }
-
-    private static ProcessStartInfo GetShellPsi(string shellCommand, params string[] args)
-    {
-        ProcessStartInfo startInfo =
-            new()
-            {
-                FileName = "powershell.exe",
-                ArgumentList = { "-NoProfile", "-Command", $"& {{ {shellCommand} }}" },
-                UseShellExecute = true,
-            };
-        foreach (string arg in args)
-            startInfo.ArgumentList.Add(arg);
-
-        return startInfo;
     }
 
     private static ValueResult<string> RunProcess(ProcessStartInfo processStartInfo)

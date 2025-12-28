@@ -67,15 +67,19 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     public string NotepadApp
     {
         get => _notepadApp;
-        set => this.RaiseAndSetIfChanged(ref _notepadApp, value);
+        set => this.RaiseAndSetIfChanged(ref _notepadApp, SanitizeInput(value, InvalidPathChars));
     }
+
+    public string NotepadAppArgs { get; set; }
 
     private string _terminal;
     public string Terminal
     {
         get => _terminal;
-        set => this.RaiseAndSetIfChanged(ref _terminal, value);
+        set => this.RaiseAndSetIfChanged(ref _terminal, SanitizeInput(value, InvalidPathChars));
     }
+
+    public string TerminalArgs { get; set; }
 
     private bool _openInLastLocation;
     public bool OpenInLastLocation
@@ -129,7 +133,9 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         NewDirectoryName = settings.newDirectoryName;
         ThisPCLabel = settings.thisPCLabel;
         NotepadApp = settings.notepadApp;
+        NotepadAppArgs = settings.notepadAppArgs;
         Terminal = settings.terminal;
+        TerminalArgs = settings.terminalArgs;
         OpenInLastLocation = settings.openInLastLocation;
         OpenIn = settings.openIn;
         UseDarkMode = settings.useDarkMode;
@@ -155,14 +161,16 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         FileSurferSettings.ImportSettings(
             new SettingsRecord
             {
-                newImageName = NewImageName,
-                newFileName = NewFileName,
-                newDirectoryName = NewDirectoryName,
-                thisPCLabel = ThisPCLabel,
-                notepadApp = NotepadApp,
+                newImageName = NewImageName.Trim(),
+                newFileName = NewFileName.Trim(),
+                newDirectoryName = NewDirectoryName.Trim(),
+                thisPCLabel = ThisPCLabel.Trim(),
+                notepadApp = NotepadApp.Trim(),
+                notepadAppArgs = NotepadAppArgs.Trim(),
                 terminal = Terminal.Trim(),
+                terminalArgs = TerminalArgs.Trim(),
                 openInLastLocation = OpenInLastLocation,
-                openIn = OpenIn,
+                openIn = OpenIn.Trim(),
                 useDarkMode = UseDarkMode,
                 displayMode = DisplayMode,
                 defaultSort = DefaultSort,

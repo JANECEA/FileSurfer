@@ -20,8 +20,12 @@ public class LinuxDefaultSettingsProvider : IDefaultSettingsProvider
         settingsRecord.newFileName = "New File";
         settingsRecord.newDirectoryName = "New Folder";
         settingsRecord.thisPCLabel = ThisPCLabel;
+        // TODO add terminal to nano
         settingsRecord.notepadApp = Variable("EDITOR") ?? "nano";
+        settingsRecord.notepadAppArgs = string.Empty;
+        // TODO add find terminal heuristic
         settingsRecord.terminal = string.Empty;
+        settingsRecord.terminalArgs = string.Empty;
         settingsRecord.openInLastLocation = true;
         settingsRecord.openIn = ThisPCLabel;
         settingsRecord.useDarkMode = true;

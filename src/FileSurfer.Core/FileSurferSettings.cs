@@ -94,7 +94,9 @@ public static class FileSurferSettings
             newDirectoryName = NewDirectoryName,
             thisPCLabel = ThisPCLabel,
             notepadApp = NotepadApp,
+            notepadAppArgs = NotepadAppArgs,
             terminal = Terminal,
+            terminalArgs = TerminalArgs,
             openInLastLocation = OpenInLastLocation,
             openIn = OpenIn,
             useDarkMode = UseDarkMode,
@@ -144,17 +146,25 @@ public static class FileSurferSettings
     /// </summary>
     public static string ThisPCLabel { get; set; }
 
-    // TODO split into program + args
     /// <summary>
     /// The application, the 'Open in Notepad' context menu option will open.
     /// </summary>
     public static string NotepadApp { get; set; }
 
-    // TODO split into program + args
+    /// <summary>
+    /// The args for <see cref="NotepadApp"/>
+    /// </summary>
+    public static string NotepadAppArgs { get; set; }
+
     /// <summary>
     /// The preferred terminal app
     /// </summary>
     public static string Terminal { get; set; }
+
+    /// <summary>
+    /// The args for <see cref="Terminal"/>
+    /// </summary>
+    public static string TerminalArgs { get; set; }
 
     /// <summary>
     /// Specifies if the app should reopen files or folders in their last accessed location. Defaults to <see langword="true"/>.
@@ -309,7 +319,9 @@ public static class FileSurferSettings
             InvalidPathChars,
             defaultSettings.notepadApp
         );
-        Terminal = settings.terminal.Trim();
+        NotepadAppArgs = settings.notepadAppArgs.Trim();
+        Terminal = SanitizeName(settings.terminal, InvalidPathChars, defaultSettings.terminal);
+        TerminalArgs = settings.terminalArgs.Trim();
 
         OpenInLastLocation = settings.openInLastLocation;
         OpenIn = SanitizeName(settings.openIn, InvalidPathChars, defaultSettings.openIn);

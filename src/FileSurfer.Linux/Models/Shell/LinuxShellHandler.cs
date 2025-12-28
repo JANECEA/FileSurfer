@@ -88,7 +88,13 @@ public class LinuxShellHandler : IShellCommandHandler
         try
         {
             using Process process = new();
-            process.StartInfo = GetShellPsi($"{FileSurferSettings.NotepadApp} \"$1\"", filePath);
+            process.StartInfo = GetShellPsi(
+                new ProcessStartInfo(),
+                "\"$1\" $2 \"$3\"",
+                FileSurferSettings.NotepadApp,
+                FileSurferSettings.NotepadAppArgs,
+                filePath
+            );
             process.Start();
             return SimpleResult.Ok();
         }
@@ -109,7 +115,13 @@ public class LinuxShellHandler : IShellCommandHandler
         try
         {
             using Process process = new();
-            process.StartInfo = GetShellPsi($"{FileSurferSettings.Terminal} \"$1\"", dirPath);
+            process.StartInfo = GetShellPsi(
+                new ProcessStartInfo(),
+                "\"$1\" $2 \"$3\"",
+                FileSurferSettings.Terminal,
+                FileSurferSettings.TerminalArgs,
+                dirPath
+            );
             process.Start();
             return SimpleResult.Ok();
         }
@@ -121,7 +133,7 @@ public class LinuxShellHandler : IShellCommandHandler
 
     public ValueResult<string> ExecuteCommand(string programName, params string[] args)
     {
-        ProcessStartInfo startInfo = new()
+        ProcessStartInfo psi = new()
         {
             FileName = programName,
             RedirectStandardOutput = true,
@@ -130,29 +142,36 @@ public class LinuxShellHandler : IShellCommandHandler
             CreateNoWindow = true,
         };
         foreach (string arg in args)
-            startInfo.ArgumentList.Add(arg);
+            psi.ArgumentList.Add(arg);
 
-        return RunProcess(startInfo);
+        return RunProcess(psi);
     }
 
     public ValueResult<string> ExecuteShellCommand(string shellCommand, params string[] args) =>
-        RunProcess(GetShellPsi(shellCommand, args));
+        RunProcess(GetShellPsi(null, shellCommand, args));
 
-    private static ProcessStartInfo GetShellPsi(string shellCommand, params string[] args)
+    private static ProcessStartInfo GetShellPsi(
+        ProcessStartInfo? baseInfo,
+        string shellCommand,
+        params string[] args
+    )
     {
-        ProcessStartInfo startInfo = new()
+        baseInfo ??= new ProcessStartInfo
         {
-            FileName = "/bin/sh",
-            ArgumentList = { "-c", shellCommand, "--" },
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
         };
-        foreach (string arg in args)
-            startInfo.ArgumentList.Add(arg);
+        baseInfo.FileName = "/bin/sh";
+        baseInfo.ArgumentList.Add("-c");
+        baseInfo.ArgumentList.Add(shellCommand);
+        baseInfo.ArgumentList.Add("--");
 
-        return startInfo;
+        foreach (string arg in args)
+            baseInfo.ArgumentList.Add(arg);
+
+        return baseInfo;
     }
 
     private static ValueResult<string> RunProcess(ProcessStartInfo processStartInfo)
