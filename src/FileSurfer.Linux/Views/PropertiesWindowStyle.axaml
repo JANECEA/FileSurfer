@@ -1,72 +1,57 @@
 <Styles xmlns="https://github.com/avaloniaui">
 
-    <!--  Window  -->
-    <Style Selector="Window.properties-window">
-        <Setter Property="FontSize" Value="13" />
-    </Style>
-
-    <!--  Header  -->
-    <Style Selector="TextBlock.properties-header">
+    <Style Selector="TextBlock.file-name">
         <Setter Property="FontSize" Value="18" />
-        <Setter Property="FontWeight" Value="Bold" />
-        <Setter Property="Margin" Value="0,0,0,12" />
-    </Style>
-
-    <!--  Filename section  -->
-    <Style Selector="Grid.filename-section">
-        <Setter Property="ColumnSpacing" Value="12" />
-        <Setter Property="Margin" Value="0,0,0,12" />
-    </Style>
-
-    <Style Selector="TextBlock.filename-value">
-        <Setter Property="FontSize" Value="16" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="TextWrapping" Value="Wrap" />
-    </Style>
-
-    <!--  Properties grid  -->
-    <Style Selector="Grid.properties-grid">
-        <Setter Property="ColumnSpacing" Value="16" />
-        <Setter Property="RowSpacing" Value="10" />
-        <Setter Property="Margin" Value="0,12,0,12" />
-    </Style>
-
-    <!--  Labels  -->
-    <Style Selector="TextBlock.label">
-        <Setter Property="HorizontalAlignment" Value="Right" />
         <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="Foreground" Value="#9AA0A6" />
-        <Setter Property="Margin" Value="0,0,4,0" />
     </Style>
 
-    <!--  Values  -->
-    <Style Selector="TextBlock.value">
-        <Setter Property="TextWrapping" Value="Wrap" />
-    </Style>
-
-    <!--  Monospace  -->
-    <Style Selector="TextBlock.monospace">
-        <Setter Property="FontFamily" Value="JetBrains Mono, Monospace" />
+    <Style Selector="TextBox.file-path">
         <Setter Property="FontSize" Value="12" />
+        <Setter Property="Opacity" Value="0.7" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="IsReadOnly" Value="True" />
+        <Setter Property="CaretBrush" Value="Transparent" />
     </Style>
 
-    <!--  Separator  -->
+    <Style Selector="TextBox.file-path:focus-within /template/ Border, TextBox.file-path:pointerover /template/ Border">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="Grid.property-grid">
+        <Setter Property="RowSpacing" Value="6" />
+        <Setter Property="ColumnSpacing" Value="12" />
+    </Style>
+
+    <Style Selector="TextBlock.label">
+        <Setter Property="Opacity" Value="0.60" />
+        <Setter Property="TextAlignment" Value="Right" />
+    </Style>
+
+    <Style Selector="TextBlock.value">
+        <Setter Property="Margin" Value="8 0 0 0" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+    </Style>
+
+    <Style Selector="StackPanel.button-row">
+        <Setter Property="Margin" Value="0 16 0 0" />
+    </Style>
+
+    <Style Selector="Button.close-button">
+        <Setter Property="Width" Value="70" />
+        <Setter Property="Background" Value="{DynamicResource SecondaryColor}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
     <Style Selector="Border.separator">
         <Setter Property="Height" Value="1" />
-        <Setter Property="Background" Value="#2E2E2E" />
-        <Setter Property="Margin" Value="0,8" />
-    </Style>
-
-    <!--  Buttons  -->
-    <Style Selector="StackPanel.properties-buttons">
-        <Setter Property="HorizontalAlignment" Value="Right" />
-        <Setter Property="Margin" Value="0,12,0,0" />
-        <Setter Property="Spacing" Value="8" />
-    </Style>
-
-    <Style Selector="Button.primary-button">
-        <Setter Property="Padding" Value="14,6" />
-        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Margin" Value="-1 4 -1 4" />
+        <Setter Property="Background" Value="{DynamicResource SecondaryColor}" />
     </Style>
 
 </Styles>

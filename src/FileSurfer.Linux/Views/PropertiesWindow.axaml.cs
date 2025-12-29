@@ -6,16 +6,13 @@ namespace FileSurfer.Linux.Views;
 
 public partial class PropertiesWindow : Window
 {
-    public PropertiesWindow()
-    {
-        InitializeComponent();
-    }
+    public PropertiesWindow() => InitializeComponent();
 
     private void CloseWindow(object sender, RoutedEventArgs args) => Close();
 
     private void KeyPressed(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter)
+        if (e.Key is Key.Enter or Key.Escape)
             Close();
     }
 }

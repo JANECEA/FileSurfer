@@ -4,12 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:FileSurfer.Linux.ViewModels"
-        Title="File properties"
+        Title="{Binding FileName, StringFormat=Properties for: {0} -- FileSurfer}"
         Width="400"
-        Height="600"
+        Height="420"
+        MinWidth="400"
+        MinHeight="420"
         x:DataType="vm:PropertiesWindowViewModel"
         Background="{DynamicResource PrimaryColor}"
-        CanResize="False"
+        Foreground="{DynamicResource TextColor}"
         KeyDown="KeyPressed"
         WindowStartupLocation="CenterOwner"
         mc:Ignorable="d">
@@ -18,56 +20,58 @@
         <StyleInclude Source="avares://FileSurfer/Views/PropertiesWindowStyle.axaml" />
     </Window.Styles>
 
-    <Grid Margin="12" Classes="properties-root" RowDefinitions="Auto Auto Auto * Auto">
-
-        <!--  Header  -->
-        <TextBlock Classes="properties-header" Text="File Properties" />
-
-        <!--  Filename section  -->
-        <Grid Grid.Row="1" Classes="filename-section" ColumnDefinitions="Auto,*">
-
-            <TextBlock Classes="label" Text="Name:" />
-
-            <TextBlock Classes="filename-value" Text="{Binding FileName}" />
-        </Grid>
-
-        <!--  Separator  -->
-        <Border Grid.Row="2" Classes="separator" />
-
-        <!--  Properties  -->
-        <Grid Grid.Row="3" Classes="properties-grid" ColumnDefinitions="Auto,*" RowDefinitions="Auto Auto Auto Auto Auto Auto">
-
-            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="Path:" />
-            <TextBlock Grid.Row="0" Grid.Column="1" Classes="value monospace" Text="{Binding FullPath}" />
-
-            <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Text="Created:" />
-            <TextBlock Grid.Row="1" Grid.Column="1" Classes="value" Text="{Binding DateCreated}" />
-
-            <TextBlock Grid.Row="2" Grid.Column="0" Classes="label" Text="Accessed:" />
-            <TextBlock Grid.Row="2" Grid.Column="1" Classes="value" Text="{Binding DateAccessed}" />
-
-            <TextBlock Grid.Row="3" Grid.Column="0" Classes="label" Text="Modified:" />
-            <TextBlock Grid.Row="3" Grid.Column="1" Classes="value" Text="{Binding DateModified}" />
-
-            <TextBlock Grid.Row="4" Grid.Column="0" Classes="label" Text="Owner:" />
-            <TextBlock Grid.Row="4" Grid.Column="1" Classes="value" Text="{Binding Owner}" />
-
-            <TextBlock Grid.Row="5" Grid.Column="0" Classes="label" Text="Permissions:" />
-            <TextBlock Grid.Row="5" Grid.Column="1" Classes="value monospace" Text="{Binding Permissions}" />
-        </Grid>
-
-        <!--  Separator  -->
-        <Border Grid.Row="4" Classes="separator" />
-
-        <!--  Buttons  -->
-        <StackPanel Grid.Row="5" Classes="properties-buttons" Orientation="Horizontal">
-            <Button Width="80"
-                    Classes="primary-button"
-                    Click="CloseWindow"
-                    Content="Close"
-                    IsCancel="True"
-                    IsDefault="True" />
+    <DockPanel Margin="16" LastChildFill="False" VerticalSpacing="10">
+        <StackPanel Margin="15 5 15 5" DockPanel.Dock="Top" Spacing="10">
+            <Grid ColumnDefinitions="Auto *" RowDefinitions="Auto">
+                <Image Grid.Column="0"
+                       Width="56"
+                       Height="56"
+                       Margin="0 0 12 0"
+                       Source="{Binding Icon}" />
+                <TextBlock Grid.Column="1" Classes="file-name" Text="{Binding FileName}" />
+            </Grid>
+            <TextBox Classes="file-path" Text="{Binding FullPath}" />
         </StackPanel>
 
-    </Grid>
+        <Border Classes="separator" DockPanel.Dock="Top" />
+
+        <Grid Classes="property-grid" ColumnDefinitions="100 *" DockPanel.Dock="Top" RowDefinitions="Auto Auto Auto Auto Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="Type:" />
+            <TextBlock Grid.Row="0" Grid.Column="1" Classes="value" Text="{Binding Type}" />
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Text="Size:" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Classes="value" Text="{Binding Size}" />
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Classes="label" Text="Created:" />
+            <TextBlock Grid.Row="2" Grid.Column="1" Classes="value" Text="{Binding DateCreated}" />
+
+            <TextBlock Grid.Row="3" Grid.Column="0" Classes="label" Text="Accessed:" />
+            <TextBlock Grid.Row="3" Grid.Column="1" Classes="value" Text="{Binding DateAccessed}" />
+
+            <TextBlock Grid.Row="4" Grid.Column="0" Classes="label" Text="Modified:" />
+            <TextBlock Grid.Row="4" Grid.Column="1" Classes="value" Text="{Binding DateModified}" />
+        </Grid>
+
+        <Border Classes="separator" DockPanel.Dock="Top" />
+
+        <Grid Classes="property-grid" ColumnDefinitions="100 *" DockPanel.Dock="Top" RowDefinitions="Auto Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="Owner:" />
+            <TextBlock Grid.Row="0" Grid.Column="1" Classes="value" Text="{Binding Owner}" />
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Text="Permissions:" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Classes="value" Text="{Binding Permissions}" />
+        </Grid>
+
+        <StackPanel DockPanel.Dock="Bottom">
+            <Border Classes="separator" />
+
+            <StackPanel HorizontalAlignment="Right" Classes="button-row" Orientation="Horizontal" Spacing="8">
+                <Button Classes="close-button"
+                        Click="CloseWindow"
+                        Content="Close"
+                        IsCancel="True"
+                        IsDefault="True" />
+            </StackPanel>
+        </StackPanel>
+    </DockPanel>
 </Window>
