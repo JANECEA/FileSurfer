@@ -1,4 +1,6 @@
-﻿namespace FileSurfer.Core.Models.Shell;
+﻿using FileSurfer.Core.ViewModels;
+
+namespace FileSurfer.Core.Models.Shell;
 
 /// <summary>
 /// Provides methods to interact with file properties and dialogs
@@ -9,7 +11,7 @@ public interface IFileProperties
     /// Shows the file properties dialog
     /// </summary>
     /// <returns><see langword="true"/> if the properties dialog was successfully shown, otherwise <see langword="false"/>.</returns>
-    public IResult ShowFileProperties(IFileSystemEntry entry);
+    public IResult ShowFileProperties(FileSystemEntryViewModel entry);
 
     /// <summary>
     /// Displays the "Open With" dialog for a specified file

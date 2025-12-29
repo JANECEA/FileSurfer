@@ -13,6 +13,7 @@ using FileSurfer.Core.Views;
 using FileSurfer.Linux.Models.FileInformation;
 using FileSurfer.Linux.Models.FileOperations;
 using FileSurfer.Linux.Models.Shell;
+using FileSurfer.Linux.ViewModels;
 
 namespace FileSurfer.Linux;
 
@@ -93,7 +94,7 @@ public partial class App : Application
             initialDir,
             fileIOHandler,
             new LinuxBinInteraction(shellHandler),
-            new LinuxFileProperties(),
+            new LinuxFileProperties(new PropertiesVmFactory(mainWindow)),
             new LinuxFileInfoProvider(shellHandler),
             new LinuxIconProvider(shellHandler),
             shellHandler,

@@ -1130,7 +1130,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Relays the operation to <see cref="_fileIOHandler"/>.
     /// </summary>
     public void ShowProperties(FileSystemEntryViewModel entry) =>
-        ForwardIfError(_fileProperties.ShowFileProperties(entry.FileSystemEntry));
+        ForwardIfError(_fileProperties.ShowFileProperties(entry));
 
     /// <summary>
     /// Relays the operation to <see cref="RenameOne(string)"/> or <see cref="RenameMultiple(string)"/>.

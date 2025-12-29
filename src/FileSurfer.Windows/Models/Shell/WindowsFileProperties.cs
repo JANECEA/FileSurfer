@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.Shell;
+using FileSurfer.Core.ViewModels;
 
 namespace FileSurfer.Windows.Models.Shell;
 
@@ -52,7 +53,7 @@ public class WindowsFileProperties : IFileProperties
     )]
     private static extern bool ShellExecuteEx(ref ShellExecuteInfo lpExecInfo);
 
-    public IResult ShowFileProperties(IFileSystemEntry entry)
+    public IResult ShowFileProperties(FileSystemEntryViewModel entry)
     {
         ShellExecuteInfo info = new();
         info.cbSize = Marshal.SizeOf(info);
