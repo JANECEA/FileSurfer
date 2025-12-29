@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:FileSurfer.Linux.ViewModels"
         Title="{Binding FileName, StringFormat=Properties for: {0} -- FileSurfer}"
-        Width="400"
-        Height="420"
-        MinWidth="400"
-        MinHeight="420"
+        Width="420"
+        Height="465"
+        MinWidth="420"
+        MinHeight="465"
         x:DataType="vm:PropertiesWindowViewModel"
         Background="{DynamicResource PrimaryColor}"
         Foreground="{DynamicResource TextColor}"
@@ -54,12 +54,19 @@
 
         <Border Classes="separator" DockPanel.Dock="Top" />
 
-        <Grid Classes="property-grid" ColumnDefinitions="100 *" DockPanel.Dock="Top" RowDefinitions="Auto Auto">
+        <Grid Classes="property-grid" ColumnDefinitions="100 *" DockPanel.Dock="Top" RowDefinitions="Auto Auto Auto Auto">
             <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="Owner:" />
             <TextBlock Grid.Row="0" Grid.Column="1" Classes="value" Text="{Binding Owner}" />
 
             <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Text="Permissions:" />
-            <TextBlock Grid.Row="1" Grid.Column="1" Classes="value" Text="{Binding Permissions}" />
+            <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="55 Auto" RowDefinitions="Auto Auto Auto">
+                <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="owner:" />
+                <TextBlock Grid.Row="0" Grid.Column="1" Classes="value" Text="{Binding PermissionsOwner}" />
+                <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Text="group:" />
+                <TextBlock Grid.Row="1" Grid.Column="1" Classes="value" Text="{Binding PermissionsGroup}" />
+                <TextBlock Grid.Row="2" Grid.Column="0" Classes="label" Text="others:" />
+                <TextBlock Grid.Row="2" Grid.Column="1" Classes="value" Text="{Binding PermissionsOther}" />
+            </Grid>
         </Grid>
 
         <StackPanel DockPanel.Dock="Bottom">
