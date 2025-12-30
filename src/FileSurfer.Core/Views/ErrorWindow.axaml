@@ -1,28 +1,32 @@
-<Window xmlns="https://github.com/avaloniaui"
+<Window x:Class="FileSurfer.Core.Views.ErrorWindow"
+        xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:FileSurfer.Core.ViewModels"
-        Width="550" Height="220" CanResize="False"
-        mc:Ignorable="d" d:DesignWidth="550" d:DesignHeight="220"
-        x:Class="FileSurfer.Core.Views.ErrorWindow"
-        WindowStartupLocation="CenterOwner"
-        x:DataType="vm:MainWindowViewModel"
         Title="Unexpected error"
+        Width="550"
+        Height="220"
+        d:DesignHeight="220"
+        d:DesignWidth="550"
+        x:DataType="vm:MainWindowViewModel"
+        Background="{DynamicResource PrimaryColor}"
+        CanResize="False"
         Icon="/Assets/FileSurfer-logo.ico"
         KeyDown="KeyPressed"
-        Background="{DynamicResource PrimaryColor}">
+        WindowStartupLocation="CenterOwner"
+        mc:Ignorable="d">
 
     <Window.Styles>
-        <StyleInclude Source="avares://FileSurfer.Core/Views/ErrorWindowStyle.axaml"/>
+        <StyleInclude Source="avares://FileSurfer.Core/Views/ErrorWindowStyle.axaml" />
     </Window.Styles>
 
     <Grid Classes="MainGrid" RowDefinitions="180 40">
         <Border Classes="ErrorBlockBorder">
-            <TextBlock Classes="ErrorBlock" x:Name="ErrorBlock"/>
+            <TextBlock x:Name="ErrorBlock" Classes="ErrorBlock" />
         </Border>
-        <Rectangle Grid.Row="1" Classes="BottomRectangle"/>
-        <Button Grid.Row="1" Classes="OKButton" Content="OK" Click="CloseWindow"/>
+        <Rectangle Grid.Row="1" Classes="BottomRectangle" />
+        <Button Grid.Row="1" Classes="OKButton" Click="CloseWindow" Content="OK" />
     </Grid>
 
 </Window>

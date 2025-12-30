@@ -1,14 +1,14 @@
-<Application xmlns="https://github.com/avaloniaui"
+<Application x:Class="FileSurfer.Windows.App"
+             xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="FileSurfer.Windows.App"
              xmlns:core="using:FileSurfer.Core"
              RequestedThemeVariant="Dark">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+    <!--  "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options.  -->
 
     <Application.DataTemplates>
-        <core:ViewLocator/>
+        <core:ViewLocator />
     </Application.DataTemplates>
-  
+
     <Application.Styles>
         <FluentTheme />
     </Application.Styles>
@@ -16,7 +16,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <FontFamily x:Key="IconFont">avares://FileSurfer.Core/Assets/FiraCodeNerdFont-Regular.ttf#FiraCode Nerd Font</FontFamily>
-            
+
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
                     <Color x:Key="PrimaryColor">#EEEEEE</Color>

@@ -1,124 +1,147 @@
-<Window xmlns="https://github.com/avaloniaui"
+<Window x:Class="FileSurfer.Core.Views.SettingsWindow"
+        xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:FileSurfer.Core.ViewModels"
-        Width="800" Height="800" CanResize="True"
-        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="1000"
-        x:Class="FileSurfer.Core.Views.SettingsWindow"
-        WindowStartupLocation="CenterOwner"
-        x:DataType="vm:SettingsWindowViewModel"
         Title="Settings"
+        Width="800"
+        Height="800"
+        d:DesignHeight="1000"
+        d:DesignWidth="600"
+        x:DataType="vm:SettingsWindowViewModel"
+        Background="{DynamicResource PrimaryColor}"
+        CanResize="True"
+        Foreground="{DynamicResource TextColor}"
         Icon="/Assets/FileSurfer-logo.ico"
         KeyDown="KeyPressed"
         ShowInTaskbar="False"
-        Foreground="{DynamicResource TextColor}"
-        Background="{DynamicResource PrimaryColor}">
+        WindowStartupLocation="CenterOwner"
+        mc:Ignorable="d">
 
     <Window.Styles>
-        <StyleInclude Source="avares://FileSurfer.Core/Views/SettingsWindowStyle.axaml"/>
+        <StyleInclude Source="avares://FileSurfer.Core/Views/SettingsWindowStyle.axaml" />
     </Window.Styles>
-    
+
     <Window.DataContext>
-        <vm:SettingsWindowViewModel/>
+        <vm:SettingsWindowViewModel />
     </Window.DataContext>
 
     <Grid RowDefinitions="* 70">
         <ScrollViewer Grid.Row="0" Padding="20">
-            <StackPanel Spacing="20" Margin="0,0,0,83">
+            <StackPanel Margin="0 0 0 83" Spacing="20">
 
                 <Border Classes="Borders">
                     <StackPanel Spacing="12">
-                        <TextBlock Classes="Section" Text="General"/>
+                        <TextBlock Classes="Section" Text="General" />
 
                         <Grid ColumnDefinitions="200 *" RowDefinitions="Auto Auto Auto Auto">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="New Image Name:" VerticalAlignment="Center"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding NewImageName}" Margin="5,0,0,5"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="New Image Name:" />
+                            <TextBox Grid.Row="0" Grid.Column="1" Margin="5 0 0 5" Text="{Binding NewImageName}" />
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="New File Name:" VerticalAlignment="Center"/>
-                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding NewFileName}" Margin="5,0,0,5"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="New File Name:" />
+                            <TextBox Grid.Row="1" Grid.Column="1" Margin="5 0 0 5" Text="{Binding NewFileName}" />
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="New Directory Name:" VerticalAlignment="Center"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding NewDirectoryName}" Margin="5,0,0,5"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="New Directory Name:" />
+                            <TextBox Grid.Row="2" Grid.Column="1" Margin="5 0 0 5" Text="{Binding NewDirectoryName}" />
 
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="This PC Label:" VerticalAlignment="Center"/>
-                            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding ThisPCLabel}" Margin="5,0,0,5"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Text="This PC Label:" />
+                            <TextBox Grid.Row="3" Grid.Column="1" Margin="5 0 0 5" Text="{Binding ThisPCLabel}" />
                         </Grid>
                     </StackPanel>
                 </Border>
 
                 <Border Classes="Borders">
                     <StackPanel Spacing="12">
-                        <TextBlock Classes="Section" Text="Startup and Location"/>
+                        <TextBlock Classes="Section" Text="Startup and Location" />
 
-                        <CheckBox Content="Open in last location" IsChecked="{Binding OpenInLastLocation}"/>
+                        <CheckBox Content="Open in last location" IsChecked="{Binding OpenInLastLocation}" />
 
-                        <Grid Margin="0,10,0,0" ColumnDefinitions="120 *">
-                            <TextBlock Grid.Column="0" Text="Default Location:" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Margin="5 0 0 0" Text="{Binding OpenIn}" IsEnabled="{Binding !OpenInLastLocation}"/>
+                        <Grid Margin="0 10 0 0" ColumnDefinitions="120 *">
+                            <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Default Location:" />
+                            <TextBox Grid.Column="1" Margin="5 0 0 0" IsEnabled="{Binding !OpenInLastLocation}" Text="{Binding OpenIn}" />
                         </Grid>
                     </StackPanel>
                 </Border>
 
                 <Border Classes="Borders">
                     <StackPanel Spacing="12">
-                        <TextBlock Classes="Section" Text="Appearance"/>
+                        <TextBlock Classes="Section" Text="Appearance" />
 
-                        <CheckBox VerticalAlignment="Center" Content="Use Dark Mode" IsChecked="{Binding UseDarkMode}"/>
-                        
-                        <Grid Margin="0,5,0,5" ColumnDefinitions="140 *">
-                            <TextBlock Grid.Column="0" Text="File Size Unit Limit:" VerticalAlignment="Center"/>
-                            <NumericUpDown Grid.Column="1" Value="{Binding FileSizeUnitLimit}" ClipValueToMinMax="True"
-                                Minimum="{CompiledBinding FileSizeUnitLimitLowerBound}"
-                                Maximum="{CompiledBinding FileSizeUnitLimitUpperBound}"
-                                Margin="5,0,0,0" Width="150" AllowSpin="True" HorizontalAlignment="Left"/>
+                        <CheckBox VerticalAlignment="Center" Content="Use Dark Mode" IsChecked="{Binding UseDarkMode}" />
+
+                        <Grid Margin="0 5 0 5" ColumnDefinitions="140 *">
+                            <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="File Size Unit Limit:" />
+                            <NumericUpDown Grid.Column="1"
+                                           Width="150"
+                                           Margin="5 0 0 0"
+                                           HorizontalAlignment="Left"
+                                           AllowSpin="True"
+                                           ClipValueToMinMax="True"
+                                           Maximum="{CompiledBinding FileSizeUnitLimitUpperBound}"
+                                           Minimum="{CompiledBinding FileSizeUnitLimitLowerBound}"
+                                           Value="{Binding FileSizeUnitLimit}" />
                         </Grid>
 
-                        <Grid Margin="0,5,0,5" ColumnDefinitions="140 *">
-                            <TextBlock Grid.Column="0" Text="Display Mode:" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Column="1" SelectedItem="{Binding DisplayMode}" ItemsSource="{Binding DisplayModeOptions}" Margin="5,0,0,0" Width="150"/>
+                        <Grid Margin="0 5 0 5" ColumnDefinitions="140 *">
+                            <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Display Mode:" />
+                            <ComboBox Grid.Column="1"
+                                      Width="150"
+                                      Margin="5 0 0 0"
+                                      ItemsSource="{Binding DisplayModeOptions}"
+                                      SelectedItem="{Binding DisplayMode}" />
                         </Grid>
 
-                        <Grid Margin="0,5,0,5" ColumnDefinitions="140 200 *">
-                            <TextBlock Grid.Column="0" Text="Default Sort:" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Column="1" SelectedItem="{Binding DefaultSort}" ItemsSource="{Binding SortOptions}" Margin="5,0,10,0" Width="150"/>
-                        <CheckBox Grid.Column="2" Content="Sort Reversed" IsChecked="{Binding SortReversed}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        <Grid Margin="0 5 0 5" ColumnDefinitions="140 200 *">
+                            <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Default Sort:" />
+                            <ComboBox Grid.Column="1"
+                                      Width="150"
+                                      Margin="5 0 10 0"
+                                      ItemsSource="{Binding SortOptions}"
+                                      SelectedItem="{Binding DefaultSort}" />
+                            <CheckBox Grid.Column="2"
+                                      Margin="10 0 0 0"
+                                      VerticalAlignment="Center"
+                                      Content="Sort Reversed"
+                                      IsChecked="{Binding SortReversed}" />
                         </Grid>
                     </StackPanel>
                 </Border>
 
                 <Border Classes="Borders">
                     <StackPanel Spacing="12">
-                        <TextBlock Classes="Section" Text="File Display"/>
+                        <TextBlock Classes="Section" Text="File Display" />
 
                         <StackPanel Spacing="8">
-                            <CheckBox Content="Show Special Folders" IsChecked="{Binding ShowSpecialFolders}"/>
-                            <CheckBox Content="Show Protected Files" IsChecked="{Binding ShowProtectedFiles}"/>
-                            <CheckBox Content="Show Hidden Files" IsChecked="{Binding ShowHiddenFiles}"/>
-                            <CheckBox Content="Treat Dot Files as Hidden" IsChecked="{Binding TreatDotFilesAsHidden}" IsVisible="{Binding IsWindows}"/>
+                            <CheckBox Content="Show Special Folders" IsChecked="{Binding ShowSpecialFolders}" />
+                            <CheckBox Content="Show Protected Files" IsChecked="{Binding ShowProtectedFiles}" />
+                            <CheckBox Content="Show Hidden Files" IsChecked="{Binding ShowHiddenFiles}" />
+                            <CheckBox Content="Treat Dot Files as Hidden" IsChecked="{Binding TreatDotFilesAsHidden}" IsVisible="{Binding IsWindows}" />
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
                 <Border Classes="Borders">
                     <StackPanel Spacing="12">
-                        <TextBlock Classes="Section" Text="Features"/>
+                        <TextBlock Classes="Section" Text="Features" />
 
                         <StackPanel Spacing="8">
-                            <CheckBox Content="Git Integration" IsChecked="{Binding GitIntegration}"/>
-                            <CheckBox Content="Show Undo/Redo Error Dialogs" IsChecked="{Binding ShowUndoRedoErrorDialogs}"/>
-                            <CheckBox Content="Allow Image Pasting from Clipboard" IsChecked="{Binding AllowImagePastingFromClipboard}"/>
+                            <CheckBox Content="Git Integration" IsChecked="{Binding GitIntegration}" />
+                            <CheckBox Content="Show Undo/Redo Error Dialogs" IsChecked="{Binding ShowUndoRedoErrorDialogs}" />
+                            <CheckBox Content="Allow Image Pasting from Clipboard" IsChecked="{Binding AllowImagePastingFromClipboard}" />
                         </StackPanel>
 
-                        <StackPanel Spacing="8" Margin="0,15,0,0">
-                            <CheckBox Content="Automatic Refresh" IsChecked="{Binding AutomaticRefresh}"/>
-                            <StackPanel Orientation="Horizontal" Spacing="5" Margin="20,5,0,0">
-                                <TextBlock Text="Refresh Interval:" VerticalAlignment="Center"/>
-                                <NumericUpDown Value="{Binding AutomaticRefreshInterval}" ClipValueToMinMax="True" 
-                                    Minimum="{CompiledBinding AutomaticRefreshIntervalLowerBound}"
-                                    Maximum="{CompiledBinding AutomaticRefreshIntervalUpperBound}"
-                                    Width="150" Margin="10,0,5,0"/>
-                                <TextBlock Text="ms" VerticalAlignment="Center"/>
+                        <StackPanel Margin="0 15 0 0" Spacing="8">
+                            <CheckBox Content="Automatic Refresh" IsChecked="{Binding AutomaticRefresh}" />
+                            <StackPanel Margin="20 5 0 0" Orientation="Horizontal" Spacing="5">
+                                <TextBlock VerticalAlignment="Center" Text="Refresh Interval:" />
+                                <NumericUpDown Width="150"
+                                               Margin="10 0 5 0"
+                                               ClipValueToMinMax="True"
+                                               Maximum="{CompiledBinding AutomaticRefreshIntervalUpperBound}"
+                                               Minimum="{CompiledBinding AutomaticRefreshIntervalLowerBound}"
+                                               Value="{Binding AutomaticRefreshInterval}" />
+                                <TextBlock VerticalAlignment="Center" Text="ms" />
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -126,28 +149,28 @@
 
                 <Border Classes="Borders">
                     <StackPanel Spacing="12">
-                        <TextBlock Classes="Section" Text="Advanced"/>
+                        <TextBlock Classes="Section" Text="Advanced" />
 
                         <Grid ColumnDefinitions="200 *" RowDefinitions="Auto Auto">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Preferred terminal:" VerticalAlignment="Center"/>
-                            <StackPanel Grid.Row="0" Grid.Column="1" Margin="5,0,0,5">
+                            <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Preferred terminal:" />
+                            <StackPanel Grid.Row="0" Grid.Column="1" Margin="5 0 0 5">
                                 <Grid ColumnDefinitions="200 Auto *">
-                                    <TextBox Grid.Column="0" Text="{Binding Terminal}"/>
-                                    <TextBlock Margin="10 0 10 0" Grid.Column="1" Text="Args:" VerticalAlignment="Center"/>
-                                    <TextBox Grid.Column="2" Text="{Binding TerminalArgs}"/>
+                                    <TextBox Grid.Column="0" Text="{Binding Terminal}" />
+                                    <TextBlock Grid.Column="1" Margin="10 0 10 0" VerticalAlignment="Center" Text="Args:" />
+                                    <TextBox Grid.Column="2" Text="{Binding TerminalArgs}" />
                                 </Grid>
-                                <TextBlock Classes="Subtext" Text="*Arguments must be specified so the target directory can be appended (e.g. `wezterm`, `start --cwd`)."/>
+                                <TextBlock Classes="Subtext" Text="*Arguments must be specified so the target directory can be appended (e.g. `wezterm`, `start --cwd`)." />
                             </StackPanel>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Path to Notepad App:" VerticalAlignment="Center"/>
-                            <StackPanel Grid.Row="1" Grid.Column="1" Margin="5,0,0,5">
+                            <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Path to Notepad App:" />
+                            <StackPanel Grid.Row="1" Grid.Column="1" Margin="5 0 0 5">
                                 <Grid ColumnDefinitions="200 Auto *">
-                                    <TextBox Grid.Column="0" Text="{Binding NotepadApp}"/>
-                                    <TextBlock Margin="10 0 10 0" Grid.Column="1" Text="Args:" VerticalAlignment="Center"/>
-                                    <TextBox Grid.Column="2" Text="{Binding NotepadAppArgs}"/>
+                                    <TextBox Grid.Column="0" Text="{Binding NotepadApp}" />
+                                    <TextBlock Grid.Column="1" Margin="10 0 10 0" VerticalAlignment="Center" Text="Args:" />
+                                    <TextBox Grid.Column="2" Text="{Binding NotepadAppArgs}" />
                                 </Grid>
-                                <TextBlock Classes="Subtext" Text="*The file path will be appended to this command."/>
-                                <TextBlock Classes="Subtext" Text="*For terminal-based editors, specify the full launch command (e.g. `konsole` `-e vim`)."/>
+                                <TextBlock Classes="Subtext" Text="*The file path will be appended to this command." />
+                                <TextBlock Classes="Subtext" Text="*For terminal-based editors, specify the full launch command (e.g. `konsole` `-e vim`)." />
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -156,11 +179,11 @@
             </StackPanel>
         </ScrollViewer>
 
-        <Border Grid.Row="1" Background="{DynamicResource SecondaryColor}" CornerRadius="0" Padding="15">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
-                <Button Classes="BottomButton" Content="Reset to Defaults"  Width="120" Click="ResetToDefaults"/>
-                <Button Classes="BottomButton" Content="Cancel" Click="CloseWindow"/>
-                <Button Classes="BottomButton" Foreground="#b8b926" Content="Save" Click="SaveAndClose"/>
+        <Border Grid.Row="1" Padding="15" Background="{DynamicResource SecondaryColor}" CornerRadius="0">
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10">
+                <Button Width="120" Classes="BottomButton" Click="ResetToDefaults" Content="Reset to Defaults" />
+                <Button Classes="BottomButton" Click="CloseWindow" Content="Cancel" />
+                <Button Classes="BottomButton" Click="SaveAndClose" Content="Save" Foreground="#b8b926" />
             </StackPanel>
         </Border>
 

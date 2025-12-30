@@ -24,6 +24,8 @@ public class LinuxIconProvider : IIconProvider, IDisposable
             AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/FolderIcon.svg"))
         ),
     };
+
+    // TODO fix squished icon
     private static readonly SvgImage DriveIcon = new()
     {
         Source = SvgSource.LoadFromStream(
@@ -39,6 +41,8 @@ public class LinuxIconProvider : IIconProvider, IDisposable
             }.Build(),
         }.Build()
     );
+
+    // TODO add custom generic file icon fallback
 
     private readonly IShellHandler _shellHandler;
     private readonly IReadOnlyList<string> _searchPaths;
