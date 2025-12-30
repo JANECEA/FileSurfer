@@ -16,6 +16,12 @@ namespace FileSurfer.Windows.Models.FileInformation;
 /// </summary>
 public class WindowsIconProvider : IIconProvider, IDisposable
 {
+    private static readonly SvgImage GenericFileIcon = new()
+    {
+        Source = SvgSource.LoadFromStream(
+            AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/GenericFileIcon.svg"))
+        ),
+    };
     private static readonly SvgImage DirectoryIcon = new()
     {
         Source = SvgSource.LoadFromStream(
@@ -48,17 +54,22 @@ public class WindowsIconProvider : IIconProvider, IDisposable
     ];
 
     private readonly Dictionary<string, Bitmap> _icons = new();
-    private Bitmap? _genericFileIcon;
+    private IImage? _genericFileIcon;
+
+    private IImage GetGenericFileIcon() => _genericFileIcon ?? GenericFileIcon;
 
     /// <inheritdoc/>
-    public IImage? GetFileIcon(string filePath)
+    public IImage GetFileIcon(string filePath)
     {
         string extension = Path.GetExtension(filePath).ToLowerInvariant();
         if (string.IsNullOrWhiteSpace(extension))
-            return _genericFileIcon ??= ExtractFileIcon(filePath);
+        {
+            _genericFileIcon ??= ExtractFileIcon(filePath);
+            return GetGenericFileIcon();
+        }
 
         if (HaveUniqueIcons.Contains(extension))
-            return ExtractFileIcon(filePath) ?? _genericFileIcon;
+            return ExtractFileIcon(filePath) ?? GetGenericFileIcon();
 
         if (_icons.TryGetValue(extension, out Bitmap? cachedIcon))
             return cachedIcon;
@@ -66,7 +77,7 @@ public class WindowsIconProvider : IIconProvider, IDisposable
         if (ExtractFileIcon(filePath) is Bitmap icon)
             return _icons[extension] = icon;
 
-        return _genericFileIcon;
+        return GetGenericFileIcon();
     }
 
     private static Bitmap? ExtractFileIcon(string path)

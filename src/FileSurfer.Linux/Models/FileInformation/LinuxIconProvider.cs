@@ -18,14 +18,18 @@ namespace FileSurfer.Linux.Models.FileInformation;
 public class LinuxIconProvider : IIconProvider, IDisposable
 {
     private const string GenericMimeType = "unknown";
+    private static readonly SvgImage GenericFileIcon = new()
+    {
+        Source = SvgSource.LoadFromStream(
+            AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/GenericFileIcon.svg"))
+        ),
+    };
     private static readonly SvgImage DirectoryIcon = new()
     {
         Source = SvgSource.LoadFromStream(
             AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/FolderIcon.svg"))
         ),
     };
-
-    // TODO fix squished icon
     private static readonly SvgImage DriveIcon = new()
     {
         Source = SvgSource.LoadFromStream(
@@ -42,15 +46,11 @@ public class LinuxIconProvider : IIconProvider, IDisposable
         }.Build()
     );
 
-    // TODO add custom generic file icon fallback
-
     private readonly IShellHandler _shellHandler;
     private readonly IReadOnlyList<string> _searchPaths;
     private readonly Dictionary<string, string> _extToMime = new();
     private readonly Dictionary<string, IImage> _mimeToIcon = new();
-    private IImage? _genericFileIcon;
-
-    private IImage? GetGenericFileIcon() => _genericFileIcon ??= ExtractIcon(GenericMimeType);
+    private IImage? _themedGenericFileIcon;
 
     public LinuxIconProvider(IShellHandler shellHandler)
     {
@@ -64,8 +64,14 @@ public class LinuxIconProvider : IIconProvider, IDisposable
         _extToMime = GlobsParser.Parse(reader);
     }
 
+    private IImage GetGenericFileIcon()
+    {
+        _themedGenericFileIcon ??= ExtractIcon(GenericMimeType);
+        return _themedGenericFileIcon ?? GenericFileIcon;
+    }
+
     /// <inheritdoc/>
-    public IImage? GetFileIcon(string filePath)
+    public IImage GetFileIcon(string filePath)
     {
         string mimeType = GetMimeType(filePath);
         if (!_mimeToIcon.TryGetValue(mimeType, out IImage? icon))
