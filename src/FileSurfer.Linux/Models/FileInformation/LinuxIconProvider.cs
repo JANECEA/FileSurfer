@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Threading.Tasks;
-using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
-using Avalonia.Svg.Skia;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Models.Shell;
@@ -19,24 +17,16 @@ public class LinuxIconProvider : IIconProvider, IDisposable
 {
     private const string GenericMimeType = "unknown";
     private const int SvgSize = 128;
-    private static readonly SvgImage GenericFileIcon = new()
-    {
-        Source = SvgSource.LoadFromStream(
-            AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/GenericFileIcon.svg"))
-        ),
-    };
-    private static readonly SvgImage DirectoryIcon = new()
-    {
-        Source = SvgSource.LoadFromStream(
-            AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/FolderIcon.svg"))
-        ),
-    };
-    private static readonly SvgImage DriveIcon = new()
-    {
-        Source = SvgSource.LoadFromStream(
-            AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/DriveIcon.svg"))
-        ),
-    };
+    private static readonly Bitmap GenericFileIcon = new(
+        AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/GenericFileIcon.png"))
+    );
+    private static readonly Bitmap DirectoryIcon = new(
+        AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/FolderIcon.png"))
+    );
+    private static readonly Bitmap DriveIcon = new(
+        AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/DriveIcon.png"))
+    );
+
     private static readonly Task<IContentInspector> MimeInspectorTask = Task.Run(() =>
         new ContentInspectorBuilder
         {
@@ -50,8 +40,8 @@ public class LinuxIconProvider : IIconProvider, IDisposable
     private readonly IShellHandler _shellHandler;
     private readonly IReadOnlyList<string> _searchPaths;
     private readonly Dictionary<string, string> _extToMime = new();
-    private readonly Dictionary<string, IImage> _mimeToIcon = new();
-    private IImage? _themedGenericFileIcon;
+    private readonly Dictionary<string, Bitmap> _mimeToIcon = new();
+    private Bitmap? _themedGenericFileIcon;
 
     public LinuxIconProvider(IShellHandler shellHandler)
     {
@@ -65,17 +55,16 @@ public class LinuxIconProvider : IIconProvider, IDisposable
         _extToMime = GlobsParser.Parse(reader);
     }
 
-    private IImage GetGenericFileIcon()
+    private Bitmap GetGenericFileIcon()
     {
         _themedGenericFileIcon ??= ExtractIcon(GenericMimeType);
         return _themedGenericFileIcon ?? GenericFileIcon;
     }
 
-    /// <inheritdoc/>
-    public IImage GetFileIcon(string filePath)
+    public Bitmap GetFileIcon(string filePath)
     {
         string mimeType = GetMimeType(filePath);
-        if (!_mimeToIcon.TryGetValue(mimeType, out IImage? icon))
+        if (!_mimeToIcon.TryGetValue(mimeType, out Bitmap? icon))
         {
             icon = ExtractIcon(mimeType);
             if (icon is not null)
@@ -144,11 +133,9 @@ public class LinuxIconProvider : IIconProvider, IDisposable
         return null;
     }
 
-    /// <inheritdoc/>
-    public IImage GetDirectoryIcon(string dirPath) => DirectoryIcon;
+    public Bitmap GetDirectoryIcon(string dirPath) => DirectoryIcon;
 
-    /// <inheritdoc/>
-    public IImage GetDriveIcon(DriveEntry driveEntry) => DriveIcon;
+    public Bitmap GetDriveIcon(DriveEntry driveEntry) => DriveIcon;
 
     public void Dispose()
     {
