@@ -18,6 +18,7 @@ namespace FileSurfer.Linux.Models.FileInformation;
 public class LinuxIconProvider : IIconProvider, IDisposable
 {
     private const string GenericMimeType = "unknown";
+    private const int SvgSize = 128;
     private static readonly SvgImage GenericFileIcon = new()
     {
         Source = SvgSource.LoadFromStream(
@@ -128,14 +129,13 @@ public class LinuxIconProvider : IIconProvider, IDisposable
         return result.Value.Replace('/', '-');
     }
 
-    private IImage? ExtractIcon(string mimeType)
+    private Bitmap? ExtractIcon(string mimeType)
     {
         foreach (string path in _searchPaths)
         {
             string svgPath = Path.Combine(path, mimeType + ".svg");
-            // TODO fix icon transparency
             if (File.Exists(svgPath))
-                return new SvgImage { Source = SvgSource.Load(svgPath) };
+                return SvgHelper.RenderSvg(svgPath, SvgSize);
 
             string pngPath = Path.Combine(path, mimeType + ".png");
             if (File.Exists(pngPath))
