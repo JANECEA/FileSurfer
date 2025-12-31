@@ -38,14 +38,18 @@
         <views:SortArrowConverter x:Key="SortArrowConverter" />
 
         <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type viewmodels:FileSystemEntryViewModel}">
-            <Grid Height="30" ColumnDefinitions="30 360 160 130 90 *">
+            <Grid Height="36" ColumnDefinitions="30 360 160 130 90 *">
                 <Image Grid.Column="0"
-                       Width="20"
-                       Height="20"
-                       Margin="0 0 12 0"
+                       Width="28"
+                       Height="28"
+                       Margin="0 0 13 0"
                        Opacity="{Binding Opacity}"
                        Source="{Binding Icon}" />
-                <TextBlock Grid.Column="1" Classes="FileInfo" FontWeight="Regular" Text="{Binding Name}" />
+                <TextBlock Grid.Column="1"
+                           Classes="FileInfo"
+                           FontSize="15"
+                           FontWeight="Regular"
+                           Text="{Binding Name}" />
                 <TextBlock Grid.Column="2" Classes="FileInfo" Text="{Binding LastModified}" />
                 <TextBlock Grid.Column="3" Classes="FileInfo" Text="{Binding Type}" />
                 <TextBlock Grid.Column="4" Classes="FileInfo" Text="{Binding Size}" TextAlignment="Right" />
@@ -69,11 +73,12 @@
         </DataTemplate>
 
         <DataTemplate x:Key="SideBarTemplate" x:DataType="{x:Type viewmodels:FileSystemEntryViewModel}">
-            <Grid Height="25" ColumnDefinitions="Auto *">
+            <Grid Height="27" ColumnDefinitions="Auto *">
                 <Image Grid.Column="0"
-                       Width="18"
-                       Height="18"
+                       Width="20"
+                       Height="20"
                        Margin="20 0 12 0"
+                       Opacity="{Binding Opacity}"
                        Source="{Binding Icon}" />
                 <TextBlock Grid.Column="1" Classes="FileInfo" FontFamily="Arial" Text="{Binding Name}" />
             </Grid>
@@ -337,7 +342,7 @@
                         <ListBox.Styles>
                             <Style Selector="ListBoxItem">
                                 <Setter Property="Padding" Value="10 0 10 0" />
-                                <Setter Property="Margin" Value="0 0 4 4" />
+                                <Setter Property="Margin" Value="0 0 4 0" />
                                 <Setter Property="ContextMenu">
                                     <Setter.Value>
                                         <ContextMenu x:DataType="viewmodels:FileSystemEntryViewModel" Classes="FileContextMenu">

@@ -250,7 +250,7 @@
     </Style>
 
     <Style Selector="TextBlock.FileInfo">
-        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontSize" Value="13" />
         <Setter Property="FontFamily" Value="Arial, Segoe UI, sans-serif" />
         <Setter Property="FontWeight" Value="Light" />
         <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
