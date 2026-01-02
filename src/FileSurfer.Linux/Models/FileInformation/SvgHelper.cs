@@ -15,7 +15,7 @@ internal static class SvgHelper
         process.StartInfo = new ProcessStartInfo
         {
             FileName = "resvg",
-            ArgumentList = { svgPath, "-w", sizeStr, "-h", sizeStr, "-c" },
+            ArgumentList = { svgPath, "-w", sizeStr, "-h", sizeStr, "--quiet", "-c" },
             RedirectStandardOutput = true,
             UseShellExecute = false,
             CreateNoWindow = true,

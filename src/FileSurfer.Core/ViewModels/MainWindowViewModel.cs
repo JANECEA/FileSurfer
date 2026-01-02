@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using FileSurfer.Core.Models;
@@ -35,15 +34,6 @@ namespace FileSurfer.Core.ViewModels;
 ]
 public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
-    private const string SearchingFinishedLabel = "Searching finished";
-    private const int SearchAnimationPeriodMS = 500;
-    private static readonly IReadOnlyList<string> SearchingStates =
-    [
-        "Searching",
-        "Searching.",
-        "Searching..",
-        "Searching...",
-    ];
     private string ThisPCLabel => FileSurferSettings.ThisPCLabel;
 
     private readonly IFileIOHandler _fileIOHandler;
@@ -54,6 +44,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private readonly IVersionControl _versionControl;
     private readonly IClipboardManager _clipboardManager;
     private readonly FileSystemEntryVMFactory _entryVMFactory;
+    private readonly SearchManager _searchManager;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
     private readonly UndoRedoHandler<string> _pathHistory;
     private readonly DispatcherTimer? _refreshTimer;
@@ -69,7 +60,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         get => FileSurferSettings.DefaultSort;
         set => FileSurferSettings.DefaultSort = value;
     }
-    private CancellationTokenSource _searchCTS = new();
     private DateTime _lastModified;
 
     public SortInfo SortInfo => new(SortBy, SortReversed);
@@ -241,6 +231,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             _fileProperties,
             iconProvider
         );
+        _searchManager = new SearchManager(
+            _entryVMFactory,
+            _fileInfoProvider,
+            s => CurrentDir = s,
+            entry => FileEntries.Add(entry)
+        );
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
         _pathHistory = new UndoRedoHandler<string>();
         SelectedFiles.CollectionChanged += UpdateSelectionInfo;
@@ -251,7 +247,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         GoUpCommand = ReactiveCommand.Create(GoUp);
         ReloadCommand = ReactiveCommand.Create(() => Reload(true));
         OpenPowerShellCommand = ReactiveCommand.Create(OpenPowerShell);
-        CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
+        CancelSearchCommand = ReactiveCommand.Create(() => CancelSearch(null));
         NewFileCommand = ReactiveCommand.Create(NewFile);
         NewDirCommand = ReactiveCommand.Create(NewDir);
         CutCommand = ReactiveCommand.Create(Cut);
@@ -326,6 +322,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             _pathHistory.AddNewNode(dirPath);
     }
 
+    public void ShowMessage(string message)
+    {
+        ShowInfoMessage = true;
+        CurrentInfoMessage = message;
+    }
+
+    private void HideMessage() => ShowInfoMessage = false;
+
     /// <summary>
     /// Compares <see cref="_lastModified"/> to the latest <see cref="Directory.GetLastWriteTime(string)"/>.
     /// <para>
@@ -381,9 +385,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
         }
 
-        ShowInfoMessage = FileEntries.Count == 0;
-        if (ShowInfoMessage)
-            CurrentInfoMessage = "This directory is empty";
+        if (FileEntries.Count == 0)
+            ShowMessage("This directory is empty");
+        else
+            HideMessage();
 
         _lastModified = DateTime.Now;
     }
@@ -578,7 +583,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void GoUp()
     {
-        if (Path.GetDirectoryName(CurrentDir.TrimEnd('\\')) is not string parentDir)
+        if (Path.GetDirectoryName(PathTools.NormalizePath(CurrentDir)) is not string parentDir)
             SetCurrentDir(ThisPCLabel);
         else if (CurrentDir != ThisPCLabel)
             SetCurrentDir(parentDir);
@@ -792,7 +797,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Opens power-shell in <see cref="CurrentDir"/> if possible.
+    /// Opens PowerShell in <see cref="CurrentDir"/> if possible.
     /// </summary>
     private void OpenPowerShell()
     {
@@ -800,156 +805,38 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ForwardIfError(_shellHandler.OpenCmdAt(CurrentDir));
     }
 
-    /// <summary>
-    /// Prepares the <see cref="_searchCTS"/> cancellation token, updates <see cref="CurrentDir"/>, and starts the search.
-    /// </summary>
     public async Task SearchAsync(string searchQuery)
     {
         if (Searching)
-            await _searchCTS.CancelAsync();
-
-        if (_searchCTS.IsCancellationRequested)
         {
-            CancellationTokenSource oldCTS = _searchCTS;
-            _searchCTS = new CancellationTokenSource();
-            oldCTS.Dispose();
+            HideMessage();
+            await _searchManager.CancelSearchAsync();
         }
+
         string currentDir = _pathHistory.Current ?? ThisPCLabel;
         Searching = true;
         FileEntries.Clear();
 
-        DispatcherTimer timer = StartAnimationTimer();
+        int? foundEntries =
+            currentDir != ThisPCLabel
+                ? await _searchManager.SearchAsync(searchQuery, [currentDir])
+                : await _searchManager.SearchAsync(
+                    searchQuery,
+                    _fileInfoProvider.GetDrives().Select(drive => drive.PathToEntry)
+                );
 
-        if (currentDir != ThisPCLabel)
-            await SearchDirectoryAsync(currentDir, searchQuery, _searchCTS.Token);
-        else
-            foreach (DriveEntry drive in _fileInfoProvider.GetDrives())
-                await SearchDirectoryAsync(drive.PathToEntry, searchQuery, _searchCTS.Token);
-
-        timer.Stop();
-        if (!_searchCTS.IsCancellationRequested)
-        {
-            CurrentDir = SearchingFinishedLabel;
-            if (FileEntries.Count == 0)
-            {
-                ShowInfoMessage = true;
-                CurrentInfoMessage = "No items match your query";
-            }
-        }
-    }
-
-    private DispatcherTimer StartAnimationTimer()
-    {
-        int index = 0;
-        DispatcherTimer timer = new()
-        {
-            Interval = TimeSpan.FromMilliseconds(SearchAnimationPeriodMS),
-        };
-
-        timer.Tick += (_, _) =>
-        {
-            if (!_searchCTS.IsCancellationRequested)
-                CurrentDir = SearchingStates[index = (index + 1) % SearchingStates.Count];
-        };
-        timer.Start();
-        CurrentDir = SearchingStates[0];
-        return timer;
+        if (foundEntries is 0)
+            ShowMessage("No items match your query");
     }
 
     /// <summary>
-    /// Searches <see cref="CurrentDir"/> using a breadth first search and asynchronously
-    /// adds matching <see cref="FileSystemEntryViewModel"/>s to <see cref="FileEntries"/>.
+    /// Cancels the search and sets <see cref="CurrentDir"/> to the parameter or last directory.
     /// </summary>
-    private async Task SearchDirectoryAsync(
-        string directory,
-        string searchQuery,
-        CancellationToken searchCTS
-    )
+    public void CancelSearch(string? directory = null)
     {
-        Queue<string> directories = new();
-        directories.Enqueue(directory);
-
-        while (directories.Count > 0 && !searchCTS.IsCancellationRequested)
-        {
-            string currentDirPath = directories.Dequeue();
-
-            IEnumerable<string> dirPaths = GetAllDirs(currentDirPath);
-            Task<List<FileSystemEntryViewModel>> filesTask = Task.Run(
-                () => GetFiles(currentDirPath, searchQuery),
-                searchCTS
-            );
-            Task<List<FileSystemEntryViewModel>> filteredDirsTask = Task.Run(
-                () => GetDirs(dirPaths, searchQuery),
-                searchCTS
-            );
-            await Task.WhenAll(filesTask, filteredDirsTask);
-
-            Dispatcher.UIThread.Post(() =>
-            {
-                foreach (FileSystemEntryViewModel file in filesTask.Result)
-                    if (!searchCTS.IsCancellationRequested)
-                        FileEntries.Add(file);
-
-                foreach (FileSystemEntryViewModel dir in filteredDirsTask.Result)
-                    if (!searchCTS.IsCancellationRequested)
-                        FileEntries.Add(dir);
-            });
-
-            foreach (string dirPath in dirPaths)
-                directories.Enqueue(dirPath);
-        }
-    }
-
-    private List<FileSystemEntryViewModel> GetFiles(string directory, string query)
-    {
-        IEnumerable<string> filePaths = _fileInfoProvider.GetPathFiles(
-            directory,
-            FileSurferSettings.ShowHiddenFiles,
-            FileSurferSettings.ShowProtectedFiles
-        );
-        return FilterPaths(filePaths, query)
-            .Select(filePath => _entryVMFactory.File(filePath, GetVCStatus(filePath)))
-            .ToList();
-    }
-
-    private IEnumerable<string> GetAllDirs(string directory)
-    {
-        IEnumerable<string> dirPaths = _fileInfoProvider.GetPathDirs(
-            directory,
-            FileSurferSettings.ShowHiddenFiles,
-            FileSurferSettings.ShowProtectedFiles
-        );
-        return dirPaths;
-    }
-
-    private List<FileSystemEntryViewModel> GetDirs(IEnumerable<string> dirs, string query) =>
-        FilterPaths(dirs, query)
-            .Select(dirPath => _entryVMFactory.Directory(dirPath, GetVCStatus(dirPath)))
-            .ToList();
-
-    private IEnumerable<string> FilterPaths(IEnumerable<string> paths, string query) =>
-        paths.Where(path =>
-            Path.GetFileName(path).Contains(query, StringComparison.CurrentCultureIgnoreCase)
-        );
-
-    /// <summary>
-    /// Cancels the search and sets <see cref="CurrentDir"/> to the current in <see cref="_pathHistory"/>.
-    /// </summary>
-    public void CancelSearch()
-    {
-        _searchCTS.Cancel();
         Searching = false;
-        SetCurrentDir(_pathHistory.Current ?? ThisPCLabel);
-    }
-
-    /// <summary>
-    /// Cancels the search and sets <see cref="CurrentDir"/> to the parameter.
-    /// </summary>
-    private void CancelSearch(string directory)
-    {
-        _searchCTS.Cancel();
-        Searching = false;
-        SetCurrentDir(directory);
+        _searchManager.CancelSearch();
+        SetCurrentDir(directory ?? _pathHistory.Current ?? ThisPCLabel);
     }
 
     /// <summary>
@@ -1396,7 +1283,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void Dispose()
     {
         _versionControl.Dispose();
-        _searchCTS.Dispose();
+        _searchManager.Dispose();
         _refreshTimer?.Stop();
     }
 }
