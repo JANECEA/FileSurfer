@@ -1,7 +1,6 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Security;
 using Avalonia.Controls;
 using FileSurfer.Core.Models;
