@@ -12,8 +12,13 @@ internal static class GlobsParser
         Dictionary<string, string> result = new();
 
         while (reader.ReadLine() is { } line)
-            if (line.Length != 0 && line[0] != '#' && GetExtension(line) is { } extension)
-                _ = result.TryAdd(extension, GetMimeType(line));
+            if (
+                line.Length != 0
+                && line[0] != '#'
+                && GetExtension(line) is { } extension
+                && GetMimeType(line) is { } mimeType
+            )
+                _ = result.TryAdd(extension, mimeType);
 
         return result;
     }
@@ -25,19 +30,19 @@ internal static class GlobsParser
             if (str[i] == '*')
                 break;
 
-        if (i < 0 || i >= str.Length - 3)
+        if (i <= 0 || i >= str.Length - 3)
             return null;
 
         return str[(i + 2)..];
     }
 
-    private static string GetMimeType(string str)
+    private static string? GetMimeType(string str)
     {
         int i = str.Length - 1;
         for (; i >= 0; i--)
             if (str[i] == ':')
                 break;
 
-        return str[..i].Replace('/', '-');
+        return i <= 0 ? null : str[..i].Replace('/', '-');
     }
 }
