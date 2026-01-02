@@ -30,8 +30,8 @@ namespace FileSurfer.Core.ViewModels;
 [ // Properties are used by the window, cannot be static have to global
     SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global"),
     SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
-    SuppressMessage("ReSharper", "UnusedMember.Global"),,
-    SuppressMessage("Performance", "CA1822:Mark members as static")
+    SuppressMessage("ReSharper", "UnusedMember.Global"),
+    SuppressMessage("Performance", "CA1822:Mark members as static"),
 ]
 public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
