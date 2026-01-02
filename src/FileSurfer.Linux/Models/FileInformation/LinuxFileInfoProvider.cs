@@ -24,7 +24,11 @@ public class LinuxFileInfoProvider : IFileInfoProvider
 
     public LinuxFileInfoProvider(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
-    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
+    [SuppressMessage(
+        "ReSharper",
+        "ClassNeverInstantiated.Local",
+        Justification = "Instantiated in json deserialization"
+    )]
     private sealed record LsblkEntry(string? Label, string? MountPoint, long Size, string? Type);
 
     private sealed record LsblkOutput(List<LsblkEntry> BlockDevices);
@@ -59,20 +63,20 @@ public class LinuxFileInfoProvider : IFileInfoProvider
         return drives.ToArray();
     }
 
-    public string[] GetPathFiles(string path, bool includeHidden, bool includeOS)
+    public string[] GetPathFiles(string path, bool includeHidden, bool includeOs)
     {
         try
         {
             string[] files = Directory.GetFiles(path);
 
-            if (includeHidden && includeOS)
+            if (includeHidden && includeOs)
                 return files;
 
             for (int i = 0; i < files.Length; i++)
             {
                 if (
                     !includeHidden && IsHidden(files[i], false)
-                    || !includeOS && IsOSProtected(files[i], false)
+                    || !includeOs && IsOsProtected(files[i], false)
                 )
                     files[i] = string.Empty;
             }
@@ -84,20 +88,20 @@ public class LinuxFileInfoProvider : IFileInfoProvider
         }
     }
 
-    public string[] GetPathDirs(string path, bool includeHidden, bool includeOS)
+    public string[] GetPathDirs(string path, bool includeHidden, bool includeOs)
     {
         try
         {
             string[] directories = Directory.GetDirectories(path);
 
-            if (includeHidden && includeOS)
+            if (includeHidden && includeOs)
                 return directories;
 
             for (int i = 0; i < directories.Length; i++)
             {
                 if (
                     !includeHidden && IsHidden(directories[i], true)
-                    || !includeOS && IsOSProtected(directories[i], true)
+                    || !includeOs && IsOsProtected(directories[i], true)
                 )
                     directories[i] = string.Empty;
             }
@@ -183,7 +187,7 @@ public class LinuxFileInfoProvider : IFileInfoProvider
         return path[i + 1] == '.';
     }
 
-    private static bool IsOSProtected(string path, bool isDirectory)
+    private static bool IsOsProtected(string path, bool isDirectory)
     {
         try
         {

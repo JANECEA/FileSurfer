@@ -8,7 +8,7 @@ namespace FileSurfer.Core.Models.FileOperations;
 public interface IClipboardManager
 {
     /// <summary>
-    /// Indicates if <see cref="_programClipboard"/>'s contents are meant to be cut or copied from their original location.
+    /// Indicates if clipboard's contents are meant to be cut or copied from their original location.
     /// </summary>
     public bool IsCutOperation { get; }
 
@@ -16,11 +16,11 @@ public interface IClipboardManager
     /// Determines if the current copy operation is occuring in the same directory.
     /// </summary>
     /// <param name="currentDir"></param>
-    /// <returns><see langword="true"/> if <see cref="_copyFromDir"/> and <paramref name="currentDir"/> are equal, otherwise <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if directory to copy form and <paramref name="currentDir"/> are equal, otherwise <see langword="false"/>.</returns>
     public bool IsDuplicateOperation(string currentDir);
 
     /// <summary>
-    /// Stores <paramref name="selectedFiles"/> to both <see cref="Clipboard"/> and <see cref="_programClipboard"/>.
+    /// Stores <paramref name="selectedFiles"/> to both the system and internal clipboards.
     /// <para>
     /// Sets <see cref="IsCutOperation"/> to <see langword="true"/>.
     /// </para>
@@ -29,7 +29,7 @@ public interface IClipboardManager
     public Task<IResult> CutAsync(IFileSystemEntry[] selectedFiles, string currentDir);
 
     /// <summary>
-    /// Stores the selection of <see cref="IFileSystemEntry"/> in <see cref="_programClipboard"/> and the system clipboard.
+    /// Stores the selection of <see cref="IFileSystemEntry"/> in the internal and the system clipboards.
     /// <para>
     /// Sets <see cref="IsCutOperation"/> to <see langword="false"/>.
     /// </para>
@@ -44,7 +44,7 @@ public interface IClipboardManager
     public Task<IResult> PasteAsync(string currentDir);
 
     /// <summary>
-    /// Duplicates the files stored in <see cref="_programClipboard"/>.
+    /// Duplicates the files stored in the clipboard.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
     public IResult Duplicate(string currentDir, out string[] copyNames);
@@ -55,7 +55,7 @@ public interface IClipboardManager
     public Task CopyPathToFileAsymc(string filePath);
 
     /// <summary>
-    /// Gets the contents of <see cref="_programClipboard"/>.
+    /// Gets the contents of the internal clipboard.
     /// </summary>
     /// <returns>An array of <see cref="IFileSystemEntry"/>s.</returns>
     public IFileSystemEntry[] GetClipboard();

@@ -11,7 +11,7 @@ public class SortArrowConverter : IValueConverter
     private const string UpArrow = "\U000F04BC";
     private const string DownArrow = "\U000F04BD";
 
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (
             value is not SortInfo sortInfo
@@ -23,7 +23,7 @@ public class SortArrowConverter : IValueConverter
         return sortInfo.SortReversed ? DownArrow : UpArrow;
     }
 
-    public object? ConvertBack(
+    public object ConvertBack(
         object? value,
         Type targetType,
         object? parameter,

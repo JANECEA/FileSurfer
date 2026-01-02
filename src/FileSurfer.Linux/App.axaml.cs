@@ -80,19 +80,19 @@ public partial class App : Application
 
     private static MainWindowViewModel GetViewModel(string initialDir, MainWindow mainWindow)
     {
-        LinuxFileIOHandler fileIOHandler = new();
+        LinuxFileIoHandler fileIoHandler = new();
         LinuxShellHandler shellHandler = new();
         IClipboard clipboard = mainWindow.Clipboard ?? throw new InvalidDataException();
         ClipboardManager clipboardManager = new(
             clipboard,
             mainWindow.StorageProvider,
-            fileIOHandler,
+            fileIoHandler,
             FileSurferSettings.NewImageName
         );
 
         return new MainWindowViewModel(
             initialDir,
-            fileIOHandler,
+            fileIoHandler,
             new LinuxBinInteraction(shellHandler),
             new LinuxFileProperties(new PropertiesVmFactory(mainWindow)),
             new LinuxFileInfoProvider(shellHandler),

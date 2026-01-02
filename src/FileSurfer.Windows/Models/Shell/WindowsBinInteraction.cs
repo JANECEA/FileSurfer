@@ -15,7 +15,7 @@ namespace FileSurfer.Windows.Models.Shell;
 /// </summary>
 public class WindowsBinInteraction : IBinInteraction
 {
-    private const int BinFolderID = 10;
+    private const int BinFolderId = 10;
     private const int NameColumn = 0;
     private const int PathColumn = 1;
     private const string RestoreVerb = "ESTORE";
@@ -36,7 +36,7 @@ public class WindowsBinInteraction : IBinInteraction
     private static SimpleResult RestoreEntry(string originalPath)
     {
         Shell32.Shell shell = new();
-        Folder bin = shell.NameSpace(BinFolderID);
+        Folder bin = shell.NameSpace(BinFolderId);
         SimpleResult result = SimpleResult.Error($"Entry: \"{originalPath}\" not found.");
         try
         {

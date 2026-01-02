@@ -11,7 +11,7 @@ namespace FileSurfer.Core.Views;
 public partial class ErrorWindow : Window
 {
     /// <summary>
-    /// Holds text shown in <see cref="FileSurfer.Views.ErrorWindow.ErrorBlock"/>.
+    /// Holds text shown in <see cref="FileSurfer.Core.Views.ErrorWindow.ErrorBlock"/>.
     /// </summary>
     public string ErrorMessage { get; init; } = string.Empty;
 
@@ -24,7 +24,7 @@ public partial class ErrorWindow : Window
     }
 
     /// <summary>
-    /// Assigns <see cref="ErrorMessage"/> to <see cref="FileSurfer.Views.ErrorWindow.ErrorBlock"/> before opening.
+    /// Assigns <see cref="ErrorMessage"/> to <see cref="FileSurfer.Core.Views.ErrorWindow.ErrorBlock"/> before opening.
     /// </summary>
     protected override void OnOpened(EventArgs e)
     {

@@ -59,7 +59,11 @@ public enum SortBy
 /// Handles the loading, saving, and updating of user preferences and settings.
 /// </summary>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+[SuppressMessage(
+    "ReSharper",
+    "MemberCanBePrivate.Global",
+    Justification = "Members are part of the settings for the app"
+)]
 public static class FileSurferSettings
 {
     public const long ShowDialogLimitB = 250 * 1024 * 1024; // 250 MiB
@@ -92,7 +96,7 @@ public static class FileSurferSettings
             newImageName = NewImageName,
             newFileName = NewFileName,
             newDirectoryName = NewDirectoryName,
-            thisPCLabel = ThisPCLabel,
+            thisPCLabel = ThisPcLabel,
             notepadApp = NotepadApp,
             notepadAppArgs = NotepadAppArgs,
             terminal = Terminal,
@@ -144,7 +148,7 @@ public static class FileSurferSettings
     /// <summary>
     /// What "This PC" 'directory' will be called. Defaults to <c>"This PC"</c>.
     /// </summary>
-    public static string ThisPCLabel { get; set; }
+    public static string ThisPcLabel { get; set; }
 
     /// <summary>
     /// The application, the 'Open in Notepad' context menu option will open.
@@ -172,7 +176,7 @@ public static class FileSurferSettings
     public static bool OpenInLastLocation { get; set; }
 
     /// <summary>
-    /// Specifies the default location where FileSurfer opens. Defaults to the value of <see cref="ThisPCLabel"/>.
+    /// Specifies the default location where FileSurfer opens. Defaults to the value of <see cref="ThisPcLabel"/>.
     /// </summary>
     public static string OpenIn { get; set; }
 
@@ -309,7 +313,7 @@ public static class FileSurferSettings
             InvalidFileNameChars,
             defaultSettings.newDirectoryName
         );
-        ThisPCLabel = SanitizeName(
+        ThisPcLabel = SanitizeName(
             settings.thisPCLabel,
             InvalidFileNameChars,
             defaultSettings.thisPCLabel

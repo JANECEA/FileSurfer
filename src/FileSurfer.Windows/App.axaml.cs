@@ -80,7 +80,7 @@ public partial class App : Application
     private static MainWindowViewModel GetViewModel(string initialDir, MainWindow mainWindow)
     {
         WindowsFileInfoProvider fileInfoProvider = new();
-        WindowsFileIOHandler fileIOHandler = new(
+        WindowsFileIoHandler fileIoHandler = new(
             fileInfoProvider,
             FileSurferSettings.ShowDialogLimitB
         );
@@ -89,13 +89,13 @@ public partial class App : Application
         ClipboardManager clipboardManager = new(
             clipboard,
             mainWindow.StorageProvider,
-            fileIOHandler,
+            fileIoHandler,
             FileSurferSettings.NewImageName
         );
 
         return new MainWindowViewModel(
             initialDir,
-            fileIOHandler,
+            fileIoHandler,
             new WindowsBinInteraction(FileSurferSettings.ShowDialogLimitB, fileInfoProvider),
             new WindowsFileProperties(),
             fileInfoProvider,

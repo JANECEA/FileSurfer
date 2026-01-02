@@ -18,8 +18,8 @@ public interface IVersionControl : IDisposable
     /// Retrieves the status of the specified path in the version control system.
     /// </summary>
     /// <param name="filePath">The path for which to retrieve the status.</param>
-    /// <returns><see cref="VCStatus"/> representing the version control status in the context of <see cref="FileSurfer"/>.</returns>
-    public VCStatus GetStatus(string filePath);
+    /// <returns><see cref="VcStatus"/> representing the version control status in the context of <see cref="FileSurfer"/>.</returns>
+    public VcStatus GetStatus(string filePath);
 
     /// <summary>
     /// Downloads the latest changes from the version control system to the local repository.

@@ -23,5 +23,5 @@ public interface IFileSystemEntry
     /// <summary>
     /// Holds this entry's name without the extension
     /// </summary>
-    public string NameWOExtension { get; }
+    public string NameWoExtension { get; }
 }

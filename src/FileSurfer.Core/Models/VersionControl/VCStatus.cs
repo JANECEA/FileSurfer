@@ -3,7 +3,7 @@ namespace FileSurfer.Core.Models.VersionControl;
 /// <summary>
 /// Consolidates complex Git file handling for the <see cref="FileSurfer"/> app's UI.
 /// </summary>
-public enum VCStatus
+public enum VcStatus
 {
     /// <summary>
     /// File is either ignored or no changes have been made to it from the last commit.

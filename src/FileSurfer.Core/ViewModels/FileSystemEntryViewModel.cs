@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -18,6 +19,11 @@ namespace FileSurfer.Core.ViewModels;
 /// their name, size, type, last modification time, and icon. Also includes data about special conditions
 /// like hidden files, or version control status.
 /// </summary>
+[SuppressMessage(
+    "ReSharper",
+    "UnusedAutoPropertyAccessor.Global",
+    Justification = "Properties are used by the window"
+)]
 public sealed class FileSystemEntryViewModel : ReactiveObject
 {
     private static readonly int SizeLimit = FileSurferSettings.FileSizeUnitLimit;
@@ -133,7 +139,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         IFileProperties fileProperties,
         IIconProvider iconProvider,
         IFileSystemEntry entry,
-        VCStatus status
+        VcStatus status
     )
     {
         FileSystemEntry = entry;
@@ -156,7 +162,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
 
         Opacity = fileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory) ? 0.5 : 1;
 
-        UpdateVCStatus(status);
+        UpdateVcStatus(status);
         IsArchived = ArchiveManager.IsZipped(entry.PathToEntry);
         SupportsOpenAs = fileProperties.SupportsOpenAs(entry);
     }
@@ -188,10 +194,10 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         SupportsOpenAs = fileProperties.SupportsOpenAs(driveEntry);
     }
 
-    internal void UpdateVCStatus(VCStatus newStatus)
+    internal void UpdateVcStatus(VcStatus newStatus)
     {
-        VersionControlled = newStatus is not VCStatus.NotVersionControlled;
-        Staged = newStatus is VCStatus.Staged;
+        VersionControlled = newStatus is not VcStatus.NotVersionControlled;
+        Staged = newStatus is VcStatus.Staged;
     }
 
     private string GetLastModified(IFileInfoProvider fileInfoProvider)

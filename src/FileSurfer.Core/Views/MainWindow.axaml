@@ -24,6 +24,7 @@
         <StyleInclude Source="avares://FileSurfer.Core/Views/MainWindowStyle.axaml" />
     </Window.Styles>
 
+    <!--  ReSharper disable Xaml.BindingWithoutContextNotResolved - cannot resolve because viewmodels takes constructor parameters  -->
     <Window.KeyBindings>
         <KeyBinding Command="{Binding DeleteCommand}" Gesture="Shift+Delete" />
         <KeyBinding Command="{Binding UndoCommand}" Gesture="Ctrl+Z" />
@@ -184,7 +185,7 @@
                                 <MenuItem.Header>
                                     <Grid ColumnDefinitions="Auto *">
                                         <TextBlock Classes="SortLabelTextBlock" Text="Name" />
-                                        <TextBlock Classes="SortArrowTextBlock" Text="{Binding SortInfo, Converter={StaticResource SortArrowConverter}, ConverterParameter={x:Static core:SortBy.Name}}" />
+                                        <TextBlock Grid.Column="1" Classes="SortArrowTextBlock" Text="{Binding SortInfo, Converter={StaticResource SortArrowConverter}, ConverterParameter={x:Static core:SortBy.Name}}" />
                                     </Grid>
                                 </MenuItem.Header>
                             </MenuItem>
@@ -419,5 +420,6 @@
             </Border>
         </Grid>
     </DockPanel>
+    <!--  ReSharper restore Xaml.BindingWithoutContextNotResolved  -->
 
 </Window>

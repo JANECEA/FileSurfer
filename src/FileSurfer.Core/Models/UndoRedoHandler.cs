@@ -12,7 +12,7 @@ internal sealed class UndoRedoHandler<T>
     /// </summary>
     private sealed class UndoRedoNode
     {
-        internal T? Data;
+        internal readonly T? Data;
         internal UndoRedoNode? Previous;
         internal UndoRedoNode? Next;
 

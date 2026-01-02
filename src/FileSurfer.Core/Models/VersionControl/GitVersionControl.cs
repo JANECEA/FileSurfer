@@ -16,7 +16,7 @@ public class GitVersionControl : IVersionControl
 
     private readonly IShellHandler _shellHandler;
 
-    private readonly Dictionary<string, VCStatus> _pathStates = new();
+    private readonly Dictionary<string, VcStatus> _pathStates = new();
     private Repository? _currentRepo;
 
     /// <summary>
@@ -120,34 +120,34 @@ public class GitVersionControl : IVersionControl
             string absolutePath = PathTools.NormalizePath(
                 Path.Combine(_currentRepo.Info.WorkingDirectory, entry.FilePath)
             );
-            VCStatus status = ConvertToVCStatus(entry.State);
+            VcStatus status = ConvertToVcStatus(entry.State);
             _pathStates[absolutePath] = status;
 
-            if (status is VCStatus.Unstaged or VCStatus.Staged)
+            if (status is VcStatus.Unstaged or VcStatus.Staged)
                 SetDirStatuses(absolutePath, status);
         }
     }
 
-    private void SetDirStatuses(string absolutePath, VCStatus status)
+    private void SetDirStatuses(string absolutePath, VcStatus status)
     {
         string? parentPath = absolutePath;
         while (
             (parentPath = Path.GetDirectoryName(parentPath))?.Length
             > _currentRepo!.Info.WorkingDirectory.Length
         )
-            if (status is VCStatus.Unstaged)
-                _pathStates[parentPath] = VCStatus.Unstaged;
+            if (status is VcStatus.Unstaged)
+                _pathStates[parentPath] = VcStatus.Unstaged;
             else if (
-                !_pathStates.TryGetValue(parentPath, out VCStatus currentStatus)
-                || currentStatus is not VCStatus.Unstaged
+                !_pathStates.TryGetValue(parentPath, out VcStatus currentStatus)
+                || currentStatus is not VcStatus.Unstaged
             )
-                _pathStates[parentPath] = VCStatus.Staged;
+                _pathStates[parentPath] = VcStatus.Staged;
     }
 
-    private static VCStatus ConvertToVCStatus(FileStatus status)
+    private static VcStatus ConvertToVcStatus(FileStatus status)
     {
         if (status is FileStatus.Ignored or FileStatus.Nonexistent or FileStatus.Unaltered)
-            return VCStatus.NotVersionControlled;
+            return VcStatus.NotVersionControlled;
 
         if (
             status.HasFlag(FileStatus.NewInIndex)
@@ -156,7 +156,7 @@ public class GitVersionControl : IVersionControl
             || status.HasFlag(FileStatus.RenamedInIndex)
             || status.HasFlag(FileStatus.TypeChangeInIndex)
         )
-            return VCStatus.Staged;
+            return VcStatus.Staged;
 
         if (
             status.HasFlag(FileStatus.NewInWorkdir)
@@ -165,18 +165,18 @@ public class GitVersionControl : IVersionControl
             || status.HasFlag(FileStatus.RenamedInWorkdir)
             || status.HasFlag(FileStatus.TypeChangeInWorkdir)
         )
-            return VCStatus.Unstaged;
+            return VcStatus.Unstaged;
 
-        return VCStatus.NotVersionControlled;
+        return VcStatus.NotVersionControlled;
     }
 
-    public VCStatus GetStatus(string filePath) =>
+    public VcStatus GetStatus(string filePath) =>
         _currentRepo is not null
             ? _pathStates.GetValueOrDefault(
                 PathTools.NormalizePath(filePath),
-                VCStatus.NotVersionControlled
+                VcStatus.NotVersionControlled
             )
-            : VCStatus.NotVersionControlled;
+            : VcStatus.NotVersionControlled;
 
     public IResult StagePath(string path)
     {

@@ -27,23 +27,24 @@ namespace FileSurfer.Core.ViewModels;
 /// </para>
 /// Handles data directly bound to the View.
 /// </summary>
-#pragma warning disable CA1822 // Mark members as static
-[
+[ // Properties are used by the window, cannot be static have to global
     SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global"),
     SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
+    SuppressMessage("ReSharper", "UnusedMember.Global"),,
+    SuppressMessage("Performance", "CA1822:Mark members as static")
 ]
 public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
-    private string ThisPCLabel => FileSurferSettings.ThisPCLabel;
+    private string ThisPcLabel => FileSurferSettings.ThisPcLabel;
 
-    private readonly IFileIOHandler _fileIOHandler;
+    private readonly IFileIoHandler _fileIoHandler;
     private readonly IBinInteraction _fileRestorer;
     private readonly IFileInfoProvider _fileInfoProvider;
     private readonly IFileProperties _fileProperties;
     private readonly IShellHandler _shellHandler;
     private readonly IVersionControl _versionControl;
     private readonly IClipboardManager _clipboardManager;
-    private readonly FileSystemEntryVMFactory _entryVMFactory;
+    private readonly FileSystemEntryVmFactory _entryVmFactory;
     private readonly SearchManager _searchManager;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
     private readonly UndoRedoHandler<string> _pathHistory;
@@ -209,7 +210,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public MainWindowViewModel(
         string initialDir,
-        IFileIOHandler fileIOHandler,
+        IFileIoHandler fileIoHandler,
         IBinInteraction fileRestorer,
         IFileProperties fileProperties,
         IFileInfoProvider fileInfoProvider,
@@ -219,20 +220,20 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         IClipboardManager clipboardManager
     )
     {
-        _fileIOHandler = fileIOHandler;
+        _fileIoHandler = fileIoHandler;
         _fileRestorer = fileRestorer;
         _fileProperties = fileProperties;
         _fileInfoProvider = fileInfoProvider;
         _shellHandler = shellHandler;
         _versionControl = versionControl;
         _clipboardManager = clipboardManager;
-        _entryVMFactory = new FileSystemEntryVMFactory(
+        _entryVmFactory = new FileSystemEntryVmFactory(
             _fileInfoProvider,
             _fileProperties,
             iconProvider
         );
         _searchManager = new SearchManager(
-            _entryVMFactory,
+            _entryVmFactory,
             _fileInfoProvider,
             s => CurrentDir = s,
             entry => FileEntries.Add(entry)
@@ -291,7 +292,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             dirPath = Path.GetFullPath(dirPath);
             _lastModified = Directory.GetLastWriteTime(dirPath);
         }
-        else if (dirPath != ThisPCLabel && !Searching)
+        else if (dirPath != ThisPcLabel && !Searching)
         {
             ForwardError($"Directory \"{dirPath}\" does not exist.");
             dirPath = _pathHistory.Current ?? GetClosestExistingParent(dirPath);
@@ -374,7 +375,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         CheckVersionControl();
 
-        if (CurrentDir == ThisPCLabel)
+        if (CurrentDir == ThisPcLabel)
             ShowDrives();
         else if (Directory.Exists(CurrentDir))
             LoadEntries(forceHardReload);
@@ -399,7 +400,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         while (!Directory.Exists(path))
             if ((path = Path.GetDirectoryName(dirPath)) is null)
-                return ThisPCLabel;
+                return ThisPcLabel;
 
         return path;
     }
@@ -431,10 +432,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     /// <returns>The length of the file name without extension.</returns>
     public int GetNameEndIndex(FileSystemEntryViewModel entry) =>
-        SelectedFiles.Count > 0 ? entry.FileSystemEntry.NameWOExtension.Length : 0;
+        SelectedFiles.Count > 0 ? entry.FileSystemEntry.NameWoExtension.Length : 0;
 
     private bool IsValidDirectory(string path) =>
-        path == ThisPCLabel || (!string.IsNullOrEmpty(path) && Directory.Exists(path));
+        path == ThisPcLabel || (!string.IsNullOrEmpty(path) && Directory.Exists(path));
 
     private void SetSearchWaterMark(string dirPath)
     {
@@ -448,7 +449,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void UpdateSelectionInfo(object? sender, NotifyCollectionChangedEventArgs? args)
     {
-        if (CurrentDir == ThisPCLabel)
+        if (CurrentDir == ThisPcLabel)
         {
             SelectionInfo = Drives.Length == 1 ? "1 drive" : $"{FileEntries.Count} drives";
             return;
@@ -571,7 +572,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Opens the location of the selected entry during searching.
     /// </summary>
     public void OpenEntryLocation(FileSystemEntryViewModel entry) =>
-        SetCurrentDir(Path.GetDirectoryName(entry.PathToEntry) ?? ThisPCLabel);
+        SetCurrentDir(Path.GetDirectoryName(entry.PathToEntry) ?? ThisPcLabel);
 
     /// <summary>
     /// Navigates up one directory level from the current directory.
@@ -584,28 +585,28 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void GoUp()
     {
         if (Path.GetDirectoryName(PathTools.NormalizePath(CurrentDir)) is not string parentDir)
-            SetCurrentDir(ThisPCLabel);
-        else if (CurrentDir != ThisPCLabel)
+            SetCurrentDir(ThisPcLabel);
+        else if (CurrentDir != ThisPcLabel)
             SetCurrentDir(parentDir);
     }
 
     private FileSystemEntryViewModel[] GetDrives() =>
-        _fileInfoProvider.GetDrives().Select(_entryVMFactory.Drive).ToArray();
+        _fileInfoProvider.GetDrives().Select(_entryVmFactory.Drive).ToArray();
 
     private FileSystemEntryViewModel[] GetSpecialFolders() =>
         _fileInfoProvider
             .GetSpecialFolders()
             .Where(dirPath => !string.IsNullOrEmpty(dirPath))
-            .Select(_entryVMFactory.Directory)
+            .Select(_entryVmFactory.Directory)
             .ToArray();
 
     private void LoadQuickAccess()
     {
         foreach (string path in FileSurferSettings.QuickAccess)
             if (Directory.Exists(path))
-                QuickAccess.Add(_entryVMFactory.Directory(path));
+                QuickAccess.Add(_entryVmFactory.Directory(path));
             else if (File.Exists(path))
-                QuickAccess.Add(_entryVMFactory.File(path));
+                QuickAccess.Add(_entryVmFactory.File(path));
     }
 
     private void ShowDrives()
@@ -621,7 +622,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             LoadDirEntries();
         else if (IsVersionControlled)
             foreach (FileSystemEntryViewModel entry in FileEntries)
-                entry.UpdateVCStatus(GetVCStatus(entry.PathToEntry));
+                entry.UpdateVcStatus(GetVcStatus(entry.PathToEntry));
     }
 
     private void LoadDirEntries()
@@ -638,17 +639,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         );
 
         FileSystemEntryViewModel[] dirs = dirPaths.ConvertToArray(path =>
-            _entryVMFactory.Directory(path, GetVCStatus(path))
+            _entryVmFactory.Directory(path, GetVcStatus(path))
         );
         FileSystemEntryViewModel[] files = filePaths.ConvertToArray(path =>
-            _entryVMFactory.File(path, GetVCStatus(path))
+            _entryVmFactory.File(path, GetVcStatus(path))
         );
 
         AddEntries(dirs, files);
     }
 
-    private VCStatus GetVCStatus(string path) =>
-        IsVersionControlled ? _versionControl.GetStatus(path) : VCStatus.NotVersionControlled;
+    private VcStatus GetVcStatus(string path) =>
+        IsVersionControlled ? _versionControl.GetStatus(path) : VcStatus.NotVersionControlled;
 
     /// <summary>
     /// Adds directories and files to <see cref="FileEntries"/>.
@@ -801,7 +802,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void OpenPowerShell()
     {
-        if (CurrentDir != ThisPCLabel && !Searching)
+        if (CurrentDir != ThisPcLabel && !Searching)
             ForwardIfError(_shellHandler.OpenCmdAt(CurrentDir));
     }
 
@@ -813,12 +814,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             await _searchManager.CancelSearchAsync();
         }
 
-        string currentDir = _pathHistory.Current ?? ThisPCLabel;
+        string currentDir = _pathHistory.Current ?? ThisPcLabel;
         Searching = true;
         FileEntries.Clear();
 
         int? foundEntries =
-            currentDir != ThisPCLabel
+            currentDir != ThisPcLabel
                 ? await _searchManager.SearchAsync(searchQuery, [currentDir])
                 : await _searchManager.SearchAsync(
                     searchQuery,
@@ -836,11 +837,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         Searching = false;
         _searchManager.CancelSearch();
-        SetCurrentDir(directory ?? _pathHistory.Current ?? ThisPCLabel);
+        SetCurrentDir(directory ?? _pathHistory.Current ?? ThisPcLabel);
     }
 
     /// <summary>
-    /// Creates a new file using <see cref="_fileIOHandler"/> in <see cref="CurrentDir"/>
+    /// Creates a new file using <see cref="_fileIoHandler"/> in <see cref="CurrentDir"/>
     /// with the name specified in <see cref="FileSurferSettings.NewFileName"/>.
     /// <para>
     /// Invokes <see cref="Reload"/> and adds a new <see cref="NewFileAt"/> operation
@@ -854,7 +855,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             FileSurferSettings.NewFileName
         );
 
-        NewFileAt operation = new(_fileIOHandler, CurrentDir, newFileName);
+        NewFileAt operation = new(_fileIoHandler, CurrentDir, newFileName);
         IResult result = operation.Invoke();
         if (result.IsOk)
         {
@@ -866,7 +867,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Creates a new directory using <see cref="_fileIOHandler"/> in <see cref="CurrentDir"/>
+    /// Creates a new directory using <see cref="_fileIoHandler"/> in <see cref="CurrentDir"/>
     /// with the name specified in <see cref="FileSurferSettings.NewDirectoryName"/>.
     /// <para>
     /// Invokes <see cref="Reload"/> and adds a new <see cref="NewDirAt"/> operation
@@ -880,7 +881,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             FileSurferSettings.NewDirectoryName
         );
 
-        NewDirAt operation = new(_fileIOHandler, CurrentDir, newDirName);
+        NewDirAt operation = new(_fileIoHandler, CurrentDir, newDirName);
         IResult result = operation.Invoke();
         if (result.IsOk)
         {
@@ -900,7 +901,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
 
         string archiveName =
-            SelectedFiles[^1].FileSystemEntry.NameWOExtension + ArchiveManager.ArchiveTypeExtension;
+            SelectedFiles[^1].FileSystemEntry.NameWoExtension + ArchiveManager.ArchiveTypeExtension;
 
         ForwardIfError(
             await Task.Run(() =>
@@ -981,17 +982,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (_clipboardManager.IsDuplicateOperation(CurrentDir))
         {
             result = _clipboardManager.Duplicate(CurrentDir, out string[] copyNames);
-            operation = new DuplicateFiles(_fileIOHandler, clipboard, copyNames);
+            operation = new DuplicateFiles(_fileIoHandler, clipboard, copyNames);
         }
         else if (_clipboardManager.IsCutOperation)
         {
             result = await _clipboardManager.PasteAsync(CurrentDir);
-            operation = new MoveFilesTo(_fileIOHandler, clipboard, CurrentDir);
+            operation = new MoveFilesTo(_fileIoHandler, clipboard, CurrentDir);
         }
         else
         {
             result = await _clipboardManager.PasteAsync(CurrentDir);
-            operation = new CopyFilesTo(_fileIOHandler, clipboard, CurrentDir);
+            operation = new CopyFilesTo(_fileIoHandler, clipboard, CurrentDir);
         }
 
         if (result.IsOk)
@@ -1001,7 +1002,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Relays the operation to <see cref="_fileIOHandler"/> and invokes <see cref="Reload"/>.
+    /// Relays the operation to <see cref="_fileIoHandler"/> and invokes <see cref="Reload"/>.
     /// </summary>
     public void CreateShortcut(FileSystemEntryViewModel entry)
     {
@@ -1014,7 +1015,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Relays the operation to <see cref="_fileIOHandler"/>.
+    /// Relays the operation to <see cref="_fileIoHandler"/>.
     /// </summary>
     public void ShowProperties(FileSystemEntryViewModel entry) =>
         ForwardIfError(_fileProperties.ShowFileProperties(entry));
@@ -1036,7 +1037,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         FileSystemEntryViewModel entry = SelectedFiles[0];
 
-        RenameOne operation = new(_fileIOHandler, entry.FileSystemEntry, newName);
+        RenameOne operation = new(_fileIoHandler, entry.FileSystemEntry, newName);
         IResult result = operation.Invoke();
         if (result.IsOk)
         {
@@ -1062,7 +1063,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
 
         RenameMultiple operation = new(
-            _fileIOHandler,
+            _fileIoHandler,
             entries,
             FileNameGenerator.GetAvailableNames(entries, namingPattern)
         );
@@ -1075,7 +1076,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Moves the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/> to the system trash using <see cref="_fileIOHandler"/>.
+    /// Moves the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/> to the system trash using <see cref="_fileIoHandler"/>.
     /// <para>
     /// Adds the operation to <see cref="_undoRedoHistory"/> if the operation was successful.
     /// </para>
@@ -1085,7 +1086,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         MoveFilesToTrash operation = new(
             _fileRestorer,
-            _fileIOHandler,
+            _fileIoHandler,
             SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry)
         );
 
@@ -1105,7 +1106,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
         }
 
-        FlattenFolder action = new(_fileIOHandler, _fileInfoProvider, entry.PathToEntry);
+        FlattenFolder action = new(_fileIoHandler, _fileInfoProvider, entry.PathToEntry);
         IResult result = action.Invoke();
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(action);
@@ -1125,8 +1126,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
             ForwardIfError(
                 entry.IsDirectory
-                    ? _fileIOHandler.DeleteDir(entry.PathToEntry)
-                    : _fileIOHandler.DeleteFile(entry.PathToEntry)
+                    ? _fileIoHandler.DeleteDir(entry.PathToEntry)
+                    : _fileIoHandler.DeleteFile(entry.PathToEntry)
             );
 
         Reload();
@@ -1287,4 +1288,3 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _refreshTimer?.Stop();
     }
 }
-#pragma warning restore CA1822 // Mark members as static

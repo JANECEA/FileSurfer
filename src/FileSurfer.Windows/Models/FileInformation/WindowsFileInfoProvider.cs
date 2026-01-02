@@ -30,20 +30,20 @@ public class WindowsFileInfoProvider : IFileInfoProvider
             .Select(driveInfo => new DriveEntry(driveInfo))
             .ToArray();
 
-    public string[] GetPathFiles(string path, bool includeHidden, bool includeOS)
+    public string[] GetPathFiles(string path, bool includeHidden, bool includeOs)
     {
         try
         {
             string[] files = Directory.GetFiles(path);
 
-            if (includeHidden && includeOS)
+            if (includeHidden && includeOs)
                 return files;
 
             for (int i = 0; i < files.Length; i++)
             {
                 if (
                     !includeHidden && IsHidden(files[i], false)
-                    || !includeOS && IsOSProtected(files[i], false)
+                    || !includeOs && IsOsProtected(files[i], false)
                 )
                     files[i] = string.Empty;
             }
@@ -55,20 +55,20 @@ public class WindowsFileInfoProvider : IFileInfoProvider
         }
     }
 
-    public string[] GetPathDirs(string path, bool includeHidden, bool includeOS)
+    public string[] GetPathDirs(string path, bool includeHidden, bool includeOs)
     {
         try
         {
             string[] directories = Directory.GetDirectories(path);
 
-            if (includeHidden && includeOS)
+            if (includeHidden && includeOs)
                 return directories;
 
             for (int i = 0; i < directories.Length; i++)
             {
                 if (
                     !includeHidden && IsHidden(directories[i], true)
-                    || !includeOS && IsOSProtected(directories[i], true)
+                    || !includeOs && IsOsProtected(directories[i], true)
                 )
                     directories[i] = string.Empty;
             }
@@ -167,7 +167,7 @@ public class WindowsFileInfoProvider : IFileInfoProvider
         }
     }
 
-    private static bool IsOSProtected(string path, bool isDirectory)
+    private static bool IsOsProtected(string path, bool isDirectory)
     {
         try
         {

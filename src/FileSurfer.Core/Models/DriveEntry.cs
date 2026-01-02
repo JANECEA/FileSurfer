@@ -11,7 +11,7 @@ public sealed class DriveEntry : IFileSystemEntry
     public string Name { get; }
     public long SizeB { get; }
     string IFileSystemEntry.Extension => string.Empty;
-    string IFileSystemEntry.NameWOExtension => Name;
+    string IFileSystemEntry.NameWoExtension => Name;
 
     public DriveEntry(DriveInfo driveInfo)
     {

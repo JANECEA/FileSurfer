@@ -12,12 +12,12 @@ namespace FileSurfer.Core.ViewModels;
 /// The SettingsWindowViewModel is the ViewModel for the <see cref="Views.SettingsWindow"/>.
 /// </summary>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-#pragma warning disable CA1822
-[
+[ // Properties are used by the window, cannot be static have to global
     SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
     SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
     SuppressMessage("ReSharper", "UnusedMember.Global"),
 ]
+[SuppressMessage("Performance", "CA1822:Mark members as static")]
 public sealed class SettingsWindowViewModel : ReactiveObject
 {
     private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
@@ -55,12 +55,12 @@ public sealed class SettingsWindowViewModel : ReactiveObject
             );
     }
 
-    private string _thisPCLabel;
-    public string ThisPCLabel
+    private string _thisPcLabel;
+    public string ThisPcLabel
     {
-        get => _thisPCLabel;
+        get => _thisPcLabel;
         set =>
-            this.RaiseAndSetIfChanged(ref _thisPCLabel, SanitizeInput(value, InvalidFileNameChars));
+            this.RaiseAndSetIfChanged(ref _thisPcLabel, SanitizeInput(value, InvalidFileNameChars));
     }
 
     private string _notepadApp;
@@ -131,7 +131,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         NewImageName = settings.newImageName;
         NewFileName = settings.newFileName;
         NewDirectoryName = settings.newDirectoryName;
-        ThisPCLabel = settings.thisPCLabel;
+        ThisPcLabel = settings.thisPCLabel;
         NotepadApp = settings.notepadApp;
         NotepadAppArgs = settings.notepadAppArgs;
         Terminal = settings.terminal;
@@ -164,7 +164,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
                 newImageName = NewImageName.Trim(),
                 newFileName = NewFileName.Trim(),
                 newDirectoryName = NewDirectoryName.Trim(),
-                thisPCLabel = ThisPCLabel.Trim(),
+                thisPCLabel = ThisPcLabel.Trim(),
                 notepadApp = NotepadApp.Trim(),
                 notepadAppArgs = NotepadAppArgs.Trim(),
                 terminal = Terminal.Trim(),
@@ -206,5 +206,4 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         return sb.ToString().Trim().TrimEnd('\\', '/');
     }
 }
-#pragma warning restore CA1822
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.

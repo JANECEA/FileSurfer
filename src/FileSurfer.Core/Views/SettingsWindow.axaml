@@ -46,7 +46,7 @@
                             <TextBox Grid.Row="2" Grid.Column="1" Margin="5 0 0 5" Text="{Binding NewDirectoryName}" />
 
                             <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Text="This PC Label:" />
-                            <TextBox Grid.Row="3" Grid.Column="1" Margin="5 0 0 5" Text="{Binding ThisPCLabel}" />
+                            <TextBox Grid.Row="3" Grid.Column="1" Margin="5 0 0 5" Text="{Binding ThisPcLabel}" />
                         </Grid>
                     </StackPanel>
                 </Border>

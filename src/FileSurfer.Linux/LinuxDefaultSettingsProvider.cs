@@ -8,7 +8,7 @@ namespace FileSurfer.Linux;
 
 public class LinuxDefaultSettingsProvider : IDefaultSettingsProvider
 {
-    private const string ThisPCLabel = "This PC";
+    private const string ThisPcLabel = "This PC";
     private static readonly (string Executable, string TerminalArgs)[] CommonTerminals =
     {
         ("wezterm", "start --cwd"),
@@ -93,16 +93,16 @@ public class LinuxDefaultSettingsProvider : IDefaultSettingsProvider
         settingsRecord.newImageName = "New Image";
         settingsRecord.newFileName = "New File";
         settingsRecord.newDirectoryName = "New Folder";
-        settingsRecord.thisPCLabel = ThisPCLabel;
+        settingsRecord.thisPCLabel = ThisPcLabel;
         settingsRecord.notepadApp = textEditor;
         settingsRecord.notepadAppArgs = string.Empty;
         settingsRecord.terminal = terminal;
         settingsRecord.terminalArgs = terminalArgs;
         settingsRecord.openInLastLocation = true;
-        settingsRecord.openIn = ThisPCLabel;
+        settingsRecord.openIn = ThisPcLabel;
         settingsRecord.useDarkMode = true;
-        settingsRecord.displayMode = DisplayMode.ListView.ToString();
-        settingsRecord.defaultSort = SortBy.Name.ToString();
+        settingsRecord.displayMode = nameof(DisplayMode.ListView);
+        settingsRecord.defaultSort = nameof(SortBy.Name);
         settingsRecord.fileSizeUnitLimit = 4096;
         settingsRecord.sortReversed = false;
         settingsRecord.showSpecialFolders = true;

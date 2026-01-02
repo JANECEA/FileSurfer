@@ -13,7 +13,7 @@ public sealed class DirectoryEntry : IFileSystemEntry
     private string? _name;
 
     string IFileSystemEntry.Extension => string.Empty;
-    string IFileSystemEntry.NameWOExtension => Name;
+    string IFileSystemEntry.NameWoExtension => Name;
 
     public DirectoryEntry(string dirPath) => PathToEntry = dirPath;
 }

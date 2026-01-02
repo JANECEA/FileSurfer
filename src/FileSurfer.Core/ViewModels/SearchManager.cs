@@ -22,7 +22,7 @@ public class SearchManager : IDisposable
         "Searching...",
     ];
 
-    private readonly FileSystemEntryVMFactory _entryVmFactory;
+    private readonly FileSystemEntryVmFactory _entryVmFactory;
     private readonly IFileInfoProvider _fileInfoProvider;
     private readonly Action<string> _updateAnimation;
     private readonly Action<FileSystemEntryViewModel> _putEntry;
@@ -33,7 +33,7 @@ public class SearchManager : IDisposable
     private Task<int?>? _activeSearchTask = null;
 
     public SearchManager(
-        FileSystemEntryVMFactory entryVmFactory,
+        FileSystemEntryVmFactory entryVmFactory,
         IFileInfoProvider fileInfoProvider,
         Action<string> updateAnimation,
         Action<FileSystemEntryViewModel> putEntry

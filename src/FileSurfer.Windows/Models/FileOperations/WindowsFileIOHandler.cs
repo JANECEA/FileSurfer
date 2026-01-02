@@ -11,12 +11,12 @@ namespace FileSurfer.Windows.Models.FileOperations;
 /// <summary>
 /// Handles file IO operations in the Windows environment within the context of the <see cref="FileSurfer"/> app.
 /// </summary>
-public class WindowsFileIOHandler : IFileIOHandler
+public class WindowsFileIoHandler : IFileIoHandler
 {
     private readonly IFileInfoProvider _fileInfoProvider;
     private readonly long _showDialogLimit;
 
-    public WindowsFileIOHandler(IFileInfoProvider fileInfoProvider, long showDialogLimit)
+    public WindowsFileIoHandler(IFileInfoProvider fileInfoProvider, long showDialogLimit)
     {
         _fileInfoProvider = fileInfoProvider;
         _showDialogLimit = showDialogLimit;

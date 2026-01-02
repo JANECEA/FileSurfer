@@ -5,23 +5,23 @@ namespace FileSurfer.Windows;
 
 public class WindowsDefaultSettingsProvider : IDefaultSettingsProvider
 {
-    private const string ThisPCLabel = "This PC";
+    private const string ThisPcLabel = "This PC";
 
     public void PopulateDefaults(SettingsRecord settingsRecord)
     {
         settingsRecord.newImageName = "New Image";
         settingsRecord.newFileName = "New File";
         settingsRecord.newDirectoryName = "New Folder";
-        settingsRecord.thisPCLabel = ThisPCLabel;
+        settingsRecord.thisPCLabel = ThisPcLabel;
         settingsRecord.notepadApp = "notepad.exe";
         settingsRecord.notepadAppArgs = string.Empty;
         settingsRecord.terminal = "powershell";
         settingsRecord.terminalArgs = "-NoExit -Command Set-Location";
         settingsRecord.openInLastLocation = true;
-        settingsRecord.openIn = ThisPCLabel;
+        settingsRecord.openIn = ThisPcLabel;
         settingsRecord.useDarkMode = true;
-        settingsRecord.displayMode = DisplayMode.ListView.ToString();
-        settingsRecord.defaultSort = SortBy.Name.ToString();
+        settingsRecord.displayMode = nameof(DisplayMode.ListView);
+        settingsRecord.defaultSort = nameof(SortBy.Name);
         settingsRecord.fileSizeUnitLimit = 4096;
         settingsRecord.sortReversed = false;
         settingsRecord.showSpecialFolders = true;

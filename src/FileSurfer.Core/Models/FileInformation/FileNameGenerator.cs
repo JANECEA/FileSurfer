@@ -37,7 +37,7 @@ public static class FileNameGenerator
     /// <summary>
     /// Finds a name available to use in all <paramref name="dirPaths"/> based on <paramref name="newName"/>.
     /// </summary>
-    /// <returns><see cref="string"/> name available to use in <paramref name="directory"/>.</returns>
+    /// <returns><see cref="string"/> name available to use in all <paramref name="dirPaths"/>.</returns>
     public static string GetNameMultipleDirs(string newName, params string[] dirPaths)
     {
         if (dirPaths.All(dirPath => !Path.Exists(Path.Combine(dirPath, newName))))
@@ -60,7 +60,7 @@ public static class FileNameGenerator
     /// </summary>
     /// <returns>Name of a copy, available to use in the path specified in: <paramref name="directory"/>.</returns>
     public static string GetCopyName(string directory, IFileSystemEntry entry) =>
-        GetAvailableName(directory, $"{entry.NameWOExtension} - Copy{entry.Extension}");
+        GetAvailableName(directory, $"{entry.NameWoExtension} - Copy{entry.Extension}");
 
     /// <summary>
     /// Determines if the files or directories represented by <paramref name="entries"/> can be collectively renamed.

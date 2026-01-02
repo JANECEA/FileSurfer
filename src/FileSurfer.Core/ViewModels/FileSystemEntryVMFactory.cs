@@ -5,13 +5,13 @@ using FileSurfer.Core.Models.VersionControl;
 
 namespace FileSurfer.Core.ViewModels;
 
-public class FileSystemEntryVMFactory
+public class FileSystemEntryVmFactory
 {
     private readonly IFileInfoProvider _fileInfoProvider;
     private readonly IIconProvider _iconProvider;
     private readonly IFileProperties _fileProperties;
 
-    public FileSystemEntryVMFactory(
+    public FileSystemEntryVmFactory(
         IFileInfoProvider fileInfoProvider,
         IFileProperties fileProperties,
         IIconProvider iconProvider
@@ -28,10 +28,10 @@ public class FileSystemEntryVMFactory
             _fileProperties,
             _iconProvider,
             new DirectoryEntry(dirPath),
-            VCStatus.NotVersionControlled
+            VcStatus.NotVersionControlled
         );
 
-    public FileSystemEntryViewModel Directory(string dirPath, VCStatus vcStatus) =>
+    public FileSystemEntryViewModel Directory(string dirPath, VcStatus vcStatus) =>
         new(
             _fileInfoProvider,
             _fileProperties,
@@ -46,10 +46,10 @@ public class FileSystemEntryVMFactory
             _fileProperties,
             _iconProvider,
             new FileEntry(filePath),
-            VCStatus.NotVersionControlled
+            VcStatus.NotVersionControlled
         );
 
-    public FileSystemEntryViewModel File(string filePath, VCStatus vcStatus) =>
+    public FileSystemEntryViewModel File(string filePath, VcStatus vcStatus) =>
         new(_fileInfoProvider, _fileProperties, _iconProvider, new FileEntry(filePath), vcStatus);
 
     public FileSystemEntryViewModel Drive(DriveEntry drive) =>

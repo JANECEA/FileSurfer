@@ -17,22 +17,23 @@ public class ViewLocator : IDataTemplate
     /// otherwise it returns a fallback view with a <c>"Not Found"</c> message.
     /// </para>
     /// </summary>
-    /// <param name="data">The view model instance for which to locate and build a corresponding view.</param>
+    /// <param name="param">The view model instance for which to locate and build a corresponding view.</param>
     /// <returns>The constructed view with the view model set as its <see cref="Avalonia.StyledElement.DataContext"/>,
     /// or a <see cref="TextBlock"/> indicating the view was not found.</returns>
-    public Control? Build(object? data)
+    public Control? Build(object? param)
     {
-        if (data is null)
+        if (param is null)
             return null;
 
-        string name = data.GetType()
+        string name = param
+            .GetType()
             .FullName!.Replace("ViewModel", "View", StringComparison.Ordinal);
         Type? type = Type.GetType(name);
 
         if (type is not null)
         {
             Control control = (Control)Activator.CreateInstance(type)!;
-            control.DataContext = data;
+            control.DataContext = param;
             return control;
         }
         return new TextBlock { Text = "Not Found: " + name };

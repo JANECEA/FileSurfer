@@ -6,7 +6,7 @@ namespace FileSurfer.Core.Models.FileOperations;
 /// Includes methods for file and directory management such as creating,
 /// moving, copying and deleting files and directories.
 /// </summary>
-public interface IFileIOHandler
+public interface IFileIoHandler
 {
     /// <summary>
     /// Creates a new file at the specified directory path.

@@ -10,7 +10,7 @@ namespace FileSurfer.Linux.Models.FileOperations;
 /// <summary>
 /// Handles file IO operations in the Linux environment.
 /// </summary>
-public class LinuxFileIOHandler : IFileIOHandler
+public class LinuxFileIoHandler : IFileIoHandler
 {
     public IResult DeleteFile(string filePath)
     {

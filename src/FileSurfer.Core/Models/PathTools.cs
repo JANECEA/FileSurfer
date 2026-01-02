@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
 namespace FileSurfer.Core.Models;
 
+[SuppressMessage(
+    "ReSharper",
+    "UnusedMember.Global",
+    Justification = "Might be useful in implementations of future classes"
+)]
 public static class PathTools
 {
-    public static char DirSeparator { get; } = Path.DirectorySeparatorChar;
+    public static char DirSeparator => Path.DirectorySeparatorChar;
     public static char OtherSeparator { get; } = OperatingSystem.IsWindows() ? '/' : DirSeparator;
     public static StringComparison Comparison { get; } =
         OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;

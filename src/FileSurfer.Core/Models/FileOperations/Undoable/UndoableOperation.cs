@@ -2,12 +2,12 @@ namespace FileSurfer.Core.Models.FileOperations.Undoable;
 
 public abstract class UndoableOperation : IUndoableFileOperation
 {
-    protected IFileIOHandler FileIOHandler { get; }
+    protected IFileIoHandler FileIoHandler { get; }
     protected IFileSystemEntry[] Entries { get; }
 
-    protected UndoableOperation(IFileIOHandler fileIOHandler, IFileSystemEntry[] entries)
+    protected UndoableOperation(IFileIoHandler fileIoHandler, IFileSystemEntry[] entries)
     {
-        FileIOHandler = fileIOHandler;
+        FileIoHandler = fileIoHandler;
         Entries = entries;
     }
 

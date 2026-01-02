@@ -16,7 +16,7 @@ namespace FileSurfer.Core.Models.FileOperations;
 public class ClipboardManager : IClipboardManager
 {
     private readonly string _newImageName;
-    private readonly IFileIOHandler _fileIOHandler;
+    private readonly IFileIoHandler _fileIoHandler;
     private readonly IClipboard _systemClipboard;
     private readonly IStorageProvider _storageProvider;
 
@@ -28,12 +28,12 @@ public class ClipboardManager : IClipboardManager
     public ClipboardManager(
         IClipboard clipboardManager,
         IStorageProvider storageProvider,
-        IFileIOHandler fileIOHandler,
+        IFileIoHandler fileIoHandler,
         string newImageName
     )
     {
         _newImageName = newImageName + ".png";
-        _fileIOHandler = fileIOHandler;
+        _fileIoHandler = fileIoHandler;
         _systemClipboard = clipboardManager;
         _storageProvider = storageProvider;
     }
@@ -41,7 +41,7 @@ public class ClipboardManager : IClipboardManager
     public bool IsDuplicateOperation(string currentDir) =>
         !IsCutOperation && _copyFromDir == currentDir && _programClipboard.Length > 0;
 
-    private async Task<SimpleResult> CopyToOSClipboardAsync(IFileSystemEntry[] entries)
+    private async Task<SimpleResult> CopyToOsClipboardAsync(IFileSystemEntry[] entries)
     {
         try
         {
@@ -123,7 +123,7 @@ public class ClipboardManager : IClipboardManager
 
     public async Task<IResult> CutAsync(IFileSystemEntry[] selectedFiles, string currentDir)
     {
-        SimpleResult result = await CopyToOSClipboardAsync(selectedFiles);
+        SimpleResult result = await CopyToOsClipboardAsync(selectedFiles);
         if (result.IsOk)
         {
             _copyFromDir = currentDir;
@@ -135,7 +135,7 @@ public class ClipboardManager : IClipboardManager
 
     public async Task<IResult> CopyAsync(IFileSystemEntry[] selectedFiles, string currentDir)
     {
-        SimpleResult result = await CopyToOSClipboardAsync(selectedFiles);
+        SimpleResult result = await CopyToOsClipboardAsync(selectedFiles);
         if (result.IsOk)
         {
             _copyFromDir = currentDir;
@@ -145,7 +145,7 @@ public class ClipboardManager : IClipboardManager
         return result;
     }
 
-    private async Task<IResult> PasteFromOSClipboard(string destinationPath)
+    private async Task<IResult> PasteFromOsClipboard(string destinationPath)
     {
         if (await _systemClipboard.TryGetFilesAsync() is not IStorageItem[] items)
             return SimpleResult.Ok();
@@ -157,14 +157,14 @@ public class ClipboardManager : IClipboardManager
             if (item is IStorageFolder)
                 result.MergeResult(
                     IsCutOperation
-                        ? _fileIOHandler.MoveDirTo(normalizedPath, destinationPath)
-                        : _fileIOHandler.CopyDirTo(normalizedPath, destinationPath)
+                        ? _fileIoHandler.MoveDirTo(normalizedPath, destinationPath)
+                        : _fileIoHandler.CopyDirTo(normalizedPath, destinationPath)
                 );
             else if (item is IStorageFile)
                 result.MergeResult(
                     IsCutOperation
-                        ? _fileIOHandler.MoveFileTo(normalizedPath, destinationPath)
-                        : _fileIOHandler.CopyFileTo(normalizedPath, destinationPath)
+                        ? _fileIoHandler.MoveFileTo(normalizedPath, destinationPath)
+                        : _fileIoHandler.CopyFileTo(normalizedPath, destinationPath)
                 );
         }
         return result;
@@ -183,7 +183,7 @@ public class ClipboardManager : IClipboardManager
         }
 
         IsCutOperation = IsCutOperation && await CompareClipboards();
-        result = await PasteFromOSClipboard(currentDir);
+        result = await PasteFromOsClipboard(currentDir);
         if (IsCutOperation)
         {
             _programClipboard = Array.Empty<IFileSystemEntry>();
@@ -206,8 +206,8 @@ public class ClipboardManager : IClipboardManager
 
             result.MergeResult(
                 entry is DirectoryEntry
-                    ? _fileIOHandler.DuplicateDir(entry.PathToEntry, copyNames[i])
-                    : _fileIOHandler.DuplicateFile(entry.PathToEntry, copyNames[i])
+                    ? _fileIoHandler.DuplicateDir(entry.PathToEntry, copyNames[i])
+                    : _fileIoHandler.DuplicateFile(entry.PathToEntry, copyNames[i])
             );
         }
         if (!result.IsOk)

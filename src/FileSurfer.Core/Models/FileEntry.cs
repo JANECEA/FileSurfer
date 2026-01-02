@@ -15,9 +15,9 @@ public sealed class FileEntry : IFileSystemEntry
     public string Extension => _extension ??= Path.GetExtension(PathToEntry);
     private string? _extension;
 
-    public string NameWOExtension =>
-        _nameWOExtension ??= Path.GetFileNameWithoutExtension(PathToEntry);
-    private string? _nameWOExtension;
+    public string NameWoExtension =>
+        _nameWoExtension ??= Path.GetFileNameWithoutExtension(PathToEntry);
+    private string? _nameWoExtension;
 
     public FileEntry(string pathToFile) => PathToEntry = pathToFile;
 }
