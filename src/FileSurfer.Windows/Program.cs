@@ -4,7 +4,6 @@ using ReactiveUI.Avalonia;
 
 namespace FileSurfer.Windows;
 
-// TODO test windows
 internal static class Program
 {
     // Initialization code. Don't use any Avalonia, third-party APIs or any

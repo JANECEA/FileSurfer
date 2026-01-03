@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 using FileSurfer.Core;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.Shell;
@@ -62,16 +65,18 @@ public class WindowsShellHandler : IShellHandler
         if (string.IsNullOrWhiteSpace(FileSurferSettings.NotepadApp))
             return SimpleResult.Error("Set notepad app in settings.");
 
+        ValueResult<ProcessStartInfo> psiResult = GetCmdPsi(
+            FileSurferSettings.NotepadApp,
+            FileSurferSettings.NotepadAppArgs,
+            filePath
+        );
+        if (!psiResult.IsOk)
+            return psiResult;
+
         try
         {
             using Process process = new();
-            process.StartInfo = GetCmdPsi(
-                new ProcessStartInfo(),
-                "\"%1\" %2 \"%3\"",
-                FileSurferSettings.NotepadApp,
-                FileSurferSettings.NotepadAppArgs,
-                filePath
-            );
+            process.StartInfo = psiResult.Value;
             process.Start();
             return SimpleResult.Ok();
         }
@@ -89,16 +94,19 @@ public class WindowsShellHandler : IShellHandler
         if (!Directory.Exists(dirPath))
             return SimpleResult.Error("Current directory does not exist.");
 
+        ValueResult<ProcessStartInfo> psiResult = GetCmdPsi(
+            FileSurferSettings.Terminal,
+            FileSurferSettings.TerminalArgs,
+            "."
+        );
+        if (!psiResult.IsOk)
+            return psiResult;
+
+        psiResult.Value.WorkingDirectory = dirPath;
         try
         {
             using Process process = new();
-            process.StartInfo = GetCmdPsi(
-                new ProcessStartInfo(),
-                "\"%1\" %2 \"%3\"",
-                FileSurferSettings.Terminal,
-                FileSurferSettings.TerminalArgs,
-                dirPath
-            );
+            process.StartInfo = psiResult.Value;
             process.Start();
             return SimpleResult.Ok();
         }
@@ -108,23 +116,56 @@ public class WindowsShellHandler : IShellHandler
         }
     }
 
-    private static ProcessStartInfo GetCmdPsi(
-        ProcessStartInfo? baseInfo,
-        string shellCommand,
-        params string[] args
+    private static ValueResult<ProcessStartInfo> GetCmdPsi(
+        string executablePath,
+        string args,
+        string filePath
     )
     {
-        baseInfo ??= new ProcessStartInfo
+        List<string> splitArgs = new();
+        if (!string.IsNullOrWhiteSpace(args))
         {
-            FileName = "cmd.exe",
-            ArgumentList = { "/c", shellCommand },
-            UseShellExecute = true,
-        };
-        foreach (string arg in args)
+            ValueResult<List<string>> result = SplitWindowsCommandLine(args);
+            if (!result.IsOk)
+                return ValueResult<ProcessStartInfo>.Error(result.Errors.First());
+
+            splitArgs = result.Value;
+        }
+        ProcessStartInfo baseInfo = new() { FileName = executablePath, UseShellExecute = true };
+
+        foreach (string arg in splitArgs)
             baseInfo.ArgumentList.Add(arg);
 
-        return baseInfo;
+        baseInfo.ArgumentList.Add(filePath);
+        return ValueResult<ProcessStartInfo>.Ok(baseInfo);
     }
+
+    private static ValueResult<List<string>> SplitWindowsCommandLine(string commandLine)
+    {
+        IntPtr argv = CommandLineToArgvW(commandLine, out int argc);
+        if (argv == IntPtr.Zero)
+            return ValueResult<List<string>>.Error(
+                $"Failed to parse arguments: \"{commandLine}\"."
+            );
+
+        try
+        {
+            List<string> args = new();
+            for (int i = 0; i < argc; i++)
+            {
+                IntPtr p = Marshal.ReadIntPtr(argv, i * IntPtr.Size);
+                args.Add(Marshal.PtrToStringUni(p)!);
+            }
+            return ValueResult<List<string>>.Ok(args);
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(argv);
+        }
+    }
+
+    [DllImport("shell32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    private static extern IntPtr CommandLineToArgvW(string lpCmdLine, out int pNumArgs);
 
     public ValueResult<string> ExecuteCommand(string programName, params string[] args)
     {
