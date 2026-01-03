@@ -1,12 +1,11 @@
-using FileSurfer.Models.FileInformation;
-using FileSurfer.Models.FileOperations;
-using FileSurfer.Models.Shell;
+using FileSurfer.Windows.Models.FileInformation;
+using FileSurfer.Windows.Models.FileOperations;
 
 namespace FSTests;
 
 public class FileIOTests
 {
-    private readonly WindowsFileIOHandler _fileIOHandler = new(new WindowsFileInfoProvider(), 100);
+    private readonly WindowsFileIoHandler _fileIOHandler = new(new WindowsFileInfoProvider(), 100);
 
     [Fact]
     public void Renaming_File_To_Different_Capital_Letters_Works()

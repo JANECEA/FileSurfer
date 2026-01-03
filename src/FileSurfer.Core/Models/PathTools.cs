@@ -1,0 +1,90 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Text;
+
+namespace FileSurfer.Core.Models;
+
+[SuppressMessage(
+    "ReSharper",
+    "UnusedMember.Global",
+    Justification = "Might be useful in implementations of future classes"
+)]
+public static class PathTools
+{
+    public static char DirSeparator => Path.DirectorySeparatorChar;
+    public static char OtherSeparator { get; } = OperatingSystem.IsWindows() ? '/' : DirSeparator;
+    public static StringComparison Comparison { get; } =
+        OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+
+    /// <summary>
+    /// Normalizes the given path to an absolute path without redundant separators and without a trailing separator
+    /// <para/>
+    /// Separators at root level paths are kept.
+    /// </summary>
+    /// <param name="path">Path to normalize</param>
+    /// <returns>Normalized path</returns>
+    public static string NormalizePath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return path;
+
+        string absolutePath = Path.GetFullPath(path);
+        StringBuilder sb = new(absolutePath.Length);
+
+        bool previousWasDirSep = false;
+        foreach (char ch in absolutePath)
+        {
+            bool isSep = ch == DirSeparator || ch == OtherSeparator;
+            if (!isSep)
+                sb.Append(ch);
+            else if (!previousWasDirSep)
+                sb.Append(DirSeparator);
+
+            previousWasDirSep = isSep;
+        }
+        string root = Path.GetPathRoot(absolutePath) ?? string.Empty;
+        if (sb.Length != 1 && sb.Length != root.Length && sb[^1] == DirSeparator)
+            sb.Remove(sb.Length - 1, 1);
+
+        return sb.ToString();
+    }
+
+    public static bool PathsAreEqual(string? pathA, string? pathB) =>
+        pathA is not null
+        && pathB is not null
+        && string.Equals(NormalizePath(pathA), NormalizePath(pathB), Comparison);
+
+    public static bool PathsAreEqualNormalized(string? pathA, string? pathB) =>
+        pathA is not null && pathB is not null && string.Equals(pathA, pathB, Comparison);
+
+    public static bool NamesAreEqual(string? nameA, string? nameB) =>
+        nameA is not null && nameB is not null && string.Equals(nameA, nameB, Comparison);
+
+    public static string? GetExtensionNoDot(string path)
+    {
+        int extensionIndex = -1;
+        for (int i = path.Length - 1; i >= 0; i--)
+        {
+            if (path[i] == '.')
+                extensionIndex = i;
+
+            if (path[i] == DirSeparator)
+                break;
+        }
+        if (extensionIndex < 0 || extensionIndex == path.Length - 1)
+            return null;
+
+        return path[(extensionIndex + 1)..];
+    }
+
+    public static IEnumerable<string> EnumerateExtensions(string path)
+    {
+        int lastSep = path.LastIndexOf(DirSeparator);
+
+        for (int index = lastSep + 1; index <= path.Length - 3; index++)
+            if (path[index] == '.')
+                yield return path[(index + 1)..];
+    }
+}

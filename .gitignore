@@ -4,4 +4,6 @@ obj/
 .vs/
 .idea/
 *.csproj.user
+*.DotSettings.user
 *.pubxml.user
+

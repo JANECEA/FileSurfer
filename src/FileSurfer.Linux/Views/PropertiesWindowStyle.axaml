@@ -1,0 +1,58 @@
+<Styles xmlns="https://github.com/avaloniaui">
+
+    <Style Selector="TextBlock.file-name">
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TextBox.file-path">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Opacity" Value="0.7" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="IsReadOnly" Value="True" />
+        <Setter Property="CaretBrush" Value="Transparent" />
+    </Style>
+
+    <Style Selector="TextBox.file-path:focus-within /template/ Border, TextBox.file-path:pointerover /template/ Border">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="Grid.property-grid">
+        <Setter Property="RowSpacing" Value="6" />
+        <Setter Property="ColumnSpacing" Value="12" />
+    </Style>
+
+    <Style Selector="TextBlock.label">
+        <Setter Property="Opacity" Value="0.60" />
+        <Setter Property="TextAlignment" Value="Right" />
+    </Style>
+
+    <Style Selector="TextBlock.value">
+        <Setter Property="Margin" Value="8 0 0 0" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+    </Style>
+
+    <Style Selector="StackPanel.button-row">
+        <Setter Property="Margin" Value="0 16 0 0" />
+    </Style>
+
+    <Style Selector="Button.close-button">
+        <Setter Property="Width" Value="70" />
+        <Setter Property="Background" Value="{DynamicResource SecondaryColor}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Border.separator">
+        <Setter Property="Height" Value="1" />
+        <Setter Property="Margin" Value="-1 4 -1 4" />
+        <Setter Property="Background" Value="{DynamicResource SecondaryColor}" />
+    </Style>
+
+</Styles>

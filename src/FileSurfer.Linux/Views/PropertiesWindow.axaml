@@ -1,0 +1,84 @@
+<Window x:Class="FileSurfer.Linux.Views.PropertiesWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:FileSurfer.Linux.ViewModels"
+        Title="{Binding FileName, StringFormat=Properties for: {0} -- FileSurfer}"
+        Width="420"
+        Height="465"
+        MinWidth="420"
+        MinHeight="465"
+        x:DataType="vm:PropertiesWindowViewModel"
+        Background="{DynamicResource PrimaryColor}"
+        Foreground="{DynamicResource TextColor}"
+        KeyDown="KeyPressed"
+        WindowStartupLocation="CenterOwner"
+        mc:Ignorable="d">
+
+    <Window.Styles>
+        <StyleInclude Source="avares://FileSurfer/Views/PropertiesWindowStyle.axaml" />
+    </Window.Styles>
+
+    <DockPanel Margin="16" LastChildFill="False" VerticalSpacing="10">
+        <StackPanel Margin="15 5 15 5" DockPanel.Dock="Top" Spacing="10">
+            <Grid ColumnDefinitions="Auto *" RowDefinitions="Auto">
+                <Image Grid.Column="0"
+                       Width="56"
+                       Height="56"
+                       Margin="0 0 12 0"
+                       Source="{Binding Icon}" />
+                <TextBlock Grid.Column="1" Classes="file-name" Text="{Binding FileName}" />
+            </Grid>
+            <TextBox Classes="file-path" Text="{Binding FullPath}" />
+        </StackPanel>
+
+        <Border Classes="separator" DockPanel.Dock="Top" />
+
+        <Grid Classes="property-grid" ColumnDefinitions="100 *" DockPanel.Dock="Top" RowDefinitions="Auto Auto Auto Auto Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="Type:" />
+            <TextBlock Grid.Row="0" Grid.Column="1" Classes="value" Text="{Binding Type}" />
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Text="Size:" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Classes="value" Text="{Binding Size}" />
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Classes="label" Text="Created:" />
+            <TextBlock Grid.Row="2" Grid.Column="1" Classes="value" Text="{Binding DateCreated}" />
+
+            <TextBlock Grid.Row="3" Grid.Column="0" Classes="label" Text="Accessed:" />
+            <TextBlock Grid.Row="3" Grid.Column="1" Classes="value" Text="{Binding DateAccessed}" />
+
+            <TextBlock Grid.Row="4" Grid.Column="0" Classes="label" Text="Modified:" />
+            <TextBlock Grid.Row="4" Grid.Column="1" Classes="value" Text="{Binding DateModified}" />
+        </Grid>
+
+        <Border Classes="separator" DockPanel.Dock="Top" />
+
+        <Grid Classes="property-grid" ColumnDefinitions="100 *" DockPanel.Dock="Top" RowDefinitions="Auto Auto Auto Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="Owner:" />
+            <TextBlock Grid.Row="0" Grid.Column="1" Classes="value" Text="{Binding Owner}" />
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Text="Permissions:" />
+            <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="55 Auto" RowDefinitions="Auto Auto Auto">
+                <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="owner:" />
+                <TextBlock Grid.Row="0" Grid.Column="1" Classes="value" Text="{Binding PermissionsOwner}" />
+                <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Text="group:" />
+                <TextBlock Grid.Row="1" Grid.Column="1" Classes="value" Text="{Binding PermissionsGroup}" />
+                <TextBlock Grid.Row="2" Grid.Column="0" Classes="label" Text="others:" />
+                <TextBlock Grid.Row="2" Grid.Column="1" Classes="value" Text="{Binding PermissionsOther}" />
+            </Grid>
+        </Grid>
+
+        <StackPanel DockPanel.Dock="Bottom">
+            <Border Classes="separator" />
+
+            <StackPanel HorizontalAlignment="Right" Classes="button-row" Orientation="Horizontal" Spacing="8">
+                <Button Classes="close-button"
+                        Click="CloseWindow"
+                        Content="Close"
+                        IsCancel="True"
+                        IsDefault="True" />
+            </StackPanel>
+        </StackPanel>
+    </DockPanel>
+</Window>
