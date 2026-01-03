@@ -9,7 +9,6 @@ namespace FileSurfer.Linux.Models.Shell;
 /// </summary>
 public class LinuxBinInteraction : IBinInteraction
 {
-    // DEP: trash-cli
     private readonly IShellCommandHandler _shellHandler;
 
     public LinuxBinInteraction(IShellCommandHandler shellHandler) => _shellHandler = shellHandler;

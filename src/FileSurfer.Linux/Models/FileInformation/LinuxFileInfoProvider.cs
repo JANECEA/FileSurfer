@@ -35,7 +35,6 @@ public class LinuxFileInfoProvider : IFileInfoProvider
 
     public DriveEntry[] GetDrives()
     {
-        // DEP: lsblk
         ValueResult<string> result = _shellHandler.ExecuteCommand(
             "lsblk",
             "-Jnbpo",

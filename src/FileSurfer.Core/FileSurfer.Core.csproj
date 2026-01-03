@@ -24,8 +24,8 @@
       Include="Avalonia.Diagnostics"
       Version="11.0.10"
     />
-    <PackageReference Include="LibGit2Sharp" Version="0.31.0" />
     <PackageReference Include="ReactiveUI.Avalonia" Version="11.3.8" />
+    <PackageReference Include="LibGit2Sharp" Version="0.31.0" />
     <PackageReference Include="SharpCompress" Version="0.41.0" />
   </ItemGroup>
 </Project>

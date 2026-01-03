@@ -7,7 +7,6 @@ namespace FileSurfer.Linux.Models.FileInformation;
 
 internal static class SvgHelper
 {
-    // DEP resvg
     internal static Bitmap? RenderSvg(string svgPath, int size)
     {
         string sizeStr = size.ToString(CultureInfo.InvariantCulture);
