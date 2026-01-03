@@ -83,6 +83,11 @@ public static class FileSurferSettings
     );
 
     /// <summary>
+    /// Executes this function when settings are updated in <see cref="ImportSettings"/>.
+    /// </summary>
+    public static Action? OnSettingsChange { private get; set; }
+
+    /// <summary>
     /// Returns the default set of settings for the <see cref="FileSurfer"/> app.
     /// </summary>
     public static SettingsRecord DefaultSettings => new();
@@ -356,6 +361,8 @@ public static class FileSurferSettings
 
         AllowImagePastingFromClipboard = settings.allowImagePastingFromClipboard;
         QuickAccess = settings.quickAccess ?? new List<string>();
+
+        OnSettingsChange?.Invoke();
     }
 
     private static TEnum SafeParseEnum<TEnum>(string? enumValueName)

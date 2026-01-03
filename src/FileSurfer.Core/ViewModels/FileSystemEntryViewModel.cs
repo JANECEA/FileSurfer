@@ -26,7 +26,6 @@ namespace FileSurfer.Core.ViewModels;
 )]
 public sealed class FileSystemEntryViewModel : ReactiveObject
 {
-    private static readonly int SizeLimit = FileSurferSettings.FileSizeUnitLimit;
     private static readonly IReadOnlyList<string> ByteUnits =
     [
         "B",
@@ -222,7 +221,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         long size = sizeInB;
         foreach (string notation in ByteUnits)
         {
-            if (size <= SizeLimit)
+            if (size <= FileSurferSettings.FileSizeUnitLimit)
                 return $"{size} {notation}";
 
             size = (size + 1023) / 1024;

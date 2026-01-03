@@ -53,21 +53,26 @@ public partial class MainWindow : Window
     private void ViewModelLoaded(object? sender, EventArgs e)
     {
         if (DataContext is MainWindowViewModel viewModel && _viewModel is null)
-        {
             _viewModel = viewModel;
-            SpecialFoldersLoaded(viewModel);
-        }
     }
 
     /// <summary>
     /// Determines if <see cref="SpecialsListBox"/> should be visible after it has been loaded.
     /// </summary>
-    private void SpecialFoldersLoaded(MainWindowViewModel viewModel)
+    private void OnSpecialFoldersChanged(object sender, AvaloniaPropertyChangedEventArgs e)
     {
-        if (viewModel.SpecialFolders.Length > 0)
+        if (_viewModel is null)
+            return;
+
+        if (_viewModel.SpecialFolders.Count > 0)
         {
             SecondSeparator.IsVisible = true;
             SpecialsListBox.IsVisible = true;
+        }
+        else
+        {
+            SecondSeparator.IsVisible = false;
+            SpecialsListBox.IsVisible = false;
         }
     }
 

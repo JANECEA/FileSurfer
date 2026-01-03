@@ -15,7 +15,6 @@ namespace FileSurfer.Core.Models.FileOperations;
 /// </summary>
 public class ClipboardManager : IClipboardManager
 {
-    private readonly string _newImageName;
     private readonly IFileIoHandler _fileIoHandler;
     private readonly IClipboard _systemClipboard;
     private readonly IStorageProvider _storageProvider;
@@ -28,11 +27,9 @@ public class ClipboardManager : IClipboardManager
     public ClipboardManager(
         IClipboard clipboardManager,
         IStorageProvider storageProvider,
-        IFileIoHandler fileIoHandler,
-        string newImageName
+        IFileIoHandler fileIoHandler
     )
     {
-        _newImageName = newImageName + ".png";
         _fileIoHandler = fileIoHandler;
         _systemClipboard = clipboardManager;
         _storageProvider = storageProvider;
@@ -71,9 +68,12 @@ public class ClipboardManager : IClipboardManager
         }
     }
 
-    private SimpleResult SaveImageToPath(string destinationPath, Bitmap image)
+    private static SimpleResult SaveImageToPath(string destinationPath, Bitmap image)
     {
-        string imgName = FileNameGenerator.GetAvailableName(destinationPath, _newImageName);
+        string imgName = FileNameGenerator.GetAvailableName(
+            destinationPath,
+            FileSurferSettings.NewImageName + ".png"
+        );
         try
         {
             image.Save(Path.Combine(destinationPath, imgName));

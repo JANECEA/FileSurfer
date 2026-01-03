@@ -48,7 +48,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private readonly SearchManager _searchManager;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
     private readonly UndoRedoHandler<string> _pathHistory;
-    private readonly DispatcherTimer? _refreshTimer;
+    private readonly Action<bool> _setDarkMode;
+    private DispatcherTimer? _refreshTimer;
 
     private bool _isActionUserInvoked = true;
     private bool SortReversed
@@ -83,7 +84,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Holds the Special Folders <see cref="FileSystemEntryViewModel"/>s.
     /// </summary>
-    public FileSystemEntryViewModel[] SpecialFolders { get; }
+    public ObservableCollection<FileSystemEntryViewModel> SpecialFolders { get; private set; } = [];
 
     /// <summary>
     /// Holds the Drives <see cref="FileSystemEntryViewModel"/>s.
@@ -217,7 +218,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         IIconProvider iconProvider,
         IShellHandler shellHandler,
         IVersionControl versionControl,
-        IClipboardManager clipboardManager
+        IClipboardManager clipboardManager,
+        Action<bool> setDarkMode
     )
     {
         _fileIoHandler = fileIoHandler;
@@ -227,6 +229,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _shellHandler = shellHandler;
         _versionControl = versionControl;
         _clipboardManager = clipboardManager;
+        _setDarkMode = setDarkMode;
         _entryVmFactory = new FileSystemEntryVmFactory(
             _fileInfoProvider,
             _fileProperties,
@@ -265,15 +268,29 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         PullCommand = ReactiveCommand.Create(Pull);
         PushCommand = ReactiveCommand.Create(Push);
 
-        LoadQuickAccess();
-        Drives = GetDrives();
-        SpecialFolders = FileSurferSettings.ShowSpecialFolders
-            ? GetSpecialFolders()
-            : Array.Empty<FileSystemEntryViewModel>();
-
         SetCurrentDir(initialDir);
 
-        if (FileSurferSettings.AutomaticRefresh)
+        LoadQuickAccess();
+        Drives = GetDrives();
+
+        LoadSettings();
+        FileSurferSettings.OnSettingsChange = LoadSettings;
+    }
+
+    private void LoadSettings()
+    {
+        if (!FileSurferSettings.ShowSpecialFolders)
+            SpecialFolders.Clear();
+        else if (SpecialFolders.Count == 0)
+            foreach (FileSystemEntryViewModel entry in GetSpecialFolders())
+                SpecialFolders.Add(entry);
+
+        if (!FileSurferSettings.AutomaticRefresh)
+        {
+            _refreshTimer?.Stop();
+            _refreshTimer = null;
+        }
+        else if (_refreshTimer is null)
         {
             _refreshTimer = new DispatcherTimer
             {
@@ -283,6 +300,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             _refreshTimer.Tick += CheckForUpdates;
             _refreshTimer.Start();
         }
+
+        _setDarkMode(FileSurferSettings.UseDarkMode);
+        Reload(true);
     }
 
     private void SetCurrentDirNoHistory(string dirPath)
@@ -593,12 +613,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private FileSystemEntryViewModel[] GetDrives() =>
         _fileInfoProvider.GetDrives().Select(_entryVmFactory.Drive).ToArray();
 
-    private FileSystemEntryViewModel[] GetSpecialFolders() =>
+    private IEnumerable<FileSystemEntryViewModel> GetSpecialFolders() =>
         _fileInfoProvider
             .GetSpecialFolders()
             .Where(dirPath => !string.IsNullOrEmpty(dirPath))
-            .Select(_entryVmFactory.Directory)
-            .ToArray();
+            .Select(_entryVmFactory.Directory);
 
     private void LoadQuickAccess()
     {

@@ -50,9 +50,6 @@ public partial class App : Application
                 desktop.Shutdown(1);
                 return;
             }
-            RequestedThemeVariant = FileSurferSettings.UseDarkMode
-                ? ThemeVariant.Dark
-                : ThemeVariant.Light;
 
             MainWindow mainWindow = new();
             mainWindow.DataContext = GetViewModel(
@@ -78,7 +75,7 @@ public partial class App : Application
         return SimpleResult.Ok();
     }
 
-    private static MainWindowViewModel GetViewModel(string initialDir, MainWindow mainWindow)
+    private MainWindowViewModel GetViewModel(string initialDir, MainWindow mainWindow)
     {
         LinuxFileIoHandler fileIoHandler = new();
         LinuxShellHandler shellHandler = new();
@@ -86,8 +83,7 @@ public partial class App : Application
         ClipboardManager clipboardManager = new(
             clipboard,
             mainWindow.StorageProvider,
-            fileIoHandler,
-            FileSurferSettings.NewImageName
+            fileIoHandler
         );
 
         return new MainWindowViewModel(
@@ -99,7 +95,11 @@ public partial class App : Application
             new LinuxIconProvider(shellHandler),
             shellHandler,
             new GitVersionControl(shellHandler),
-            clipboardManager
+            clipboardManager,
+            SetDarkMode
         );
     }
+
+    private void SetDarkMode(bool darkMode) =>
+        RequestedThemeVariant = darkMode ? ThemeVariant.Dark : ThemeVariant.Light;
 }

@@ -4,14 +4,14 @@
         xmlns:core="clr-namespace:FileSurfer.Core"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:viewmodels="clr-namespace:FileSurfer.Core.ViewModels"
         xmlns:views="clr-namespace:FileSurfer.Core.Views"
+        xmlns:vm="clr-namespace:FileSurfer.Core.ViewModels"
         Title="FileSurfer"
         MinWidth="860"
         MinHeight="400"
         d:DesignHeight="450"
         d:DesignWidth="1200"
-        x:DataType="viewmodels:MainWindowViewModel"
+        x:DataType="vm:MainWindowViewModel"
         Closing="OnClosing"
         DataContextChanged="ViewModelLoaded"
         Icon="/Assets/FileSurfer-logo.ico"
@@ -38,7 +38,7 @@
     <Window.Resources>
         <views:SortArrowConverter x:Key="SortArrowConverter" />
 
-        <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type viewmodels:FileSystemEntryViewModel}">
+        <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
             <Grid Height="36" ColumnDefinitions="30 360 160 130 90 *">
                 <Image Grid.Column="0"
                        Width="28"
@@ -62,7 +62,7 @@
             </Grid>
         </DataTemplate>
 
-        <DataTemplate x:Key="IconViewTemplate" x:DataType="{x:Type viewmodels:FileSystemEntryViewModel}">
+        <DataTemplate x:Key="IconViewTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
             <StackPanel Width="80" Spacing="10">
                 <Image Width="60"
                        Height="60"
@@ -73,7 +73,7 @@
             </StackPanel>
         </DataTemplate>
 
-        <DataTemplate x:Key="SideBarTemplate" x:DataType="{x:Type viewmodels:FileSystemEntryViewModel}">
+        <DataTemplate x:Key="SideBarTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
             <Grid Height="27" ColumnDefinitions="Auto *">
                 <Image Grid.Column="0"
                        Width="20"
@@ -185,7 +185,7 @@
                                 <MenuItem.Header>
                                     <Grid ColumnDefinitions="Auto *">
                                         <TextBlock Classes="SortLabelTextBlock" Text="Name" />
-                                        <TextBlock Grid.Column="1" Classes="SortArrowTextBlock" Text="{Binding SortInfo, Converter={StaticResource SortArrowConverter}, ConverterParameter={x:Static core:SortBy.Name}}" />
+                                        <TextBlock Classes="SortArrowTextBlock" Text="{Binding SortInfo, Converter={StaticResource SortArrowConverter}, ConverterParameter={x:Static core:SortBy.Name}}" />
                                     </Grid>
                                 </MenuItem.Header>
                             </MenuItem>
@@ -261,7 +261,7 @@
                                     <Setter Property="Padding" Value="10 3 10 3" />
                                     <Setter Property="ContextMenu">
                                         <Setter.Value>
-                                            <ContextMenu x:DataType="viewmodels:FileSystemEntryViewModel">
+                                            <ContextMenu x:DataType="vm:FileSystemEntryViewModel">
                                                 <MenuItem Classes="ContextMenuItem" Click="MoveUp" Header="Move up" />
                                                 <MenuItem Classes="ContextMenuItem" Click="MoveDown" Header="Move down" />
                                                 <MenuItem Classes="ContextMenuItem" Click="RemoveFromQuickAccess" Header="Remove from quick access" />
@@ -280,6 +280,7 @@
                                  IsVisible="False"
                                  ItemTemplate="{StaticResource SideBarTemplate}"
                                  ItemsSource="{Binding SpecialFolders}"
+                                 PropertyChanged="OnSpecialFoldersChanged"
                                  Tapped="SideBarEntryClicked">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
@@ -346,7 +347,7 @@
                                 <Setter Property="Margin" Value="0 0 4 0" />
                                 <Setter Property="ContextMenu">
                                     <Setter.Value>
-                                        <ContextMenu x:DataType="viewmodels:FileSystemEntryViewModel" Classes="FileContextMenu">
+                                        <ContextMenu x:DataType="vm:FileSystemEntryViewModel" Classes="FileContextMenu">
                                             <MenuItem Classes="ContextMenuItem" Click="OpenClicked" Header="Open" />
                                             <MenuItem Classes="ContextMenuItem" Click="OpenAs" Header="Open as" IsVisible="{Binding SupportsOpenAs}" />
                                             <MenuItem Classes="ContextMenuItem" Click="OpenInNotepad" Header="Open in Notepad" IsVisible="{Binding !IsDirectory}" />

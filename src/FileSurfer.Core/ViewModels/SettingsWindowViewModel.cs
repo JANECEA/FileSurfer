@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
+using FileSurfer.Core.Models;
 using ReactiveUI;
 
 namespace FileSurfer.Core.ViewModels;
@@ -16,8 +17,8 @@ namespace FileSurfer.Core.ViewModels;
     SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
     SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
     SuppressMessage("ReSharper", "UnusedMember.Global"),
+    SuppressMessage("Performance", "CA1822:Mark members as static"),
 ]
-[SuppressMessage("Performance", "CA1822:Mark members as static")]
 public sealed class SettingsWindowViewModel : ReactiveObject
 {
     private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
@@ -203,7 +204,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         foreach (char c in input.Where(ch => !invalidChars.Contains(ch)))
             sb.Append(c);
 
-        return sb.ToString().Trim().TrimEnd('\\', '/');
+        return sb.ToString().Trim().TrimEnd(PathTools.DirSeparator);
     }
 }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
