@@ -36,10 +36,12 @@ Global
 		{6E6F711D-E60C-4A69-9BAB-8CB361EB3C8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E6F711D-E60C-4A69-9BAB-8CB361EB3C8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E6F711D-E60C-4A69-9BAB-8CB361EB3C8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E6F711D-E60C-4A69-9BAB-8CB361EB3C8D}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{7B6C657C-B926-48C4-9F91-217AFFA923B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7B6C657C-B926-48C4-9F91-217AFFA923B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B6C657C-B926-48C4-9F91-217AFFA923B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B6C657C-B926-48C4-9F91-217AFFA923B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B6C657C-B926-48C4-9F91-217AFFA923B0}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,5 +50,9 @@ Global
 		{7B6C657C-B926-48C4-9F91-217AFFA923B0} = {3C2AFF70-7C08-494B-91D3-B2944BD74E73}
 		{6E6F711D-E60C-4A69-9BAB-8CB361EB3C8D} = {3C2AFF70-7C08-494B-91D3-B2944BD74E73}
 		{B4C13639-839A-4996-9F0D-A681F57EDE4E} = {3C2AFF70-7C08-494B-91D3-B2944BD74E73}
+	EndGlobalSection
+	GlobalSection(RiderSharedRunConfigurations) = postSolution
+		File = FileSurfer.Linux\LinuxPublish.run.xml
+		File = FileSurfer.Windows\WindowsPublish.run.xml
 	EndGlobalSection
 EndGlobal
