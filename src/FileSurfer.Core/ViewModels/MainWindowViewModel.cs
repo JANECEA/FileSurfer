@@ -84,12 +84,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Holds the Special Folders <see cref="FileSystemEntryViewModel"/>s.
     /// </summary>
-    public ObservableCollection<FileSystemEntryViewModel> SpecialFolders { get; private set; } = [];
+    public ObservableCollection<FileSystemEntryViewModel> SpecialFolders { get; } = [];
 
     /// <summary>
     /// Holds the Drives <see cref="FileSystemEntryViewModel"/>s.
     /// </summary>
-    public FileSystemEntryViewModel[] Drives { get; }
+    public FileSystemEntryViewModel[] Drives =>
+        _drives ??= _fileInfoProvider.GetDrives().Select(_entryVmFactory.Drive).ToArray();
+    private FileSystemEntryViewModel[]? _drives;
 
     /// <summary>
     /// Holds the path to the current directory displayed in FileSurfer.
@@ -243,6 +245,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         );
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
         _pathHistory = new UndoRedoHandler<string>();
+
+        LoadQuickAccess();
+        LoadSettings(false);
+        FileSurferSettings.OnSettingsChange = () => LoadSettings(true);
         SelectedFiles.CollectionChanged += UpdateSelectionInfo;
         FileEntries.CollectionChanged += UpdateSelectionInfo;
 
@@ -269,15 +275,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         PushCommand = ReactiveCommand.Create(Push);
 
         SetCurrentDir(initialDir);
-
-        LoadQuickAccess();
-        Drives = GetDrives();
-
-        LoadSettings();
-        FileSurferSettings.OnSettingsChange = LoadSettings;
     }
 
-    private void LoadSettings()
+    private void LoadSettings(bool reload)
     {
         if (!FileSurferSettings.ShowSpecialFolders)
             SpecialFolders.Clear();
@@ -302,7 +302,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
 
         _setDarkMode(FileSurferSettings.UseDarkMode);
-        Reload(true);
+        if (reload)
+            Reload(true);
     }
 
     private void SetCurrentDirNoHistory(string dirPath)
@@ -609,9 +610,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         else if (CurrentDir != ThisPcLabel)
             SetCurrentDir(parentDir);
     }
-
-    private FileSystemEntryViewModel[] GetDrives() =>
-        _fileInfoProvider.GetDrives().Select(_entryVmFactory.Drive).ToArray();
 
     private IEnumerable<FileSystemEntryViewModel> GetSpecialFolders() =>
         _fileInfoProvider
