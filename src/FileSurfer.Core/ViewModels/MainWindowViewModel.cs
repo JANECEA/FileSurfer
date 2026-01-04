@@ -246,12 +246,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
         _pathHistory = new UndoRedoHandler<string>();
 
-        LoadQuickAccess();
-        LoadSettings(false);
-        FileSurferSettings.OnSettingsChange = () => LoadSettings(true);
-        SelectedFiles.CollectionChanged += UpdateSelectionInfo;
-        FileEntries.CollectionChanged += UpdateSelectionInfo;
-
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
         GoUpCommand = ReactiveCommand.Create(GoUp);
@@ -274,7 +268,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         PullCommand = ReactiveCommand.Create(Pull);
         PushCommand = ReactiveCommand.Create(Push);
 
+        LoadQuickAccess();
+        LoadSettings(false);
         SetCurrentDir(initialDir);
+        FileSurferSettings.OnSettingsChange = () => LoadSettings(true);
+        SelectedFiles.CollectionChanged += UpdateSelectionInfo;
+        FileEntries.CollectionChanged += UpdateSelectionInfo;
     }
 
     private void LoadSettings(bool reload)
