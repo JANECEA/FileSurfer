@@ -58,6 +58,7 @@ public class ClipboardManager : IClipboardManager
                 .Cast<IStorageItem>();
 
             IEnumerable<IStorageItem> storageItems = files.Concat(folders);
+            await _systemClipboard.ClearAsync();
             await _systemClipboard.SetFilesAsync(storageItems);
             return SimpleResult.Ok();
         }
@@ -87,6 +88,15 @@ public class ClipboardManager : IClipboardManager
         {
             image.Dispose();
         }
+    }
+
+    public async Task<IResult> PasteImageAsync(string currentDir)
+    {
+        if (await _systemClipboard.TryGetBitmapAsync() is not Bitmap image)
+            return SimpleResult.Error("No image found in the system clipboard.");
+
+        IResult result = SaveImageToPath(currentDir, image);
+        return result.IsOk ? SimpleResult.Error() : result;
     }
 
     private async Task<bool> CompareClipboards()
@@ -148,7 +158,7 @@ public class ClipboardManager : IClipboardManager
     private async Task<IResult> PasteFromOsClipboard(string destinationPath)
     {
         if (await _systemClipboard.TryGetFilesAsync() is not IStorageItem[] items)
-            return SimpleResult.Ok();
+            return SimpleResult.Error("No files found in the system clipboard.");
 
         Result result = Result.Ok();
         foreach (IStorageItem item in items)
@@ -172,26 +182,14 @@ public class ClipboardManager : IClipboardManager
 
     public async Task<IResult> PasteAsync(string currentDir)
     {
-        IResult result;
-        if (
-            FileSurferSettings.AllowImagePastingFromClipboard
-            && await _systemClipboard.TryGetBitmapAsync() is Bitmap image
-        )
-        {
-            result = SaveImageToPath(currentDir, image);
-            return result.IsOk ? SimpleResult.Error() : result;
-        }
-
         IsCutOperation = IsCutOperation && await CompareClipboards();
-        result = await PasteFromOsClipboard(currentDir);
+
+        IResult result = await PasteFromOsClipboard(currentDir);
         if (IsCutOperation)
         {
             _programClipboard = Array.Empty<IFileSystemEntry>();
             await _systemClipboard.ClearAsync();
         }
-        if (!result.IsOk)
-            _programClipboard = Array.Empty<IFileSystemEntry>();
-
         return result;
     }
 
@@ -210,16 +208,11 @@ public class ClipboardManager : IClipboardManager
                     : _fileIoHandler.DuplicateFile(entry.PathToEntry, copyNames[i])
             );
         }
-        if (!result.IsOk)
-        {
-            _systemClipboard.ClearAsync().Wait();
-            _programClipboard = Array.Empty<IFileSystemEntry>();
-        }
         return result;
     }
 
     public async Task CopyPathToFileAsymc(string filePath) =>
-        await _systemClipboard.SetTextAsync('\"' + filePath + '\"');
+        await _systemClipboard.SetTextAsync($"\"{filePath}\"");
 
     public IFileSystemEntry[] GetClipboard() => _programClipboard.ToArray();
 }

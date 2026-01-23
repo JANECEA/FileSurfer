@@ -991,9 +991,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private async Task Paste()
     {
-        IFileSystemEntry[] clipboard = _clipboardManager.GetClipboard();
+        if (
+            FileSurferSettings.AllowImagePastingFromClipboard
+            && (await _clipboardManager.PasteImageAsync(CurrentDir)).IsOk
+        )
+            return;
 
         IResult result;
+        IFileSystemEntry[] clipboard = _clipboardManager.GetClipboard();
         IUndoableFileOperation operation;
         if (_clipboardManager.IsDuplicateOperation(CurrentDir))
         {

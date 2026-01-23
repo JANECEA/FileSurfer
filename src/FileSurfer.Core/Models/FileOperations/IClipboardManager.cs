@@ -44,6 +44,12 @@ public interface IClipboardManager
     public Task<IResult> PasteAsync(string currentDir);
 
     /// <summary>
+    /// Tries to paste an image from the clipboard
+    /// </summary>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public Task<IResult> PasteImageAsync(string currentDir);
+
+    /// <summary>
     /// Duplicates the files stored in the clipboard.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
