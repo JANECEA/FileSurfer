@@ -50,7 +50,7 @@ public class SearchManager : IDisposable
     {
         CancellationTokenSource cts = _searchCts;
         if (!cts.IsCancellationRequested)
-            cts.CancelAsync();
+            cts.Cancel();
     }
 
     private async Task WaitForActiveTask()
@@ -189,7 +189,8 @@ public class SearchManager : IDisposable
         CancellationToken token
     )
     {
-        foreach (FileSystemEntryViewModel[] batch in results.Chunk(ChunkSize))
+        FileSystemEntryViewModel[] buffer = new FileSystemEntryViewModel[ChunkSize];
+        foreach (int added in EfficientChunk(results, buffer))
         {
             if (token.IsCancellationRequested)
                 return;
@@ -199,9 +200,9 @@ public class SearchManager : IDisposable
                 await Dispatcher.UIThread.InvokeAsync(
                     () =>
                     {
-                        foreach (FileSystemEntryViewModel item in batch)
+                        for (int i = 0; i < added; i++)
                             if (!token.IsCancellationRequested)
-                                _putEntry(item);
+                                _putEntry(buffer[i]);
                     },
                     DispatcherPriority.Background,
                     token
@@ -211,9 +212,27 @@ public class SearchManager : IDisposable
             {
                 return;
             }
-
-            await Task.Yield();
         }
+    }
+
+    private static IEnumerable<int> EfficientChunk(
+        IEnumerable<FileSystemEntryViewModel> source,
+        FileSystemEntryViewModel[] buffer
+    )
+    {
+        int index = 0;
+        foreach (FileSystemEntryViewModel item in source)
+        {
+            buffer[index++] = item;
+
+            if (index == buffer.Length)
+            {
+                yield return index;
+                index = 0;
+            }
+        }
+        if (index != 0)
+            yield return index;
     }
 
     private List<FileSystemEntryViewModel> GetFiles(string directory, string query)

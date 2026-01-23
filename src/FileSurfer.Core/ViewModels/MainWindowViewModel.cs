@@ -1300,8 +1300,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void Dispose()
     {
         _versionControl.Dispose();
-        _searchManager.Dispose();
         _refreshTimer?.Stop();
         _entryVmFactory.Dispose();
+
+        if (Searching)
+            CancelSearch();
+        _searchManager.Dispose();
     }
 }
