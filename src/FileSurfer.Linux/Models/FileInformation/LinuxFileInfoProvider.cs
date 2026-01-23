@@ -136,7 +136,8 @@ public class LinuxFileInfoProvider : IFileInfoProvider
             {
                 continue;
             }
-            yield return folderPath;
+            if (Directory.Exists(folderPath))
+                yield return folderPath;
         }
     }
 
