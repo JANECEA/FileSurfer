@@ -1,11 +1,20 @@
 ﻿using System;
 using Avalonia.Controls;
-using Avalonia.Media.Imaging;
 using FileSurfer.Core.ViewModels;
-using FileSurfer.Linux.Models.Shell;
 using FileSurfer.Linux.Views;
 
 namespace FileSurfer.Linux.ViewModels;
+
+/// <summary>
+/// Represents an object that can be displayed
+/// </summary>
+public interface IDisplayable
+{
+    /// <summary>
+    /// Display the object
+    /// </summary>
+    public void Show();
+}
 
 /// <summary>
 /// The PropertiesWindowViewModel is the ViewModel for the <see cref="PropertiesWindow"/>.

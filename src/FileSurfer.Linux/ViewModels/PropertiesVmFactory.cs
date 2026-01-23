@@ -10,6 +10,25 @@ using Mono.Unix;
 
 namespace FileSurfer.Linux.ViewModels;
 
+/// <summary>
+/// Factory to create properties window view-model
+/// </summary>
+public interface IPropertiesVmFactory
+{
+    /// <summary>
+    /// Creates the Properties window view-model
+    /// </summary>
+    /// <param name="entry">The underlying entry</param>
+    /// <param name="permissions">Unix permissions in <c>rwxrwxrwx</c> format</param>
+    /// <param name="owner">Name of the owner of the file system entry</param>
+    public IDisplayable GetPropertiesVm(
+        FileSystemEntryViewModel entry,
+        FileSystemInfo info,
+        string permissions,
+        string owner
+    );
+}
+
 public sealed class PropertiesVmFactory : IPropertiesVmFactory
 {
     private readonly Window _parentWindow;
@@ -56,77 +75,21 @@ public sealed class PropertiesVmFactory : IPropertiesVmFactory
         }
     }
 
-    private static string GetOwner(string path)
+    public IDisplayable GetPropertiesVm(
+        FileSystemEntryViewModel entry,
+        FileSystemInfo info,
+        string permissions,
+        string owner
+    )
     {
-        UnixFileInfo fileInfo = new(path);
-
-        string user =
-            fileInfo.OwnerUser?.UserName
-            ?? fileInfo.OwnerUserId.ToString(CultureInfo.InvariantCulture);
-        string group =
-            fileInfo.OwnerGroup?.GroupName
-            ?? fileInfo.OwnerGroupId.ToString(CultureInfo.InvariantCulture);
-
-        return user == group ? user : $"{user}:{group}";
-    }
-
-    private static string GetPermissions(string path)
-    {
-        UnixFileInfo fileInfo = new(path);
-        FileAccessPermissions perms = fileInfo.FileAccessPermissions;
-
-        char[] p = new char[9];
-
-        p[0] = (perms & FileAccessPermissions.UserRead) != 0 ? 'r' : '-';
-        p[1] = (perms & FileAccessPermissions.UserWrite) != 0 ? 'w' : '-';
-        p[2] = (perms & FileAccessPermissions.UserExecute) != 0 ? 'x' : '-';
-
-        p[3] = (perms & FileAccessPermissions.GroupRead) != 0 ? 'r' : '-';
-        p[4] = (perms & FileAccessPermissions.GroupWrite) != 0 ? 'w' : '-';
-        p[5] = (perms & FileAccessPermissions.GroupExecute) != 0 ? 'x' : '-';
-
-        p[6] = (perms & FileAccessPermissions.OtherRead) != 0 ? 'r' : '-';
-        p[7] = (perms & FileAccessPermissions.OtherWrite) != 0 ? 'w' : '-';
-        p[8] = (perms & FileAccessPermissions.OtherExecute) != 0 ? 'x' : '-';
-
-        return new string(p);
-    }
-
-    private static ValueResult<FileSystemInfo> GetFileSystemInfo(FileSystemEntryViewModel entry)
-    {
-        try
+        PropertiesWindowViewModel value = new(entry, _parentWindow, permissions)
         {
-            return ValueResult<FileSystemInfo>.Ok(
-                entry.IsDirectory
-                    ? new DirectoryInfo(entry.PathToEntry)
-                    : new FileInfo(entry.PathToEntry)
-            );
-        }
-        catch (Exception ex)
-        {
-            return ValueResult<FileSystemInfo>.Error(ex.Message);
-        }
-    }
-
-    public ValueResult<IDisplayable> GetPropertiesVm(FileSystemEntryViewModel entry)
-    {
-        ValueResult<FileSystemInfo> result = GetFileSystemInfo(entry);
-        if (!result.IsOk)
-            return ValueResult<IDisplayable>.Error($"Could not be access \"{entry.Name}\".");
-
-        FileSystemInfo fsInfo = result.Value;
-        PropertiesWindowViewModel value = new(
-            entry,
-            _parentWindow,
-            GetPermissions(entry.PathToEntry)
-        )
-        {
-            Size = GetSize(entry, fsInfo),
-            DateCreated = GetDateString(() => fsInfo.CreationTime),
-            DateAccessed = GetDateString(() => fsInfo.LastAccessTime),
-            DateModified = GetDateString(() => fsInfo.LastWriteTime),
-            Owner = GetOwner(entry.PathToEntry),
+            Size = GetSize(entry, info),
+            DateCreated = GetDateString(() => info.CreationTime),
+            DateAccessed = GetDateString(() => info.LastAccessTime),
+            DateModified = GetDateString(() => info.LastWriteTime),
+            Owner = owner,
         };
-        return ValueResult<IDisplayable>.Ok(value);
+        return value;
     }
 }
