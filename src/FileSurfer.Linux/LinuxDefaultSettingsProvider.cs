@@ -8,7 +8,6 @@ namespace FileSurfer.Linux;
 
 public class LinuxDefaultSettingsProvider : IDefaultSettingsProvider
 {
-    private const string ThisPcLabel = "This PC";
     private static readonly (string Executable, string TerminalArgs)[] CommonTerminals =
     {
         ("wezterm", "start --cwd"),
@@ -90,30 +89,10 @@ public class LinuxDefaultSettingsProvider : IDefaultSettingsProvider
         (string terminal, string terminalArgs) = GetTerminal();
         string textEditor = GetTextEditor(Variable("EDITOR"));
 
-        settingsRecord.newImageName = "New Image";
-        settingsRecord.newFileName = "New File";
-        settingsRecord.newDirectoryName = "New Folder";
-        settingsRecord.thisPCLabel = ThisPcLabel;
+        settingsRecord.newDirectoryName = "New Directory";
         settingsRecord.notepadApp = textEditor;
         settingsRecord.notepadAppArgs = string.Empty;
         settingsRecord.terminal = terminal;
         settingsRecord.terminalArgs = terminalArgs;
-        settingsRecord.openInLastLocation = true;
-        settingsRecord.openIn = ThisPcLabel;
-        settingsRecord.useDarkMode = true;
-        settingsRecord.displayMode = nameof(DisplayMode.ListView);
-        settingsRecord.defaultSort = nameof(SortBy.Name);
-        settingsRecord.fileSizeUnitLimit = 4096;
-        settingsRecord.sortReversed = false;
-        settingsRecord.showSpecialFolders = true;
-        settingsRecord.showProtectedFiles = false;
-        settingsRecord.showHiddenFiles = true;
-        settingsRecord.treatDotFilesAsHidden = true;
-        settingsRecord.gitIntegration = true;
-        settingsRecord.showUndoRedoErrorDialogs = true;
-        settingsRecord.automaticRefresh = true;
-        settingsRecord.automaticRefreshInterval = 3000;
-        settingsRecord.allowImagePastingFromClipboard = true;
-        settingsRecord.quickAccess = new List<string>();
     }
 }
