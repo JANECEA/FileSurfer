@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -13,7 +14,7 @@ using MimeDetective.Engine;
 
 namespace FileSurfer.Linux.Models.FileInformation;
 
-public class LinuxIconProvider : IIconProvider, IDisposable
+public sealed class LinuxIconProvider : IIconProvider
 {
     private const string GenericMimeType = "unknown";
     private const int SvgSize = 128;
@@ -39,41 +40,34 @@ public class LinuxIconProvider : IIconProvider, IDisposable
 
     private readonly IShellHandler _shellHandler;
     private readonly IReadOnlyList<string> _searchPaths;
-    private readonly Dictionary<string, string> _extToMime = new();
-    private readonly Dictionary<string, Bitmap> _mimeToIcon = new();
-    private Bitmap? _themedGenericFileIcon;
+    private readonly ConcurrentDictionary<string, string> _extToMime;
+    private readonly ConcurrentDictionary<string, Task<Bitmap>> _mimeToIcon = new();
+    private readonly Bitmap _themedGenericFileIcon;
+
+    private static string NormalizeMime(string mime) => mime.ToLowerInvariant().Replace('/', '-');
 
     public LinuxIconProvider(IShellHandler shellHandler)
     {
         _shellHandler = shellHandler;
         _searchPaths = IconPathResolver.GetSearchPaths(shellHandler);
+        _themedGenericFileIcon = ExtractIcon(GenericMimeType) ?? GenericFileIcon;
 
         if (!File.Exists(GlobsParser.GlobsPath))
-            return;
-
-        using StreamReader reader = File.OpenText(GlobsParser.GlobsPath);
-        _extToMime = GlobsParser.Parse(reader);
-    }
-
-    private Bitmap GetGenericFileIcon()
-    {
-        _themedGenericFileIcon ??= ExtractIcon(GenericMimeType);
-        return _themedGenericFileIcon ?? GenericFileIcon;
-    }
-
-    public Bitmap GetFileIcon(string filePath)
-    {
-        string mimeType = GetMimeType(filePath);
-        if (!_mimeToIcon.TryGetValue(mimeType, out Bitmap? icon))
         {
-            icon = ExtractIcon(mimeType);
-            if (icon is not null)
-                _mimeToIcon[mimeType] = icon;
+            _extToMime = new ConcurrentDictionary<string, string>();
+            return;
         }
-        return icon ?? GetGenericFileIcon();
+        using StreamReader reader = File.OpenText(GlobsParser.GlobsPath);
+        _extToMime = new ConcurrentDictionary<string, string>(GlobsParser.Parse(reader));
     }
 
-    private string GetMimeType(string filePath)
+    public async Task<Bitmap> GetFileIcon(string filePath) =>
+        await _mimeToIcon.GetOrAdd(
+            await GetMimeType(filePath),
+            mimeType => Task.Run(() => ExtractIcon(mimeType) ?? _themedGenericFileIcon)
+        );
+
+    private async Task<string> GetMimeType(string filePath)
     {
         string? extension = null;
         foreach (string ext in PathTools.EnumerateExtensions(filePath))
@@ -86,20 +80,20 @@ public class LinuxIconProvider : IIconProvider, IDisposable
         string mimeType;
         try
         {
-            ImmutableArray<MimeTypeMatch> result = MimeInspectorTask.IsCompleted
-                ? MimeInspectorTask.Result.Inspect(filePath).ByMimeType()
-                : new ImmutableArray<MimeTypeMatch>();
-
+            IContentInspector inspector = await MimeInspectorTask;
+            ImmutableArray<MimeTypeMatch> result = await Task.Run(() =>
+                inspector.Inspect(filePath).ByMimeType()
+            );
             mimeType = result.IsEmpty
                 ? GetXdgMimeType(filePath)
-                : result[0].MimeType.ToLowerInvariant().Replace('/', '-');
+                : NormalizeMime(result[0].MimeType);
         }
         catch
         {
             mimeType = GenericMimeType;
         }
         if (!string.IsNullOrEmpty(extension) && mimeType != GenericMimeType)
-            _extToMime.Add(extension, mimeType);
+            _extToMime.TryAdd(extension, mimeType);
 
         return mimeType;
     }
@@ -115,7 +109,7 @@ public class LinuxIconProvider : IIconProvider, IDisposable
         if (!result.IsOk || string.IsNullOrEmpty(result.Value))
             return GenericMimeType;
 
-        return result.Value.Replace('/', '-');
+        return NormalizeMime(result.Value);
     }
 
     private Bitmap? ExtractIcon(string mimeType)
@@ -133,13 +127,17 @@ public class LinuxIconProvider : IIconProvider, IDisposable
         return null;
     }
 
-    public Bitmap GetDirectoryIcon(string dirPath) => DirectoryIcon;
+    public Task<Bitmap> GetDirectoryIcon(string dirPath) => Task.FromResult(DirectoryIcon);
 
-    public Bitmap GetDriveIcon(DriveEntry driveEntry) => DriveIcon;
+    public Task<Bitmap> GetDriveIcon(DriveEntry driveEntry) => Task.FromResult(DriveIcon);
 
     public void Dispose()
     {
-        _extToMime.Clear();
+        foreach (Task<Bitmap> task in _mimeToIcon.Values)
+            if (task.IsCompletedSuccessfully)
+                task.Result.Dispose();
+
         _mimeToIcon.Clear();
+        _themedGenericFileIcon.Dispose();
     }
 }

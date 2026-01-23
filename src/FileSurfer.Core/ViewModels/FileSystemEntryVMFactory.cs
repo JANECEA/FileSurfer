@@ -1,3 +1,4 @@
+using System;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Models.Shell;
@@ -5,7 +6,7 @@ using FileSurfer.Core.Models.VersionControl;
 
 namespace FileSurfer.Core.ViewModels;
 
-public class FileSystemEntryVmFactory
+public class FileSystemEntryVmFactory : IDisposable
 {
     private readonly IFileInfoProvider _fileInfoProvider;
     private readonly IIconProvider _iconProvider;
@@ -54,4 +55,6 @@ public class FileSystemEntryVmFactory
 
     public FileSystemEntryViewModel Drive(DriveEntry drive) =>
         new(_iconProvider, _fileProperties, drive);
+
+    public void Dispose() => _iconProvider.Dispose();
 }

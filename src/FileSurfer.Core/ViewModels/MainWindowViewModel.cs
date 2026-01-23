@@ -1302,5 +1302,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _versionControl.Dispose();
         _searchManager.Dispose();
         _refreshTimer?.Stop();
+        _entryVmFactory.Dispose();
     }
 }

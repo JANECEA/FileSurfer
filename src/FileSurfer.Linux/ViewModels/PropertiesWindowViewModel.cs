@@ -1,6 +1,6 @@
 ﻿using System;
 using Avalonia.Controls;
-using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using FileSurfer.Core.ViewModels;
 using FileSurfer.Linux.Models.Shell;
 using FileSurfer.Linux.Views;
@@ -12,13 +12,9 @@ namespace FileSurfer.Linux.ViewModels;
 /// </summary>
 public sealed class PropertiesWindowViewModel : IDisplayable
 {
-    private readonly FileSystemEntryViewModel _entry;
     private readonly Window _mainWindow;
 
-    public IImage? Icon => _entry.Icon;
-    public string FileName => _entry.Name;
-    public string FullPath => _entry.PathToEntry;
-    public string Type => _entry.Type;
+    public FileSystemEntryViewModel EntryVm { get; }
     public required string Size { get; init; }
     public required string DateCreated { get; init; }
     public required string DateAccessed { get; init; }
@@ -34,7 +30,7 @@ public sealed class PropertiesWindowViewModel : IDisplayable
         string permissions
     )
     {
-        _entry = entry;
+        EntryVm = entry;
         _mainWindow = mainWindow;
 
         ReadOnlySpan<char> perms = permissions.AsSpan();

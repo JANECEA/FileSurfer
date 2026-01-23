@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:FileSurfer.Linux.ViewModels"
-        Title="{Binding FileName, StringFormat=Properties for: {0} -- FileSurfer}"
+        Title="{Binding EntryVm.Name, StringFormat=Properties for: {0} -- FileSurfer}"
         Width="420"
         Height="465"
         MinWidth="420"
@@ -27,17 +27,17 @@
                        Width="56"
                        Height="56"
                        Margin="0 0 12 0"
-                       Source="{Binding Icon}" />
-                <TextBlock Grid.Column="1" Classes="file-name" Text="{Binding FileName}" />
+                       Source="{Binding EntryVm.Icon}" />
+                <TextBlock Grid.Column="1" Classes="file-name" Text="{Binding EntryVm.Name}" />
             </Grid>
-            <TextBox Classes="file-path" Text="{Binding FullPath}" />
+            <TextBox Classes="file-path" Text="{Binding EntryVm.PathToEntry}" />
         </StackPanel>
 
         <Border Classes="separator" DockPanel.Dock="Top" />
 
         <Grid Classes="property-grid" ColumnDefinitions="100 *" DockPanel.Dock="Top" RowDefinitions="Auto Auto Auto Auto Auto">
             <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="Type:" />
-            <TextBlock Grid.Row="0" Grid.Column="1" Classes="value" Text="{Binding Type}" />
+            <TextBlock Grid.Row="0" Grid.Column="1" Classes="value" Text="{Binding EntryVm.Type}" />
 
             <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Text="Size:" />
             <TextBlock Grid.Row="1" Grid.Column="1" Classes="value" Text="{Binding Size}" />

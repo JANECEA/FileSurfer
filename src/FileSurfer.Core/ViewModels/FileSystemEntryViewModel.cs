@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Avalonia.Media;
+using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
@@ -49,7 +49,12 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// <summary>
     /// Holds a <see cref="Bitmap"/> representing the file.
     /// </summary>
-    public IImage? Icon { get; private set; }
+    public Bitmap? Icon
+    {
+        get => _icon;
+        private set => this.RaiseAndSetIfChanged(ref _icon, value);
+    }
+    private Bitmap? _icon = null;
 
     /// <summary>
     /// Holds the name of file, directory, or drive represented by this <see cref="FileSystemEntryViewModel"/>.
@@ -142,9 +147,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     )
     {
         FileSystemEntry = entry;
-        Icon = IsDirectory
-            ? iconProvider.GetDirectoryIcon(entry.PathToEntry)
-            : iconProvider.GetFileIcon(entry.PathToEntry);
+        _ = LoadIconAsync(entry, iconProvider);
 
         LastModTime = fileInfoProvider.GetFileLastModified(entry.PathToEntry) ?? DateTime.MaxValue;
         LastModified = GetLastModified(fileInfoProvider);
@@ -165,6 +168,15 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         IsArchived = ArchiveManager.IsZipped(entry.PathToEntry);
         SupportsOpenAs = fileProperties.SupportsOpenAs(entry);
     }
+
+    private async Task LoadIconAsync(IFileSystemEntry entry, IIconProvider iconProvider) =>
+        Icon = entry switch
+        {
+            FileEntry => await iconProvider.GetFileIcon(entry.PathToEntry),
+            DirectoryEntry => await iconProvider.GetDirectoryIcon(entry.PathToEntry),
+            DriveEntry driveEntry => await iconProvider.GetDriveIcon(driveEntry),
+            _ => throw new NotSupportedException(),
+        };
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FileSystemEntryViewModel"/> class for a drive.
@@ -187,7 +199,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     {
         FileSystemEntry = driveEntry;
         Type = "Drive";
-        Icon = iconProvider.GetDriveIcon(driveEntry);
+        _ = LoadIconAsync(driveEntry, iconProvider);
         LastModified = string.Empty;
         Size = GetSizeString(driveEntry.SizeB);
         SupportsOpenAs = fileProperties.SupportsOpenAs(driveEntry);
