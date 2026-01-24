@@ -55,7 +55,7 @@ public sealed class WindowsIconProvider : IIconProvider
         if (_genericFileIcon is not null)
             return _genericFileIcon;
 
-        Bitmap? icon = await _iconWorker.Enqueue(filePath).ConfigureAwait(false);
+        Bitmap? icon = await CreateIconTask(filePath);
 
         if (icon is null)
             return GenericFileIcon;
