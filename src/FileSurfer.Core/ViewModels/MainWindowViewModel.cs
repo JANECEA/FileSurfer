@@ -419,7 +419,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         string? path = dirPath;
 
         while (!Directory.Exists(path))
-            if ((path = Path.GetDirectoryName(dirPath)) is null)
+            if ((path = Path.GetDirectoryName(path)) is null)
                 return ThisPcLabel;
 
         return path;
