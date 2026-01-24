@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -45,64 +46,48 @@ public sealed class WindowsIconProvider : IIconProvider
     ];
 
     private readonly ConcurrentDictionary<string, Bitmap> _icons = new();
+    private readonly IconWorker _iconWorker = new();
     private readonly object _genericIconLock = new();
-    private Bitmap? _genericFileIcon;
+    private Bitmap? _genericFileIcon = null;
 
-    private Bitmap GetGenericFileIcon(string filePath)
+    private async Task<Bitmap> GetGenericFileIcon(string filePath)
     {
         if (_genericFileIcon is not null)
             return _genericFileIcon;
 
-        lock (_genericIconLock)
-        {
-            if (_genericFileIcon is not null) // double-checked locking
-                return _genericFileIcon;
+        Bitmap? icon = await _iconWorker.Enqueue(filePath).ConfigureAwait(false);
 
-            _genericFileIcon = ExtractFileIcon(filePath);
-            return _genericFileIcon ?? GenericFileIcon;
-        }
+        if (icon is null)
+            return GenericFileIcon;
+
+        lock (_genericIconLock)
+            _genericFileIcon ??= icon;
+
+        return icon;
     }
 
     public async Task<Bitmap> GetFileIcon(string filePath)
     {
         string extension = Path.GetExtension(filePath).ToLowerInvariant();
         if (string.IsNullOrWhiteSpace(extension))
-            return GetGenericFileIcon(filePath);
+            return await GetGenericFileIcon(filePath);
 
         if (HaveUniqueIcons.Contains(extension))
-            return await Task.Run(() => ExtractFileIcon(filePath) ?? GetGenericFileIcon(filePath));
+            return await CreateIconTask(filePath) ?? await GetGenericFileIcon(filePath);
 
         if (_icons.TryGetValue(extension, out Bitmap? cachedIcon))
             return cachedIcon;
 
-        Bitmap? icon = await Task.Run(() => ExtractFileIcon(filePath));
+        Bitmap? icon = await CreateIconTask(filePath);
         if (icon is null)
-            return GetGenericFileIcon(filePath);
+            return await GetGenericFileIcon(filePath);
 
         _icons.TryAdd(extension, icon);
         return icon;
     }
 
-    private static Bitmap? ExtractFileIcon(string path)
-    {
-        try
-        {
-            using System.Drawing.Icon? icon = System.Drawing.Icon.ExtractAssociatedIcon(path);
-            if (icon is null)
-                return null;
-
-            using System.Drawing.Bitmap winBitmap = icon.ToBitmap();
-            using MemoryStream memoryStream = new();
-            winBitmap.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
-            memoryStream.Position = 0;
-            Bitmap bitmap = new(memoryStream);
-            return bitmap;
-        }
-        catch
-        {
-            return null;
-        }
-    }
+    private ConfiguredTaskAwaitable<Bitmap?> CreateIconTask(string filePath) =>
+        _iconWorker.Enqueue(filePath).ConfigureAwait(false);
 
     public Task<Bitmap> GetDirectoryIcon(string dirPath) => Task.FromResult(DirectoryIcon);
 
@@ -114,5 +99,6 @@ public sealed class WindowsIconProvider : IIconProvider
             icon.Dispose();
 
         _genericFileIcon?.Dispose();
+        _iconWorker.Dispose();
     }
 }
