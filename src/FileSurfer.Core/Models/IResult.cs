@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 // ReSharper disable UnusedMember.Global
@@ -28,7 +29,7 @@ public interface IResult
 /// An immutable, lightweight, and memory efficient implementation of <see cref="IResult"/>
 /// that supports at most one error message.
 /// </summary>
-public class SimpleResult : IResult
+public sealed class SimpleResult : IResult
 {
     private static readonly IEnumerable<string> EmptyEnumerable = Enumerable.Empty<string>();
     private static readonly SimpleResult OkResult = new(true, null);
@@ -38,7 +39,7 @@ public class SimpleResult : IResult
     public IEnumerable<string> Errors => _errors ?? EmptyEnumerable;
     private readonly IEnumerable<string>? _errors;
 
-    protected SimpleResult(bool isOk, string? errorMessage)
+    private SimpleResult(bool isOk, string? errorMessage)
     {
         if (!isOk)
             _errors = errorMessage is null ? EmptyEnumerable : GetEnumerable(errorMessage);
@@ -62,22 +63,34 @@ public class SimpleResult : IResult
 /// <br/>
 /// Supports at most one error message.
 /// </summary>
-public sealed class ValueResult<T> : SimpleResult
+public sealed class ValueResult<T> : IResult
 {
-    private static readonly ValueResult<T> ErrorEmptyResult = new(default, false, null);
+    private static readonly ValueResult<T> ErrorEmptyResult = new(SimpleResult.Error(), default);
 
+    private readonly IResult _internalResult;
+
+    public bool IsOk => _internalResult.IsOk;
+    public IEnumerable<string> Errors => _internalResult.Errors;
+    public T Value => IsOk ? _value! : throw new InvalidOperationException("Result is not ok.");
     private readonly T? _value = default;
-    public T Value => IsOk ? _value! : throw new InvalidOperationException();
 
-    private ValueResult(T? value, bool isOk, string? errorMessage)
-        : base(isOk, errorMessage) => _value = value;
+    private ValueResult(IResult result, T? value)
+    {
+        _internalResult = result;
+        _value = value;
+    }
 
-    public static ValueResult<T> Ok(T value) => new(value, true, null);
+    public static ValueResult<T> Ok(T value) => new(SimpleResult.Ok(), value);
 
-    public static new ValueResult<T> Error() => ErrorEmptyResult;
+    public static ValueResult<T> Error() => ErrorEmptyResult;
 
-    public static new ValueResult<T> Error(string errorMessage) =>
-        new(default, false, errorMessage);
+    public static ValueResult<T> Error(IResult result) =>
+        !result.IsOk
+            ? new ValueResult<T>(result, default)
+            : throw new InvalidDataException("Cannot use successful results.");
+
+    public static ValueResult<T> Error(string errorMessage) =>
+        new(SimpleResult.Error(errorMessage), default);
 }
 
 /// <summary>
