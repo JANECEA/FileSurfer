@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using FileSurfer.Core.Models.FileInformation;
-using SharpCompress.Archives;
+using SharpCompress.Archives.SevenZip;
 using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
+using SharpCompress.Readers;
 using SharpCompress.Writers;
 
 namespace FileSurfer.Core.Models.FileOperations;
@@ -17,14 +17,17 @@ internal static class ArchiveManager
 {
     public const string ArchiveTypeExtension = ".zip";
 
-    private static readonly IReadOnlyList<string> SupportedFormats =
+    private sealed record ArchiveType(string Extension, Func<Stream, IReader>? FactoryFn);
+
+    private static readonly IReadOnlyList<ArchiveType> SupportedFormats =
     [
-        ".zip",
-        ".rar",
-        ".7z",
-        ".gzip",
-        ".tar",
-        "tar.gz",
+        new(".zip", null),
+        new(".rar", null),
+        new(".7z", stream => SevenZipArchive.Open(stream).ExtractAllEntries()),
+        new(".gzip", null),
+        new(".tar.gz", null),
+        new(".tar", null),
+        new(".gz", null),
     ];
 
     /// <summary>
@@ -32,14 +35,16 @@ internal static class ArchiveManager
     /// </summary>
     /// <param name="filePath">Path to the file</param>
     /// <returns><see langword="true"/> if the file has one of the supported extensions, otherwise <see langword="false"/>.</returns>
-    public static bool IsZipped(string filePath)
+    public static bool IsZipped(string filePath) => GetZipExtension(filePath) is not null;
+
+    private static ArchiveType? GetZipExtension(string filePath)
     {
         filePath = PathTools.NormalizePath(filePath);
-        foreach (string format in SupportedFormats)
-            if (filePath.EndsWith(format, PathTools.Comparison))
-                return true;
+        foreach (ArchiveType type in SupportedFormats)
+            if (filePath.EndsWith(type.Extension, PathTools.Comparison))
+                return type;
 
-        return false;
+        return null;
     }
 
     /// <summary>
@@ -101,28 +106,25 @@ internal static class ArchiveManager
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
     public static IResult UnzipArchive(string archivePath, string destinationPath)
     {
-        if (!IsZipped(archivePath))
+        if (GetZipExtension(archivePath) is not ArchiveType archiveType)
             return SimpleResult.Error($"\"{archivePath}\" is not an archive.");
 
         try
         {
             string extractName = FileNameGenerator.GetAvailableName(
                 destinationPath,
-                Path.GetFileNameWithoutExtension(archivePath)
+                archivePath[..^archiveType.Extension.Length]
             );
             string extractTo = Path.Combine(destinationPath, extractName);
 
             Directory.CreateDirectory(extractTo);
-            using IArchive archive = ArchiveFactory.Open(archivePath);
-            ExtractionOptions extractionOptions = new()
-            {
-                ExtractFullPath = true,
-                Overwrite = true,
-            };
+            using Stream stream = File.OpenRead(archivePath);
+            using IReader reader = GetReader(stream, archiveType);
 
-            foreach (IArchiveEntry file in archive.Entries.Where(entry => !entry.IsDirectory))
-                file.WriteToDirectory(extractTo, extractionOptions);
-
+            reader.WriteAllToDirectory(
+                extractTo,
+                new ExtractionOptions { ExtractFullPath = true, Overwrite = true }
+            );
             return SimpleResult.Ok();
         }
         catch (Exception ex)
@@ -130,4 +132,9 @@ internal static class ArchiveManager
             return SimpleResult.Error(ex.Message);
         }
     }
+
+    private static IReader GetReader(Stream stream, ArchiveType archiveType) =>
+        archiveType.FactoryFn is not null
+            ? archiveType.FactoryFn(stream)
+            : ReaderFactory.Open(stream);
 }
