@@ -958,29 +958,35 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Copies the path to the selected <see cref="FileSystemEntryViewModel"/> to the system clipboard.
     /// </summary>
     public void CopyPath(FileSystemEntryViewModel entry) =>
-        _clipboardManager.CopyPathToFileAsymc(entry.PathToEntry);
+        _clipboardManager.CopyPathToFileAsync(entry.PathToEntry);
 
     /// <summary>
     /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="_clipboardManager"/>.
     /// </summary>
-    public async Task Cut() =>
-        ForwardIfError(
-            await _clipboardManager.CutAsync(
-                SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
-                CurrentDir
-            )
-        );
+    public async Task Cut()
+    {
+        if (SelectedFiles.Count > 0)
+            ForwardIfError(
+                await _clipboardManager.CutAsync(
+                    SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
+                    CurrentDir
+                )
+            );
+    }
 
     /// <summary>
     /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="_clipboardManager"/>.
     /// </summary>
-    public async Task Copy() =>
-        ForwardIfError(
-            await _clipboardManager.CopyAsync(
-                SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
-                CurrentDir
-            )
-        );
+    public async Task Copy()
+    {
+        if (SelectedFiles.Count > 0)
+            ForwardIfError(
+                await _clipboardManager.CopyAsync(
+                    SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
+                    CurrentDir
+                )
+            );
+    }
 
     /// <summary>
     /// Determines the type of paste operation and executes it using <see cref="_clipboardManager"/>.
@@ -997,29 +1003,45 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         )
             return;
 
-        IResult result;
-        IFileSystemEntry[] clipboard = _clipboardManager.GetClipboard();
-        IUndoableFileOperation operation;
-        if (_clipboardManager.IsDuplicateOperation(CurrentDir))
-        {
-            result = _clipboardManager.Duplicate(CurrentDir, out string[] copyNames);
-            operation = new DuplicateFiles(_fileIoHandler, clipboard, copyNames);
-        }
-        else if (_clipboardManager.IsCutOperation)
-        {
-            result = await _clipboardManager.PasteAsync(CurrentDir);
-            operation = new MoveFilesTo(_fileIoHandler, clipboard, CurrentDir);
-        }
-        else
-        {
-            result = await _clipboardManager.PasteAsync(CurrentDir);
-            operation = new CopyFilesTo(_fileIoHandler, clipboard, CurrentDir);
-        }
+        PasteType pasteType = await _clipboardManager.GetOperationType(CurrentDir);
+
+        ValueResult<IUndoableFileOperation> result =
+            pasteType == PasteType.Duplicate ? await DuplicateFiles() : await PasteFiles(pasteType);
 
         if (result.IsOk)
-            _undoRedoHistory.AddNewNode(operation);
+            _undoRedoHistory.AddNewNode(result.Value);
+
         ForwardIfError(result);
         Reload();
+    }
+
+    private async Task<ValueResult<IUndoableFileOperation>> PasteFiles(PasteType pasteType)
+    {
+        ValueResult<IFileSystemEntry[]> pastedResult = await _clipboardManager.PasteAsync(
+            CurrentDir,
+            pasteType
+        );
+        if (!pastedResult.IsOk)
+            return ValueResult<IUndoableFileOperation>.Error(pastedResult);
+
+        return ValueResult<IUndoableFileOperation>.Ok(
+            pasteType is PasteType.Cut
+                ? new MoveFilesTo(_fileIoHandler, pastedResult.Value, CurrentDir)
+                : new CopyFilesTo(_fileIoHandler, pastedResult.Value, CurrentDir)
+        );
+    }
+
+    private async Task<ValueResult<IUndoableFileOperation>> DuplicateFiles()
+    {
+        IFileSystemEntry[] clipboard = _clipboardManager.GetClipboard();
+
+        ValueResult<string[]> copyNamesResult = await _clipboardManager.Duplicate(CurrentDir);
+        if (!copyNamesResult.IsOk)
+            return ValueResult<IUndoableFileOperation>.Error(copyNamesResult);
+
+        return ValueResult<IUndoableFileOperation>.Ok(
+            new DuplicateFiles(_fileIoHandler, clipboard, copyNamesResult.Value)
+        );
     }
 
     /// <summary>
