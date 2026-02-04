@@ -244,7 +244,9 @@ public partial class MainWindow : Window
 
     private void OnAddSftpButtonClicked(object? sender, RoutedEventArgs e)
     {
-        //
+        SftpConnectionViewModel viewModel = new();
+        EditSftpWindow window = new(viewModel);
+        window.ShowDialog(this);
     }
 
     /// <summary>

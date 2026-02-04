@@ -183,7 +183,7 @@
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10">
                 <Button Width="120" Classes="BottomButton" Click="ResetToDefaults" Content="Reset to Defaults" />
                 <Button Classes="BottomButton" Click="CloseWindow" Content="Cancel" />
-                <Button Classes="BottomButton" Click="SaveAndClose" Content="Save" Foreground="#b8b926" />
+                <Button Classes="BottomButton" Click="SaveAndClose" Content="Save" Foreground="{DynamicResource AcceptColor}" />
             </StackPanel>
         </Border>
 

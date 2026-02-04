@@ -85,14 +85,15 @@
             </Grid>
         </DataTemplate>
 
-        <DataTemplate x:Key="SftpConnectionTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
+        <DataTemplate x:Key="SftpConnectionTemplate" x:DataType="{x:Type vm:SftpConnectionViewModel}">
             <Grid Height="27" ColumnDefinitions="Auto *">
-                <Image Grid.Column="0"
-                       Width="20"
-                       Height="20"
-                       Margin="20 0 12 0"
-                       Source="{Binding Icon}" />
-                <TextBlock Grid.Column="1" Classes="FileInfo" FontFamily="Arial" Text="{Binding Name}" />
+                <TextBlock Grid.Column="0"
+                           Margin="20 0 12 0"
+                           VerticalAlignment="Center"
+                           FontSize="25"
+                           Foreground="{DynamicResource IconColor}"
+                           Text="&#xf059f;" />
+                <TextBlock Grid.Column="1" Classes="FileInfo" FontFamily="Arial" Text="{Binding HostnameOrIpAddress}" />
             </Grid>
         </DataTemplate>
     </Window.Resources>
@@ -320,18 +321,28 @@
 
                         <ListBox x:Name="SftpListBox"
                                  Classes="SideBarListBox"
-                                 ItemTemplate="{StaticResource SideBarTemplate}"
+                                 ItemTemplate="{StaticResource SftpConnectionTemplate}"
                                  ItemsSource="{Binding SftpConnections}"
                                  Tapped="SideBarEntryClicked">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
                                     <Setter Property="Padding" Value="10 3 10 3" />
+                                    <Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu x:DataType="vm:SftpConnectionViewModel">
+                                                <MenuItem Classes="ContextMenuItem" Click="MoveUp" Header="Move up" />
+                                                <MenuItem Classes="ContextMenuItem" Click="MoveDown" Header="Move down" />
+                                                <MenuItem Classes="ContextMenuItem" Header="Edit connection TODO" />
+                                                <MenuItem Classes="ContextMenuItem" Header="Remove connection TODO" />
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
                                 </Style>
                             </ListBox.Styles>
                         </ListBox>
 
                         <Button Classes="AddSftpButton" Click="OnAddSftpButtonClicked">
-                            <Grid ColumnDefinitions="Auto,*">
+                            <Grid ColumnDefinitions="Auto *">
                                 <TextBlock Margin="20 0 12 0"
                                            VerticalAlignment="Center"
                                            FontSize="25"
