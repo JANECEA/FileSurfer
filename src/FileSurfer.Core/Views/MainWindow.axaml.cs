@@ -242,6 +242,11 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OnAddSftpButtonClicked(object? sender, RoutedEventArgs e)
+    {
+        //
+    }
+
     /// <summary>
     /// Handles Middle and Side button interactions with <see cref="FileSurfer"/>.
     /// </summary>
@@ -469,7 +474,12 @@ public partial class MainWindow : Window
             firstContainer?.Focus();
         }
         else
-            MenuButton.Focus();
+            FileDisplay.Focus();
+
+        SpecialsListBox.SelectedItems?.Clear();
+        QuickAccessListBox.SelectedItems?.Clear();
+        DrivesListBox.SelectedItems?.Clear();
+        SftpListBox.SelectedItems?.Clear();
     }
 
     /// <summary>

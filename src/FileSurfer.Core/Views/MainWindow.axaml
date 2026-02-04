@@ -84,6 +84,17 @@
                 <TextBlock Grid.Column="1" Classes="FileInfo" FontFamily="Arial" Text="{Binding Name}" />
             </Grid>
         </DataTemplate>
+
+        <DataTemplate x:Key="SftpConnectionTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
+            <Grid Height="27" ColumnDefinitions="Auto *">
+                <Image Grid.Column="0"
+                       Width="20"
+                       Height="20"
+                       Margin="20 0 12 0"
+                       Source="{Binding Icon}" />
+                <TextBlock Grid.Column="1" Classes="FileInfo" FontFamily="Arial" Text="{Binding Name}" />
+            </Grid>
+        </DataTemplate>
     </Window.Resources>
 
     <DockPanel Background="{DynamicResource PrimaryColor}">
@@ -145,6 +156,7 @@
                         Content="&#xEA80;"
                         HotKey="Ctrl+Shift+N"
                         ToolTip.Tip="New Directory" />
+
                 <Rectangle Classes="ButtonSeparator" />
 
                 <Button x:Name="CutButton"
@@ -176,6 +188,7 @@
                         Content="&#xF014;"
                         HotKey="Delete"
                         ToolTip.Tip="Delete" />
+
                 <Rectangle Classes="ButtonSeparator" />
 
                 <Button x:Name="MenuButton" Width="80" Classes="MenuButton" Content="&#xF176;&#xF175; Sort">
@@ -302,6 +315,31 @@
                                 </Style>
                             </ListBox.Styles>
                         </ListBox>
+
+                        <Separator x:Name="ThirdSeparator" Background="{DynamicResource SecondaryColor}" />
+
+                        <ListBox x:Name="SftpListBox"
+                                 Classes="SideBarListBox"
+                                 ItemTemplate="{StaticResource SideBarTemplate}"
+                                 ItemsSource="{Binding SftpConnections}"
+                                 Tapped="SideBarEntryClicked">
+                            <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Padding" Value="10 3 10 3" />
+                                </Style>
+                            </ListBox.Styles>
+                        </ListBox>
+
+                        <Button Classes="AddSftpButton" Click="OnAddSftpButtonClicked">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <TextBlock Margin="20 0 12 0"
+                                           VerticalAlignment="Center"
+                                           FontSize="25"
+                                           Foreground="{DynamicResource IconColor}"
+                                           Text="&#xf0033;" />
+                                <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="Add SFTP Connection" />
+                            </Grid>
+                        </Button>
                     </StackPanel>
                 </ScrollViewer>
 
