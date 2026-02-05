@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.ViewModels;
 
 namespace FileSurfer.Core;
@@ -131,6 +132,14 @@ public static class FileSurferSettings
     public static readonly string SettingsFilePath = Path.Combine(
         FileSurferDataDir,
         "settings.json"
+    );
+
+    /// <summary>
+    /// The full path to sftp.json.
+    /// </summary>
+    public static readonly string SftpConnectionsFilePath = Path.Combine(
+        FileSurferDataDir,
+        "sftp.json"
     );
 
     private static string _previousSettingsJson = string.Empty;
@@ -265,6 +274,11 @@ public static class FileSurferSettings
     public static List<string> QuickAccess { get; set; }
 
     /// <summary>
+    /// List of directories and files added by the user for quick access. Defaults to an empty list.
+    /// </summary>
+    public static SftpConnectionList SftpConnections { get; set; }
+
+    /// <summary>
     /// <para>
     /// Loads settings from the settings file and applies them to the current session.
     /// </para>
@@ -293,6 +307,18 @@ public static class FileSurferSettings
         {
             ImportSettings(DefaultSettings);
             SaveSettings();
+        }
+
+        try
+        {
+            string sftpConnections = File.ReadAllText(SftpConnectionsFilePath, Encoding.UTF8);
+            SftpConnections =
+                JsonSerializer.Deserialize<SftpConnectionList>(sftpConnections, SerializerOptions)
+                ?? throw new InvalidDataException();
+        }
+        catch
+        {
+            SftpConnections = new SftpConnectionList([]);
         }
     }
 
@@ -391,25 +417,21 @@ public static class FileSurferSettings
     }
 
     /// <summary>
-    /// Update Quick Access list with the specified <see cref="FileSystemEntryViewModel"/>s.
-    /// </summary>
-    /// <param name="quickAccess"></param>
-    public static void UpdateQuickAccess(IEnumerable<FileSystemEntryViewModel> quickAccess) =>
-        QuickAccess = quickAccess.Select(entry => entry.PathToEntry).ToList();
-
-    /// <summary>
     /// Saves the current settings to the settings file if any changes have been made.
     /// </summary>
     public static void SaveSettings()
     {
-        SettingsRecord settings = CurrentSettings;
-        string settingsJson = JsonSerializer.Serialize(settings, SerializerOptions);
-
         if (!Directory.Exists(FileSurferDataDir))
             Directory.CreateDirectory(FileSurferDataDir);
 
+        SettingsRecord settings = CurrentSettings;
+        string settingsJson = JsonSerializer.Serialize(settings, SerializerOptions);
+
         if (_previousSettingsJson != settingsJson)
             File.WriteAllText(SettingsFilePath, settingsJson, Encoding.UTF8);
+
+        string sftpConnectionsJson = JsonSerializer.Serialize(SftpConnections, SerializerOptions);
+        File.WriteAllText(SftpConnectionsFilePath, sftpConnectionsJson, Encoding.UTF8);
     }
 }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.

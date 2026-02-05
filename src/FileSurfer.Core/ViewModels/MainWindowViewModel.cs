@@ -275,6 +275,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         PushCommand = ReactiveCommand.Create(Push);
 
         LoadQuickAccess();
+        LoadSftpConnections();
         LoadSettings(false);
         SetCurrentDir(initialDir);
         FileSurferSettings.OnSettingsChange = () => LoadSettings(true);
@@ -601,6 +602,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
                 QuickAccess.Add(_entryVmFactory.Directory(path));
             else if (File.Exists(path))
                 QuickAccess.Add(_entryVmFactory.File(path));
+    }
+
+    private void LoadSftpConnections()
+    {
+        foreach (SftpConnection connection in FileSurferSettings.SftpConnections.connections)
+            SftpConnectionsVms.Add(new SftpConnectionViewModel(connection));
     }
 
     private void ShowDrives()
@@ -1307,7 +1314,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void CloseApp()
     {
-        FileSurferSettings.UpdateQuickAccess(QuickAccess);
+        FileSurferSettings.QuickAccess = QuickAccess.Select(entry => entry.PathToEntry).ToList();
+        FileSurferSettings.SftpConnections = new SftpConnectionList(
+            SftpConnectionsVms.Select(vm => vm.SftpConnection).ToList()
+        );
     }
 
     public void Dispose()

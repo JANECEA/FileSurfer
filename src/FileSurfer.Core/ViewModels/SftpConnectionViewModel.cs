@@ -14,9 +14,9 @@ namespace FileSurfer.Core.ViewModels;
 ]
 public sealed class SftpConnectionViewModel : ReactiveObject
 {
-    private readonly SftpConnection _sftpConnection;
     private Action<SftpConnectionViewModel>? _addSelf = null;
 
+    public SftpConnection SftpConnection { get; }
     public bool CreateOnSave => _addSelf is not null;
 
     private string _hostnameOrIpAddress = string.Empty;
@@ -56,7 +56,7 @@ public sealed class SftpConnectionViewModel : ReactiveObject
 
     public SftpConnectionViewModel(SftpConnection sftpConnection)
     {
-        _sftpConnection = sftpConnection;
+        SftpConnection = sftpConnection;
 
         HostnameOrIpAddress = sftpConnection.hostnameOrIpAddress;
         Port = sftpConnection.port;
@@ -67,7 +67,7 @@ public sealed class SftpConnectionViewModel : ReactiveObject
 
     public SftpConnectionViewModel(Action<SftpConnectionViewModel>? addSelf = null)
     {
-        _sftpConnection = new SftpConnection();
+        SftpConnection = new SftpConnection();
         _addSelf = addSelf;
     }
 
@@ -89,11 +89,11 @@ public sealed class SftpConnectionViewModel : ReactiveObject
         Password = saveFrom.Password;
         InitialDirectory = saveFrom.InitialDirectory;
 
-        _sftpConnection.hostnameOrIpAddress = HostnameOrIpAddress;
-        _sftpConnection.port = Port;
-        _sftpConnection.username = Username;
-        _sftpConnection.password = Password;
-        _sftpConnection.initialDirectory = InitialDirectory;
+        SftpConnection.hostnameOrIpAddress = HostnameOrIpAddress;
+        SftpConnection.port = Port;
+        SftpConnection.username = Username;
+        SftpConnection.password = Password;
+        SftpConnection.initialDirectory = InitialDirectory;
 
         if (CreateOnSave)
         {

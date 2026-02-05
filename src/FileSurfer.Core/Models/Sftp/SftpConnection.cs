@@ -3,8 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace FileSurfer.Core.Models.Sftp;
 
-[SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Json naming convention")]
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+[
+    SuppressMessage("ReSharper", "ClassNeverInstantiated.Global"),
+    SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Json naming convention"),
+]
 public record FingerPrint(string algorithm, string hash);
 
 [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Json naming convention")]
@@ -15,6 +17,8 @@ public record SftpConnection
     public string username { get; set; } = string.Empty;
     public string password { get; set; } = string.Empty;
     public string? initialDirectory { get; set; } = null;
-
     public List<FingerPrint> fingerPrints { get; set; } = [];
 }
+
+[SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Json naming convention")]
+public record SftpConnectionList(List<SftpConnection> connections);
