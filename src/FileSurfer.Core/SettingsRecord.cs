@@ -8,8 +8,15 @@ namespace FileSurfer.Core;
 /// <summary>
 /// Used to (de)serialize the settings.json file.
 /// </summary>
-[SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Json naming convention")]
-[JsonObjectCreationHandling(JsonObjectCreationHandling.Populate)]
+[
+    JsonObjectCreationHandling(JsonObjectCreationHandling.Populate),
+    SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Json naming convention"),
+    SuppressMessage(
+        "ReSharper",
+        "PropertyCanBeMadeInitOnly.Global",
+        Justification = "Values need to be modifiable"
+    ),
+]
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 public record SettingsRecord
 {

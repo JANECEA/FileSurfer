@@ -322,7 +322,7 @@
                         <ListBox x:Name="SftpListBox"
                                  Classes="SideBarListBox"
                                  ItemTemplate="{StaticResource SftpConnectionTemplate}"
-                                 ItemsSource="{Binding SftpConnections}"
+                                 ItemsSource="{Binding SftpConnectionsVms}"
                                  Tapped="SideBarEntryClicked">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
@@ -330,10 +330,10 @@
                                     <Setter Property="ContextMenu">
                                         <Setter.Value>
                                             <ContextMenu x:DataType="vm:SftpConnectionViewModel">
-                                                <MenuItem Classes="ContextMenuItem" Click="MoveUp" Header="Move up" />
-                                                <MenuItem Classes="ContextMenuItem" Click="MoveDown" Header="Move down" />
-                                                <MenuItem Classes="ContextMenuItem" Header="Edit connection TODO" />
-                                                <MenuItem Classes="ContextMenuItem" Header="Remove connection TODO" />
+                                                <MenuItem Classes="ContextMenuItem" Header="Move up TODO" />
+                                                <MenuItem Classes="ContextMenuItem" Header="Move down TODO" />
+                                                <MenuItem Classes="ContextMenuItem" Click="OnEditSftpConnection" Header="Edit connection" />
+                                                <MenuItem Classes="ContextMenuItem" Click="OnRemoveSftpConnection" Header="Remove connection" />
                                             </ContextMenu>
                                         </Setter.Value>
                                     </Setter>

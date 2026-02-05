@@ -6,23 +6,14 @@ using FileSurfer.Core.ViewModels;
 namespace FileSurfer.Core.Views;
 
 /// <summary>
-/// TODO
+/// Represents the window to edit or create new <see cref="SftpConnectionViewModel"/>
 /// </summary>
 public partial class EditSftpWindow : Window
 {
-    /// <summary>
-    /// TODO
-    /// </summary>
     public EditSftpWindow(SftpConnectionViewModel viewModel)
     {
         InitializeComponent();
         DataContext = viewModel;
-    }
-
-    public EditSftpWindow()
-    {
-        InitializeComponent();
-        DataContext = new SftpConnectionViewModel();
     }
 
     private void CloseWindow(object? sender = null, RoutedEventArgs? args = null) => Close();

@@ -23,10 +23,7 @@
         <StyleInclude Source="avares://FileSurfer.Core/Views/EditSftpWindowStyle.axaml" />
     </Window.Styles>
 
-    <Window.DataContext>
-        <vm:SftpConnectionViewModel />
-    </Window.DataContext>
-
+    <!--  ReSharper disable Xaml.BindingWithoutContextNotResolved - cannot resolve because viewmodels takes constructor parameters  -->
     <Grid RowDefinitions="* Auto">
         <StackPanel Grid.Row="0" Margin="20" Spacing="12">
             <StackPanel>

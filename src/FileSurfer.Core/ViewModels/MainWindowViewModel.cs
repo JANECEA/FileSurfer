@@ -12,6 +12,7 @@ using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Models.FileOperations;
 using FileSurfer.Core.Models.FileOperations.Undoable;
+using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.Models.Shell;
 using FileSurfer.Core.Models.VersionControl;
 using FileSurfer.Core.Views;
@@ -92,6 +93,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public FileSystemEntryViewModel[] Drives =>
         _drives ??= _fileInfoProvider.GetDrives().Select(_entryVmFactory.Drive).ToArray();
     private FileSystemEntryViewModel[]? _drives;
+
+    /// <summary>
+    /// TODO
+    /// </summary>
+    public ObservableCollection<SftpConnectionViewModel> SftpConnectionsVms { get; } = [];
 
     /// <summary>
     /// Holds the path to the current directory displayed in FileSurfer.
@@ -584,9 +590,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Removes the <see cref="FileSystemEntryViewModel"/> under the index from the Quick Access list.
+    /// Removes the <see cref="FileSystemEntryViewModel"/> under the index from <see cref="QuickAccess"/>.
     /// </summary>
     public void RemoveFromQuickAccess(int index) => QuickAccess.RemoveAt(index);
+
+    /// <summary>
+    /// Removes the <see cref="SftpConnectionViewModel"/> under the index from <see cref="SftpConnectionsVms"/>.
+    /// </summary>
+    public void RemoveSftpConnection(int index) => SftpConnectionsVms.RemoveAt(index);
 
     /// <summary>
     /// Opens the location of the selected entry during searching.

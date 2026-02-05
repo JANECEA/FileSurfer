@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -165,6 +166,25 @@ public partial class MainWindow : Window
     private void RemoveFromQuickAccess(object sender, RoutedEventArgs e) =>
         _viewModel?.RemoveFromQuickAccess(QuickAccessListBox.SelectedIndex);
 
+    private void OnRemoveSftpConnection(object sender, RoutedEventArgs e) =>
+        _viewModel?.RemoveSftpConnection(SftpListBox.SelectedIndex);
+
+    private void OnEditSftpConnection(object sender, RoutedEventArgs e)
+    {
+        if (SftpListBox.SelectedItem is not SftpConnectionViewModel vm)
+            return;
+
+        EditSftpWindow window = new(vm);
+        window.ShowDialog(this);
+    }
+
+    private void OnAddSftpButtonClicked(object sender, RoutedEventArgs e)
+    {
+        SftpConnectionViewModel viewModel = new(vm => _viewModel?.SftpConnectionsVms.Add(vm));
+        EditSftpWindow window = new(viewModel);
+        window.ShowDialog(this);
+    }
+
     private void AddToArchive(object sender, RoutedEventArgs e) => _viewModel?.AddToArchive();
 
     private void ExtractArchive(object sender, RoutedEventArgs e) => _viewModel?.ExtractArchive();
@@ -233,20 +253,16 @@ public partial class MainWindow : Window
     /// </summary>
     private void SideBarEntryClicked(object sender, TappedEventArgs e)
     {
-        if (sender is ListBox { SelectedItem: FileSystemEntryViewModel entry })
+        if (sender is ListBox listBox)
         {
-            _viewModel?.OpenEntry(entry);
+            if (listBox.SelectedItem is FileSystemEntryViewModel entry)
+                _viewModel?.OpenEntry(entry);
+
             SpecialsListBox.SelectedItems?.Clear();
             QuickAccessListBox.SelectedItems?.Clear();
             DrivesListBox.SelectedItems?.Clear();
+            SftpListBox.SelectedItems?.Clear();
         }
-    }
-
-    private void OnAddSftpButtonClicked(object? sender, RoutedEventArgs e)
-    {
-        SftpConnectionViewModel viewModel = new();
-        EditSftpWindow window = new(viewModel);
-        window.ShowDialog(this);
     }
 
     /// <summary>
