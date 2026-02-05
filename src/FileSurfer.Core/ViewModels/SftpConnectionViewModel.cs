@@ -15,7 +15,7 @@ namespace FileSurfer.Core.ViewModels;
 public sealed class SftpConnectionViewModel : ReactiveObject
 {
     private readonly SftpConnection _sftpConnection;
-    private readonly Action<SftpConnectionViewModel>? _addSelf = null;
+    private Action<SftpConnectionViewModel>? _addSelf = null;
 
     public bool CreateOnSave => _addSelf is not null;
 
@@ -65,14 +65,30 @@ public sealed class SftpConnectionViewModel : ReactiveObject
         InitialDirectory = sftpConnection.initialDirectory;
     }
 
-    public SftpConnectionViewModel(Action<SftpConnectionViewModel> addSelf)
+    public SftpConnectionViewModel(Action<SftpConnectionViewModel>? addSelf = null)
     {
         _sftpConnection = new SftpConnection();
         _addSelf = addSelf;
     }
 
-    public void Save()
+    public SftpConnectionViewModel Copy() =>
+        new()
+        {
+            HostnameOrIpAddress = HostnameOrIpAddress,
+            Port = Port,
+            Username = Username,
+            Password = Password,
+            InitialDirectory = InitialDirectory,
+        };
+
+    public void Save(SftpConnectionViewModel saveFrom)
     {
+        HostnameOrIpAddress = saveFrom.HostnameOrIpAddress;
+        Port = saveFrom.Port;
+        Username = saveFrom.Username;
+        Password = saveFrom.Password;
+        InitialDirectory = saveFrom.InitialDirectory;
+
         _sftpConnection.hostnameOrIpAddress = HostnameOrIpAddress;
         _sftpConnection.port = Port;
         _sftpConnection.username = Username;
@@ -80,6 +96,9 @@ public sealed class SftpConnectionViewModel : ReactiveObject
         _sftpConnection.initialDirectory = InitialDirectory;
 
         if (CreateOnSave)
+        {
             _addSelf!.Invoke(this);
+            _addSelf = null;
+        }
     }
 }

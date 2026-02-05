@@ -276,8 +276,8 @@
                                     <Setter Property="ContextMenu">
                                         <Setter.Value>
                                             <ContextMenu x:DataType="vm:FileSystemEntryViewModel">
-                                                <MenuItem Classes="ContextMenuItem" Click="MoveUp" Header="Move up" />
-                                                <MenuItem Classes="ContextMenuItem" Click="MoveDown" Header="Move down" />
+                                                <MenuItem Classes="ContextMenuItem" Click="MoveUpQuickAccess" Header="Move up" />
+                                                <MenuItem Classes="ContextMenuItem" Click="MoveDownQuickAccess" Header="Move down" />
                                                 <MenuItem Classes="ContextMenuItem" Click="RemoveFromQuickAccess" Header="Remove from quick access" />
                                             </ContextMenu>
                                         </Setter.Value>
@@ -330,10 +330,10 @@
                                     <Setter Property="ContextMenu">
                                         <Setter.Value>
                                             <ContextMenu x:DataType="vm:SftpConnectionViewModel">
-                                                <MenuItem Classes="ContextMenuItem" Header="Move up TODO" />
-                                                <MenuItem Classes="ContextMenuItem" Header="Move down TODO" />
-                                                <MenuItem Classes="ContextMenuItem" Click="OnEditSftpConnection" Header="Edit connection" />
-                                                <MenuItem Classes="ContextMenuItem" Click="OnRemoveSftpConnection" Header="Remove connection" />
+                                                <MenuItem Classes="ContextMenuItem" Click="MoveUpSftp" Header="Move up" />
+                                                <MenuItem Classes="ContextMenuItem" Click="MoveDownSftp" Header="Move down" />
+                                                <MenuItem Classes="ContextMenuItem" Click="EditSftpConnection" Header="Edit" />
+                                                <MenuItem Classes="ContextMenuItem" Click="RemoveSftp" Header="Remove" />
                                             </ContextMenu>
                                         </Setter.Value>
                                     </Setter>

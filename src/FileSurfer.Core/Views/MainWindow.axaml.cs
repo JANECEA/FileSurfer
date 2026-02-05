@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -154,22 +153,28 @@ public partial class MainWindow : Window
     private void PinToQuickAccess(object sender, RoutedEventArgs e)
     {
         if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
-            _viewModel?.AddToQuickAccess(entry);
+            _viewModel?.QuickAccess.Add(entry);
     }
 
-    private void MoveUp(object sender, RoutedEventArgs e) =>
-        _viewModel?.MoveUp(QuickAccessListBox.SelectedIndex);
+    private void MoveUpQuickAccess(object sender, RoutedEventArgs e) =>
+        ListBoxHelper.MoveUp(QuickAccessListBox, _viewModel!.QuickAccess);
 
-    private void MoveDown(object sender, RoutedEventArgs e) =>
-        _viewModel?.MoveDown(QuickAccessListBox.SelectedIndex);
+    private void MoveDownQuickAccess(object sender, RoutedEventArgs e) =>
+        ListBoxHelper.MoveDown(QuickAccessListBox, _viewModel!.QuickAccess);
 
     private void RemoveFromQuickAccess(object sender, RoutedEventArgs e) =>
-        _viewModel?.RemoveFromQuickAccess(QuickAccessListBox.SelectedIndex);
+        ListBoxHelper.Remove(QuickAccessListBox, _viewModel!.QuickAccess);
 
-    private void OnRemoveSftpConnection(object sender, RoutedEventArgs e) =>
-        _viewModel?.RemoveSftpConnection(SftpListBox.SelectedIndex);
+    private void MoveUpSftp(object sender, RoutedEventArgs e) =>
+        ListBoxHelper.MoveUp(SftpListBox, _viewModel!.SftpConnectionsVms);
 
-    private void OnEditSftpConnection(object sender, RoutedEventArgs e)
+    private void MoveDownSftp(object sender, RoutedEventArgs e) =>
+        ListBoxHelper.MoveDown(SftpListBox, _viewModel!.SftpConnectionsVms);
+
+    private void RemoveSftp(object sender, RoutedEventArgs e) =>
+        ListBoxHelper.Remove(SftpListBox, _viewModel!.SftpConnectionsVms);
+
+    private void EditSftpConnection(object sender, RoutedEventArgs e)
     {
         if (SftpListBox.SelectedItem is not SftpConnectionViewModel vm)
             return;
@@ -560,7 +565,7 @@ public partial class MainWindow : Window
     {
         if (_viewModel is not null)
         {
-            FileSurferSettings.UpdateQuickAccess(_viewModel.QuickAccess);
+            _viewModel.CloseApp();
             _viewModel.Dispose();
         }
         FileSurferSettings.SaveSettings();

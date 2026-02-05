@@ -10,19 +10,23 @@ namespace FileSurfer.Core.Views;
 /// </summary>
 public partial class EditSftpWindow : Window
 {
+    private readonly SftpConnectionViewModel _vmCopy;
+    private readonly SftpConnectionViewModel _vmOriginal;
+
     public EditSftpWindow(SftpConnectionViewModel viewModel)
     {
         InitializeComponent();
-        DataContext = viewModel;
+
+        _vmOriginal = viewModel;
+        _vmCopy = _vmOriginal.Copy();
+        DataContext = _vmCopy;
     }
 
     private void CloseWindow(object? sender = null, RoutedEventArgs? args = null) => Close();
 
     private void SaveAndClose(object? sender = null, RoutedEventArgs? args = null)
     {
-        if (DataContext is SftpConnectionViewModel viewModel)
-            viewModel.Save();
-
+        _vmOriginal.Save(_vmCopy);
         CloseWindow();
     }
 

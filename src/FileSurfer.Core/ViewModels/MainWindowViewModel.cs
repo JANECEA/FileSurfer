@@ -567,39 +567,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Adds the selected <see cref="FileSystemEntryViewModel"/> to Quick Access.
-    /// </summary>
-    public void AddToQuickAccess(FileSystemEntryViewModel entry) => QuickAccess.Add(entry);
-
-    /// <summary>
-    /// Moves the <see cref="FileSystemEntryViewModel"/> under the index up within the Quick Access list.
-    /// </summary>
-    public void MoveUp(int i)
-    {
-        if (i > 0)
-            (QuickAccess[i - 1], QuickAccess[i]) = (QuickAccess[i], QuickAccess[i - 1]);
-    }
-
-    /// <summary>
-    /// Moves the <see cref="FileSystemEntryViewModel"/> under the index down within the Quick Access list.
-    /// </summary>
-    public void MoveDown(int i)
-    {
-        if (i < QuickAccess.Count - 1)
-            (QuickAccess[i], QuickAccess[i + 1]) = (QuickAccess[i + 1], QuickAccess[i]);
-    }
-
-    /// <summary>
-    /// Removes the <see cref="FileSystemEntryViewModel"/> under the index from <see cref="QuickAccess"/>.
-    /// </summary>
-    public void RemoveFromQuickAccess(int index) => QuickAccess.RemoveAt(index);
-
-    /// <summary>
-    /// Removes the <see cref="SftpConnectionViewModel"/> under the index from <see cref="SftpConnectionsVms"/>.
-    /// </summary>
-    public void RemoveSftpConnection(int index) => SftpConnectionsVms.RemoveAt(index);
-
-    /// <summary>
     /// Opens the location of the selected entry during searching.
     /// </summary>
     public void OpenEntryLocation(FileSystemEntryViewModel entry) =>
@@ -1333,6 +1300,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (IsVersionControlled)
             ForwardIfError(_versionControl.UploadChanges());
+    }
+
+    /// <summary>
+    /// Call on app closing
+    /// </summary>
+    public void CloseApp()
+    {
+        FileSurferSettings.UpdateQuickAccess(QuickAccess);
     }
 
     public void Dispose()
