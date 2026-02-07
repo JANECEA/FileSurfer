@@ -188,6 +188,13 @@
         <Setter Property="Margin" Value="0 10 0 10" />
     </Style>
 
+    <Style Selector="TextBlock.SidebarLabel">
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+        <Setter Property="FontFamily" Value="Arial" />
+        <Setter Property="FontSize" Value="10" />
+        <Setter Property="Margin" Value="10 10 10 3" />
+    </Style>
+
     <Style Selector="Button.AddSftpButton">
         <Setter Property="FontSize" Value="11" />
         <Setter Property="Height" Value="33" />
@@ -198,6 +205,11 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+    </Style>
+
+    <Style Selector="TextBlock.AddNewSftpText">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Opacity" Value="0.8" />
     </Style>
 
     <Style Selector="GridSplitter.GridSplitter">

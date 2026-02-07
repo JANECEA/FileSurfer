@@ -10,6 +10,9 @@ namespace FileSurfer.Core.Views;
 /// </summary>
 public partial class EditSftpWindow : Window
 {
+    private const string EditingWindowTitle = "Edit SFTP Connection";
+    private const string AddingWindowTitle = "Add new SFTP Connection";
+
     private readonly SftpConnectionViewModel _vmCopy;
     private readonly SftpConnectionViewModel _vmOriginal;
 
@@ -20,6 +23,7 @@ public partial class EditSftpWindow : Window
         _vmOriginal = viewModel;
         _vmCopy = _vmOriginal.Copy();
         DataContext = _vmCopy;
+        Title = viewModel.CreateOnSave ? AddingWindowTitle : EditingWindowTitle;
     }
 
     private void CloseWindow(object? sender = null, RoutedEventArgs? args = null) => Close();

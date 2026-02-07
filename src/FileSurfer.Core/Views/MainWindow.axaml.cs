@@ -64,16 +64,10 @@ public partial class MainWindow : Window
         if (_viewModel is null)
             return;
 
-        if (_viewModel.SpecialFolders.Count > 0)
-        {
-            SecondSeparator.IsVisible = true;
-            SpecialsListBox.IsVisible = true;
-        }
-        else
-        {
-            SecondSeparator.IsVisible = false;
-            SpecialsListBox.IsVisible = false;
-        }
+        bool show = _viewModel.SpecialFolders.Count > 0;
+        SecondSeparator.IsVisible = show;
+        SpecialsListBox.IsVisible = show;
+        SpecialsLabel.IsVisible = show;
     }
 
     /// <summary>
@@ -109,18 +103,6 @@ public partial class MainWindow : Window
             }
         }
         return null;
-    }
-
-    /// <summary>
-    /// Determines the visibility of <see cref="QuickAccessListBox"/> based on its number of items.
-    /// </summary>
-    private void OnQuickAccessChanged(object sender, AvaloniaPropertyChangedEventArgs e)
-    {
-        if (_viewModel?.QuickAccess.Count > 0)
-        {
-            FirstSeparator.IsVisible = true;
-            QuickAccessListBox.IsVisible = true;
-        }
     }
 
     /// <summary>

@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:FileSurfer.Core.ViewModels"
-        Title="Edit SFTP Connection"
         Width="500"
         Height="410"
         MinWidth="500"

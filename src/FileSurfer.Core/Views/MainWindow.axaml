@@ -263,12 +263,12 @@
 
                 <ScrollViewer Padding="4 10 0 3">
                     <StackPanel Orientation="Vertical">
+
+                        <TextBlock Classes="SidebarLabel" Text="Quick Access" />
                         <ListBox x:Name="QuickAccessListBox"
                                  Classes="SideBarListBox"
-                                 IsVisible="False"
                                  ItemTemplate="{StaticResource SideBarTemplate}"
                                  ItemsSource="{Binding QuickAccess}"
-                                 PropertyChanged="OnQuickAccessChanged"
                                  Tapped="SideBarEntryClicked">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
@@ -285,9 +285,9 @@
                                 </Style>
                             </ListBox.Styles>
                         </ListBox>
+                        <Separator Background="{DynamicResource SecondaryColor}" />
 
-                        <Separator x:Name="FirstSeparator" Background="{DynamicResource SecondaryColor}" IsVisible="False" />
-
+                        <TextBlock x:Name="SpecialsLabel" Classes="SidebarLabel" IsVisible="False" Text="Special Folders" />
                         <ListBox x:Name="SpecialsListBox"
                                  Background="{DynamicResource PrimaryColor}"
                                  Classes="SideBarListBox"
@@ -302,9 +302,9 @@
                                 </Style>
                             </ListBox.Styles>
                         </ListBox>
-
                         <Separator x:Name="SecondSeparator" Background="{DynamicResource SecondaryColor}" IsVisible="False" />
 
+                        <TextBlock Classes="SidebarLabel" Text="System Drives" />
                         <ListBox x:Name="DrivesListBox"
                                  Classes="SideBarListBox"
                                  ItemTemplate="{StaticResource SideBarTemplate}"
@@ -316,9 +316,9 @@
                                 </Style>
                             </ListBox.Styles>
                         </ListBox>
+                        <Separator Background="{DynamicResource SecondaryColor}" />
 
-                        <Separator x:Name="ThirdSeparator" Background="{DynamicResource SecondaryColor}" />
-
+                        <TextBlock Classes="SidebarLabel" Text="SFTP Connections" />
                         <ListBox x:Name="SftpListBox"
                                  Classes="SideBarListBox"
                                  ItemTemplate="{StaticResource SftpConnectionTemplate}"
@@ -342,13 +342,13 @@
                         </ListBox>
 
                         <Button Classes="AddSftpButton" Click="OnAddSftpButtonClicked">
-                            <Grid ColumnDefinitions="Auto *">
-                                <TextBlock Margin="20 0 12 0"
-                                           VerticalAlignment="Center"
-                                           FontSize="25"
+                            <Grid VerticalAlignment="Center" ColumnDefinitions="Auto *">
+                                <TextBlock Margin="33 0 5 0"
+                                           Classes="AddNewSftpText"
+                                           FontSize="20"
                                            Foreground="{DynamicResource IconColor}"
-                                           Text="&#xf0033;" />
-                                <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="Add SFTP Connection" />
+                                           Text="&#xf457;" />
+                                <TextBlock Grid.Column="1" Margin="0 0 0 -3" Classes="AddNewSftpText" Text="Add New" />
                             </Grid>
                         </Button>
                     </StackPanel>
