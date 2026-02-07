@@ -1,24 +1,26 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 namespace FileSurfer.Core.Models.Sftp;
 
-[
-    SuppressMessage("ReSharper", "ClassNeverInstantiated.Global"),
-    SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Json naming convention"),
-]
-public record FingerPrint(string algorithm, string hash);
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+public record FingerPrint(string Algorithm, string Hash);
 
-[SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Json naming convention")]
 public record SftpConnection
 {
-    public string hostnameOrIpAddress { get; set; } = string.Empty;
-    public ushort port { get; set; } = 22;
-    public string username { get; set; } = string.Empty;
-    public string password { get; set; } = string.Empty;
-    public string? initialDirectory { get; set; } = null;
-    public List<FingerPrint> fingerPrints { get; set; } = [];
-}
+    public static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true,
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        WriteIndented = true,
+    };
 
-[SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Json naming convention")]
-public record SftpConnectionList(List<SftpConnection> connections);
+    public string HostnameOrIpAddress { get; set; } = string.Empty;
+    public ushort Port { get; set; } = 22;
+    public string Username { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+    public string? InitialDirectory { get; set; } = null;
+    public List<FingerPrint> FingerPrints { get; set; } = [];
+}

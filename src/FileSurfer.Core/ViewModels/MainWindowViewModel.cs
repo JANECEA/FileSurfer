@@ -606,7 +606,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private void LoadSftpConnections()
     {
-        foreach (SftpConnection connection in FileSurferSettings.SftpConnections.connections)
+        foreach (SftpConnection connection in FileSurferSettings.SftpConnections)
             SftpConnectionsVms.Add(new SftpConnectionViewModel(connection));
     }
 
@@ -1315,9 +1315,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void CloseApp()
     {
         FileSurferSettings.QuickAccess = QuickAccess.Select(entry => entry.PathToEntry).ToList();
-        FileSurferSettings.SftpConnections = new SftpConnectionList(
-            SftpConnectionsVms.Select(vm => vm.SftpConnection).ToList()
-        );
+        FileSurferSettings.SftpConnections = SftpConnectionsVms
+            .Select(vm => vm.SftpConnection)
+            .ToList();
     }
 
     public void Dispose()

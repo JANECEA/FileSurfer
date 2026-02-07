@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace FileSurfer.Core;
@@ -21,6 +22,14 @@ namespace FileSurfer.Core;
 public record SettingsRecord
 {
     private const string ThisPcLabel = "This PC";
+    public static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        WriteIndented = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
+        AllowTrailingCommas = true,
+        PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate,
+    };
 
     private static IDefaultSettingsProvider? DefaultSettingsProvider;
 

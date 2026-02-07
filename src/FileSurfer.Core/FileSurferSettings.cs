@@ -70,14 +70,6 @@ public static class FileSurferSettings
     public const long ShowDialogLimitB = 250 * 1024 * 1024; // 250 MiB
     private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
     private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        WriteIndented = true,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
-        AllowTrailingCommas = true,
-        PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate,
-    };
     private static readonly string FileSurferDataDir = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "FileSurfer"
@@ -274,9 +266,9 @@ public static class FileSurferSettings
     public static List<string> QuickAccess { get; set; }
 
     /// <summary>
-    /// List of directories and files added by the user for quick access. Defaults to an empty list.
+    /// List of SFTP connections defined by the user. Defaults to an empty list.
     /// </summary>
-    public static SftpConnectionList SftpConnections { get; set; }
+    public static List<SftpConnection> SftpConnections { get; set; }
 
     /// <summary>
     /// <para>
@@ -286,39 +278,35 @@ public static class FileSurferSettings
     /// </summary>
     public static void Initialize(IDefaultSettingsProvider settingsProvider)
     {
-        SettingsRecord.Initialize(settingsProvider);
-        if (!File.Exists(SettingsFilePath))
-        {
-            ImportSettings(DefaultSettings);
-            SaveSettings();
-            return;
-        }
-
-        _previousSettingsJson = File.ReadAllText(SettingsFilePath, Encoding.UTF8);
         try
         {
+            string sftpConnections = File.ReadAllText(SftpConnectionsFilePath, Encoding.UTF8);
+            SftpConnections =
+                JsonSerializer.Deserialize<List<SftpConnection>>(
+                    sftpConnections,
+                    SftpConnection.SerializerOptions
+                ) ?? throw new InvalidDataException();
+        }
+        catch
+        {
+            SftpConnections = new List<SftpConnection>();
+        }
+
+        SettingsRecord.Initialize(settingsProvider);
+        try
+        {
+            _previousSettingsJson = File.ReadAllText(SettingsFilePath, Encoding.UTF8);
             SettingsRecord settings =
-                JsonSerializer.Deserialize<SettingsRecord>(_previousSettingsJson, SerializerOptions)
-                ?? throw new InvalidDataException();
+                JsonSerializer.Deserialize<SettingsRecord>(
+                    _previousSettingsJson,
+                    SettingsRecord.SerializerOptions
+                ) ?? throw new InvalidDataException();
 
             ImportSettings(settings);
         }
         catch
         {
             ImportSettings(DefaultSettings);
-            SaveSettings();
-        }
-
-        try
-        {
-            string sftpConnections = File.ReadAllText(SftpConnectionsFilePath, Encoding.UTF8);
-            SftpConnections =
-                JsonSerializer.Deserialize<SftpConnectionList>(sftpConnections, SerializerOptions)
-                ?? throw new InvalidDataException();
-        }
-        catch
-        {
-            SftpConnections = new SftpConnectionList([]);
         }
     }
 
@@ -425,12 +413,15 @@ public static class FileSurferSettings
             Directory.CreateDirectory(FileSurferDataDir);
 
         SettingsRecord settings = CurrentSettings;
-        string settingsJson = JsonSerializer.Serialize(settings, SerializerOptions);
+        string settingsJson = JsonSerializer.Serialize(settings, SettingsRecord.SerializerOptions);
 
         if (_previousSettingsJson != settingsJson)
             File.WriteAllText(SettingsFilePath, settingsJson, Encoding.UTF8);
 
-        string sftpConnectionsJson = JsonSerializer.Serialize(SftpConnections, SerializerOptions);
+        string sftpConnectionsJson = JsonSerializer.Serialize(
+            SftpConnections,
+            SftpConnection.SerializerOptions
+        );
         File.WriteAllText(SftpConnectionsFilePath, sftpConnectionsJson, Encoding.UTF8);
     }
 }

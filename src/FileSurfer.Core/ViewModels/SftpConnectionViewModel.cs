@@ -58,11 +58,11 @@ public sealed class SftpConnectionViewModel : ReactiveObject
     {
         SftpConnection = sftpConnection;
 
-        HostnameOrIpAddress = sftpConnection.hostnameOrIpAddress;
-        Port = sftpConnection.port;
-        Username = sftpConnection.username;
-        Password = sftpConnection.password;
-        InitialDirectory = sftpConnection.initialDirectory;
+        HostnameOrIpAddress = sftpConnection.HostnameOrIpAddress;
+        Port = sftpConnection.Port;
+        Username = sftpConnection.Username;
+        Password = sftpConnection.Password;
+        InitialDirectory = sftpConnection.InitialDirectory;
     }
 
     public SftpConnectionViewModel(Action<SftpConnectionViewModel>? addSelf = null)
@@ -89,11 +89,11 @@ public sealed class SftpConnectionViewModel : ReactiveObject
         Password = saveFrom.Password;
         InitialDirectory = saveFrom.InitialDirectory;
 
-        SftpConnection.hostnameOrIpAddress = HostnameOrIpAddress;
-        SftpConnection.port = Port;
-        SftpConnection.username = Username;
-        SftpConnection.password = Password;
-        SftpConnection.initialDirectory = InitialDirectory;
+        SftpConnection.HostnameOrIpAddress = HostnameOrIpAddress;
+        SftpConnection.Port = Port;
+        SftpConnection.Username = Username;
+        SftpConnection.Password = Password;
+        SftpConnection.InitialDirectory = InitialDirectory;
 
         if (CreateOnSave)
         {
