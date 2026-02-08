@@ -28,7 +28,7 @@ namespace FileSurfer.Core.ViewModels;
 /// </para>
 /// Handles data directly bound to the View.
 /// </summary>
-[ // Properties are used by the window, cannot be static have to global
+[ // Properties are used by the window, cannot be static, have to be public
     SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global"),
     SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
     SuppressMessage("ReSharper", "UnusedMember.Global"),

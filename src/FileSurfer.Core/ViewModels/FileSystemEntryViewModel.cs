@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using FileSurfer.Core.Models;
@@ -182,7 +181,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// Initializes a new instance of the <see cref="FileSystemEntryViewModel"/> class for a drive.
     /// <para>
     /// Configures the properties such as name, type, icon, and total size based on the provided
-    /// <see cref="DriveInfo"/> object.
+    /// <see cref="DriveEntry"/> object.
     /// </para>
     /// <para>
     /// This constructor is specifically used for representing drives within the <see cref="FileSurfer"/> app.
