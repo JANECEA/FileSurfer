@@ -13,7 +13,7 @@ namespace FileSurfer.Core.Models.FileOperations;
 /// <summary>
 /// Interacts with the program and system clipboards using <see cref="Avalonia.Input.Platform.IClipboard"/>.
 /// </summary>
-public class ClipboardManager : IClipboardManager
+public class LocalClipboardManager : IClipboardManager
 {
     private readonly IFileIoHandler _fileIoHandler;
     private readonly IClipboard _systemClipboard;
@@ -23,7 +23,7 @@ public class ClipboardManager : IClipboardManager
     private string _copyFromDir = string.Empty;
     private PasteType _pasteType = PasteType.Copy;
 
-    public ClipboardManager(
+    public LocalClipboardManager(
         IClipboard clipboardManager,
         IStorageProvider storageProvider,
         IFileIoHandler fileIoHandler

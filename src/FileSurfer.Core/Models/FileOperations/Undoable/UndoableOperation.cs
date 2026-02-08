@@ -30,7 +30,7 @@ public abstract class UndoableOperation : IUndoableFileOperation
     }
 
     /// <summary>
-    /// Represents a invoke-action invoked on <see cref="IFileSystemEntry"/> from <see cref="Entries"/>.
+    /// Represents an invoke-action invoked on <see cref="IFileSystemEntry"/> from <see cref="Entries"/>.
     /// </summary>
     /// <param name="entry"><see cref="IFileSystemEntry"/> for the invoke-action.</param>
     /// <param name="index">Entry's index in <see cref="Entries"/>, in case it is useful.</param>

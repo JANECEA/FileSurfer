@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FileSurfer.Core.Models.FileOperations;
 
 namespace FileSurfer.Core.Models.FileInformation;
 
@@ -13,19 +12,16 @@ public static class FileNameGenerator
 {
     /// <summary>
     /// Finds a name available to use in <paramref name="directory"/> based on <paramref name="newName"/>.
-    /// <para>
-    /// Can start enumeration from <paramref name="lastIndex"/>, if specified.
-    /// </para>
     /// </summary>
     /// <returns><see cref="string"/> name available to use in <paramref name="directory"/>.</returns>
-    public static string GetAvailableName(string directory, string newName, int lastIndex = 0)
+    public static string GetAvailableName(string directory, string newName)
     {
         if (!Path.Exists(Path.Combine(directory, newName)))
             return newName;
 
         string nameWithoutExtension = Path.GetFileNameWithoutExtension(newName);
         string extension = Path.GetExtension(newName);
-        for (int index = lastIndex + 1; ; index++)
+        for (int index = 1; ; index++)
         {
             string newFileName = $"{nameWithoutExtension} ({index}){extension}";
 
@@ -55,8 +51,7 @@ public static class FileNameGenerator
     }
 
     /// <summary>
-    /// Finds a name available for a copy in the context of
-    /// <see cref="ClipboardManager.Duplicate"/> operation.
+    /// Finds a name available for a copy.
     /// </summary>
     /// <returns>Name of a copy, available to use in the path specified in: <paramref name="directory"/>.</returns>
     public static string GetCopyName(string directory, IFileSystemEntry entry) =>

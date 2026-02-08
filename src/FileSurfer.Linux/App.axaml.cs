@@ -81,7 +81,7 @@ public partial class App : Application
         LinuxFileIoHandler fileIoHandler = new();
         LinuxShellHandler shellHandler = new();
         IClipboard clipboard = mainWindow.Clipboard ?? throw new InvalidDataException();
-        ClipboardManager clipboardManager = new(
+        LocalClipboardManager clipboardManager = new(
             clipboard,
             mainWindow.StorageProvider,
             fileIoHandler
