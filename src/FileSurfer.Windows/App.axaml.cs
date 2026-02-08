@@ -11,6 +11,7 @@ using FileSurfer.Core.Models.FileOperations;
 using FileSurfer.Core.Models.VersionControl;
 using FileSurfer.Core.ViewModels;
 using FileSurfer.Core.Views;
+using FileSurfer.Linux.Models;
 using FileSurfer.Windows.Models.FileInformation;
 using FileSurfer.Windows.Models.FileOperations;
 using FileSurfer.Windows.Models.Shell;
@@ -89,19 +90,24 @@ public partial class App : Application
             mainWindow.StorageProvider,
             fileIoHandler
         );
-
-        return new MainWindowViewModel(
-            initialDir,
-            fileIoHandler,
-            new WindowsBinInteraction(FileSurferSettings.ShowDialogLimitB, fileInfoProvider),
-            new WindowsFileProperties(),
-            fileInfoProvider,
-            new WindowsIconProvider(),
-            shellHandler,
-            new GitVersionControl(shellHandler),
-            clipboardManager,
-            SetDarkMode
+        WindowsBinInteraction binInteraction = new(
+            FileSurferSettings.ShowDialogLimitB,
+            fileInfoProvider
         );
+
+        WindowsFileSystem fileSystem = new()
+        {
+            FileInfoProvider = fileInfoProvider,
+            IconProvider = new WindowsIconProvider(),
+            ClipboardManager = clipboardManager,
+            ArchiveManager = new LocalArchiveManager(),
+            FileIoHandler = fileIoHandler,
+            BinInteraction = binInteraction,
+            FileProperties = new WindowsFileProperties(),
+            ShellHandler = shellHandler,
+            VersionControl = new GitVersionControl(shellHandler),
+        };
+        return new MainWindowViewModel(initialDir, fileSystem, SetDarkMode);
     }
 
     private void SetDarkMode(bool darkMode) =>

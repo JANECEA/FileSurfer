@@ -10,6 +10,7 @@ using FileSurfer.Core.Models.FileOperations;
 using FileSurfer.Core.Models.VersionControl;
 using FileSurfer.Core.ViewModels;
 using FileSurfer.Core.Views;
+using FileSurfer.Linux.Models;
 using FileSurfer.Linux.Models.FileInformation;
 using FileSurfer.Linux.Models.FileOperations;
 using FileSurfer.Linux.Models.Shell;
@@ -86,18 +87,19 @@ public partial class App : Application
             fileIoHandler
         );
 
-        return new MainWindowViewModel(
-            initialDir,
-            fileIoHandler,
-            new LinuxBinInteraction(shellHandler),
-            new LinuxFileProperties(new PropertiesVmFactory(mainWindow)),
-            new LinuxFileInfoProvider(shellHandler),
-            new LinuxIconProvider(shellHandler),
-            shellHandler,
-            new GitVersionControl(shellHandler),
-            clipboardManager,
-            SetDarkMode
-        );
+        LinuxFileSystem fileSystem = new()
+        {
+            FileInfoProvider = new LinuxFileInfoProvider(shellHandler),
+            IconProvider = new LinuxIconProvider(shellHandler),
+            ClipboardManager = clipboardManager,
+            ArchiveManager = new LocalArchiveManager(),
+            FileIoHandler = new LinuxFileIoHandler(),
+            BinInteraction = new LinuxBinInteraction(shellHandler),
+            FileProperties = new LinuxFileProperties(new PropertiesVmFactory(mainWindow)),
+            ShellHandler = shellHandler,
+            VersionControl = new GitVersionControl(shellHandler),
+        };
+        return new MainWindowViewModel(initialDir, fileSystem, SetDarkMode);
     }
 
     private void SetDarkMode(bool darkMode) =>

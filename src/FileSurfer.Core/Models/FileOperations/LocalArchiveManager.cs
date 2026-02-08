@@ -13,7 +13,7 @@ namespace FileSurfer.Core.Models.FileOperations;
 /// <summary>
 /// Handles interactions with archives using the <see cref="SharpCompress"/> package.
 /// </summary>
-internal static class ArchiveManager
+public class LocalArchiveManager : IArchiveManager
 {
     public const string ArchiveTypeExtension = ".zip";
 
@@ -30,12 +30,7 @@ internal static class ArchiveManager
         new(".gz", null),
     ];
 
-    /// <summary>
-    /// Determines if the file is an archive in the context of <see cref="FileSurfer"/>.
-    /// </summary>
-    /// <param name="filePath">Path to the file</param>
-    /// <returns><see langword="true"/> if the file has one of the supported extensions, otherwise <see langword="false"/>.</returns>
-    public static bool IsZipped(string filePath) => GetZipExtension(filePath) is not null;
+    public bool IsZipped(string filePath) => GetZipExtension(filePath) is not null;
 
     private static ArchiveType? GetZipExtension(string filePath)
     {
@@ -47,11 +42,7 @@ internal static class ArchiveManager
         return null;
     }
 
-    /// <summary>
-    /// Compresses specified file paths into a new archive.
-    /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public static IResult ZipFiles(
+    public IResult ZipFiles(
         IEnumerable<IFileSystemEntry> entries,
         string destinationDir,
         string archiveName
@@ -100,11 +91,7 @@ internal static class ArchiveManager
         }
     }
 
-    /// <summary>
-    /// Extracts an archive, overwriting the already existing files.
-    /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public static IResult UnzipArchive(string archivePath, string destinationPath)
+    public IResult UnzipArchive(string archivePath, string destinationPath)
     {
         if (GetZipExtension(archivePath) is not ArchiveType archiveType)
             return SimpleResult.Error($"\"{archivePath}\" is not an archive.");

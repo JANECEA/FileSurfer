@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
-using FileSurfer.Core.Models.FileInformation;
+using FileSurfer.Core.Models;
 
 namespace FileSurfer.Core.ViewModels;
 
@@ -22,8 +22,6 @@ public class SearchManager : IDisposable
         "Searching...",
     ];
 
-    private readonly FileSystemEntryVmFactory _entryVmFactory;
-    private readonly IFileInfoProvider _fileInfoProvider;
     private readonly Action<string> _updateAnimation;
     private readonly Action<FileSystemEntryViewModel> _putEntry;
     private readonly DispatcherTimer _animationTimer;
@@ -32,15 +30,8 @@ public class SearchManager : IDisposable
     private CancellationTokenSource _searchCts = new();
     private Task<int?>? _activeSearchTask = null;
 
-    public SearchManager(
-        FileSystemEntryVmFactory entryVmFactory,
-        IFileInfoProvider fileInfoProvider,
-        Action<string> updateAnimation,
-        Action<FileSystemEntryViewModel> putEntry
-    )
+    public SearchManager(Action<string> updateAnimation, Action<FileSystemEntryViewModel> putEntry)
     {
-        _entryVmFactory = entryVmFactory;
-        _fileInfoProvider = fileInfoProvider;
         _updateAnimation = updateAnimation;
         _putEntry = putEntry;
         _animationTimer = GetAnimationTimer();
@@ -100,7 +91,11 @@ public class SearchManager : IDisposable
         return timer;
     }
 
-    public async Task<int?> SearchAsync(string searchQuery, IEnumerable<string> dirsToSearch)
+    public async Task<int?> SearchAsync(
+        IFileSystem fileSystem,
+        string searchQuery,
+        IEnumerable<string> dirsToSearch
+    )
     {
         await _searchLock.WaitAsync();
         try
@@ -115,7 +110,7 @@ public class SearchManager : IDisposable
             _updateAnimation(SearchingStates[0]);
             _animationTimer.Start();
 
-            _activeSearchTask = SearchDirectoryAsync(dirsToSearch, searchQuery, token);
+            _activeSearchTask = SearchDirectoryAsync(fileSystem, searchQuery, dirsToSearch, token);
         }
         finally
         {
@@ -152,8 +147,9 @@ public class SearchManager : IDisposable
     }
 
     private async Task<int?> SearchDirectoryAsync(
-        IEnumerable<string> dirsToSearch,
+        IFileSystem fileSystem,
         string searchQuery,
+        IEnumerable<string> dirsToSearch,
         CancellationToken token
     )
     {
@@ -164,13 +160,13 @@ public class SearchManager : IDisposable
         {
             string currentDirPath = directories.Dequeue();
 
-            IEnumerable<string> dirPaths = GetAllDirs(currentDirPath);
+            IEnumerable<string> dirPaths = GetAllDirs(fileSystem, currentDirPath);
             Task<List<FileSystemEntryViewModel>> filesTask = Task.Run(
-                () => GetFiles(currentDirPath, searchQuery),
+                () => GetFiles(fileSystem, currentDirPath, searchQuery),
                 _searchCts.Token
             );
             Task<List<FileSystemEntryViewModel>> filteredDirsTask = Task.Run(
-                () => GetDirs(dirPaths, searchQuery),
+                () => GetDirs(fileSystem, dirPaths, searchQuery),
                 _searchCts.Token
             );
             await Task.WhenAll(filesTask, filteredDirsTask);
@@ -235,21 +231,25 @@ public class SearchManager : IDisposable
             yield return index;
     }
 
-    private List<FileSystemEntryViewModel> GetFiles(string directory, string query)
+    private static List<FileSystemEntryViewModel> GetFiles(
+        IFileSystem fileSystem,
+        string directory,
+        string query
+    )
     {
-        IEnumerable<string> filePaths = _fileInfoProvider.GetPathFiles(
+        IEnumerable<string> filePaths = fileSystem.FileInfoProvider.GetPathFiles(
             directory,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
         return FilterPaths(filePaths, query)
-            .Select(filePath => _entryVmFactory.File(filePath))
+            .Select(path => new FileSystemEntryViewModel(fileSystem, new FileEntry(path)))
             .ToList();
     }
 
-    private IEnumerable<string> GetAllDirs(string directory)
+    private static IEnumerable<string> GetAllDirs(IFileSystem fileSystem, string directory)
     {
-        IEnumerable<string> dirPaths = _fileInfoProvider.GetPathDirs(
+        IEnumerable<string> dirPaths = fileSystem.FileInfoProvider.GetPathDirs(
             directory,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
@@ -257,8 +257,14 @@ public class SearchManager : IDisposable
         return dirPaths;
     }
 
-    private List<FileSystemEntryViewModel> GetDirs(IEnumerable<string> dirs, string query) =>
-        FilterPaths(dirs, query).Select(dirPath => _entryVmFactory.Directory(dirPath)).ToList();
+    private static List<FileSystemEntryViewModel> GetDirs(
+        IFileSystem fileSystem,
+        IEnumerable<string> dirs,
+        string query
+    ) =>
+        FilterPaths(dirs, query)
+            .Select(path => new FileSystemEntryViewModel(fileSystem, new DirectoryEntry(path)))
+            .ToList();
 
     private static IEnumerable<string> FilterPaths(IEnumerable<string> paths, string query) =>
         paths.Where(path =>

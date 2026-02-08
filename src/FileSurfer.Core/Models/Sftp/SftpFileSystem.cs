@@ -1,0 +1,19 @@
+using FileSurfer.Core.Models.FileInformation;
+using FileSurfer.Core.Models.FileOperations;
+using FileSurfer.Core.Models.Shell;
+using FileSurfer.Core.Models.VersionControl;
+
+namespace FileSurfer.Core.Models.Sftp;
+
+public sealed class SftpFileSystem : IFileSystem
+{
+    public required IFileInfoProvider FileInfoProvider { get; init; }
+    public required IIconProvider IconProvider { get; init; }
+    public required IClipboardManager ClipboardManager { get; init; }
+    public required IArchiveManager ArchiveManager { get; init; }
+    public required IFileIoHandler FileIoHandler { get; init; }
+    public required IBinInteraction BinInteraction { get; init; }
+    public required IFileProperties FileProperties { get; init; }
+    public required IShellHandler ShellHandler { get; init; }
+    public required IVersionControl VersionControl { get; init; }
+}

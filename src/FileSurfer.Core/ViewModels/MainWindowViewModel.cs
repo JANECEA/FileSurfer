@@ -13,7 +13,6 @@ using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Models.FileOperations;
 using FileSurfer.Core.Models.FileOperations.Undoable;
 using FileSurfer.Core.Models.Sftp;
-using FileSurfer.Core.Models.Shell;
 using FileSurfer.Core.Models.VersionControl;
 using FileSurfer.Core.Views;
 using ReactiveUI;
@@ -38,20 +37,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
     private string ThisPcLabel => FileSurferSettings.ThisPcLabel;
 
-    private readonly IFileIoHandler _fileIoHandler;
-    private readonly IBinInteraction _fileRestorer;
-    private readonly IFileInfoProvider _fileInfoProvider;
-    private readonly IFileProperties _fileProperties;
-    private readonly IShellHandler _shellHandler;
-    private readonly IVersionControl _versionControl;
-    private readonly IClipboardManager _clipboardManager;
-    private readonly FileSystemEntryVmFactory _entryVmFactory;
     private readonly SearchManager _searchManager;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
     private readonly UndoRedoHandler<string> _pathHistory;
     private readonly Action<bool> _setDarkMode;
     private DispatcherTimer? _refreshTimer;
+    private readonly IFileSystem _localFileSystem;
+    private readonly IFileSystem? _sftpFileSystem = null;
 
+    private IFileSystem CurrentFs { get; }
     private bool _isActionUserInvoked = true;
     private DateTime _lastModified;
 
@@ -81,9 +75,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Holds the Drives <see cref="FileSystemEntryViewModel"/>s.
     /// </summary>
-    public FileSystemEntryViewModel[] Drives =>
-        _drives ??= _fileInfoProvider.GetDrives().Select(_entryVmFactory.Drive).ToArray();
-    private FileSystemEntryViewModel[]? _drives;
+    public ObservableCollection<FileSystemEntryViewModel> Drives { get; } = [];
 
     /// <summary>
     /// TODO
@@ -166,7 +158,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             this.RaiseAndSetIfChanged(ref _currentBranch, value);
             if (_isActionUserInvoked && !string.IsNullOrEmpty(value) && Branches.Contains(value))
             {
-                ForwardIfError(_versionControl.SwitchBranches(value));
+                ForwardIfError(CurrentFs.VersionControl.SwitchBranches(value));
                 Reload();
             }
         }
@@ -210,36 +202,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public MainWindowViewModel(
         string initialDir,
-        IFileIoHandler fileIoHandler,
-        IBinInteraction fileRestorer,
-        IFileProperties fileProperties,
-        IFileInfoProvider fileInfoProvider,
-        IIconProvider iconProvider,
-        IShellHandler shellHandler,
-        IVersionControl versionControl,
-        IClipboardManager clipboardManager,
+        IFileSystem localFileSystem,
         Action<bool> setDarkMode
     )
     {
-        _fileIoHandler = fileIoHandler;
-        _fileRestorer = fileRestorer;
-        _fileProperties = fileProperties;
-        _fileInfoProvider = fileInfoProvider;
-        _shellHandler = shellHandler;
-        _versionControl = versionControl;
-        _clipboardManager = clipboardManager;
+        _localFileSystem = localFileSystem;
+        CurrentFs = _localFileSystem;
+
         _setDarkMode = setDarkMode;
-        _entryVmFactory = new FileSystemEntryVmFactory(
-            _fileInfoProvider,
-            _fileProperties,
-            iconProvider
-        );
-        _searchManager = new SearchManager(
-            _entryVmFactory,
-            _fileInfoProvider,
-            s => CurrentDir = s,
-            entry => FileEntries.Add(entry)
-        );
+        _searchManager = new SearchManager(s => CurrentDir = s, entry => FileEntries.Add(entry));
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
         _pathHistory = new UndoRedoHandler<string>();
 
@@ -266,6 +237,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         PushCommand = ReactiveCommand.Create(Push);
 
         LoadQuickAccess();
+        LoadDrives();
         LoadSftpConnections();
         LoadSettings(false);
         SetCurrentDir(initialDir);
@@ -469,7 +441,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (CurrentDir == ThisPcLabel)
         {
-            SelectionInfo = Drives.Length == 1 ? "1 drive" : $"{FileEntries.Count} drives";
+            SelectionInfo = Drives.Count == 1 ? "1 drive" : $"{FileEntries.Count} drives";
             return;
         }
 
@@ -511,13 +483,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (entry.IsDirectory)
             SetCurrentDir(entry.PathToEntry);
-        else if (_fileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? directory))
+        else if (
+            CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? directory)
+        )
         {
             if (directory is not null)
                 SetCurrentDir(directory);
         }
         else
-            ForwardIfError(_shellHandler.OpenFile(entry.PathToEntry));
+            ForwardIfError(CurrentFs.ShellHandler.OpenFile(entry.PathToEntry));
     }
 
     /// <summary>
@@ -526,7 +500,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void OpenAs(FileSystemEntryViewModel entry)
     {
         if (!entry.IsDirectory)
-            ForwardIfError(_fileProperties.ShowOpenAsDialog(entry.FileSystemEntry));
+            ForwardIfError(CurrentFs.FileProperties.ShowOpenAsDialog(entry.FileSystemEntry));
     }
 
     /// <summary>
@@ -539,7 +513,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             foreach (FileSystemEntryViewModel entry in SelectedFiles)
                 if (
                     entry.IsDirectory
-                    || _fileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out _)
+                    || CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out _)
                 )
                     return;
         }
@@ -555,7 +529,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
             if (!entry.IsDirectory)
-                ForwardIfError(_shellHandler.OpenInNotepad(entry.PathToEntry));
+                ForwardIfError(CurrentFs.ShellHandler.OpenInNotepad(entry.PathToEntry));
     }
 
     /// <summary>
@@ -575,18 +549,32 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     private IEnumerable<FileSystemEntryViewModel> GetSpecialFolders() =>
-        _fileInfoProvider
-            .GetSpecialFolders()
+        _localFileSystem
+            .FileInfoProvider.GetSpecialFolders()
             .Where(dirPath => !string.IsNullOrEmpty(dirPath))
-            .Select(_entryVmFactory.Directory);
+            .Select(path => new FileSystemEntryViewModel(
+                _localFileSystem,
+                new DirectoryEntry(path)
+            ));
+
+    private void LoadDrives()
+    {
+        Drives.Clear();
+        foreach (DriveEntry driveEntry in _localFileSystem.FileInfoProvider.GetDrives())
+            Drives.Add(new FileSystemEntryViewModel(_localFileSystem, driveEntry));
+    }
 
     private void LoadQuickAccess()
     {
         foreach (string path in FileSurferSettings.QuickAccess)
             if (Directory.Exists(path))
-                QuickAccess.Add(_entryVmFactory.Directory(path));
+                QuickAccess.Add(
+                    new FileSystemEntryViewModel(_localFileSystem, new DirectoryEntry(path))
+                );
             else if (File.Exists(path))
-                QuickAccess.Add(_entryVmFactory.File(path));
+                QuickAccess.Add(
+                    new FileSystemEntryViewModel(_localFileSystem, new FileEntry(path))
+                );
     }
 
     private void LoadSftpConnections()
@@ -613,29 +601,35 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private void LoadDirEntries()
     {
-        string[] dirPaths = _fileInfoProvider.GetPathDirs(
+        string[] dirPaths = CurrentFs.FileInfoProvider.GetPathDirs(
             CurrentDir,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
-        string[] filePaths = _fileInfoProvider.GetPathFiles(
+        string[] filePaths = CurrentFs.FileInfoProvider.GetPathFiles(
             CurrentDir,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
 
-        FileSystemEntryViewModel[] dirs = dirPaths.ConvertToArray(path =>
-            _entryVmFactory.Directory(path, GetVcStatus(path))
+        FileSystemEntryViewModel[] dirs = dirPaths.ConvertToArray(
+            path => new FileSystemEntryViewModel(
+                CurrentFs,
+                new DirectoryEntry(path),
+                GetVcStatus(path)
+            )
         );
-        FileSystemEntryViewModel[] files = filePaths.ConvertToArray(path =>
-            _entryVmFactory.File(path, GetVcStatus(path))
+        FileSystemEntryViewModel[] files = filePaths.ConvertToArray(
+            path => new FileSystemEntryViewModel(CurrentFs, new FileEntry(path), GetVcStatus(path))
         );
 
         AddEntries(dirs, files);
     }
 
     private VcStatus GetVcStatus(string path) =>
-        IsVersionControlled ? _versionControl.GetStatus(path) : VcStatus.NotVersionControlled;
+        IsVersionControlled
+            ? CurrentFs.VersionControl.GetStatus(path)
+            : VcStatus.NotVersionControlled;
 
     /// <summary>
     /// Adds directories and files to <see cref="FileEntries"/>.
@@ -710,7 +704,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         IsVersionControlled =
             FileSurferSettings.GitIntegration
             && Directory.Exists(CurrentDir)
-            && _versionControl.InitIfVersionControlled(CurrentDir);
+            && CurrentFs.VersionControl.InitIfVersionControlled(CurrentDir);
 
         LoadBranches();
     }
@@ -723,8 +717,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
         }
 
-        string currentBranch = _versionControl.GetCurrentBranchName();
-        string[] branches = _versionControl.GetBranches();
+        string currentBranch = CurrentFs.VersionControl.GetCurrentBranchName();
+        string[] branches = CurrentFs.VersionControl.GetBranches();
         if (CurrentBranch == currentBranch && Branches.EqualsUnordered(branches))
             return;
 
@@ -792,7 +786,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void OpenPowerShell()
     {
         if (CurrentDir != ThisPcLabel && !Searching)
-            ForwardIfError(_shellHandler.OpenCmdAt(CurrentDir));
+            ForwardIfError(CurrentFs.ShellHandler.OpenCmdAt(CurrentDir));
     }
 
     public async Task SearchAsync(string searchQuery)
@@ -809,10 +803,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         int? foundEntries =
             currentDir != ThisPcLabel
-                ? await _searchManager.SearchAsync(searchQuery, [currentDir])
+                ? await _searchManager.SearchAsync(CurrentFs, searchQuery, [currentDir])
                 : await _searchManager.SearchAsync(
+                    CurrentFs,
                     searchQuery,
-                    _fileInfoProvider.GetDrives().Select(drive => drive.PathToEntry)
+                    CurrentFs.FileInfoProvider.GetDrives().Select(drive => drive.PathToEntry)
                 );
 
         if (foundEntries is 0)
@@ -844,7 +839,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             FileSurferSettings.NewFileName
         );
 
-        NewFileAt operation = new(_fileIoHandler, CurrentDir, newFileName);
+        NewFileAt operation = new(CurrentFs.FileIoHandler, CurrentDir, newFileName);
         IResult result = operation.Invoke();
         if (result.IsOk)
         {
@@ -870,7 +865,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             FileSurferSettings.NewDirectoryName
         );
 
-        NewDirAt operation = new(_fileIoHandler, CurrentDir, newDirName);
+        NewDirAt operation = new(CurrentFs.FileIoHandler, CurrentDir, newDirName);
         IResult result = operation.Invoke();
         if (result.IsOk)
         {
@@ -890,11 +885,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
 
         string archiveName =
-            SelectedFiles[^1].FileSystemEntry.NameWoExtension + ArchiveManager.ArchiveTypeExtension;
+            SelectedFiles[^1].FileSystemEntry.NameWoExtension
+            + LocalArchiveManager.ArchiveTypeExtension;
 
         ForwardIfError(
             await Task.Run(() =>
-                ArchiveManager.ZipFiles(
+                CurrentFs.ArchiveManager.ZipFiles(
                     SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                     CurrentDir,
                     FileNameGenerator.GetAvailableName(CurrentDir, archiveName)
@@ -913,7 +909,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
 
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
-            if (!ArchiveManager.IsZipped(entry.PathToEntry))
+            if (!CurrentFs.ArchiveManager.IsZipped(entry.PathToEntry))
             {
                 ForwardError($"Entry \"{entry.Name}\" is not an archive.");
                 return;
@@ -922,7 +918,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         await Task.Run(() =>
         {
             foreach (string path in SelectedFiles.Select(entry => entry.PathToEntry).ToArray())
-                ForwardIfError(ArchiveManager.UnzipArchive(path, CurrentDir));
+                ForwardIfError(CurrentFs.ArchiveManager.UnzipArchive(path, CurrentDir));
         });
         Reload();
     }
@@ -931,7 +927,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Copies the path to the selected <see cref="FileSystemEntryViewModel"/> to the system clipboard.
     /// </summary>
     public void CopyPath(FileSystemEntryViewModel entry) =>
-        _clipboardManager.CopyPathToFileAsync(entry.PathToEntry);
+        CurrentFs.ClipboardManager.CopyPathToFileAsync(entry.PathToEntry);
 
     /// <summary>
     /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="_clipboardManager"/>.
@@ -940,7 +936,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (SelectedFiles.Count > 0)
             ForwardIfError(
-                await _clipboardManager.CutAsync(
+                await CurrentFs.ClipboardManager.CutAsync(
                     SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                     CurrentDir
                 )
@@ -954,7 +950,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (SelectedFiles.Count > 0)
             ForwardIfError(
-                await _clipboardManager.CopyAsync(
+                await CurrentFs.ClipboardManager.CopyAsync(
                     SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                     CurrentDir
                 )
@@ -972,11 +968,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (
             FileSurferSettings.AllowImagePastingFromClipboard
-            && (await _clipboardManager.PasteImageAsync(CurrentDir)).IsOk
+            && (await CurrentFs.ClipboardManager.PasteImageAsync(CurrentDir)).IsOk
         )
             return;
 
-        PasteType pasteType = await _clipboardManager.GetOperationType(CurrentDir);
+        PasteType pasteType = await CurrentFs.ClipboardManager.GetOperationType(CurrentDir);
 
         ValueResult<IUndoableFileOperation> result =
             pasteType == PasteType.Duplicate ? await DuplicateFiles() : await PasteFiles(pasteType);
@@ -990,7 +986,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private async Task<ValueResult<IUndoableFileOperation>> PasteFiles(PasteType pasteType)
     {
-        ValueResult<IFileSystemEntry[]> pastedResult = await _clipboardManager.PasteAsync(
+        ValueResult<IFileSystemEntry[]> pastedResult = await CurrentFs.ClipboardManager.PasteAsync(
             CurrentDir,
             pasteType
         );
@@ -999,21 +995,23 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         return ValueResult<IUndoableFileOperation>.Ok(
             pasteType is PasteType.Cut
-                ? new MoveFilesTo(_fileIoHandler, pastedResult.Value, CurrentDir)
-                : new CopyFilesTo(_fileIoHandler, pastedResult.Value, CurrentDir)
+                ? new MoveFilesTo(CurrentFs.FileIoHandler, pastedResult.Value, CurrentDir)
+                : new CopyFilesTo(CurrentFs.FileIoHandler, pastedResult.Value, CurrentDir)
         );
     }
 
     private async Task<ValueResult<IUndoableFileOperation>> DuplicateFiles()
     {
-        IFileSystemEntry[] clipboard = _clipboardManager.GetClipboard();
+        IFileSystemEntry[] clipboard = CurrentFs.ClipboardManager.GetClipboard();
 
-        ValueResult<string[]> copyNamesResult = await _clipboardManager.Duplicate(CurrentDir);
+        ValueResult<string[]> copyNamesResult = await CurrentFs.ClipboardManager.Duplicate(
+            CurrentDir
+        );
         if (!copyNamesResult.IsOk)
             return ValueResult<IUndoableFileOperation>.Error(copyNamesResult);
 
         return ValueResult<IUndoableFileOperation>.Ok(
-            new DuplicateFiles(_fileIoHandler, clipboard, copyNamesResult.Value)
+            new DuplicateFiles(CurrentFs.FileIoHandler, clipboard, copyNamesResult.Value)
         );
     }
 
@@ -1023,8 +1021,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void CreateShortcut(FileSystemEntryViewModel entry)
     {
         IResult result = entry.IsDirectory
-            ? _shellHandler.CreateDirectoryLink(entry.PathToEntry)
-            : _shellHandler.CreateFileLink(entry.PathToEntry);
+            ? CurrentFs.ShellHandler.CreateDirectoryLink(entry.PathToEntry)
+            : CurrentFs.ShellHandler.CreateFileLink(entry.PathToEntry);
 
         ForwardIfError(result);
         Reload();
@@ -1034,7 +1032,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Relays the operation to <see cref="_fileIoHandler"/>.
     /// </summary>
     public void ShowProperties(FileSystemEntryViewModel entry) =>
-        ForwardIfError(_fileProperties.ShowFileProperties(entry));
+        ForwardIfError(CurrentFs.FileProperties.ShowFileProperties(entry));
 
     /// <summary>
     /// Relays the operation to <see cref="RenameOne(string)"/> or <see cref="RenameMultiple(string)"/>.
@@ -1053,7 +1051,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         FileSystemEntryViewModel entry = SelectedFiles[0];
 
-        RenameOne operation = new(_fileIoHandler, entry.FileSystemEntry, newName);
+        RenameOne operation = new(CurrentFs.FileIoHandler, entry.FileSystemEntry, newName);
         IResult result = operation.Invoke();
         if (result.IsOk)
         {
@@ -1079,7 +1077,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
 
         RenameMultiple operation = new(
-            _fileIoHandler,
+            CurrentFs.FileIoHandler,
             entries,
             FileNameGenerator.GetAvailableNames(entries, namingPattern)
         );
@@ -1101,8 +1099,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void MoveToTrash()
     {
         MoveFilesToTrash operation = new(
-            _fileRestorer,
-            _fileIoHandler,
+            CurrentFs.BinInteraction,
+            CurrentFs.FileIoHandler,
             SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry)
         );
 
@@ -1122,7 +1120,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
         }
 
-        FlattenFolder action = new(_fileIoHandler, _fileInfoProvider, entry.PathToEntry);
+        FlattenFolder action = new(
+            CurrentFs.FileIoHandler,
+            CurrentFs.FileInfoProvider,
+            entry.PathToEntry
+        );
         IResult result = action.Invoke();
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(action);
@@ -1142,8 +1144,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
             ForwardIfError(
                 entry.IsDirectory
-                    ? _fileIoHandler.DeleteDir(entry.PathToEntry)
-                    : _fileIoHandler.DeleteFile(entry.PathToEntry)
+                    ? CurrentFs.FileIoHandler.DeleteDir(entry.PathToEntry)
+                    : CurrentFs.FileIoHandler.DeleteFile(entry.PathToEntry)
             );
 
         Reload();
@@ -1254,7 +1256,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void StageFile(FileSystemEntryViewModel entry)
     {
         if (IsVersionControlled)
-            ForwardIfError(_versionControl.StagePath(entry.PathToEntry));
+            ForwardIfError(CurrentFs.VersionControl.StagePath(entry.PathToEntry));
     }
 
     /// <summary>
@@ -1263,7 +1265,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void UnstageFile(FileSystemEntryViewModel entry)
     {
         if (IsVersionControlled)
-            ForwardIfError(_versionControl.UnstagePath(entry.PathToEntry));
+            ForwardIfError(CurrentFs.VersionControl.UnstagePath(entry.PathToEntry));
     }
 
     /// <summary>
@@ -1273,7 +1275,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (IsVersionControlled)
         {
-            ForwardIfError(_versionControl.DownloadChanges());
+            ForwardIfError(CurrentFs.VersionControl.DownloadChanges());
             Reload();
         }
     }
@@ -1285,7 +1287,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (IsVersionControlled)
         {
-            ForwardIfError(_versionControl.CommitChanges(commitMessage));
+            ForwardIfError(CurrentFs.VersionControl.CommitChanges(commitMessage));
             Reload();
         }
     }
@@ -1296,7 +1298,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void Push()
     {
         if (IsVersionControlled)
-            ForwardIfError(_versionControl.UploadChanges());
+            ForwardIfError(CurrentFs.VersionControl.UploadChanges());
     }
 
     /// <summary>
@@ -1312,9 +1314,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     public void Dispose()
     {
-        _versionControl.Dispose();
+        CurrentFs.VersionControl.Dispose();
         _refreshTimer?.Stop();
-        _entryVmFactory.Dispose();
 
         if (Searching)
             CancelSearch();

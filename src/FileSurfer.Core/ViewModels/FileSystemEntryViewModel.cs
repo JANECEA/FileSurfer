@@ -132,25 +132,22 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// the provided path and version control status.
     /// </para>
     /// </summary>
-    /// <param name="fileInfoProvider">Provider for file operations like retrieving file size and modification time.</param>
-    /// <param name="fileProperties">Determines if the open as dialogue can be invoked on this entry</param>
-    /// <param name="iconProvider">Provider for retrieving file icons.</param>
+    /// <param name="fileSystem">Current fileSystem</param>
     /// <param name="entry">The file or directory entry.</param>
     /// <param name="status">Optional version control status of the entry, defaulting to not version controlled.</param>
     public FileSystemEntryViewModel(
-        IFileInfoProvider fileInfoProvider,
-        IFileProperties fileProperties,
-        IIconProvider iconProvider,
+        IFileSystem fileSystem,
         IFileSystemEntry entry,
-        VcStatus status
+        VcStatus status = VcStatus.NotVersionControlled
     )
     {
         FileSystemEntry = entry;
-        _ = LoadIconAsync(entry, iconProvider);
+        _ = LoadIconAsync(entry, fileSystem.IconProvider);
 
-        LastModTime = fileInfoProvider.GetFileLastModified(entry.PathToEntry) ?? DateTime.MaxValue;
-        LastModified = GetLastModified(fileInfoProvider);
-        SizeB = IsDirectory ? null : fileInfoProvider.GetFileSizeB(entry.PathToEntry);
+        LastModTime =
+            fileSystem.FileInfoProvider.GetFileLastModified(entry.PathToEntry) ?? DateTime.MaxValue;
+        LastModified = GetLastModified(fileSystem.FileInfoProvider);
+        SizeB = IsDirectory ? null : fileSystem.FileInfoProvider.GetFileSizeB(entry.PathToEntry);
         Size = SizeB is long notNullSize ? GetSizeString(notNullSize) : string.Empty;
 
         if (IsDirectory)
@@ -161,11 +158,11 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
             Type = string.IsNullOrEmpty(extension) ? "File" : extension + " File";
         }
 
-        Opacity = fileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory) ? 0.5 : 1;
+        Opacity = fileSystem.FileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory) ? 0.5 : 1;
 
         UpdateVcStatus(status);
-        IsArchived = ArchiveManager.IsZipped(entry.PathToEntry);
-        SupportsOpenAs = fileProperties.SupportsOpenAs(entry);
+        IsArchived = fileSystem.ArchiveManager.IsZipped(entry.PathToEntry);
+        SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
     }
 
     private async Task LoadIconAsync(IFileSystemEntry entry, IIconProvider iconProvider) =>
@@ -187,21 +184,14 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// This constructor is specifically used for representing drives within the <see cref="FileSurfer"/> app.
     /// </para>
     /// </summary>
-    /// <param name="iconProvider">Provides the drive icon.</param>
-    /// <param name="fileProperties">Determines if the open as dialogue can be invoked on this entry</param>
-    /// <param name="driveEntry">The drive information associated with this entry.</param>
-    public FileSystemEntryViewModel(
-        IIconProvider iconProvider,
-        IFileProperties fileProperties,
-        DriveEntry driveEntry
-    )
+    public FileSystemEntryViewModel(IFileSystem fileSystem, DriveEntry driveEntry)
     {
         FileSystemEntry = driveEntry;
         Type = "Drive";
-        _ = LoadIconAsync(driveEntry, iconProvider);
+        _ = LoadIconAsync(driveEntry, fileSystem.IconProvider);
         LastModified = string.Empty;
         Size = GetSizeString(driveEntry.SizeB);
-        SupportsOpenAs = fileProperties.SupportsOpenAs(driveEntry);
+        SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(driveEntry);
     }
 
     internal void UpdateVcStatus(VcStatus newStatus)
