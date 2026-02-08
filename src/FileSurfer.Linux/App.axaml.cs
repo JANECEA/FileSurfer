@@ -80,19 +80,21 @@ public partial class App : Application
     {
         LinuxFileIoHandler fileIoHandler = new();
         LinuxShellHandler shellHandler = new();
+        LinuxFileInfoProvider fileInfoProvider = new(shellHandler);
         IClipboard clipboard = mainWindow.Clipboard ?? throw new InvalidDataException();
         LocalClipboardManager clipboardManager = new(
             clipboard,
             mainWindow.StorageProvider,
-            fileIoHandler
+            fileIoHandler,
+            fileInfoProvider
         );
 
         LinuxFileSystem fileSystem = new()
         {
-            FileInfoProvider = new LinuxFileInfoProvider(shellHandler),
+            FileInfoProvider = fileInfoProvider,
             IconProvider = new LinuxIconProvider(shellHandler),
             ClipboardManager = clipboardManager,
-            ArchiveManager = new LocalArchiveManager(),
+            ArchiveManager = new LocalArchiveManager(fileInfoProvider),
             FileIoHandler = new LinuxFileIoHandler(),
             BinInteraction = new LinuxBinInteraction(shellHandler),
             FileProperties = new LinuxFileProperties(new PropertiesVmFactory(mainWindow)),

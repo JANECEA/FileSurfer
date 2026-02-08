@@ -17,6 +17,11 @@ public class LocalArchiveManager : IArchiveManager
 {
     public const string ArchiveTypeExtension = ".zip";
 
+    private readonly IFileInfoProvider _fileInfoProvider;
+
+    public LocalArchiveManager(IFileInfoProvider fileInfoProvider) =>
+        _fileInfoProvider = fileInfoProvider;
+
     private sealed record ArchiveType(string Extension, Func<Stream, IReader>? FactoryFn);
 
     private static readonly IReadOnlyList<ArchiveType> SupportedFormats =
@@ -99,6 +104,7 @@ public class LocalArchiveManager : IArchiveManager
         try
         {
             string extractName = FileNameGenerator.GetAvailableName(
+                _fileInfoProvider,
                 destinationPath,
                 archivePath[..^archiveType.Extension.Length]
             );

@@ -835,6 +835,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void NewFile()
     {
         string newFileName = FileNameGenerator.GetAvailableName(
+            CurrentFs.FileInfoProvider,
             CurrentDir,
             FileSurferSettings.NewFileName
         );
@@ -861,6 +862,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void NewDir()
     {
         string newDirName = FileNameGenerator.GetAvailableName(
+            CurrentFs.FileInfoProvider,
             CurrentDir,
             FileSurferSettings.NewDirectoryName
         );
@@ -893,7 +895,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
                 CurrentFs.ArchiveManager.ZipFiles(
                     SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                     CurrentDir,
-                    FileNameGenerator.GetAvailableName(CurrentDir, archiveName)
+                    FileNameGenerator.GetAvailableName(
+                        CurrentFs.FileInfoProvider,
+                        CurrentDir,
+                        archiveName
+                    )
                 )
             )
         );
@@ -1079,7 +1085,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         RenameMultiple operation = new(
             CurrentFs.FileIoHandler,
             entries,
-            FileNameGenerator.GetAvailableNames(entries, namingPattern)
+            FileNameGenerator.GetAvailableNames(CurrentFs.FileInfoProvider, entries, namingPattern)
         );
         IResult result = operation.Invoke();
         if (result.IsOk)

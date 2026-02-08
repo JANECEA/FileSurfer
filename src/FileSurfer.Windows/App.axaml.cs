@@ -88,7 +88,8 @@ public partial class App : Application
         LocalClipboardManager clipboardManager = new(
             clipboard,
             mainWindow.StorageProvider,
-            fileIoHandler
+            fileIoHandler,
+            fileInfoProvider
         );
         WindowsBinInteraction binInteraction = new(
             FileSurferSettings.ShowDialogLimitB,
@@ -100,7 +101,7 @@ public partial class App : Application
             FileInfoProvider = fileInfoProvider,
             IconProvider = new WindowsIconProvider(),
             ClipboardManager = clipboardManager,
-            ArchiveManager = new LocalArchiveManager(),
+            ArchiveManager = new LocalArchiveManager(fileInfoProvider),
             FileIoHandler = fileIoHandler,
             BinInteraction = binInteraction,
             FileProperties = new WindowsFileProperties(),

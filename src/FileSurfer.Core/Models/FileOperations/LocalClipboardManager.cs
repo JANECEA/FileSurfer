@@ -16,6 +16,7 @@ namespace FileSurfer.Core.Models.FileOperations;
 public class LocalClipboardManager : IClipboardManager
 {
     private readonly IFileIoHandler _fileIoHandler;
+    private readonly IFileInfoProvider _fileInfoProvider;
     private readonly IClipboard _systemClipboard;
     private readonly IStorageProvider _storageProvider;
 
@@ -26,10 +27,12 @@ public class LocalClipboardManager : IClipboardManager
     public LocalClipboardManager(
         IClipboard clipboardManager,
         IStorageProvider storageProvider,
-        IFileIoHandler fileIoHandler
+        IFileIoHandler fileIoHandler,
+        IFileInfoProvider fileInfoProvider
     )
     {
         _fileIoHandler = fileIoHandler;
+        _fileInfoProvider = fileInfoProvider;
         _systemClipboard = clipboardManager;
         _storageProvider = storageProvider;
     }
@@ -142,12 +145,10 @@ public class LocalClipboardManager : IClipboardManager
     public async Task CopyPathToFileAsync(string filePath) =>
         await _systemClipboard.SetTextAsync($"\"{filePath}\"");
 
-    private static ValueResult<IFileSystemEntry> SaveImageToPath(
-        string destinationPath,
-        Bitmap image
-    )
+    private ValueResult<IFileSystemEntry> SaveImageToPath(string destinationPath, Bitmap image)
     {
         string imgName = FileNameGenerator.GetAvailableName(
+            _fileInfoProvider,
             destinationPath,
             FileSurferSettings.NewImageName + ".png"
         );
@@ -239,7 +240,7 @@ public class LocalClipboardManager : IClipboardManager
         for (int i = 0; i < _programClipboard.Length; i++)
         {
             IFileSystemEntry entry = _programClipboard[i];
-            copyNames[i] = FileNameGenerator.GetCopyName(currentDir, entry);
+            copyNames[i] = FileNameGenerator.GetCopyName(_fileInfoProvider, currentDir, entry);
 
             result.MergeResult(
                 entry is DirectoryEntry

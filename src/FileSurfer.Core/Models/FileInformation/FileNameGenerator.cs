@@ -14,9 +14,13 @@ public static class FileNameGenerator
     /// Finds a name available to use in <paramref name="directory"/> based on <paramref name="newName"/>.
     /// </summary>
     /// <returns><see cref="string"/> name available to use in <paramref name="directory"/>.</returns>
-    public static string GetAvailableName(string directory, string newName)
+    public static string GetAvailableName(
+        IFileInfoProvider fileInfoProvider,
+        string directory,
+        string newName
+    )
     {
-        if (!Path.Exists(Path.Combine(directory, newName)))
+        if (!fileInfoProvider.PathExists(Path.Combine(directory, newName)))
             return newName;
 
         string nameWithoutExtension = Path.GetFileNameWithoutExtension(newName);
@@ -25,7 +29,7 @@ public static class FileNameGenerator
         {
             string newFileName = $"{nameWithoutExtension} ({index}){extension}";
 
-            if (!Path.Exists(Path.Combine(directory, newFileName)))
+            if (!fileInfoProvider.PathExists(Path.Combine(directory, newFileName)))
                 return newFileName;
         }
     }
@@ -34,9 +38,13 @@ public static class FileNameGenerator
     /// Finds a name available to use in all <paramref name="dirPaths"/> based on <paramref name="newName"/>.
     /// </summary>
     /// <returns><see cref="string"/> name available to use in all <paramref name="dirPaths"/>.</returns>
-    public static string GetNameMultipleDirs(string newName, params string[] dirPaths)
+    public static string GetNameMultipleDirs(
+        IFileInfoProvider fileInfoProvider,
+        string newName,
+        params string[] dirPaths
+    )
     {
-        if (dirPaths.All(dirPath => !Path.Exists(Path.Combine(dirPath, newName))))
+        if (dirPaths.All(dirPath => !fileInfoProvider.PathExists(Path.Combine(dirPath, newName))))
             return newName;
 
         string nameWithoutExtension = Path.GetFileNameWithoutExtension(newName);
@@ -45,7 +53,11 @@ public static class FileNameGenerator
         {
             string newFileName = $"{nameWithoutExtension} ({index}){extension}";
 
-            if (dirPaths.All(dirPath => !Path.Exists(Path.Combine(dirPath, newFileName))))
+            if (
+                dirPaths.All(dirPath =>
+                    !fileInfoProvider.PathExists(Path.Combine(dirPath, newFileName))
+                )
+            )
                 return newFileName;
         }
     }
@@ -54,8 +66,16 @@ public static class FileNameGenerator
     /// Finds a name available for a copy.
     /// </summary>
     /// <returns>Name of a copy, available to use in the path specified in: <paramref name="directory"/>.</returns>
-    public static string GetCopyName(string directory, IFileSystemEntry entry) =>
-        GetAvailableName(directory, $"{entry.NameWoExtension} - Copy{entry.Extension}");
+    public static string GetCopyName(
+        IFileInfoProvider fileInfoProvider,
+        string directory,
+        IFileSystemEntry entry
+    ) =>
+        GetAvailableName(
+            fileInfoProvider,
+            directory,
+            $"{entry.NameWoExtension} - Copy{entry.Extension}"
+        );
 
     /// <summary>
     /// Determines if the files or directories represented by <paramref name="entries"/> can be collectively renamed.
@@ -72,11 +92,7 @@ public static class FileNameGenerator
         for (int i = 1; i < entries.Count; i++)
             if (
                 entries[i] is FileEntry != onlyFiles
-                || !string.Equals(
-                    entries[i].Extension,
-                    extension,
-                    StringComparison.OrdinalIgnoreCase
-                )
+                || !string.Equals(entries[i].Extension, extension, PathTools.Comparison)
             )
                 return false;
 
@@ -87,8 +103,15 @@ public static class FileNameGenerator
     /// Gets new available name for the files represented by <paramref name="entries"/> accoring to <paramref name="namingPattern"/>.
     /// </summary>
     /// <returns>An array of names available for <paramref name="entries"/>.</returns>
-    public static string[] GetAvailableNames(IList<IFileSystemEntry> entries, string namingPattern)
+    public static string[] GetAvailableNames(
+        IFileInfoProvider fileInfoProvider,
+        IList<IFileSystemEntry> entries,
+        string namingPattern
+    )
     {
+        if (entries.Count == 0)
+            return Array.Empty<string>();
+
         string[] newNames = new string[entries.Count];
         string extension = Path.GetExtension(namingPattern);
         string nameWithoutExtension = Path.GetFileNameWithoutExtension(namingPattern);
@@ -104,7 +127,7 @@ public static class FileNameGenerator
                 string newFileName = $"{nameWithoutExtension} ({index}){extension}";
                 lastIndex++;
 
-                if (!Path.Exists(Path.Combine(directory, newFileName)))
+                if (!fileInfoProvider.PathExists(Path.Combine(directory, newFileName)))
                 {
                     newNames[i] = newFileName;
                     break;

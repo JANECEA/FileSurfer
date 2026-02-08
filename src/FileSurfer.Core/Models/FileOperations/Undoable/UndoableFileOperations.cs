@@ -215,7 +215,12 @@ public class FlattenFolder : IUndoableFileOperation
         if (!Path.Exists(Path.Combine(_dirPath, _dirName)))
             return SimpleResult.Ok();
 
-        string newName = FileNameGenerator.GetNameMultipleDirs(_dirName, _parentDir!, _dirPath);
+        string newName = FileNameGenerator.GetNameMultipleDirs(
+            _fileInfoProvider,
+            _dirName,
+            _parentDir!,
+            _dirPath
+        );
         newDirPath = Path.Combine(_parentDir!, newName);
         return _fileIoHandler.RenameDirAt(_dirPath, newName);
     }
@@ -265,7 +270,7 @@ public class FlattenFolder : IUndoableFileOperation
         )
             return SimpleResult.Error($"Path: \"{_dirPath}\" already exists.");
 
-        newDirName = FileNameGenerator.GetAvailableName(_parentDir, _dirName);
+        newDirName = FileNameGenerator.GetAvailableName(_fileInfoProvider, _parentDir, _dirName);
         return SimpleResult.Ok();
     }
 

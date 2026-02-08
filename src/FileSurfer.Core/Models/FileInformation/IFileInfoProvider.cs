@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 namespace FileSurfer.Core.Models.FileInformation;
 
 /// <summary>
 /// Defines methods for retrieving file and directory information.
 /// </summary>
+[SuppressMessage("ReSharper", "RedundantVirtualModifier")]
 public interface IFileInfoProvider
 {
     /// <summary>
@@ -59,4 +62,19 @@ public interface IFileInfoProvider
     /// </summary>
     /// <returns><see langword="true"/> if the path is hidden, otherwise <see langword="false"/>.</returns>
     public bool IsHidden(string path, bool isDirectory);
+
+    /// <summary>
+    /// Determines if the file exists within the containing file system.
+    /// </summary>
+    public virtual bool FileExists(string path) => File.Exists(path);
+
+    /// <summary>
+    /// Determines if the directory exists within the containing file system.
+    /// </summary>
+    public virtual bool DirectoryExists(string path) => Directory.Exists(path);
+
+    /// <summary>
+    /// Determines if the file or directory exists  within the containing file system.
+    /// </summary>
+    public virtual bool PathExists(string path) => Path.Exists(path);
 }
