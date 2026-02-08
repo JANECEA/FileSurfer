@@ -105,7 +105,7 @@ public partial class App : Application
             BinInteraction = binInteraction,
             FileProperties = new WindowsFileProperties(),
             ShellHandler = shellHandler,
-            VersionControl = new GitVersionControl(shellHandler),
+            GitIntegration = new LocalGitIntegration(shellHandler),
         };
         return new MainWindowViewModel(initialDir, fileSystem, SetDarkMode);
     }

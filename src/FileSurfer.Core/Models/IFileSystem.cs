@@ -18,5 +18,5 @@ public interface IFileSystem
     public IBinInteraction BinInteraction { get; }
     public IFileProperties FileProperties { get; }
     public IShellHandler ShellHandler { get; }
-    public IVersionControl VersionControl { get; }
+    public IGitIntegration GitIntegration { get; }
 }

@@ -3,29 +3,29 @@ using System;
 namespace FileSurfer.Core.Models.VersionControl;
 
 /// <summary>
-/// Defines methods for interacting with a version control system withing the <see cref="FileSurfer"/> app.
+/// Defines methods for interacting with the Git version control system withing the <see cref="FileSurfer"/> app.
 /// </summary>
-public interface IVersionControl : IDisposable
+public interface IGitIntegration : IDisposable
 {
     /// <summary>
     /// Determines whether the specified directory is under version control.
     /// </summary>
     /// <param name="directoryPath">The path of the directory to check.</param>
     /// <returns><see langword="true"/> if the directory is part of a git repository or <see langword="false"/> otherwise.</returns>
-    public bool InitIfVersionControlled(string directoryPath);
+    public bool InitIfGitRepository(string directoryPath);
 
     /// <summary>
     /// Retrieves the status of the specified path in the version control system.
     /// </summary>
     /// <param name="filePath">The path for which to retrieve the status.</param>
-    /// <returns><see cref="VcStatus"/> representing the version control status in the context of <see cref="FileSurfer"/>.</returns>
-    public VcStatus GetStatus(string filePath);
+    /// <returns><see cref="GitStatus"/> representing the version control status in the context of <see cref="FileSurfer"/>.</returns>
+    public GitStatus GetStatus(string filePath);
 
     /// <summary>
     /// Downloads the latest changes from the version control system to the local repository.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult DownloadChanges();
+    public IResult PullChanges();
 
     /// <summary>
     /// Retrieves a list of all branches in the version control system.
@@ -71,5 +71,5 @@ public interface IVersionControl : IDisposable
     /// Uploads the committed changes to the remote repository.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult UploadChanges();
+    public IResult PushChanges();
 }

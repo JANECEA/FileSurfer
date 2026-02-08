@@ -138,7 +138,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     public FileSystemEntryViewModel(
         IFileSystem fileSystem,
         IFileSystemEntry entry,
-        VcStatus status = VcStatus.NotVersionControlled
+        GitStatus status = GitStatus.NotVersionControlled
     )
     {
         FileSystemEntry = entry;
@@ -194,10 +194,10 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(driveEntry);
     }
 
-    internal void UpdateVcStatus(VcStatus newStatus)
+    internal void UpdateVcStatus(GitStatus newStatus)
     {
-        VersionControlled = newStatus is not VcStatus.NotVersionControlled;
-        Staged = newStatus is VcStatus.Staged;
+        VersionControlled = newStatus is not GitStatus.NotVersionControlled;
+        Staged = newStatus is GitStatus.Staged;
     }
 
     private string GetLastModified(IFileInfoProvider fileInfoProvider)

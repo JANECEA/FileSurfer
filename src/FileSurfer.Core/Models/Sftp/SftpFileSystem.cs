@@ -15,5 +15,5 @@ public sealed class SftpFileSystem : IFileSystem
     public required IBinInteraction BinInteraction { get; init; }
     public required IFileProperties FileProperties { get; init; }
     public required IShellHandler ShellHandler { get; init; }
-    public required IVersionControl VersionControl { get; init; }
+    public required IGitIntegration GitIntegration { get; init; }
 }

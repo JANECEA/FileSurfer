@@ -10,21 +10,21 @@ namespace FileSurfer.Core.Models.VersionControl;
 /// <summary>
 /// Handles git integration within the <see cref="FileSurfer"/> app.
 /// </summary>
-public class GitVersionControl : IVersionControl
+public class LocalGitIntegration : IGitIntegration
 {
     private const string MissingRepoMessage = "No git repository found";
 
     private readonly IShellHandler _shellHandler;
 
-    private readonly Dictionary<string, VcStatus> _pathStates = new();
+    private readonly Dictionary<string, GitStatus> _pathStates = new();
     private Repository? _currentRepo;
 
     /// <summary>
-    /// Initializes a new <see cref="GitVersionControl"/>.
+    /// Initializes a new <see cref="LocalGitIntegration"/>.
     /// </summary>
-    public GitVersionControl(IShellHandler shellHandler) => _shellHandler = shellHandler;
+    public LocalGitIntegration(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
-    public bool InitIfVersionControlled(string directoryPath)
+    public bool InitIfGitRepository(string directoryPath)
     {
         string? repoRootDir = directoryPath;
         string gitDir = string.Empty;
@@ -65,7 +65,7 @@ public class GitVersionControl : IVersionControl
             ? PathTools.NormalizePath(_currentRepo.Info.WorkingDirectory)
             : null;
 
-    public IResult DownloadChanges() =>
+    public IResult PullChanges() =>
         _currentRepo is null
             ? SimpleResult.Error(MissingRepoMessage)
             : _shellHandler.ExecuteCommand("git", "-C", GetWorkingDir()!, "pull");
@@ -120,34 +120,34 @@ public class GitVersionControl : IVersionControl
             string absolutePath = PathTools.NormalizePath(
                 Path.Combine(_currentRepo.Info.WorkingDirectory, entry.FilePath)
             );
-            VcStatus status = ConvertToVcStatus(entry.State);
+            GitStatus status = ConvertToVcStatus(entry.State);
             _pathStates[absolutePath] = status;
 
-            if (status is VcStatus.Unstaged or VcStatus.Staged)
+            if (status is GitStatus.Unstaged or GitStatus.Staged)
                 SetDirStatuses(absolutePath, status);
         }
     }
 
-    private void SetDirStatuses(string absolutePath, VcStatus status)
+    private void SetDirStatuses(string absolutePath, GitStatus status)
     {
         string? parentPath = absolutePath;
         while (
             (parentPath = Path.GetDirectoryName(parentPath))?.Length
             > _currentRepo!.Info.WorkingDirectory.Length
         )
-            if (status is VcStatus.Unstaged)
-                _pathStates[parentPath] = VcStatus.Unstaged;
+            if (status is GitStatus.Unstaged)
+                _pathStates[parentPath] = GitStatus.Unstaged;
             else if (
-                !_pathStates.TryGetValue(parentPath, out VcStatus currentStatus)
-                || currentStatus is not VcStatus.Unstaged
+                !_pathStates.TryGetValue(parentPath, out GitStatus currentStatus)
+                || currentStatus is not GitStatus.Unstaged
             )
-                _pathStates[parentPath] = VcStatus.Staged;
+                _pathStates[parentPath] = GitStatus.Staged;
     }
 
-    private static VcStatus ConvertToVcStatus(FileStatus status)
+    private static GitStatus ConvertToVcStatus(FileStatus status)
     {
         if (status is FileStatus.Ignored or FileStatus.Nonexistent or FileStatus.Unaltered)
-            return VcStatus.NotVersionControlled;
+            return GitStatus.NotVersionControlled;
 
         if (
             status.HasFlag(FileStatus.NewInIndex)
@@ -156,7 +156,7 @@ public class GitVersionControl : IVersionControl
             || status.HasFlag(FileStatus.RenamedInIndex)
             || status.HasFlag(FileStatus.TypeChangeInIndex)
         )
-            return VcStatus.Staged;
+            return GitStatus.Staged;
 
         if (
             status.HasFlag(FileStatus.NewInWorkdir)
@@ -165,18 +165,18 @@ public class GitVersionControl : IVersionControl
             || status.HasFlag(FileStatus.RenamedInWorkdir)
             || status.HasFlag(FileStatus.TypeChangeInWorkdir)
         )
-            return VcStatus.Unstaged;
+            return GitStatus.Unstaged;
 
-        return VcStatus.NotVersionControlled;
+        return GitStatus.NotVersionControlled;
     }
 
-    public VcStatus GetStatus(string filePath) =>
+    public GitStatus GetStatus(string filePath) =>
         _currentRepo is not null
             ? _pathStates.GetValueOrDefault(
                 PathTools.NormalizePath(filePath),
-                VcStatus.NotVersionControlled
+                GitStatus.NotVersionControlled
             )
-            : VcStatus.NotVersionControlled;
+            : GitStatus.NotVersionControlled;
 
     public IResult StagePath(string path)
     {
@@ -240,7 +240,7 @@ public class GitVersionControl : IVersionControl
         return true;
     }
 
-    public IResult UploadChanges() =>
+    public IResult PushChanges() =>
         _currentRepo is null
             ? SimpleResult.Error(MissingRepoMessage)
             : _shellHandler.ExecuteCommand("git", "-C", GetWorkingDir()!, "push");

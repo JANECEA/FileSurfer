@@ -19,13 +19,13 @@ public class SftpArchiveManager : IArchiveManager
         SimpleResult.Error("Unsupported environment.");
 }
 
-public class SftpGitVersionControl : IVersionControl
+public class SftpGitIntegration : IGitIntegration
 {
-    public bool InitIfVersionControlled(string directoryPath) => false;
+    public bool InitIfGitRepository(string directoryPath) => false;
 
-    public VcStatus GetStatus(string filePath) => VcStatus.NotVersionControlled;
+    public GitStatus GetStatus(string filePath) => GitStatus.NotVersionControlled;
 
-    public IResult DownloadChanges() => SimpleResult.Error("Unsupported environment.");
+    public IResult PullChanges() => SimpleResult.Error("Unsupported environment.");
 
     public string[] GetBranches() => Array.Empty<string>();
 
@@ -41,7 +41,7 @@ public class SftpGitVersionControl : IVersionControl
     public IResult CommitChanges(string commitMessage) =>
         SimpleResult.Error("Unsupported environment.");
 
-    public IResult UploadChanges() => SimpleResult.Error("Unsupported environment.");
+    public IResult PushChanges() => SimpleResult.Error("Unsupported environment.");
 
     public void Dispose() { }
 }

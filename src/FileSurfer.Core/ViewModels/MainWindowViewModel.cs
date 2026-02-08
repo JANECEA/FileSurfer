@@ -158,7 +158,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             this.RaiseAndSetIfChanged(ref _currentBranch, value);
             if (_isActionUserInvoked && !string.IsNullOrEmpty(value) && Branches.Contains(value))
             {
-                ForwardIfError(CurrentFs.VersionControl.SwitchBranches(value));
+                ForwardIfError(CurrentFs.GitIntegration.SwitchBranches(value));
                 Reload();
             }
         }
@@ -626,10 +626,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         AddEntries(dirs, files);
     }
 
-    private VcStatus GetVcStatus(string path) =>
+    private GitStatus GetVcStatus(string path) =>
         IsVersionControlled
-            ? CurrentFs.VersionControl.GetStatus(path)
-            : VcStatus.NotVersionControlled;
+            ? CurrentFs.GitIntegration.GetStatus(path)
+            : GitStatus.NotVersionControlled;
 
     /// <summary>
     /// Adds directories and files to <see cref="FileEntries"/>.
@@ -704,7 +704,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         IsVersionControlled =
             FileSurferSettings.GitIntegration
             && Directory.Exists(CurrentDir)
-            && CurrentFs.VersionControl.InitIfVersionControlled(CurrentDir);
+            && CurrentFs.GitIntegration.InitIfGitRepository(CurrentDir);
 
         LoadBranches();
     }
@@ -717,8 +717,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
         }
 
-        string currentBranch = CurrentFs.VersionControl.GetCurrentBranchName();
-        string[] branches = CurrentFs.VersionControl.GetBranches();
+        string currentBranch = CurrentFs.GitIntegration.GetCurrentBranchName();
+        string[] branches = CurrentFs.GitIntegration.GetBranches();
         if (CurrentBranch == currentBranch && Branches.EqualsUnordered(branches))
             return;
 
@@ -1256,7 +1256,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void StageFile(FileSystemEntryViewModel entry)
     {
         if (IsVersionControlled)
-            ForwardIfError(CurrentFs.VersionControl.StagePath(entry.PathToEntry));
+            ForwardIfError(CurrentFs.GitIntegration.StagePath(entry.PathToEntry));
     }
 
     /// <summary>
@@ -1265,7 +1265,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void UnstageFile(FileSystemEntryViewModel entry)
     {
         if (IsVersionControlled)
-            ForwardIfError(CurrentFs.VersionControl.UnstagePath(entry.PathToEntry));
+            ForwardIfError(CurrentFs.GitIntegration.UnstagePath(entry.PathToEntry));
     }
 
     /// <summary>
@@ -1275,7 +1275,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (IsVersionControlled)
         {
-            ForwardIfError(CurrentFs.VersionControl.DownloadChanges());
+            ForwardIfError(CurrentFs.GitIntegration.PullChanges());
             Reload();
         }
     }
@@ -1287,7 +1287,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (IsVersionControlled)
         {
-            ForwardIfError(CurrentFs.VersionControl.CommitChanges(commitMessage));
+            ForwardIfError(CurrentFs.GitIntegration.CommitChanges(commitMessage));
             Reload();
         }
     }
@@ -1298,7 +1298,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void Push()
     {
         if (IsVersionControlled)
-            ForwardIfError(CurrentFs.VersionControl.UploadChanges());
+            ForwardIfError(CurrentFs.GitIntegration.PushChanges());
     }
 
     /// <summary>
@@ -1314,7 +1314,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     public void Dispose()
     {
-        CurrentFs.VersionControl.Dispose();
+        CurrentFs.GitIntegration.Dispose();
         _refreshTimer?.Stop();
 
         if (Searching)

@@ -97,7 +97,7 @@ public partial class App : Application
             BinInteraction = new LinuxBinInteraction(shellHandler),
             FileProperties = new LinuxFileProperties(new PropertiesVmFactory(mainWindow)),
             ShellHandler = shellHandler,
-            VersionControl = new GitVersionControl(shellHandler),
+            GitIntegration = new LocalGitIntegration(shellHandler),
         };
         return new MainWindowViewModel(initialDir, fileSystem, SetDarkMode);
     }
