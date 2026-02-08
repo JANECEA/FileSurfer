@@ -263,20 +263,6 @@ public partial class MainWindow : Window
 
         if (properties.IsXButton2Pressed)
             _viewModel?.GoForward();
-
-        if (_viewModel is not null && _viewModel.Searching && properties.IsMiddleButtonPressed)
-        {
-            Visual? hitElement = (Visual?)FileDisplay.InputHitTest(e.GetPosition(FileDisplay));
-            while (hitElement is not null)
-            {
-                if (hitElement is ListBoxItem { DataContext: FileSystemEntryViewModel entry })
-                {
-                    _viewModel?.OpenEntryLocation(entry);
-                    return;
-                }
-                hitElement = hitElement.GetVisualParent();
-            }
-        }
     }
 
     /// <summary>
@@ -536,13 +522,6 @@ public partial class MainWindow : Window
         ClearFocus();
     }
 
-    /// <summary>
-    /// Invokes <see cref="FileSurferSettings.UpdateQuickAccess(System.Collections.Generic.IEnumerable{FileSystemEntryViewModel})"/>
-    /// and <see cref="FileSurferSettings.SaveSettings"/>,
-    /// <para>
-    /// and also disposes of <see cref="_viewModel"/>'s resources after the app closes.
-    /// </para>
-    /// </summary>
     private void OnClosing(object sender, WindowClosingEventArgs e)
     {
         if (_viewModel is not null)

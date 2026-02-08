@@ -53,19 +53,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private DispatcherTimer? _refreshTimer;
 
     private bool _isActionUserInvoked = true;
-    private bool SortReversed
-    {
-        get => FileSurferSettings.SortReversed;
-        set => FileSurferSettings.SortReversed = value;
-    }
-    private SortBy SortBy
-    {
-        get => FileSurferSettings.DefaultSort;
-        set => FileSurferSettings.DefaultSort = value;
-    }
     private DateTime _lastModified;
 
-    public SortInfo SortInfo => new(SortBy, SortReversed);
+    public SortInfo SortInfo =>
+        new(FileSurferSettings.DefaultSort, FileSurferSettings.SortReversed);
 
     /// <summary>
     /// Holds <see cref="FileSystemEntryViewModel"/>s displayed in the main window.
@@ -568,12 +559,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Opens the location of the selected entry during searching.
-    /// </summary>
-    public void OpenEntryLocation(FileSystemEntryViewModel entry) =>
-        SetCurrentDir(Path.GetDirectoryName(entry.PathToEntry) ?? ThisPcLabel);
-
-    /// <summary>
     /// Navigates up one directory level from the current directory.
     /// <para>
     /// - If the current directory is already at the root level or if the parent directory
@@ -657,22 +642,25 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void AddEntries(FileSystemEntryViewModel[] dirs, FileSystemEntryViewModel[] files)
     {
-        SortInPlace(files, SortBy);
-        SortInPlace(dirs, SortBy);
+        SortBy sortBy = FileSurferSettings.DefaultSort;
+        bool sortReversed = FileSurferSettings.SortReversed;
+
+        SortInPlace(files, sortBy);
+        SortInPlace(dirs, sortBy);
 
         HashSet<string>? selectedPaths = null;
         if (SelectedFiles.Count > 0)
             selectedPaths = SelectedFiles.Select(entry => entry.PathToEntry).ToHashSet();
 
         FileEntries.Clear();
-        if (!SortReversed || SortBy is SortBy.Type or SortBy.Size)
+        if (!sortReversed || sortBy is SortBy.Type or SortBy.Size)
             for (int i = 0; i < dirs.Length; i++)
                 FileEntries.Add(dirs[i]);
         else
             for (int i = dirs.Length - 1; i >= 0; i--)
                 FileEntries.Add(dirs[i]);
 
-        if (!SortReversed)
+        if (!sortReversed)
             for (int i = 0; i < files.Length; i++)
                 FileEntries.Add(files[i]);
         else
@@ -1162,15 +1150,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Sets <see cref="SortBy"/> to the parameter and determines <see cref="SortReversed"/>.
+    /// Sets <see cref="SortBy"/> to the parameter and determines <see cref="FileSurferSettings.SortReversed"/>.
     /// <para>
     /// Invokes <see cref="Reload"/>.
     /// </para>
     /// </summary>
     private void SetSortBy(SortBy sortBy)
     {
-        SortReversed = SortBy == sortBy && !SortReversed;
-        SortBy = sortBy;
+        FileSurferSettings.SortReversed =
+            FileSurferSettings.DefaultSort == sortBy && !FileSurferSettings.SortReversed;
+
+        FileSurferSettings.DefaultSort = sortBy;
         Reload(true);
     }
 
