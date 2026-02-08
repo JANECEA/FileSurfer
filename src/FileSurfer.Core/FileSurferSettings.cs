@@ -103,7 +103,7 @@ public static class FileSurferSettings
             openIn = OpenIn,
             useDarkMode = UseDarkMode,
             displayMode = DisplayMode.ToString(),
-            defaultSort = DefaultSort.ToString(),
+            defaultSort = SortingMode.ToString(),
             fileSizeUnitLimit = FileSizeUnitLimit,
             sortReversed = SortReversed,
             showSpecialFolders = ShowSpecialFolders,
@@ -199,7 +199,7 @@ public static class FileSurferSettings
     /// <summary>
     /// Specifies the default sorting method for files and folders. Defaults to sorting by <see cref="SortBy.Name"/>.
     /// </summary>
-    public static SortBy DefaultSort { get; set; }
+    public static SortBy SortingMode { get; set; }
 
     /// <summary>
     /// Numerical limit before FileSurfer uses the next byte unit. Defaults to <c>4096</c>.
@@ -350,7 +350,7 @@ public static class FileSurferSettings
         OpenIn = SanitizeName(settings.openIn, InvalidPathChars, defaultSettings.openIn);
         UseDarkMode = settings.useDarkMode;
         DisplayMode = SafeParseEnum<DisplayMode>(settings.displayMode);
-        DefaultSort = SafeParseEnum<SortBy>(settings.defaultSort);
+        SortingMode = SafeParseEnum<SortBy>(settings.defaultSort);
 
         FileSizeUnitLimit = ClampValue(
             settings.fileSizeUnitLimit,

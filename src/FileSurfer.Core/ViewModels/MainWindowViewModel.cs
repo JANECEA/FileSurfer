@@ -50,7 +50,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private DateTime _lastModified;
 
     public SortInfo SortInfo =>
-        new(FileSurferSettings.DefaultSort, FileSurferSettings.SortReversed);
+        new(FileSurferSettings.SortingMode, FileSurferSettings.SortReversed);
 
     /// <summary>
     /// Holds <see cref="FileSystemEntryViewModel"/>s displayed in the main window.
@@ -636,7 +636,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void AddEntries(FileSystemEntryViewModel[] dirs, FileSystemEntryViewModel[] files)
     {
-        SortBy sortBy = FileSurferSettings.DefaultSort;
+        SortBy sortBy = FileSurferSettings.SortingMode;
         bool sortReversed = FileSurferSettings.SortReversed;
 
         SortInPlace(files, sortBy);
@@ -1166,9 +1166,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void SetSortBy(SortBy sortBy)
     {
         FileSurferSettings.SortReversed =
-            FileSurferSettings.DefaultSort == sortBy && !FileSurferSettings.SortReversed;
+            FileSurferSettings.SortingMode == sortBy && !FileSurferSettings.SortReversed;
 
-        FileSurferSettings.DefaultSort = sortBy;
+        FileSurferSettings.SortingMode = sortBy;
         Reload(true);
     }
 
