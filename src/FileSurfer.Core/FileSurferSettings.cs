@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.ViewModels;
 

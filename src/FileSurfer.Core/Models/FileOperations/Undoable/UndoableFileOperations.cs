@@ -212,7 +212,7 @@ public class FlattenFolder : IUndoableFileOperation
     private IResult RenameIfConflict(out string newDirPath)
     {
         newDirPath = _dirPath;
-        if (!Path.Exists(Path.Combine(_dirPath, _dirName)))
+        if (!_fileInfoProvider.PathExists(Path.Combine(_dirPath, _dirName)))
             return SimpleResult.Ok();
 
         string newName = FileNameGenerator.GetNameMultipleDirs(
@@ -261,7 +261,7 @@ public class FlattenFolder : IUndoableFileOperation
         if (_parentDir is null)
             return SimpleResult.Error($"Cannot create a top level directory: \"{_dirPath}\"");
 
-        if (!Path.Exists(_dirPath))
+        if (!_fileInfoProvider.PathExists(_dirPath))
             return SimpleResult.Ok();
 
         if (

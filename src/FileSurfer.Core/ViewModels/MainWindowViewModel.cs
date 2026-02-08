@@ -277,10 +277,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private void SetCurrentDirNoHistory(string dirPath)
     {
-        if (Directory.Exists(dirPath))
+        if (CurrentFs.FileInfoProvider.DirectoryExists(dirPath))
         {
             dirPath = Path.GetFullPath(dirPath);
-            _lastModified = Directory.GetLastWriteTime(dirPath);
+            _lastModified = CurrentFs.FileInfoProvider.GetDirLastModified(dirPath) ?? DateTime.Now;
         }
         else if (dirPath != ThisPcLabel && !Searching)
         {
@@ -329,7 +329,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void CheckForUpdates(object? sender, EventArgs e)
     {
-        if (Directory.Exists(CurrentDir))
+        if (CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
         {
             if (CompareSetLastWriteTime())
                 Reload(true);
@@ -340,7 +340,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private bool CompareSetLastWriteTime()
     {
-        DateTime lastWriteTime = Directory.GetLastWriteTime(CurrentDir);
+        DateTime lastWriteTime =
+            CurrentFs.FileInfoProvider.GetDirLastModified(CurrentDir) ?? DateTime.Now;
         if (lastWriteTime <= _lastModified)
             return false;
 
@@ -367,7 +368,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         if (CurrentDir == ThisPcLabel)
             ShowDrives();
-        else if (Directory.Exists(CurrentDir))
+        else if (CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
             LoadEntries(forceHardReload);
         else
         {
@@ -388,7 +389,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         string? path = dirPath;
 
-        while (!Directory.Exists(path))
+        while (!CurrentFs.FileInfoProvider.DirectoryExists(path))
             if ((path = Path.GetDirectoryName(path)) is null)
                 return ThisPcLabel;
 
@@ -425,7 +426,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         SelectedFiles.Count > 0 ? entry.FileSystemEntry.NameWoExtension.Length : 0;
 
     private bool IsValidDirectory(string path) =>
-        path == ThisPcLabel || (!string.IsNullOrEmpty(path) && Directory.Exists(path));
+        path == ThisPcLabel
+        || (!string.IsNullOrEmpty(path) && CurrentFs.FileInfoProvider.DirectoryExists(path));
 
     private void SetSearchWaterMark(string dirPath)
     {
@@ -567,11 +569,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void LoadQuickAccess()
     {
         foreach (string path in FileSurferSettings.QuickAccess)
-            if (Directory.Exists(path))
+            if (_localFileSystem.FileInfoProvider.DirectoryExists(path))
                 QuickAccess.Add(
                     new FileSystemEntryViewModel(_localFileSystem, new DirectoryEntry(path))
                 );
-            else if (File.Exists(path))
+            else if (_localFileSystem.FileInfoProvider.FileExists(path))
                 QuickAccess.Add(
                     new FileSystemEntryViewModel(_localFileSystem, new FileEntry(path))
                 );
@@ -703,7 +705,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         IsVersionControlled =
             FileSurferSettings.GitIntegration
-            && Directory.Exists(CurrentDir)
+            && CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir)
             && CurrentFs.GitIntegration.InitIfGitRepository(CurrentDir);
 
         LoadBranches();
@@ -883,7 +885,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public async Task AddToArchive()
     {
-        if (!Directory.Exists(CurrentDir))
+        if (!CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
             return;
 
         string archiveName =
@@ -911,7 +913,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public async Task ExtractArchive()
     {
-        if (!Directory.Exists(CurrentDir))
+        if (CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
             return;
 
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
