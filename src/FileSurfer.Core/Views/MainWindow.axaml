@@ -323,7 +323,7 @@
                                  Classes="SideBarListBox"
                                  ItemTemplate="{StaticResource SftpConnectionTemplate}"
                                  ItemsSource="{Binding SftpConnectionsVms}"
-                                 Tapped="SideBarEntryClicked">
+                                 Tapped="SftpEntryClicked">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
                                     <Setter Property="Padding" Value="10 3 10 3" />

@@ -235,21 +235,28 @@ public partial class MainWindow : Window
         CommitMessageBar.IsVisible = false;
     }
 
-    /// <summary>
-    /// Clears the selection if any SideBar item has been clicked.
-    /// </summary>
+    private void ClearSidebar()
+    {
+        SpecialsListBox.SelectedItems?.Clear();
+        QuickAccessListBox.SelectedItems?.Clear();
+        DrivesListBox.SelectedItems?.Clear();
+        SftpListBox.SelectedItems?.Clear();
+    }
+
     private void SideBarEntryClicked(object sender, TappedEventArgs e)
     {
-        if (sender is ListBox listBox)
-        {
-            if (listBox.SelectedItem is FileSystemEntryViewModel entry)
-                _viewModel?.OpenEntry(entry);
+        if (sender is ListBox { SelectedItem: FileSystemEntryViewModel entry })
+            _viewModel?.OpenLocalEntry(entry);
 
-            SpecialsListBox.SelectedItems?.Clear();
-            QuickAccessListBox.SelectedItems?.Clear();
-            DrivesListBox.SelectedItems?.Clear();
-            SftpListBox.SelectedItems?.Clear();
-        }
+        ClearSidebar();
+    }
+
+    private void SftpEntryClicked(object sender, TappedEventArgs e)
+    {
+        if (sender is ListBox { SelectedItem: SftpConnectionViewModel connection })
+            _viewModel?.OpenSftpConnection(connection);
+
+        ClearSidebar();
     }
 
     /// <summary>

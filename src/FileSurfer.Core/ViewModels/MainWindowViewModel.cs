@@ -113,11 +113,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         {
             _currentLocation = value;
             CurrentDir = value.Path;
+            CurrentFs = CurrentLocation.FileSystem;
         }
     }
     private ILocation? _currentLocation;
 
-    private IFileSystem CurrentFs => CurrentLocation.FileSystem;
+    private IFileSystem CurrentFs { get; set; }
 
     /// <summary>
     /// Indicates whether the <see cref="CurrentInfoMessage"/> should be shown.
@@ -458,6 +459,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
         else
             ForwardIfError(CurrentFs.ShellHandler.OpenFile(entry.PathToEntry));
+    }
+
+    public void OpenLocalEntry(FileSystemEntryViewModel entry)
+    {
+        CurrentFs = _localFileSystem;
+        OpenEntry(entry);
+    }
+
+    public void OpenSftpConnection(SftpConnectionViewModel sftpConnection)
+    {
+        // TODO
     }
 
     /// <summary>
