@@ -21,6 +21,7 @@ namespace FileSurfer.Core;
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 public record SettingsRecord
 {
+    private static readonly string RootDir;
     public static readonly JsonSerializerOptions SerializerOptions = new()
     {
         Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
@@ -40,7 +41,7 @@ public record SettingsRecord
     public string terminal { get; set; } = string.Empty;
     public string terminalArgs { get; set; } = string.Empty;
     public bool openInLastLocation { get; set; } = true;
-    public string openIn { get; set; } = "";
+    public string openIn { get; set; } = RootDir;
     public bool useDarkMode { get; set; } = true;
     public string displayMode { get; set; } = nameof(DisplayMode.ListView);
     public string defaultSort { get; set; } = nameof(SortBy.Name);
@@ -57,8 +58,18 @@ public record SettingsRecord
     public bool allowImagePastingFromClipboard { get; set; } = true;
     public List<string> quickAccess { get; set; } = new();
 
-    public static void Initialize(IDefaultSettingsProvider defaultSettingsProvider) =>
-        DefaultSettingsProvider = defaultSettingsProvider;
+    static SettingsRecord()
+    {
+        try
+        {
+            string? rootDir = Directory.GetDirectoryRoot(Directory.GetCurrentDirectory());
+            RootDir = rootDir ?? string.Empty;
+        }
+        catch // Unauthorized access or unsupported platform.
+        {
+            RootDir = string.Empty;
+        }
+    }
 
     public SettingsRecord()
     {
@@ -67,5 +78,8 @@ public record SettingsRecord
 
         DefaultSettingsProvider.PopulateDefaults(this);
     }
+
+    public static void Initialize(IDefaultSettingsProvider defaultSettingsProvider) =>
+        DefaultSettingsProvider = defaultSettingsProvider;
 }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
