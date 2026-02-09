@@ -2,6 +2,7 @@ using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Models.FileOperations;
 using FileSurfer.Core.Models.Shell;
 using FileSurfer.Core.Models.VersionControl;
+using FileSurfer.Core.ViewModels;
 
 namespace FileSurfer.Core.Models.Sftp;
 
@@ -16,4 +17,6 @@ public sealed class SftpFileSystem : IFileSystem
     public required IFileProperties FileProperties { get; init; }
     public required IShellHandler ShellHandler { get; init; }
     public required IGitIntegration GitIntegration { get; init; }
+
+    public ILocation GetLocation(string path) => throw new System.NotImplementedException("TODO");
 }

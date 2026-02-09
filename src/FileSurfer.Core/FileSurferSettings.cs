@@ -93,7 +93,6 @@ public static class FileSurferSettings
             newImageName = NewImageName,
             newFileName = NewFileName,
             newDirectoryName = NewDirectoryName,
-            thisPCLabel = ThisPcLabel,
             notepadApp = NotepadApp,
             notepadAppArgs = NotepadAppArgs,
             terminal = Terminal,
@@ -151,11 +150,6 @@ public static class FileSurferSettings
     public static string NewDirectoryName { get; set; }
 
     /// <summary>
-    /// What "This PC" 'directory' will be called. Defaults to <c>"This PC"</c>.
-    /// </summary>
-    public static string ThisPcLabel { get; set; }
-
-    /// <summary>
     /// The application, the 'Open in Notepad' context menu option will open.
     /// </summary>
     public static string NotepadApp { get; set; }
@@ -181,7 +175,7 @@ public static class FileSurferSettings
     public static bool OpenInLastLocation { get; set; }
 
     /// <summary>
-    /// Specifies the default location where FileSurfer opens. Defaults to the value of <see cref="ThisPcLabel"/>.
+    /// Specifies the default location where FileSurfer opens. Defaults to the <see cref="string.Empty"/>.
     /// </summary>
     public static string OpenIn { get; set; }
 
@@ -330,11 +324,6 @@ public static class FileSurferSettings
             settings.newDirectoryName,
             InvalidFileNameChars,
             defaultSettings.newDirectoryName
-        );
-        ThisPcLabel = SanitizeName(
-            settings.thisPCLabel,
-            InvalidFileNameChars,
-            defaultSettings.thisPCLabel
         );
         NotepadApp = SanitizeName(
             settings.notepadApp,

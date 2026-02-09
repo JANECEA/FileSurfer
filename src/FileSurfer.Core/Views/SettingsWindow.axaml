@@ -35,7 +35,7 @@
                     <StackPanel Spacing="12">
                         <TextBlock Classes="Section" Text="General" />
 
-                        <Grid ColumnDefinitions="200 *" RowDefinitions="Auto Auto Auto Auto">
+                        <Grid ColumnDefinitions="200 *" RowDefinitions="Auto Auto Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="New Image Name:" />
                             <TextBox Grid.Row="0" Grid.Column="1" Margin="5 0 0 5" Text="{Binding NewImageName}" />
 
@@ -44,9 +44,6 @@
 
                             <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="New Directory Name:" />
                             <TextBox Grid.Row="2" Grid.Column="1" Margin="5 0 0 5" Text="{Binding NewDirectoryName}" />
-
-                            <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Text="This PC Label:" />
-                            <TextBox Grid.Row="3" Grid.Column="1" Margin="5 0 0 5" Text="{Binding ThisPcLabel}" />
                         </Grid>
                     </StackPanel>
                 </Border>

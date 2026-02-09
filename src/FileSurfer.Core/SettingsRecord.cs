@@ -21,7 +21,6 @@ namespace FileSurfer.Core;
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 public record SettingsRecord
 {
-    private const string ThisPcLabel = "This PC";
     public static readonly JsonSerializerOptions SerializerOptions = new()
     {
         Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
@@ -36,13 +35,12 @@ public record SettingsRecord
     public string newImageName { get; set; } = "New Image";
     public string newFileName { get; set; } = "New File";
     public string newDirectoryName { get; set; } = "New Folder";
-    public string thisPCLabel { get; set; } = ThisPcLabel;
     public string notepadApp { get; set; } = string.Empty;
     public string notepadAppArgs { get; set; } = string.Empty;
     public string terminal { get; set; } = string.Empty;
     public string terminalArgs { get; set; } = string.Empty;
     public bool openInLastLocation { get; set; } = true;
-    public string openIn { get; set; } = ThisPcLabel;
+    public string openIn { get; set; } = "";
     public bool useDarkMode { get; set; } = true;
     public string displayMode { get; set; } = nameof(DisplayMode.ListView);
     public string defaultSort { get; set; } = nameof(SortBy.Name);

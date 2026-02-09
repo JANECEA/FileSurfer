@@ -492,7 +492,8 @@ public partial class MainWindow : Window
 
         if (PathBox.IsFocused)
         {
-            _viewModel?.SetCurrentDir(PathBox.Text ?? FileSurferSettings.ThisPcLabel);
+            if (PathBox.Text is string path)
+                _viewModel?.SetNewLocation(path);
             ClearFocus();
             return;
         }

@@ -127,7 +127,7 @@
                          Classes="PathBox TopTextBox"
                          GotFocus="TextBoxGotFocus"
                          LostFocus="PathBoxLostFocus"
-                         Text="{Binding CurrentDir, Mode=OneWay}" />
+                         Text="{Binding PathBoxText, Mode=OneWay}" />
 
                 <Grid Grid.Column="1">
                     <TextBox x:Name="SearchBox"

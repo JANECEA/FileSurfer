@@ -2,6 +2,7 @@ using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Models.FileOperations;
 using FileSurfer.Core.Models.Shell;
 using FileSurfer.Core.Models.VersionControl;
+using FileSurfer.Core.ViewModels;
 
 namespace FileSurfer.Core.Models;
 
@@ -19,4 +20,5 @@ public interface IFileSystem
     public IFileProperties FileProperties { get; }
     public IShellHandler ShellHandler { get; }
     public IGitIntegration GitIntegration { get; }
+    public ILocation GetLocation(string path);
 }

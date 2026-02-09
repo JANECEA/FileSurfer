@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -11,7 +10,7 @@ using FileSurfer.Core.Models.FileOperations;
 using FileSurfer.Core.Models.VersionControl;
 using FileSurfer.Core.ViewModels;
 using FileSurfer.Core.Views;
-using FileSurfer.Linux.Models;
+using FileSurfer.Windows.Models;
 using FileSurfer.Windows.Models.FileInformation;
 using FileSurfer.Windows.Models.FileOperations;
 using FileSurfer.Windows.Models.Shell;

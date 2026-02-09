@@ -13,6 +13,7 @@ using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Models.FileOperations;
 using FileSurfer.Core.Models.FileOperations.Undoable;
 using FileSurfer.Core.Models.Sftp;
+using FileSurfer.Core.Models.Shell;
 using FileSurfer.Core.Models.VersionControl;
 using FileSurfer.Core.Views;
 using ReactiveUI;
@@ -35,19 +36,15 @@ namespace FileSurfer.Core.ViewModels;
 ]
 public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
-    private string ThisPcLabel => FileSurferSettings.ThisPcLabel;
-
     private readonly SearchManager _searchManager;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
-    private readonly UndoRedoHandler<string> _pathHistory;
+    private readonly UndoRedoHandler<ILocation> _locationHistory;
     private readonly Action<bool> _setDarkMode;
-    private DispatcherTimer? _refreshTimer;
     private readonly IFileSystem _localFileSystem;
-    private readonly IFileSystem? _sftpFileSystem = null;
 
-    private IFileSystem CurrentFs { get; }
     private bool _isActionUserInvoked = true;
     private DateTime _lastModified;
+    private DispatcherTimer? _refreshTimer;
 
     public SortInfo SortInfo =>
         new(FileSurferSettings.SortingMode, FileSurferSettings.SortReversed);
@@ -83,14 +80,44 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ObservableCollection<SftpConnectionViewModel> SftpConnectionsVms { get; } = [];
 
     /// <summary>
+    /// Holds the text currently displayed in the PathBox.
+    /// </summary>
+    public string PathBoxText
+    {
+        get => _pathBoxText;
+        set => this.RaiseAndSetIfChanged(ref _pathBoxText, value);
+    }
+    private string _pathBoxText = string.Empty;
+
+    /// <summary>
     /// Holds the path to the current directory displayed in FileSurfer.
     /// </summary>
     public string CurrentDir
     {
         get => _currentDir;
-        set => this.RaiseAndSetIfChanged(ref _currentDir, value);
+        set
+        {
+            _currentDir = value;
+            PathBoxText = value;
+            SetSearchWaterMark(CurrentDir);
+        }
     }
     private string _currentDir = string.Empty;
+
+    public ILocation CurrentLocation
+    {
+        get =>
+            _currentLocation
+            ?? throw new InvalidOperationException("Location was not initialized.");
+        set
+        {
+            _currentLocation = value;
+            CurrentDir = value.Path;
+        }
+    }
+    private ILocation? _currentLocation;
+
+    private IFileSystem CurrentFs => CurrentLocation.FileSystem;
 
     /// <summary>
     /// Indicates whether the <see cref="CurrentInfoMessage"/> should be shown.
@@ -207,19 +234,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     )
     {
         _localFileSystem = localFileSystem;
-        CurrentFs = _localFileSystem;
-
         _setDarkMode = setDarkMode;
-        _searchManager = new SearchManager(s => CurrentDir = s, entry => FileEntries.Add(entry));
+        _searchManager = new SearchManager(s => PathBoxText = s, entry => FileEntries.Add(entry));
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
-        _pathHistory = new UndoRedoHandler<string>();
+        _locationHistory = new UndoRedoHandler<ILocation>();
 
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
         GoUpCommand = ReactiveCommand.Create(GoUp);
         ReloadCommand = ReactiveCommand.Create(() => Reload(true));
         OpenPowerShellCommand = ReactiveCommand.Create(OpenPowerShell);
-        CancelSearchCommand = ReactiveCommand.Create(() => CancelSearch(null));
+        CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
         NewFileCommand = ReactiveCommand.Create(NewFile);
         NewDirCommand = ReactiveCommand.Create(NewDir);
         CutCommand = ReactiveCommand.Create(Cut);
@@ -236,11 +261,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         PullCommand = ReactiveCommand.Create(Pull);
         PushCommand = ReactiveCommand.Create(Push);
 
+        CurrentLocation = new LocalDirLocation(_localFileSystem, initialDir);
         LoadQuickAccess();
         LoadDrives();
         LoadSftpConnections();
         LoadSettings(false);
-        SetCurrentDir(initialDir);
+        SetLocation(CurrentLocation);
         FileSurferSettings.OnSettingsChange = () => LoadSettings(true);
         SelectedFiles.CollectionChanged += UpdateSelectionInfo;
         FileEntries.CollectionChanged += UpdateSelectionInfo;
@@ -273,44 +299,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _setDarkMode(FileSurferSettings.UseDarkMode);
         if (reload)
             Reload(true);
-    }
-
-    private void SetCurrentDirNoHistory(string dirPath)
-    {
-        if (CurrentFs.FileInfoProvider.DirectoryExists(dirPath))
-        {
-            dirPath = Path.GetFullPath(dirPath);
-            _lastModified = CurrentFs.FileInfoProvider.GetDirLastModified(dirPath) ?? DateTime.Now;
-        }
-        else if (dirPath != ThisPcLabel && !Searching)
-        {
-            ForwardError($"Directory \"{dirPath}\" does not exist.");
-            dirPath = _pathHistory.Current ?? GetClosestExistingParent(dirPath);
-        }
-
-        CurrentDir = dirPath;
-        if (IsValidDirectory(dirPath))
-        {
-            if (FileSurferSettings.OpenInLastLocation)
-                FileSurferSettings.OpenIn = dirPath;
-
-            if (Searching)
-                CancelSearch(dirPath);
-
-            SetSearchWaterMark(dirPath);
-            Reload(true);
-        }
-    }
-
-    /// <summary>
-    /// Sets the <see cref="CurrentDir"/> and adds the directory to <see cref="_pathHistory"/>,
-    /// </summary>
-    public void SetCurrentDir(string dirPath)
-    {
-        SetCurrentDirNoHistory(dirPath);
-
-        if (IsValidDirectory(dirPath) && CurrentDir != _pathHistory.Current)
-            _pathHistory.AddNewNode(dirPath);
     }
 
     public void ShowMessage(string message)
@@ -366,14 +354,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         CheckVersionControl();
 
-        if (CurrentDir == ThisPcLabel)
-            ShowDrives();
-        else if (CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
+        if (CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
             LoadEntries(forceHardReload);
         else
         {
             ForwardError($"Directory: \"{CurrentDir}\" does not exist.");
-            SetCurrentDir(GetClosestExistingParent(CurrentDir));
             return;
         }
 
@@ -383,17 +368,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             HideMessage();
 
         _lastModified = DateTime.Now;
-    }
-
-    private string GetClosestExistingParent(string dirPath)
-    {
-        string? path = dirPath;
-
-        while (!CurrentFs.FileInfoProvider.DirectoryExists(path))
-            if ((path = Path.GetDirectoryName(path)) is null)
-                return ThisPcLabel;
-
-        return path;
     }
 
     /// <summary>
@@ -425,10 +399,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public int GetNameEndIndex(FileSystemEntryViewModel entry) =>
         SelectedFiles.Count > 0 ? entry.FileSystemEntry.NameWoExtension.Length : 0;
 
-    private bool IsValidDirectory(string path) =>
-        path == ThisPcLabel
-        || (!string.IsNullOrEmpty(path) && CurrentFs.FileInfoProvider.DirectoryExists(path));
-
     private void SetSearchWaterMark(string dirPath)
     {
         string? dirName = Path.GetFileName(dirPath);
@@ -441,12 +411,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void UpdateSelectionInfo(object? sender, NotifyCollectionChangedEventArgs? args)
     {
-        if (CurrentDir == ThisPcLabel)
-        {
-            SelectionInfo = Drives.Count == 1 ? "1 drive" : $"{FileEntries.Count} drives";
-            return;
-        }
-
         string selectionInfo = FileEntries.Count == 1 ? "1 item" : $"{FileEntries.Count} items";
 
         if (SelectedFiles.Count == 1)
@@ -484,13 +448,13 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void OpenEntry(FileSystemEntryViewModel entry)
     {
         if (entry.IsDirectory)
-            SetCurrentDir(entry.PathToEntry);
+            SetNewLocation(entry.PathToEntry);
         else if (
             CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? directory)
         )
         {
             if (directory is not null)
-                SetCurrentDir(directory);
+                SetNewLocation(directory);
         }
         else
             ForwardIfError(CurrentFs.ShellHandler.OpenFile(entry.PathToEntry));
@@ -544,10 +508,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void GoUp()
     {
-        if (Path.GetDirectoryName(PathTools.NormalizePath(CurrentDir)) is not string parentDir)
-            SetCurrentDir(ThisPcLabel);
-        else if (CurrentDir != ThisPcLabel)
-            SetCurrentDir(parentDir);
+        if (Path.GetDirectoryName(CurrentDir) is string parentDir)
+            SetNewLocation(parentDir);
     }
 
     private IEnumerable<FileSystemEntryViewModel> GetSpecialFolders() =>
@@ -583,13 +545,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         foreach (SftpConnection connection in FileSurferSettings.SftpConnections)
             SftpConnectionsVms.Add(new SftpConnectionViewModel(connection));
-    }
-
-    private void ShowDrives()
-    {
-        FileEntries.Clear();
-        foreach (FileSystemEntryViewModel drive in Drives)
-            FileEntries.Add(drive);
     }
 
     private void LoadEntries(bool forceHardReload)
@@ -738,10 +693,35 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _isActionUserInvoked = true;
     }
 
+    public void SetLocationNoHistory(ILocation location)
+    {
+        if (location.Exists())
+        {
+            CurrentLocation = location;
+            Reload(true);
+        }
+        else
+            ForwardError($"Location {location.Path} does not exist.");
+    }
+
+    public void SetLocation(ILocation location)
+    {
+        SetLocationNoHistory(location);
+
+        if (location.Exists() && location != _locationHistory.Current)
+            _locationHistory.AddNewNode(location);
+    }
+
+    public void SetNewLocation(string path)
+    {
+        ILocation location = CurrentFs.GetLocation(path);
+        SetLocation(location);
+    }
+
     /// <summary>
-    /// Sets the current directory to the previous directory in <see cref="_pathHistory"/>.
+    /// Sets the current directory to the previous directory in <see cref="_locationHistory"/>.
     /// <para>
-    /// Removes the directory from <see cref="_pathHistory"/> in case it's invalid.
+    /// Removes the directory from <see cref="_locationHistory"/> in case it's invalid.
     /// </para>
     /// </summary>
     public void GoBack()
@@ -749,21 +729,21 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (Searching)
             CancelSearch();
 
-        if (_pathHistory.GetPrevious() is not string previousPath)
+        if (_locationHistory.GetPrevious() is not ILocation previousLocation)
             return;
 
-        _pathHistory.MoveToPrevious();
+        _locationHistory.MoveToPrevious();
 
-        if (IsValidDirectory(previousPath))
-            SetCurrentDirNoHistory(previousPath);
+        if (previousLocation.Exists())
+            SetLocationNoHistory(previousLocation);
         else
-            _pathHistory.RemoveNode(false);
+            _locationHistory.RemoveNode(false);
     }
 
     /// <summary>
-    /// Sets the current directory to the next directory in <see cref="_pathHistory"/>.
+    /// Sets the current directory to the next directory in <see cref="_locationHistory"/>.
     /// <para>
-    /// Removes the directory from <see cref="_pathHistory"/> in case it's invalid.
+    /// Removes the directory from <see cref="_locationHistory"/> in case it's invalid.
     /// </para>
     /// </summary>
     public void GoForward()
@@ -771,15 +751,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (Searching)
             CancelSearch();
 
-        if (_pathHistory.GetNext() is not string nextPath)
+        if (_locationHistory.GetNext() is not ILocation nextLocation)
             return;
 
-        _pathHistory.MoveToNext();
+        _locationHistory.MoveToNext();
 
-        if (IsValidDirectory(nextPath))
-            SetCurrentDirNoHistory(nextPath);
+        if (nextLocation.Exists())
+            SetLocationNoHistory(nextLocation);
         else
-            _pathHistory.RemoveNode(true);
+            _locationHistory.RemoveNode(true);
     }
 
     /// <summary>
@@ -787,7 +767,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void OpenPowerShell()
     {
-        if (CurrentDir != ThisPcLabel && !Searching)
+        if (CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
             ForwardIfError(CurrentFs.ShellHandler.OpenCmdAt(CurrentDir));
     }
 
@@ -798,20 +778,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             HideMessage();
             await _searchManager.CancelSearchAsync();
         }
-
-        string currentDir = _pathHistory.Current ?? ThisPcLabel;
         Searching = true;
         FileEntries.Clear();
 
-        int? foundEntries =
-            currentDir != ThisPcLabel
-                ? await _searchManager.SearchAsync(CurrentFs, searchQuery, [currentDir])
-                : await _searchManager.SearchAsync(
-                    CurrentFs,
-                    searchQuery,
-                    CurrentFs.FileInfoProvider.GetDrives().Select(drive => drive.PathToEntry)
-                );
-
+        int? foundEntries = await _searchManager.SearchAsync(CurrentFs, searchQuery, [CurrentDir]);
         if (foundEntries is 0)
             ShowMessage("No items match your query");
     }
@@ -819,15 +789,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Cancels the search and sets <see cref="CurrentDir"/> to the parameter or last directory.
     /// </summary>
-    public void CancelSearch(string? directory = null)
+    public void CancelSearch()
     {
         Searching = false;
         _searchManager.CancelSearch();
-        SetCurrentDir(directory ?? _pathHistory.Current ?? ThisPcLabel);
+
+        if (_locationHistory.Current is ILocation location)
+            SetLocation(location);
     }
 
     /// <summary>
-    /// Creates a new file using <see cref="_fileIoHandler"/> in <see cref="CurrentDir"/>
+    /// Creates a new file using <see cref="CurrentFs"/> in <see cref="CurrentDir"/>
     /// with the name specified in <see cref="FileSurferSettings.NewFileName"/>.
     /// <para>
     /// Invokes <see cref="Reload"/> and adds a new <see cref="NewFileAt"/> operation
@@ -854,7 +826,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Creates a new directory using <see cref="_fileIoHandler"/> in <see cref="CurrentDir"/>
+    /// Creates a new directory using <see cref="CurrentFs"/> in <see cref="CurrentDir"/>
     /// with the name specified in <see cref="FileSurferSettings.NewDirectoryName"/>.
     /// <para>
     /// Invokes <see cref="Reload"/> and adds a new <see cref="NewDirAt"/> operation
@@ -938,7 +910,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         CurrentFs.ClipboardManager.CopyPathToFileAsync(entry.PathToEntry);
 
     /// <summary>
-    /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="_clipboardManager"/>.
+    /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="IClipboardManager"/>.
     /// </summary>
     public async Task Cut()
     {
@@ -952,7 +924,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="_clipboardManager"/>.
+    /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="IClipboardManager"/>.
     /// </summary>
     public async Task Copy()
     {
@@ -966,9 +938,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Determines the type of paste operation and executes it using <see cref="_clipboardManager"/>.
+    /// Determines the type of paste operation and executes it using <see cref="IClipboardManager"/>.
     /// <para>
-    /// Adds the appropriate <see cref="IUndoableFileOperation"/> to <see cref="_pathHistory"/> if the operation was a success.
+    /// Adds the appropriate <see cref="IUndoableFileOperation"/> to <see cref="_locationHistory"/> if the operation was a success.
     /// </para>
     /// Invokes <see cref="Reload"/>.
     /// </summary>
@@ -1024,7 +996,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Relays the operation to <see cref="_fileIoHandler"/> and invokes <see cref="Reload"/>.
+    /// Relays the operation to <see cref="IShellHandler"/> and invokes <see cref="Reload"/>.
     /// </summary>
     public void CreateShortcut(FileSystemEntryViewModel entry)
     {
@@ -1037,7 +1009,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Relays the operation to <see cref="_fileIoHandler"/>.
+    /// Relays the operation to <see cref="IFileProperties"/>.
     /// </summary>
     public void ShowProperties(FileSystemEntryViewModel entry) =>
         ForwardIfError(CurrentFs.FileProperties.ShowFileProperties(entry));
@@ -1098,7 +1070,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Moves the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/> to the system trash using <see cref="_fileIoHandler"/>.
+    /// Moves the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/> to the system trash using <see cref="CurrentFs"/>.
     /// <para>
     /// Adds the operation to <see cref="_undoRedoHistory"/> if the operation was successful.
     /// </para>
@@ -1233,7 +1205,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void SelectAll()
     {
         SelectedFiles.Clear();
-
         foreach (FileSystemEntryViewModel entry in FileEntries)
             SelectedFiles.Add(entry);
     }
@@ -1259,7 +1230,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Relays the operations to <see cref="_versionControl"/>.
+    /// Relays the operations to <see cref="IFileIoHandler"/>.
     /// </summary>
     public void StageFile(FileSystemEntryViewModel entry)
     {
@@ -1268,7 +1239,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Relays the operations to <see cref="_versionControl"/>.
+    /// Relays the operations to <see cref="IGitIntegration"/>.
     /// </summary>
     public void UnstageFile(FileSystemEntryViewModel entry)
     {
@@ -1277,7 +1248,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Relays the operations to <see cref="_versionControl"/>.
+    /// Relays the operations to <see cref="IGitIntegration"/>.
     /// </summary>
     private void Pull()
     {
@@ -1289,7 +1260,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Relays the operations to <see cref="_versionControl"/>.
+    /// Relays the operations to <see cref="IGitIntegration"/>.
     /// </summary>
     public void Commit(string commitMessage)
     {
@@ -1301,7 +1272,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Relays the operations to <see cref="_versionControl"/>.
+    /// Relays the operations to <see cref="IGitIntegration"/>.
     /// </summary>
     private void Push()
     {

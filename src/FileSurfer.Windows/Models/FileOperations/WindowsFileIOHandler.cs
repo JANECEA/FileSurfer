@@ -131,6 +131,7 @@ public class WindowsFileIoHandler : IFileIoHandler
             if (string.Equals(fileName, newName, StringComparison.OrdinalIgnoreCase))
             {
                 string tempName = FileNameGenerator.GetAvailableName(
+                    _fileInfoProvider,
                     parentDir,
                     Path.GetRandomFileName()
                 );
@@ -167,6 +168,7 @@ public class WindowsFileIoHandler : IFileIoHandler
             if (string.Equals(dirName, newName, StringComparison.OrdinalIgnoreCase))
             {
                 string tempName = FileNameGenerator.GetAvailableName(
+                    _fileInfoProvider,
                     parentDir,
                     Path.GetRandomFileName()
                 );

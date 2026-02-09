@@ -56,14 +56,6 @@ public sealed class SettingsWindowViewModel : ReactiveObject
             );
     }
 
-    private string _thisPcLabel;
-    public string ThisPcLabel
-    {
-        get => _thisPcLabel;
-        set =>
-            this.RaiseAndSetIfChanged(ref _thisPcLabel, SanitizeInput(value, InvalidFileNameChars));
-    }
-
     private string _notepadApp;
     public string NotepadApp
     {
@@ -132,7 +124,6 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         NewImageName = settings.newImageName;
         NewFileName = settings.newFileName;
         NewDirectoryName = settings.newDirectoryName;
-        ThisPcLabel = settings.thisPCLabel;
         NotepadApp = settings.notepadApp;
         NotepadAppArgs = settings.notepadAppArgs;
         Terminal = settings.terminal;
@@ -165,7 +156,6 @@ public sealed class SettingsWindowViewModel : ReactiveObject
                 newImageName = NewImageName.Trim(),
                 newFileName = NewFileName.Trim(),
                 newDirectoryName = NewDirectoryName.Trim(),
-                thisPCLabel = ThisPcLabel.Trim(),
                 notepadApp = NotepadApp.Trim(),
                 notepadAppArgs = NotepadAppArgs.Trim(),
                 terminal = Terminal.Trim(),
