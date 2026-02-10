@@ -786,8 +786,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void OpenPowerShell()
     {
-        if (CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
-            ForwardIfError(CurrentFs.ShellHandler.OpenCmdAt(CurrentDir));
+        if (CurrentFs is LocalFileSystem fs && fs.LocalFileInfoProvider.DirectoryExists(CurrentDir))
+            ForwardIfError(fs.LocalShellHandler.OpenCmdAt(CurrentDir));
     }
 
     public async Task SearchAsync(string searchQuery)

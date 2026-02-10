@@ -18,12 +18,6 @@ public interface IShellHandler
     public IResult CreateDirectoryLink(string dirPath);
 
     /// <summary>
-    /// Opens a command prompt at the specified directory path.
-    /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult OpenCmdAt(string dirPath);
-
-    /// <summary>
     /// Executes a command in the command prompt.
     /// </summary>
     /// <param name="programName">Program to execute</param>
@@ -37,6 +31,12 @@ public interface IShellHandler
 /// </summary>
 public interface ILocalShellHandler : IShellHandler
 {
+    /// <summary>
+    /// Opens a command prompt at the specified directory path.
+    /// </summary>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult OpenCmdAt(string dirPath);
+
     /// <summary>
     /// Opens a file at the specified path in the application preferred by the OS.
     /// </summary>
