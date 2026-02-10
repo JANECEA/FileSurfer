@@ -453,8 +453,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SetNewLocation(entry.PathToEntry);
         else if (CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
             SetNewLocation(dir!);
-        else
-            ForwardIfError(CurrentFs.ShellHandler.OpenFile(entry.PathToEntry));
+        else if (CurrentFs is LocalFileSystem fs)
+            ForwardIfError(fs.LocalShellHandler.OpenFile(entry.PathToEntry));
     }
 
     public void OpenLocalEntry(FileSystemEntryViewModel entry)
@@ -509,9 +509,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void OpenInNotepad()
     {
+        if (CurrentFs is not LocalFileSystem fs)
+            return;
+
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
             if (!entry.IsDirectory)
-                ForwardIfError(CurrentFs.ShellHandler.OpenInNotepad(entry.PathToEntry));
+                ForwardIfError(fs.LocalShellHandler.OpenInNotepad(entry.PathToEntry));
     }
 
     /// <summary>

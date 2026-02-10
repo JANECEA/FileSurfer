@@ -104,7 +104,7 @@ public partial class App : Application
             FileIoHandler = fileIoHandler,
             BinInteraction = binInteraction,
             FileProperties = new WindowsFileProperties(),
-            ShellHandler = shellHandler,
+            LocalShellHandler = shellHandler,
             GitIntegration = new LocalGitIntegration(shellHandler),
         };
         return new MainWindowViewModel(initialDir, fileSystem, SetDarkMode);

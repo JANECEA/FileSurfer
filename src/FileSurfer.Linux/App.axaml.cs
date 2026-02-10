@@ -98,7 +98,7 @@ public partial class App : Application
             FileIoHandler = new LinuxFileIoHandler(),
             BinInteraction = new LinuxBinInteraction(shellHandler),
             FileProperties = new LinuxFileProperties(new PropertiesVmFactory(mainWindow)),
-            ShellHandler = shellHandler,
+            LocalShellHandler = shellHandler,
             GitIntegration = new LocalGitIntegration(shellHandler),
         };
         return new MainWindowViewModel(initialDir, fileSystem, SetDarkMode);

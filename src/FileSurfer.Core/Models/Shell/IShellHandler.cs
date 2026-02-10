@@ -1,7 +1,7 @@
 namespace FileSurfer.Core.Models.Shell;
 
 /// <summary>
-/// Represents the layer between the OS shell and the <see cref="FileSurfer"/> layer.
+/// Provides methods for interacting with the system shell
 /// </summary>
 public interface IShellHandler
 {
@@ -18,18 +18,6 @@ public interface IShellHandler
     public IResult CreateDirectoryLink(string dirPath);
 
     /// <summary>
-    /// Opens a file at the specified path in the application preferred by the OS.
-    /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult OpenFile(string filePath);
-
-    /// <summary>
-    /// Opens a file in the Notepad app at the path specified.
-    /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult OpenInNotepad(string filePath);
-
-    /// <summary>
     /// Opens a command prompt at the specified directory path.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
@@ -42,4 +30,22 @@ public interface IShellHandler
     /// <param name="args">Arguments for the command's $variables</param>
     /// <returns>A <see cref="ValueResult{string}"/> representing the result stdout of the operation and potential errors.</returns>
     public ValueResult<string> ExecuteCommand(string programName, params string[] args);
+}
+
+/// <summary>
+/// Provides methods for interacting with the local system shell
+/// </summary>
+public interface ILocalShellHandler : IShellHandler
+{
+    /// <summary>
+    /// Opens a file at the specified path in the application preferred by the OS.
+    /// </summary>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult OpenFile(string filePath);
+
+    /// <summary>
+    /// Opens a file in the Notepad app at the path specified.
+    /// </summary>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult OpenInNotepad(string filePath);
 }

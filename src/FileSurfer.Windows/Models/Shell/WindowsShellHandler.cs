@@ -14,7 +14,7 @@ namespace FileSurfer.Windows.Models.Shell;
 /// Windows-specific implementation of <see cref="IShellHandler"/> for shell interactions.
 /// Uses <see cref="System.Runtime.InteropServices"/> to interop with the Windows shell.
 /// </summary>
-public class WindowsShellHandler : IShellHandler
+public class WindowsShellHandler : ILocalShellHandler
 {
     public IResult CreateFileLink(string filePath) => CreateLink(filePath);
 

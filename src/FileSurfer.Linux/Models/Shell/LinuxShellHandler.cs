@@ -7,7 +7,7 @@ using FileSurfer.Core.Models.Shell;
 
 namespace FileSurfer.Linux.Models.Shell;
 
-public interface IShellCommandHandler : IShellHandler
+public interface IShellCommandHandler : ILocalShellHandler
 {
     /// <summary>
     /// Executes a shell command in the command prompt.

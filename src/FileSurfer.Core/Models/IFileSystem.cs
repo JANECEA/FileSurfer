@@ -20,6 +20,7 @@ public interface IFileSystem
     public IFileProperties FileProperties { get; }
     public IShellHandler ShellHandler { get; }
     public IGitIntegration GitIntegration { get; }
+
     public ILocation GetLocation(string path);
 }
 
@@ -41,7 +42,8 @@ public sealed class LocalFileSystem : IFileSystem
 
     public required IFileProperties FileProperties { get; init; }
 
-    public required IShellHandler ShellHandler { get; init; }
+    IShellHandler IFileSystem.ShellHandler => LocalShellHandler;
+    public required ILocalShellHandler LocalShellHandler { get; init; }
 
     public required IGitIntegration GitIntegration { get; init; }
 
