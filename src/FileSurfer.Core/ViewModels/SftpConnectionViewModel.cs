@@ -19,6 +19,13 @@ public sealed class SftpConnectionViewModel : ReactiveObject
     public SftpConnection SftpConnection { get; }
     public bool CreateOnSave => _addSelf is not null;
 
+    public SftpFileSystem? FileSystem
+    {
+        get => _fileSystem;
+        set => this.RaiseAndSetIfChanged(ref _fileSystem, value);
+    }
+    private SftpFileSystem? _fileSystem;
+
     private string _hostnameOrIpAddress = string.Empty;
     public string HostnameOrIpAddress
     {
@@ -48,6 +55,7 @@ public sealed class SftpConnectionViewModel : ReactiveObject
     }
 
     private string? _initialDirectory = null;
+
     public string? InitialDirectory
     {
         get => _initialDirectory;

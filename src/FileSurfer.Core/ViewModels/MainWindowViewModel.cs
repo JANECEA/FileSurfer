@@ -463,17 +463,37 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         OpenEntry(entry);
     }
 
-    public void OpenSftpConnection(SftpConnection connection)
+    public void OpenSftpConnection(SftpConnectionViewModel connectionVm)
     {
-        if (CurrentFs is SftpFileSystem fileSystem && fileSystem.IsSameConnection(connection))
+        SftpConnection connection = connectionVm.SftpConnection;
+        string initialDir = connection.InitialDirectory ?? SftpPathTools.RootDir;
+
+        if (connectionVm.FileSystem is not null)
         {
-            SetNewLocation(connection.InitialDirectory ?? "/");
+            SetLocation(new SftpDirectoryLocation(connectionVm.FileSystem, initialDir));
             return;
         }
+        ValueResult<SftpFileSystem> result = SftpFileSystemFactory.TryConnect(connection);
+        if (!result.IsOk)
+        {
+            ForwardIfError(result);
+            return;
+        }
+        SftpFileSystem fileSystem = result.Value;
+        connectionVm.FileSystem = fileSystem;
+        SetLocation(new SftpDirectoryLocation(fileSystem, initialDir));
+    }
 
-        SftpFileSystem fs = null;
-        SftpDirectoryLocation location = new(fs, connection.InitialDirectory ?? "/");
-        SetLocation(location);
+    public void CloseSftpConnection(SftpConnectionViewModel connectionVm)
+    {
+        if (connectionVm.FileSystem is null)
+        {
+            ForwardError("Connection is not active.");
+            return;
+        }
+        connectionVm.FileSystem.Dispose();
+        connectionVm.FileSystem = null;
+        SetLocation(new LocalDirLocation(_localFileSystem, "/"));
     }
 
     /// <summary>
@@ -716,6 +736,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (location.Exists())
         {
+            if (Searching)
+                CancelSearch();
+
             CurrentLocation = location;
             Reload(true);
         }
@@ -1321,5 +1344,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (Searching)
             CancelSearch();
         _searchManager.Dispose();
+
+        foreach (SftpConnectionViewModel connection in SftpConnectionsVms)
+            connection.FileSystem?.Dispose();
     }
 }

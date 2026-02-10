@@ -159,11 +159,17 @@ public partial class MainWindow : Window
 
     private void EditSftpConnection(object sender, RoutedEventArgs e)
     {
-        if (SftpListBox.SelectedItem is not SftpConnectionViewModel vm)
+        if (SftpListBox.SelectedItem is not SftpConnectionViewModel connectionVm)
             return;
 
-        EditSftpWindow window = new(vm);
+        EditSftpWindow window = new(connectionVm);
         window.ShowDialog(this);
+    }
+
+    private void CloseSftp(object sender, RoutedEventArgs e)
+    {
+        if (SftpListBox.SelectedItem is SftpConnectionViewModel connectionVm)
+            _viewModel?.CloseSftpConnection(connectionVm);
     }
 
     private void OnAddSftpButtonClicked(object sender, RoutedEventArgs e)
@@ -255,7 +261,7 @@ public partial class MainWindow : Window
     private void SftpEntryClicked(object sender, TappedEventArgs e)
     {
         if (sender is ListBox { SelectedItem: SftpConnectionViewModel connectionVm })
-            _viewModel?.OpenSftpConnection(connectionVm.SftpConnection);
+            _viewModel?.OpenSftpConnection(connectionVm);
 
         ClearSidebar();
     }

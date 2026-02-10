@@ -8,14 +8,14 @@ public static class SftpFileSystemFactory
 {
     public static ValueResult<SftpFileSystem> TryConnect(SftpConnection connection)
     {
-        ConnectionInfo connectionInfo = new(
-            connection.HostnameOrIpAddress,
-            connection.Port,
-            connection.Username,
-            new PasswordAuthenticationMethod(connection.Username, connection.Password)
-        );
         try
         {
+            ConnectionInfo connectionInfo = new(
+                connection.HostnameOrIpAddress,
+                connection.Port,
+                connection.Username,
+                new PasswordAuthenticationMethod(connection.Username, connection.Password)
+            );
             SftpClient sftpClient = new(connectionInfo);
             bool hostKeyAccepted = false;
             sftpClient.HostKeyReceived += OnSftpClientOnHostKeyReceived;
