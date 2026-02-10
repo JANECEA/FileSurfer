@@ -25,7 +25,8 @@ public interface IFileSystem
 
 public sealed class LocalFileSystem : IFileSystem
 {
-    public required IFileInfoProvider FileInfoProvider { get; init; }
+    IFileInfoProvider IFileSystem.FileInfoProvider => LocalFileInfoProvider;
+    public required ILocalFileInfoProvider LocalFileInfoProvider { get; init; }
 
     public required IIconProvider IconProvider { get; init; }
 

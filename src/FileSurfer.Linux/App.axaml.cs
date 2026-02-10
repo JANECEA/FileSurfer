@@ -91,7 +91,7 @@ public partial class App : Application
 
         LocalFileSystem fileSystem = new()
         {
-            FileInfoProvider = fileInfoProvider,
+            LocalFileInfoProvider = fileInfoProvider,
             IconProvider = new LinuxIconProvider(shellHandler),
             LocalClipboardManager = clipboardManager,
             ArchiveManager = new LocalArchiveManager(fileInfoProvider),

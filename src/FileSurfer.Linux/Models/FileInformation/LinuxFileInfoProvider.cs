@@ -13,7 +13,7 @@ namespace FileSurfer.Linux.Models.FileInformation;
 /// <summary>
 /// Optimizes icon delivery on Linux using the mime-type.
 /// </summary>
-public class LinuxFileInfoProvider : IFileInfoProvider
+public class LinuxFileInfoProvider : ILocalFileInfoProvider
 {
     private readonly IShellHandler _shellHandler;
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
@@ -179,7 +179,13 @@ public class LinuxFileInfoProvider : IFileInfoProvider
 
     public bool IsHidden(string path, bool isDirectory)
     {
-        int i = path.Length - 2;
+        if (string.IsNullOrEmpty(path))
+            return false;
+
+        int i = path.Length - 1;
+        while (i >= 0 && path[i] == PathTools.DirSeparator)
+            i--;
+
         for (; i >= 0; i--)
             if (path[i] == PathTools.DirSeparator)
                 break;

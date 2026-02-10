@@ -529,7 +529,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private IEnumerable<FileSystemEntryViewModel> GetSpecialFolders() =>
         _localFileSystem
-            .FileInfoProvider.GetSpecialFolders()
+            .LocalFileInfoProvider.GetSpecialFolders()
             .Where(dirPath => !string.IsNullOrEmpty(dirPath))
             .Select(path => new FileSystemEntryViewModel(
                 _localFileSystem,
@@ -539,18 +539,18 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void LoadDrives()
     {
         Drives.Clear();
-        foreach (DriveEntry driveEntry in _localFileSystem.FileInfoProvider.GetDrives())
+        foreach (DriveEntry driveEntry in _localFileSystem.LocalFileInfoProvider.GetDrives())
             Drives.Add(new FileSystemEntryViewModel(_localFileSystem, driveEntry));
     }
 
     private void LoadQuickAccess()
     {
         foreach (string path in FileSurferSettings.QuickAccess)
-            if (_localFileSystem.FileInfoProvider.DirectoryExists(path))
+            if (_localFileSystem.LocalFileInfoProvider.DirectoryExists(path))
                 QuickAccess.Add(
                     new FileSystemEntryViewModel(_localFileSystem, new DirectoryEntry(path))
                 );
-            else if (_localFileSystem.FileInfoProvider.FileExists(path))
+            else if (_localFileSystem.LocalFileInfoProvider.FileExists(path))
                 QuickAccess.Add(
                     new FileSystemEntryViewModel(_localFileSystem, new FileEntry(path))
                 );

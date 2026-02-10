@@ -8,7 +8,7 @@ using FileSurfer.Core.Models.FileInformation;
 
 namespace FileSurfer.Windows.Models.FileInformation;
 
-public class WindowsFileInfoProvider : IFileInfoProvider
+public class WindowsFileInfoProvider : ILocalFileInfoProvider
 {
     public DriveEntry[] GetDrives() =>
         DriveInfo

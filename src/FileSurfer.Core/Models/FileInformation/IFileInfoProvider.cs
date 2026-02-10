@@ -12,16 +12,6 @@ namespace FileSurfer.Core.Models.FileInformation;
 public interface IFileInfoProvider
 {
     /// <summary>
-    /// Gets an array of drives on the system.
-    /// </summary>
-    public DriveEntry[] GetDrives();
-
-    /// <summary>
-    /// Retrieves special folder paths.
-    /// </summary>
-    public IEnumerable<string> GetSpecialFolders();
-
-    /// <summary>
     /// Checks if a symbolic link is referring to a directory.
     /// </summary>
     /// <returns><see langword="true"/> if the path is linked to a directory, otherwise <see langword="false"/>.</returns>
@@ -77,4 +67,20 @@ public interface IFileInfoProvider
     /// Determines if the file or directory exists  within the containing file system.
     /// </summary>
     public virtual bool PathExists(string path) => Path.Exists(path);
+}
+
+/// <summary>
+/// Defines methods for retrieving information specific to local file systems
+/// </summary>
+public interface ILocalFileInfoProvider : IFileInfoProvider
+{
+    /// <summary>
+    /// Gets an array of drives on the system.
+    /// </summary>
+    public DriveEntry[] GetDrives();
+
+    /// <summary>
+    /// Retrieves special folder paths.
+    /// </summary>
+    public IEnumerable<string> GetSpecialFolders();
 }
