@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Models.Shell;
@@ -14,20 +12,10 @@ using MimeDetective.Engine;
 
 namespace FileSurfer.Linux.Models.FileInformation;
 
-public sealed class LinuxIconProvider : IIconProvider
+public sealed class LinuxIconProvider : BaseIconProvider
 {
     private const string GenericMimeType = "unknown";
     private const int SvgSize = 128;
-    private static readonly Bitmap GenericFileIcon = new(
-        AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/GenericFileIcon.png"))
-    );
-    private static readonly Bitmap DirectoryIcon = new(
-        AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/FolderIcon.png"))
-    );
-    private static readonly Bitmap DriveIcon = new(
-        AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/DriveIcon.png"))
-    );
-
     private static readonly Task<IContentInspector> MimeInspectorTask = Task.Run(() =>
         new ContentInspectorBuilder
         {
@@ -50,7 +38,8 @@ public sealed class LinuxIconProvider : IIconProvider
     {
         _shellHandler = shellHandler;
         _searchPaths = IconPathResolver.GetSearchPaths(shellHandler);
-        _themedGenericFileIcon = ExtractIcon(GenericMimeType) ?? GenericFileIcon;
+        _themedGenericFileIcon =
+            ExtractIcon(GenericMimeType) ?? base.GetFileIcon(string.Empty).Result;
 
         if (!File.Exists(GlobsParser.GlobsPath))
         {
@@ -61,7 +50,7 @@ public sealed class LinuxIconProvider : IIconProvider
         _extToMime = new ConcurrentDictionary<string, string>(GlobsParser.Parse(reader));
     }
 
-    public async Task<Bitmap> GetFileIcon(string filePath) =>
+    public override async Task<Bitmap> GetFileIcon(string filePath) =>
         await _mimeToIcon.GetOrAdd(
             await GetMimeType(filePath),
             mimeType => Task.Run(() => ExtractIcon(mimeType) ?? _themedGenericFileIcon)
@@ -127,11 +116,7 @@ public sealed class LinuxIconProvider : IIconProvider
         return null;
     }
 
-    public Task<Bitmap> GetDirectoryIcon(string dirPath) => Task.FromResult(DirectoryIcon);
-
-    public Task<Bitmap> GetDriveIcon(DriveEntry driveEntry) => Task.FromResult(DriveIcon);
-
-    public void Dispose()
+    public override void Dispose()
     {
         foreach (Task<Bitmap> task in _mimeToIcon.Values)
             if (task.IsCompletedSuccessfully)
@@ -139,5 +124,6 @@ public sealed class LinuxIconProvider : IIconProvider
 
         _mimeToIcon.Clear();
         _themedGenericFileIcon.Dispose();
+        base.Dispose();
     }
 }

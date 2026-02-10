@@ -11,14 +11,14 @@ public sealed class SftpFileSystem : IFileSystem
     private readonly SftpConnection _connection;
 
     public required IFileInfoProvider FileInfoProvider { get; init; } // TODO
-    public required IIconProvider IconProvider { get; init; } // TODO
+    public required IIconProvider IconProvider { get; init; } = new BaseIconProvider();
     public required IClipboardManager ClipboardManager { get; init; } // TODO
-    public required IArchiveManager ArchiveManager { get; init; }
+    public IArchiveManager ArchiveManager { get; } = new SftpArchiveManager();
     public required IFileIoHandler FileIoHandler { get; init; } // TODO
-    public required IBinInteraction BinInteraction { get; init; }
+    public IBinInteraction BinInteraction { get; } = new SftpBinInteraction();
     public required IFileProperties FileProperties { get; init; } // TODO
     public required IShellHandler ShellHandler { get; init; } // TODO
-    public required IGitIntegration GitIntegration { get; init; }
+    public IGitIntegration GitIntegration { get; } = new SftpGitIntegration();
 
     public SftpFileSystem(SftpConnection connection) => _connection = connection;
 

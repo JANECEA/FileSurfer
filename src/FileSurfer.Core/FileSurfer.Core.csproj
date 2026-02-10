@@ -27,5 +27,6 @@
     <PackageReference Include="ReactiveUI.Avalonia" Version="11.3.8" />
     <PackageReference Include="LibGit2Sharp" Version="0.31.0" />
     <PackageReference Include="SharpCompress" Version="0.44.2" />
+    <PackageReference Include="SSH.NET" Version="2025.1.0" />
   </ItemGroup>
 </Project>
