@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using FileSurfer.Core.Models.FileInformation;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
@@ -9,9 +8,13 @@ namespace FileSurfer.Core.Models.Sftp;
 
 public sealed class SftpFileInfoProvider : IFileInfoProvider
 {
-    private sealed record DirectoryCacheEntry(DateTime LastWriteTimeUtc, ISftpFile[] Entries);
+    private sealed record DirCacheEntry(
+        DateTime LastWriteTimeUtc,
+        IReadOnlyList<ISftpFile> Files,
+        IReadOnlyList<ISftpFile> Dirs
+    );
 
-    private readonly Dictionary<string, DirectoryCacheEntry> _dirCache = new();
+    private readonly Dictionary<string, DirCacheEntry> _dirCache = new();
     private readonly SftpClient _client;
 
     public SftpFileInfoProvider(SftpClient client) => _client = client;
@@ -34,34 +37,41 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         }
     }
 
-    private ISftpFile[] GetDirectoryEntriesCached(string path)
+    private DirCacheEntry GetDirectoryEntriesCached(string path)
     {
         ISftpFile dirInfo = _client.Get(path);
         DateTime currentWriteTime = dirInfo.LastWriteTimeUtc;
 
         if (
-            _dirCache.TryGetValue(path, out DirectoryCacheEntry? cache)
+            _dirCache.TryGetValue(path, out DirCacheEntry? cache)
             && cache.LastWriteTimeUtc >= currentWriteTime
         )
-            return cache.Entries;
+            return cache;
 
-        ISftpFile[] entries = _client.ListDirectory(path).ToArray();
-        _dirCache[path] = new DirectoryCacheEntry(currentWriteTime, entries);
+        List<ISftpFile> files = new();
+        List<ISftpFile> dirs = new();
 
-        return entries;
+        foreach (ISftpFile entry in _client.ListDirectory(path))
+            if (entry.Name is not ("." or ".."))
+            {
+                if (entry.IsRegularFile || entry.IsSymbolicLink)
+                    files.Add(entry);
+                else if (entry.IsDirectory)
+                    dirs.Add(entry);
+            }
+
+        DirCacheEntry dirCacheEntry = new(currentWriteTime, files, dirs);
+        _dirCache[path] = dirCacheEntry;
+        return dirCacheEntry;
     }
 
     public string[] GetPathDirs(string path, bool includeHidden, bool includeOs)
     {
-        ISftpFile[] entries = GetDirectoryEntriesCached(path);
+        DirCacheEntry cacheEntry = GetDirectoryEntriesCached(path);
 
-        List<string> dirs = new(entries.Length);
-        foreach (ISftpFile entry in entries)
-            if (
-                entry.Name is not ("." or "..")
-                && entry.IsDirectory
-                && (includeHidden || !IsHidden(entry.Name, true))
-            )
+        List<string> dirs = new(cacheEntry.Dirs.Count);
+        foreach (ISftpFile entry in cacheEntry.Dirs)
+            if (includeHidden || !IsHidden(entry.Name, true))
                 dirs.Add(entry.FullName);
 
         return dirs.ToArray();
@@ -69,15 +79,11 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
 
     public string[] GetPathFiles(string path, bool includeHidden, bool includeOs)
     {
-        ISftpFile[] entries = GetDirectoryEntriesCached(path);
+        DirCacheEntry cacheEntry = GetDirectoryEntriesCached(path);
 
-        List<string> files = new();
-        foreach (ISftpFile entry in entries)
-            if (
-                entry.Name is not ("." or "..")
-                && entry.IsRegularFile
-                && (includeHidden || !IsHidden(entry.Name, false))
-            )
+        List<string> files = new(cacheEntry.Files.Count);
+        foreach (ISftpFile entry in cacheEntry.Files)
+            if (includeHidden || !IsHidden(entry.Name, true))
                 files.Add(entry.FullName);
 
         return files.ToArray();

@@ -14,7 +14,7 @@ public sealed class SftpFileSystem : IFileSystem
     public required IIconProvider IconProvider { get; init; } = new BaseIconProvider();
     public required IClipboardManager ClipboardManager { get; init; }
     public IArchiveManager ArchiveManager { get; } = new SftpArchiveManager();
-    public required IFileIoHandler FileIoHandler { get; init; } // TODO
+    public required IFileIoHandler FileIoHandler { get; init; }
     public IBinInteraction BinInteraction { get; } = new SftpBinInteraction();
     public IFileProperties FileProperties { get; } = new SftpFileProperties();
     public required IShellHandler ShellHandler { get; init; } // TODO
