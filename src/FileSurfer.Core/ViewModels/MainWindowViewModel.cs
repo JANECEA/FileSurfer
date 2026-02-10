@@ -40,7 +40,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
     private readonly UndoRedoHandler<ILocation> _locationHistory;
     private readonly Action<bool> _setDarkMode;
-    private readonly IFileSystem _localFileSystem;
+    private readonly LocalFileSystem _localFileSystem;
 
     private bool _isActionUserInvoked = true;
     private DateTime _lastModified;
@@ -230,7 +230,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public MainWindowViewModel(
         string initialDir,
-        IFileSystem localFileSystem,
+        LocalFileSystem localFileSystem,
         Action<bool> setDarkMode
     )
     {
@@ -921,8 +921,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Copies the path to the selected <see cref="FileSystemEntryViewModel"/> to the system clipboard.
     /// </summary>
-    public void CopyPath(FileSystemEntryViewModel entry) =>
-        CurrentFs.ClipboardManager.CopyPathToFileAsync(entry.PathToEntry);
+    public async Task CopyPath(FileSystemEntryViewModel entry) =>
+        ForwardIfError(
+            await _localFileSystem.LocalClipboardManager.CopyPathToFileAsync(entry.PathToEntry)
+        );
 
     /// <summary>
     /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="IClipboardManager"/>.
@@ -963,7 +965,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (
             FileSurferSettings.AllowImagePastingFromClipboard
-            && (await CurrentFs.ClipboardManager.PasteImageAsync(CurrentDir)).IsOk
+            && CurrentFs is LocalFileSystem fileSystem
+            && (await fileSystem.LocalClipboardManager.PasteImageAsync(CurrentDir)).IsOk
         )
             return;
 
@@ -999,7 +1002,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         IFileSystemEntry[] clipboard = CurrentFs.ClipboardManager.GetClipboard();
 
-        ValueResult<string[]> copyNamesResult = await CurrentFs.ClipboardManager.Duplicate(
+        ValueResult<string[]> copyNamesResult = await CurrentFs.ClipboardManager.DuplicateAsync(
             CurrentDir
         );
         if (!copyNamesResult.IsOk)

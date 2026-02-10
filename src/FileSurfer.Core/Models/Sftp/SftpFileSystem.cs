@@ -12,11 +12,11 @@ public sealed class SftpFileSystem : IFileSystem
 
     public required IFileInfoProvider FileInfoProvider { get; init; } // TODO
     public required IIconProvider IconProvider { get; init; } = new BaseIconProvider();
-    public required IClipboardManager ClipboardManager { get; init; } // TODO
+    public required IClipboardManager ClipboardManager { get; init; }
     public IArchiveManager ArchiveManager { get; } = new SftpArchiveManager();
     public required IFileIoHandler FileIoHandler { get; init; } // TODO
     public IBinInteraction BinInteraction { get; } = new SftpBinInteraction();
-    public required IFileProperties FileProperties { get; init; } // TODO
+    public IFileProperties FileProperties { get; } = new SftpFileProperties();
     public required IShellHandler ShellHandler { get; init; } // TODO
     public IGitIntegration GitIntegration { get; } = new SftpGitIntegration();
 

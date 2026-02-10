@@ -89,11 +89,11 @@ public partial class App : Application
             fileInfoProvider
         );
 
-        LinuxFileSystem fileSystem = new()
+        LocalFileSystem fileSystem = new()
         {
             FileInfoProvider = fileInfoProvider,
             IconProvider = new LinuxIconProvider(shellHandler),
-            ClipboardManager = clipboardManager,
+            LocalClipboardManager = clipboardManager,
             ArchiveManager = new LocalArchiveManager(fileInfoProvider),
             FileIoHandler = new LinuxFileIoHandler(),
             BinInteraction = new LinuxBinInteraction(shellHandler),

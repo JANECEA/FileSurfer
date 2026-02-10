@@ -13,7 +13,7 @@ namespace FileSurfer.Core.Models.FileOperations;
 /// <summary>
 /// Interacts with the program and system clipboards using <see cref="Avalonia.Input.Platform.IClipboard"/>.
 /// </summary>
-public class LocalClipboardManager : IClipboardManager
+public class LocalClipboardManager : ILocalClipboardManager
 {
     private readonly IFileIoHandler _fileIoHandler;
     private readonly IFileInfoProvider _fileInfoProvider;
@@ -142,8 +142,11 @@ public class LocalClipboardManager : IClipboardManager
         return result;
     }
 
-    public async Task CopyPathToFileAsync(string filePath) =>
-        await _systemClipboard.SetTextAsync($"\"{filePath}\"");
+    public async Task<IResult> CopyPathToFileAsync(string filePath)
+    {
+        await _systemClipboard.SetTextAsync(filePath);
+        return SimpleResult.Ok();
+    }
 
     private ValueResult<IFileSystemEntry> SaveImageToPath(string destinationPath, Bitmap image)
     {
@@ -229,7 +232,7 @@ public class LocalClipboardManager : IClipboardManager
         return result;
     }
 
-    public Task<ValueResult<string[]>> Duplicate(string currentDir)
+    public Task<ValueResult<string[]>> DuplicateAsync(string currentDir)
     {
         if (_programClipboard.Length == 0)
             return Task.FromResult(ValueResult<string[]>.Error("Clipboard is empty"));

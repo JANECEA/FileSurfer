@@ -52,17 +52,6 @@ public interface IClipboardManager
     public Task<IResult> CopyAsync(IFileSystemEntry[] selectedFiles, string currentDir);
 
     /// <summary>
-    /// Copies the <paramref name="filePath"/> to the system's clipboard.
-    /// </summary>
-    public Task CopyPathToFileAsync(string filePath);
-
-    /// <summary>
-    /// Tries to paste an image from the clipboard
-    /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public Task<ValueResult<IFileSystemEntry>> PasteImageAsync(string currentDir);
-
-    /// <summary>
     /// Pastes the contents of the system clipboard into <paramref name="currentDir"/>.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
@@ -72,5 +61,23 @@ public interface IClipboardManager
     /// Duplicates the files stored in the clipboard.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public Task<ValueResult<string[]>> Duplicate(string currentDir);
+    public Task<ValueResult<string[]>> DuplicateAsync(string currentDir);
+}
+
+/// <summary>
+/// Represents a specialized version of the <see cref="IClipboardManager"/> for local operations
+/// </summary>
+public interface ILocalClipboardManager : IClipboardManager
+{
+    /// <summary>
+    /// Copies the <paramref name="filePath"/> to the system's clipboard.
+    /// </summary>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public Task<IResult> CopyPathToFileAsync(string filePath);
+
+    /// <summary>
+    /// Tries to paste an image from the clipboard
+    /// </summary>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public Task<ValueResult<IFileSystemEntry>> PasteImageAsync(string currentDir);
 }

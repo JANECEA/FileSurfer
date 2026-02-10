@@ -22,3 +22,27 @@ public interface IFileSystem
     public IGitIntegration GitIntegration { get; }
     public ILocation GetLocation(string path);
 }
+
+public sealed class LocalFileSystem : IFileSystem
+{
+    public required IFileInfoProvider FileInfoProvider { get; init; }
+
+    public required IIconProvider IconProvider { get; init; }
+
+    IClipboardManager IFileSystem.ClipboardManager => LocalClipboardManager;
+    public required ILocalClipboardManager LocalClipboardManager { get; init; }
+
+    public required IArchiveManager ArchiveManager { get; init; }
+
+    public required IFileIoHandler FileIoHandler { get; init; }
+
+    public required IBinInteraction BinInteraction { get; init; }
+
+    public required IFileProperties FileProperties { get; init; }
+
+    public required IShellHandler ShellHandler { get; init; }
+
+    public required IGitIntegration GitIntegration { get; init; }
+
+    public ILocation GetLocation(string path) => new LocalDirLocation(this, path);
+}

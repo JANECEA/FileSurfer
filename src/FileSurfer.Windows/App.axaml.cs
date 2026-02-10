@@ -95,11 +95,11 @@ public partial class App : Application
             fileInfoProvider
         );
 
-        WindowsFileSystem fileSystem = new()
+        LocalFileSystem fileSystem = new()
         {
             FileInfoProvider = fileInfoProvider,
             IconProvider = new WindowsIconProvider(),
-            ClipboardManager = clipboardManager,
+            LocalClipboardManager = clipboardManager,
             ArchiveManager = new LocalArchiveManager(fileInfoProvider),
             FileIoHandler = fileIoHandler,
             BinInteraction = binInteraction,

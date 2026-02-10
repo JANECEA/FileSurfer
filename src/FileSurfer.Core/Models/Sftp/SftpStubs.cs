@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
-using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileOperations;
 using FileSurfer.Core.Models.Shell;
 using FileSurfer.Core.Models.VersionControl;
+using FileSurfer.Core.ViewModels;
+
+namespace FileSurfer.Core.Models.Sftp;
 
 public class SftpArchiveManager : IArchiveManager
 {
@@ -57,5 +59,16 @@ public class SftpBinInteraction : IBinInteraction
         SimpleResult.Error("Unsupported environment.");
 
     public IResult RestoreDir(string originalDirPath) =>
+        SimpleResult.Error("Unsupported environment.");
+}
+
+public class SftpFileProperties : IFileProperties
+{
+    public IResult ShowFileProperties(FileSystemEntryViewModel entry) =>
+        SimpleResult.Error("Unsupported environment.");
+
+    public bool SupportsOpenAs(IFileSystemEntry entry) => false;
+
+    public IResult ShowOpenAsDialog(IFileSystemEntry entry) =>
         SimpleResult.Error("Unsupported environment.");
 }
