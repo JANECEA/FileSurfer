@@ -450,13 +450,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (entry.IsDirectory)
             SetNewLocation(entry.PathToEntry);
-        else if (
-            CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? directory)
-        )
-        {
-            if (directory is not null)
-                SetNewLocation(directory);
-        }
+        else if (CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
+            SetNewLocation(dir!);
         else
             ForwardIfError(CurrentFs.ShellHandler.OpenFile(entry.PathToEntry));
     }
@@ -467,9 +462,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         OpenEntry(entry);
     }
 
-    public void OpenSftpConnection(SftpConnectionViewModel sftpConnection)
+    public void OpenSftpConnection(SftpConnection connection)
     {
-        // TODO
+        if (CurrentFs is SftpFileSystem fileSystem && fileSystem.IsSameConnection(connection))
+        {
+            SetNewLocation(connection.InitialDirectory ?? "/");
+            return;
+        }
+
+        SftpFileSystem fs = null;
+        SftpDirectoryLocation location = new(fs, connection.InitialDirectory ?? "/");
+        SetLocation(location);
     }
 
     /// <summary>

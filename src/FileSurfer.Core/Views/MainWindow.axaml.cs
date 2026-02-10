@@ -253,8 +253,8 @@ public partial class MainWindow : Window
 
     private void SftpEntryClicked(object sender, TappedEventArgs e)
     {
-        if (sender is ListBox { SelectedItem: SftpConnectionViewModel connection })
-            _viewModel?.OpenSftpConnection(connection);
+        if (sender is ListBox { SelectedItem: SftpConnectionViewModel connectionVm })
+            _viewModel?.OpenSftpConnection(connectionVm.SftpConnection);
 
         ClearSidebar();
     }
