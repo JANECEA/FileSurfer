@@ -38,7 +38,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
     private readonly SearchManager _searchManager;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
-    private readonly UndoRedoHandler<ILocation> _locationHistory;
+    private readonly UndoRedoHandler<Location> _locationHistory;
     private readonly Action<bool> _setDarkMode;
     private readonly LocalFileSystem _localFileSystem;
 
@@ -75,7 +75,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ObservableCollection<FileSystemEntryViewModel> Drives { get; } = [];
 
     /// <summary>
-    /// TODO
+    /// Holds the parameters for <see cref="SftpConnection"/>
     /// </summary>
     public ObservableCollection<SftpConnectionViewModel> SftpConnectionsVms { get; } = [];
 
@@ -104,7 +104,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
     private string _currentDir = string.Empty;
 
-    public ILocation CurrentLocation
+    public Location CurrentLocation
     {
         get =>
             _currentLocation
@@ -116,7 +116,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             CurrentFs = CurrentLocation.FileSystem;
         }
     }
-    private ILocation? _currentLocation;
+    private Location? _currentLocation;
 
     private IFileSystem CurrentFs { get; set; }
 
@@ -239,7 +239,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _setDarkMode = setDarkMode;
         _searchManager = new SearchManager(s => PathBoxText = s, entry => FileEntries.Add(entry));
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
-        _locationHistory = new UndoRedoHandler<ILocation>();
+        _locationHistory = new UndoRedoHandler<Location>();
 
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
@@ -263,7 +263,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         PullCommand = ReactiveCommand.Create(Pull);
         PushCommand = ReactiveCommand.Create(Push);
 
-        CurrentLocation = new LocalDirLocation(_localFileSystem, initialDir);
+        CurrentLocation = new Location(_localFileSystem, initialDir);
         LoadQuickAccess();
         LoadDrives();
         LoadSftpConnections();
@@ -470,7 +470,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         if (connectionVm.FileSystem is not null)
         {
-            SetLocation(new SftpDirectoryLocation(connectionVm.FileSystem, initialDir));
+            SetLocation(new Location(connectionVm.FileSystem, initialDir));
             return;
         }
         ValueResult<SftpFileSystem> result = SftpFileSystemFactory.TryConnect(connection);
@@ -481,7 +481,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
         SftpFileSystem fileSystem = result.Value;
         connectionVm.FileSystem = fileSystem;
-        SetLocation(new SftpDirectoryLocation(fileSystem, initialDir));
+        SetLocation(new Location(fileSystem, initialDir));
     }
 
     public void CloseSftpConnection(SftpConnectionViewModel connectionVm)
@@ -493,7 +493,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
         connectionVm.FileSystem.Dispose();
         connectionVm.FileSystem = null;
-        SetLocation(new LocalDirLocation(_localFileSystem, "/"));
+        SetLocation(new Location(_localFileSystem, "/")); // TODO Make Fs.GetRoot() or something
     }
 
     /// <summary>
@@ -732,7 +732,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _isActionUserInvoked = true;
     }
 
-    public void SetLocationNoHistory(ILocation location)
+    public void SetLocationNoHistory(Location location)
     {
         if (location.Exists())
         {
@@ -746,17 +746,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ForwardError($"Location {location.Path} does not exist.");
     }
 
-    public void SetLocation(ILocation location)
+    public void SetLocation(Location location)
     {
         SetLocationNoHistory(location);
 
-        if (location.Exists() && location != _locationHistory.Current)
+        if (location.Exists() && location.Equals(_locationHistory.Current))
             _locationHistory.AddNewNode(location);
     }
 
     public void SetNewLocation(string path)
     {
-        ILocation location = CurrentFs.GetLocation(path);
+        Location location = CurrentFs.GetLocation(path);
         SetLocation(location);
     }
 
@@ -771,7 +771,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (Searching)
             CancelSearch();
 
-        if (_locationHistory.GetPrevious() is not ILocation previousLocation)
+        if (_locationHistory.GetPrevious() is not Location previousLocation)
             return;
 
         _locationHistory.MoveToPrevious();
@@ -793,7 +793,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (Searching)
             CancelSearch();
 
-        if (_locationHistory.GetNext() is not ILocation nextLocation)
+        if (_locationHistory.GetNext() is not Location nextLocation)
             return;
 
         _locationHistory.MoveToNext();
@@ -836,7 +836,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         Searching = false;
         _searchManager.CancelSearch();
 
-        if (_locationHistory.Current is ILocation location)
+        if (_locationHistory.Current is Location location)
             SetLocation(location);
     }
 

@@ -21,7 +21,7 @@ public interface IFileSystem
     public IShellHandler ShellHandler { get; }
     public IGitIntegration GitIntegration { get; }
 
-    public ILocation GetLocation(string path);
+    public Location GetLocation(string path) => new(this, path);
 }
 
 /// <summary>
@@ -42,6 +42,4 @@ public sealed class LocalFileSystem : IFileSystem
     public required IFileProperties FileProperties { get; init; }
     public required ILocalShellHandler LocalShellHandler { get; init; }
     public required IGitIntegration GitIntegration { get; init; }
-
-    public ILocation GetLocation(string path) => new LocalDirLocation(this, path);
 }

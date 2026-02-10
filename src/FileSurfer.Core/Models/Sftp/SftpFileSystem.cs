@@ -4,7 +4,6 @@ using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Models.FileOperations;
 using FileSurfer.Core.Models.Shell;
 using FileSurfer.Core.Models.VersionControl;
-using FileSurfer.Core.ViewModels;
 using Renci.SshNet;
 
 namespace FileSurfer.Core.Models.Sftp;
@@ -13,7 +12,6 @@ namespace FileSurfer.Core.Models.Sftp;
 public sealed class SftpFileSystem : IFileSystem, IDisposable
 {
     private const string EnvironmentNotSupported = "The SFTP environment is not supported.";
-    private readonly SftpConnection _connection;
     private readonly SftpClient _sftpClient;
     private readonly SshClient? _sshClient;
 
@@ -37,9 +35,8 @@ public sealed class SftpFileSystem : IFileSystem, IDisposable
     public IShellHandler ShellHandler { get; }
     public StubGitIntegration GitIntegration { get; } = new(EnvironmentNotSupported);
 
-    public SftpFileSystem(SftpConnection connection, SftpClient sftpClient, SshClient? sshClient)
+    public SftpFileSystem(SftpClient sftpClient, SshClient? sshClient)
     {
-        _connection = connection;
         _sftpClient = sftpClient;
         _sshClient = sshClient;
 
@@ -50,13 +47,6 @@ public sealed class SftpFileSystem : IFileSystem, IDisposable
             ? new StubShellHandler("The server refused ssh connection")
             : new SftpShellHandler(_sshClient);
     }
-
-    public ILocation GetLocation(string path) => new SftpDirectoryLocation(this, path);
-
-    public bool IsSameConnection(SftpConnection connection) =>
-        _connection.HostnameOrIpAddress == connection.HostnameOrIpAddress
-        && _connection.Port == connection.Port
-        && _connection.Username == connection.Username;
 
     public void Dispose()
     {

@@ -23,7 +23,7 @@ public static class SftpFileSystemFactory
 
             if (sftpClient.IsConnected && hostKeyAccepted)
                 return ValueResult<SftpFileSystem>.Ok(
-                    new SftpFileSystem(connection, sftpClient, GetSshClient(connectionInfo))
+                    new SftpFileSystem(sftpClient, GetSshClient(connectionInfo))
                 );
 
             sftpClient.Dispose();
