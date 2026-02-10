@@ -235,6 +235,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     )
     {
         _localFileSystem = localFileSystem;
+        CurrentFs = localFileSystem;
         _setDarkMode = setDarkMode;
         _searchManager = new SearchManager(s => PathBoxText = s, entry => FileEntries.Add(entry));
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();

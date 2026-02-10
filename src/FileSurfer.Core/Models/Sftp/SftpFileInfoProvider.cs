@@ -142,9 +142,6 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
     {
         try
         {
-            if (!_client.Exists(path))
-                return false;
-
             ISftpFile file = _client.Get(path);
             return file.IsRegularFile || file.IsSymbolicLink;
         }
@@ -158,9 +155,6 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
     {
         try
         {
-            if (!_client.Exists(path))
-                return false;
-
             ISftpFile file = _client.Get(path);
             return file.IsDirectory;
         }
