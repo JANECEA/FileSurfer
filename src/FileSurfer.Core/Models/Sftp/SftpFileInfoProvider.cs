@@ -137,4 +137,48 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
 
         return path[i + 1] == '.';
     }
+
+    public bool FileExists(string path)
+    {
+        try
+        {
+            if (!_client.Exists(path))
+                return false;
+
+            ISftpFile file = _client.Get(path);
+            return file.IsRegularFile || file.IsSymbolicLink;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public bool DirectoryExists(string path)
+    {
+        try
+        {
+            if (!_client.Exists(path))
+                return false;
+
+            ISftpFile file = _client.Get(path);
+            return file.IsDirectory;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public bool PathExists(string path)
+    {
+        try
+        {
+            return _client.Exists(path);
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

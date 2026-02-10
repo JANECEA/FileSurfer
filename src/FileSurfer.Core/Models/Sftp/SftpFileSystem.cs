@@ -10,7 +10,7 @@ public sealed class SftpFileSystem : IFileSystem
 {
     private readonly SftpConnection _connection;
 
-    public required IFileInfoProvider FileInfoProvider { get; init; } // TODO
+    public required IFileInfoProvider FileInfoProvider { get; init; }
     public required IIconProvider IconProvider { get; init; } = new BaseIconProvider();
     public required IClipboardManager ClipboardManager { get; init; }
     public IArchiveManager ArchiveManager { get; } = new SftpArchiveManager();
