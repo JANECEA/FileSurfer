@@ -9,82 +9,92 @@ using FileSurfer.Core.ViewModels;
 
 namespace FileSurfer.Core.Models.Sftp;
 
-public class SftpArchiveManager : IArchiveManager
+public class StubArchiveManager : IArchiveManager
 {
+    private readonly string _message;
+
+    public StubArchiveManager(string message) => _message = message;
+
     public bool IsZipped(string filePath) => false;
 
     public IResult ZipFiles(
         IEnumerable<IFileSystemEntry> entries,
         string destinationDir,
         string archiveName
-    ) => SimpleResult.Error("Unsupported environment.");
+    ) => SimpleResult.Error(_message);
 
     public IResult UnzipArchive(string archivePath, string destinationPath) =>
-        SimpleResult.Error("Unsupported environment.");
+        SimpleResult.Error(_message);
 }
 
-public class SftpGitIntegration : IGitIntegration
+public class StubGitIntegration : IGitIntegration
 {
+    private readonly string _message;
+
+    public StubGitIntegration(string message) => _message = message;
+
     public bool InitIfGitRepository(string directoryPath) => false;
 
     public GitStatus GetStatus(string filePath) => GitStatus.NotVersionControlled;
 
-    public IResult PullChanges() => SimpleResult.Error("Unsupported environment.");
+    public IResult PullChanges() => SimpleResult.Error(_message);
 
     public string[] GetBranches() => Array.Empty<string>();
 
     public string GetCurrentBranchName() => string.Empty;
 
-    public IResult SwitchBranches(string branchName) =>
-        SimpleResult.Error("Unsupported environment.");
+    public IResult SwitchBranches(string branchName) => SimpleResult.Error(_message);
 
-    public IResult StagePath(string path) => SimpleResult.Error("Unsupported environment.");
+    public IResult StagePath(string path) => SimpleResult.Error(_message);
 
-    public IResult UnstagePath(string filePath) => SimpleResult.Error("Unsupported environment.");
+    public IResult UnstagePath(string filePath) => SimpleResult.Error(_message);
 
-    public IResult CommitChanges(string commitMessage) =>
-        SimpleResult.Error("Unsupported environment.");
+    public IResult CommitChanges(string commitMessage) => SimpleResult.Error(_message);
 
-    public IResult PushChanges() => SimpleResult.Error("Unsupported environment.");
+    public IResult PushChanges() => SimpleResult.Error(_message);
 
     public void Dispose() { }
 }
 
-public class SftpBinInteraction : IBinInteraction
+public class StubBinInteraction : IBinInteraction
 {
-    public IResult MoveFileToTrash(string filePath) =>
-        SimpleResult.Error("Unsupported environment.");
+    private readonly string _message;
 
-    public IResult MoveDirToTrash(string dirPath) => SimpleResult.Error("Unsupported environment.");
+    public StubBinInteraction(string message) => _message = message;
 
-    public IResult RestoreFile(string originalFilePath) =>
-        SimpleResult.Error("Unsupported environment.");
+    public IResult MoveFileToTrash(string filePath) => SimpleResult.Error(_message);
 
-    public IResult RestoreDir(string originalDirPath) =>
-        SimpleResult.Error("Unsupported environment.");
+    public IResult MoveDirToTrash(string dirPath) => SimpleResult.Error(_message);
+
+    public IResult RestoreFile(string originalFilePath) => SimpleResult.Error(_message);
+
+    public IResult RestoreDir(string originalDirPath) => SimpleResult.Error(_message);
 }
 
-public class SftpFileProperties : IFileProperties
+public class StubFileProperties : IFileProperties
 {
+    private readonly string _message;
+
+    public StubFileProperties(string message) => _message = message;
+
     public IResult ShowFileProperties(FileSystemEntryViewModel entry) =>
-        SimpleResult.Error("Unsupported environment.");
+        SimpleResult.Error(_message);
 
     public bool SupportsOpenAs(IFileSystemEntry entry) => false;
 
-    public IResult ShowOpenAsDialog(IFileSystemEntry entry) =>
-        SimpleResult.Error("Unsupported environment.");
+    public IResult ShowOpenAsDialog(IFileSystemEntry entry) => SimpleResult.Error(_message);
 }
 
-public class SftpStubShellHandler : IShellHandler
+public class StubShellHandler : IShellHandler
 {
-    public IResult CreateFileLink(string filePath) =>
-        SimpleResult.Error("Server refused ssh connection");
+    private readonly string _message;
 
-    public IResult CreateDirectoryLink(string dirPath) =>
-        SimpleResult.Error("Server refused ssh connection");
+    public StubShellHandler(string message) => _message = message;
 
-    public IResult OpenCmdAt(string dirPath) => SimpleResult.Error("Server refused ssh connection");
+    public IResult CreateFileLink(string filePath) => SimpleResult.Error(_message);
+
+    public IResult CreateDirectoryLink(string dirPath) => SimpleResult.Error(_message);
 
     public ValueResult<string> ExecuteCommand(string programName, params string[] args) =>
-        ValueResult<string>.Error("Server refused ssh connection");
+        ValueResult<string>.Error(_message);
 }

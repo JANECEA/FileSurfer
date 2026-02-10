@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace FileSurfer.Core.Models.Sftp;
 
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-public record FingerPrint(string Algorithm, string Hash);
+public record FingerPrint(string? Algorithm, string Hash);
 
 public record SftpConnection
 {
