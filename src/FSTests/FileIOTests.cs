@@ -3,9 +3,9 @@ using FileSurfer.Windows.Models.FileOperations;
 
 namespace FSTests;
 
-public class FileIOTests
+public class FileIoTests
 {
-    private readonly WindowsFileIoHandler _fileIOHandler = new(new WindowsFileInfoProvider(), 100);
+    private readonly WindowsFileIoHandler _fileIoHandler = new(new WindowsFileInfoProvider(), 100);
 
     [Fact]
     public void Renaming_File_To_Different_Capital_Letters_Works()
@@ -23,7 +23,7 @@ public class FileIOTests
         try
         {
             // Act
-            _fileIOHandler.RenameFileAt(originalPath, newFileName);
+            _fileIoHandler.RenameFileAt(originalPath, newFileName);
 
             // Assert
             string[] allFiles = Directory.GetFiles(parentDir);
@@ -56,7 +56,7 @@ public class FileIOTests
         try
         {
             // Act
-            _fileIOHandler.RenameDirAt(originalPath, newDirName);
+            _fileIoHandler.RenameDirAt(originalPath, newDirName);
 
             // Assert
             string[] allDirs = Directory.GetDirectories(parentDir);

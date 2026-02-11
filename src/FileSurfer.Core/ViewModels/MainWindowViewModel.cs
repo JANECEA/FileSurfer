@@ -38,7 +38,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
     private readonly SearchManager _searchManager;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
-    private readonly UndoRedoHandler<Location> _locationHistory;
+    private readonly UndoRedoHandler<Location> _locationHistory; // TODO FIX
     private readonly Action<bool> _setDarkMode;
     private readonly LocalFileSystem _localFileSystem;
 
