@@ -20,7 +20,7 @@
 
     <Grid Classes="MainGrid" RowDefinitions="180 40">
         <Border Classes="InfoBlockBorder">
-            <TextBlock x:Name="ContextBlock" Classes="InfoBlock" />
+            <TextBlock x:Name="QuestionBlock" Classes="InfoBlock" />
         </Border>
         <Rectangle Grid.Row="1" Classes="BottomRectangle" />
         <Grid Grid.Row="1" HorizontalAlignment="Right" ColumnDefinitions="Auto Auto">

@@ -260,8 +260,11 @@ public partial class MainWindow : Window
 
     private void SftpEntryClicked(object sender, TappedEventArgs e)
     {
-        if (sender is ListBox { SelectedItem: SftpConnectionViewModel connectionVm })
-            _viewModel?.OpenSftpConnection(connectionVm);
+        if (
+            _viewModel is not null
+            && sender is ListBox { SelectedItem: SftpConnectionViewModel connectionVm }
+        )
+            _ = _viewModel.OpenSftpConnection(connectionVm);
 
         ClearSidebar();
     }
@@ -537,7 +540,7 @@ public partial class MainWindow : Window
         ClearFocus();
     }
 
-    private void OnClosing(object sender, WindowClosingEventArgs e)
+    private void OnClosing(object? sender, WindowClosingEventArgs? e)
     {
         if (_viewModel is not null)
         {
@@ -545,6 +548,5 @@ public partial class MainWindow : Window
             _viewModel.Dispose();
         }
         FileSurferSettings.SaveSettings();
-        base.OnClosing(e);
     }
 }

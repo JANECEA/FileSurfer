@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using FileSurfer.Core.ViewModels;
 using Renci.SshNet;
 using Renci.SshNet.Common;
@@ -11,7 +12,7 @@ public class SftpFileSystemFactory
 
     public SftpFileSystemFactory(IDialogService dialogService) => _dialogService = dialogService;
 
-    private string? RequestPassword(SftpConnection connection)
+    private async Task<string?> RequestPasswordAsync(SftpConnection connection)
     {
         const string title = "Input password";
         string context = $"""
@@ -19,14 +20,14 @@ public class SftpFileSystemFactory
                     host - "{connection.HostnameOrIpAddress}"
                 username - "{connection.Username}"
             """;
-        return _dialogService.InputDialog(title, context, true);
+        return await _dialogService.InputDialog(title, context, true);
     }
 
-    public ValueResult<SftpFileSystem> TryConnect(SftpConnection connection)
+    public async Task<ValueResult<SftpFileSystem>> TryConnectAsync(SftpConnection connection)
     {
         string? password = !string.IsNullOrEmpty(connection.Password)
             ? connection.Password
-            : RequestPassword(connection);
+            : await RequestPasswordAsync(connection);
 
         if (string.IsNullOrEmpty(password))
             return ValueResult<SftpFileSystem>.Error();
@@ -39,13 +40,14 @@ public class SftpFileSystemFactory
                 new PasswordAuthenticationMethod(connection.Username, password)
             );
             SftpClient sftpClient = new(connectionInfo);
-            bool hostKeyAccepted = false;
-            sftpClient.HostKeyReceived += (_, e) =>
-                hostKeyAccepted = OnSftpClientOnHostKeyReceived(e, connection);
-
+            HostKeyEventArgs? args = null;
+            sftpClient.HostKeyReceived += (_, e) => args = e;
             sftpClient.Connect(); // HostKeyReceived is invoked before Connect returns
 
-            if (!hostKeyAccepted)
+            if (args is null)
+                return ValueResult<SftpFileSystem>.Error("Host key verification failed.");
+
+            if (!await HostKeyReceivedAsync(args, connection))
                 return ValueResult<SftpFileSystem>.Error();
 
             if (sftpClient.IsConnected)
@@ -62,11 +64,11 @@ public class SftpFileSystemFactory
         }
         catch (Exception ex)
         {
-            return ValueResult<SftpFileSystem>.Error($"SFTP connection failed: {ex.Message}");
+            return ValueResult<SftpFileSystem>.Error(ex.Message);
         }
     }
 
-    private bool ConfirmNewFingerprint(
+    private async Task<bool> ConfirmNewFpAsync(
         SftpConnection connection,
         FingerPrint oldFingerprint,
         FingerPrint newFingerprint
@@ -87,10 +89,10 @@ public class SftpFileSystemFactory
 
             Do you want to trust the new fingerprint and continue connecting?
             """;
-        return _dialogService.ConfirmationDialog(title, context);
+        return await _dialogService.ConfirmationDialog(title, context);
     }
 
-    private void AddedNewFp(SftpConnection connection, FingerPrint newFingerprint)
+    private void AddedNewFpAsync(SftpConnection connection, FingerPrint newFingerprint)
     {
         const string title = "New fingerprint";
         string context = $"""
@@ -100,7 +102,7 @@ public class SftpFileSystemFactory
         _dialogService.InfoDialog(title, context);
     }
 
-    private bool OnSftpClientOnHostKeyReceived(HostKeyEventArgs e, SftpConnection connection)
+    private async Task<bool> HostKeyReceivedAsync(HostKeyEventArgs e, SftpConnection connection)
     {
         string algorithm = e.HostKeyName;
         string fingerprintHex = BitConverter
@@ -113,7 +115,7 @@ public class SftpFileSystemFactory
 
         if (oldFp is null)
         {
-            AddedNewFp(connection, newFp);
+            AddedNewFpAsync(connection, newFp);
             connection.FingerPrints.Add(newFp);
             e.CanTrust = true;
         }
@@ -121,7 +123,7 @@ public class SftpFileSystemFactory
             e.CanTrust = true;
         else
         {
-            e.CanTrust = ConfirmNewFingerprint(connection, oldFp, newFp);
+            e.CanTrust = await ConfirmNewFpAsync(connection, oldFp, newFp);
             if (e.CanTrust)
                 oldFp.Hash = newFp.Hash;
         }

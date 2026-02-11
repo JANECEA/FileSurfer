@@ -465,7 +465,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         OpenEntry(entry);
     }
 
-    public void OpenSftpConnection(SftpConnectionViewModel connectionVm)
+    public async Task OpenSftpConnection(SftpConnectionViewModel connectionVm)
     {
         SftpConnection connection = connectionVm.SftpConnection;
         string initialDir = connection.InitialDirectory ?? SftpPathTools.RootDir;
@@ -475,7 +475,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SetLocation(new Location(connectionVm.FileSystem, initialDir));
             return;
         }
-        ValueResult<SftpFileSystem> result = _sftpFileSystemFactory.TryConnect(connection);
+        ValueResult<SftpFileSystem> result = await _sftpFileSystemFactory.TryConnectAsync(
+            connection
+        );
         if (!result.IsOk)
         {
             ForwardIfError(result);
