@@ -1,62 +1,135 @@
 using System;
+using FileSurfer.Core.ViewModels;
 using Renci.SshNet;
 using Renci.SshNet.Common;
 
 namespace FileSurfer.Core.Models.Sftp;
 
-public static class SftpFileSystemFactory
+public class SftpFileSystemFactory
 {
-    public static ValueResult<SftpFileSystem> TryConnect(SftpConnection connection)
+    readonly IDialogService _dialogService;
+
+    public SftpFileSystemFactory(IDialogService dialogService) => _dialogService = dialogService;
+
+    private string? RequestPassword(SftpConnection connection)
     {
+        const string title = "Input password";
+        string context = $"""
+            Please enter the password for:
+                    host - "{connection.HostnameOrIpAddress}"
+                username - "{connection.Username}"
+            """;
+        return _dialogService.InputDialog(title, context, true);
+    }
+
+    public ValueResult<SftpFileSystem> TryConnect(
+        SftpConnection connection,
+        IDialogService dialogService
+    )
+    {
+        string? password = !string.IsNullOrEmpty(connection.Password)
+            ? connection.Password
+            : RequestPassword(connection);
+
+        if (string.IsNullOrEmpty(password))
+            return ValueResult<SftpFileSystem>.Error();
         try
         {
             ConnectionInfo connectionInfo = new(
                 connection.HostnameOrIpAddress,
                 connection.Port,
                 connection.Username,
-                new PasswordAuthenticationMethod(connection.Username, connection.Password)
+                new PasswordAuthenticationMethod(connection.Username, password)
             );
             SftpClient sftpClient = new(connectionInfo);
             bool hostKeyAccepted = false;
-            sftpClient.HostKeyReceived += OnSftpClientOnHostKeyReceived;
-            sftpClient.Connect();
+            sftpClient.HostKeyReceived += (_, e) =>
+                hostKeyAccepted = OnSftpClientOnHostKeyReceived(e, connection);
 
-            if (sftpClient.IsConnected && hostKeyAccepted)
+            sftpClient.Connect(); // HostKeyReceived is invoked before Connect returns
+
+            if (!hostKeyAccepted)
+                return ValueResult<SftpFileSystem>.Error();
+
+            if (sftpClient.IsConnected)
                 return ValueResult<SftpFileSystem>.Ok(
                     new SftpFileSystem(sftpClient, GetSshClient(connectionInfo))
                 );
 
             sftpClient.Dispose();
             return ValueResult<SftpFileSystem>.Error("Host key verification failed.");
-
-            void OnSftpClientOnHostKeyReceived(object? _, HostKeyEventArgs e)
-            {
-                string? algorithm = e.HostKeyName;
-                string fingerprintHex = BitConverter
-                    .ToString(e.FingerPrint)
-                    .Replace("-", string.Empty)
-                    .ToLowerInvariant();
-
-                FingerPrint? fp = connection.FingerPrints.Find(fp => fp.Algorithm == algorithm);
-                if (
-                    fp is null
-                    || string.Equals(fp.Hash, fingerprintHex, StringComparison.OrdinalIgnoreCase)
-                )
-                {
-                    if (fp is null)
-                        connection.FingerPrints.Add(new FingerPrint(algorithm, fingerprintHex));
-
-                    hostKeyAccepted = true;
-                    e.CanTrust = true;
-                    return;
-                }
-                e.CanTrust = false;
-            }
+        }
+        catch (SshOperationTimeoutException)
+        {
+            return ValueResult<SftpFileSystem>.Error("SFTP connection timed out");
         }
         catch (Exception ex)
         {
             return ValueResult<SftpFileSystem>.Error($"SFTP connection failed: {ex.Message}");
         }
+    }
+
+    private bool ConfirmNewFingerprint(
+        SftpConnection connection,
+        FingerPrint oldFingerprint,
+        FingerPrint newFingerprint
+    )
+    {
+        const string title = "Fingerprint mismatch";
+        string context = $"""
+            The host's SSH fingerprint has changed for {connection.HostnameOrIpAddress}.
+
+            Algorithm: {(
+                string.IsNullOrEmpty(oldFingerprint.Algorithm)
+                    ? "Unknown"
+                    : oldFingerprint.Algorithm
+            )}
+
+            Previous fingerprint: {oldFingerprint.Hash}
+            New fingerprint:      {newFingerprint.Hash}
+
+            Do you want to trust the new fingerprint and continue connecting?
+            """;
+        return _dialogService.ConfirmationDialog(title, context);
+    }
+
+    private void AddedNewFp(SftpConnection connection, FingerPrint newFingerprint)
+    {
+        const string title = "New fingerprint";
+        string context = $"""
+              Added new fingerprint: {newFingerprint.Hash}
+              for SSH host: "{connection.HostnameOrIpAddress}".
+            """;
+        _dialogService.InfoDialog(title, context);
+    }
+
+    private bool OnSftpClientOnHostKeyReceived(HostKeyEventArgs e, SftpConnection connection)
+    {
+        string algorithm = e.HostKeyName;
+        string fingerprintHex = BitConverter
+            .ToString(e.FingerPrint)
+            .Replace("-", string.Empty)
+            .ToLowerInvariant();
+
+        FingerPrint? oldFp = connection.FingerPrints.Find(fp => fp.Algorithm == algorithm);
+        FingerPrint newFp = new(algorithm, fingerprintHex);
+
+        if (oldFp is null)
+        {
+            AddedNewFp(connection, newFp);
+            connection.FingerPrints.Add(newFp);
+            e.CanTrust = true;
+        }
+        else if (newFp.IsSame(oldFp))
+            e.CanTrust = true;
+        else
+        {
+            e.CanTrust = ConfirmNewFingerprint(connection, oldFp, newFp);
+            if (e.CanTrust)
+                oldFp.Hash = newFp.Hash;
+        }
+
+        return e.CanTrust;
     }
 
     private static SshClient? GetSshClient(ConnectionInfo connectionInfo)

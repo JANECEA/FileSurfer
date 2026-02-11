@@ -95,7 +95,9 @@ public partial class App : Application
             fileInfoProvider
         );
 
-        LocalFileSystem fileSystem = new()
+        AvaloniaDialogService dialogService = new(mainWindow);
+
+        LocalFileSystem localFileSystem = new()
         {
             LocalFileInfoProvider = fileInfoProvider,
             IconProvider = new WindowsIconProvider(),
@@ -107,7 +109,7 @@ public partial class App : Application
             LocalShellHandler = shellHandler,
             GitIntegration = new LocalGitIntegration(shellHandler),
         };
-        return new MainWindowViewModel(initialDir, fileSystem, SetDarkMode);
+        return new MainWindowViewModel(initialDir, localFileSystem, dialogService, SetDarkMode);
     }
 
     private void SetDarkMode(bool darkMode) =>

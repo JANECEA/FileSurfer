@@ -93,8 +93,8 @@ public sealed class SftpConnectionViewModel : ReactiveObject
     {
         HostnameOrIpAddress = saveFrom.HostnameOrIpAddress.Trim();
         Port = saveFrom.Port;
-        Username = saveFrom.Username.Trim();
-        Password = saveFrom.Password.Trim();
+        Username = saveFrom.Username;
+        Password = saveFrom.Password;
         InitialDirectory = saveFrom.InitialDirectory?.Trim();
 
         SftpConnection.HostnameOrIpAddress = HostnameOrIpAddress;

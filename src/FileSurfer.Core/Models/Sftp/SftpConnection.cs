@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
@@ -5,7 +6,16 @@ using System.Text.Json;
 namespace FileSurfer.Core.Models.Sftp;
 
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-public record FingerPrint(string? Algorithm, string Hash);
+public sealed class FingerPrint(string algorithm, string hash)
+{
+    public string Algorithm { get; } = algorithm;
+    public string Hash { get; set; } = hash;
+
+    public bool IsSame(FingerPrint? other) =>
+        other is not null
+        && string.Equals(Algorithm, other.Algorithm, StringComparison.Ordinal)
+        && string.Equals(Hash, other.Hash, StringComparison.OrdinalIgnoreCase);
+}
 
 public record SftpConnection
 {

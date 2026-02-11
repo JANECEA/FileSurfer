@@ -545,5 +545,6 @@ public partial class MainWindow : Window
             _viewModel.Dispose();
         }
         FileSurferSettings.SaveSettings();
+        base.OnClosing(e);
     }
 }

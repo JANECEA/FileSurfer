@@ -41,6 +41,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private readonly UndoRedoHandler<Location> _locationHistory; // TODO FIX
     private readonly Action<bool> _setDarkMode;
     private readonly LocalFileSystem _localFileSystem;
+    private readonly SftpFileSystemFactory _sftpFileSystemFactory;
 
     private bool _isActionUserInvoked = true;
     private DateTime _lastModified;
@@ -231,10 +232,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public MainWindowViewModel(
         string initialDir,
         LocalFileSystem localFileSystem,
+        IDialogService dialogService,
         Action<bool> setDarkMode
     )
     {
         _localFileSystem = localFileSystem;
+        _sftpFileSystemFactory = new SftpFileSystemFactory(dialogService);
         CurrentFs = localFileSystem;
         _setDarkMode = setDarkMode;
         _searchManager = new SearchManager(s => PathBoxText = s, entry => FileEntries.Add(entry));
@@ -473,7 +476,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SetLocation(new Location(connectionVm.FileSystem, initialDir));
             return;
         }
-        ValueResult<SftpFileSystem> result = SftpFileSystemFactory.TryConnect(connection);
+        ValueResult<SftpFileSystem> result = _sftpFileSystemFactory.TryConnect(connection);
         if (!result.IsOk)
         {
             ForwardIfError(result);
