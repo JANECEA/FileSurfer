@@ -7,7 +7,7 @@ namespace FileSurfer.Core.Models.Sftp;
 
 public class SftpFileSystemFactory
 {
-    readonly IDialogService _dialogService;
+    private readonly IDialogService _dialogService;
 
     public SftpFileSystemFactory(IDialogService dialogService) => _dialogService = dialogService;
 
@@ -22,10 +22,7 @@ public class SftpFileSystemFactory
         return _dialogService.InputDialog(title, context, true);
     }
 
-    public ValueResult<SftpFileSystem> TryConnect(
-        SftpConnection connection,
-        IDialogService dialogService
-    )
+    public ValueResult<SftpFileSystem> TryConnect(SftpConnection connection)
     {
         string? password = !string.IsNullOrEmpty(connection.Password)
             ? connection.Password

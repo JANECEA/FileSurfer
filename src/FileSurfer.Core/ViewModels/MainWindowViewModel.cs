@@ -36,6 +36,7 @@ namespace FileSurfer.Core.ViewModels;
 ]
 public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
+    private readonly IDialogService _dialogService;
     private readonly SearchManager _searchManager;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
     private readonly UndoRedoHandler<Location> _locationHistory; // TODO FIX
@@ -237,6 +238,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     )
     {
         _localFileSystem = localFileSystem;
+        _dialogService = dialogService;
         _sftpFileSystemFactory = new SftpFileSystemFactory(dialogService);
         CurrentFs = localFileSystem;
         _setDarkMode = setDarkMode;
@@ -376,19 +378,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Opens a new <see cref="ErrorWindow"/> dialog.
+    /// Opens a new <see cref="InfoDialogWindow"/> dialog.
     /// </summary>
     private void ForwardError(string? errorMessage)
     {
-        if (!string.IsNullOrEmpty(errorMessage))
-            Dispatcher.UIThread.Post(() =>
-            {
-                new ErrorWindow { ErrorMessage = errorMessage }.Show();
-            });
+        if (!string.IsNullOrWhiteSpace(errorMessage))
+            _dialogService.InfoDialog("Unexpected error", errorMessage);
     }
 
     /// <summary>
-    /// Opens a new <see cref="ErrorWindow"/> dialog if the result is failed.
+    /// Opens a new <see cref="InfoDialogWindow"/> dialog if the result is failed.
     /// </summary>
     private void ForwardIfError(IResult result)
     {
@@ -753,7 +752,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         SetLocationNoHistory(location);
 
-        if (location.Exists() && location.Equals(_locationHistory.Current))
+        if (location.Exists() && !location.Equals(_locationHistory.Current))
             _locationHistory.AddNewNode(location);
     }
 

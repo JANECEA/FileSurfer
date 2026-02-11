@@ -1,32 +1,36 @@
-<Window x:Class="FileSurfer.Core.Views.ErrorWindow"
+<Window x:Class="FileSurfer.Core.Views.ConfirmationDialogWindow"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="clr-namespace:FileSurfer.Core.ViewModels"
-        Title="Unexpected error"
         Width="550"
         Height="220"
         d:DesignHeight="220"
         d:DesignWidth="550"
-        x:DataType="vm:MainWindowViewModel"
         Background="{DynamicResource PrimaryColor}"
         CanResize="False"
         Icon="/Assets/FileSurfer-logo.ico"
-        KeyDown="KeyPressed"
+        ShowInTaskbar="False"
         WindowStartupLocation="CenterOwner"
         mc:Ignorable="d">
 
     <Window.Styles>
-        <StyleInclude Source="avares://FileSurfer.Core/Views/ErrorWindowStyle.axaml" />
+        <StyleInclude Source="avares://FileSurfer.Core/Views/DialogWindowStyle.axaml" />
     </Window.Styles>
 
     <Grid Classes="MainGrid" RowDefinitions="180 40">
-        <Border Classes="ErrorBlockBorder">
-            <TextBlock x:Name="ErrorBlock" Classes="ErrorBlock" />
+        <Border Classes="InfoBlockBorder">
+            <TextBlock x:Name="ContextBlock" Classes="InfoBlock" />
         </Border>
         <Rectangle Grid.Row="1" Classes="BottomRectangle" />
-        <Button Grid.Row="1" Classes="OKButton" Click="CloseWindow" Content="OK" />
+        <Grid Grid.Row="1" HorizontalAlignment="Right" ColumnDefinitions="Auto Auto">
+            <Button Grid.Column="0"
+                    Margin="0 0 -2 0"
+                    Classes="BottomButton"
+                    Click="OnNoClicked"
+                    Content="No" />
+            <Button Grid.Column="1" Classes="BottomButton" Click="OnYesClicked" Content="Yes" />
+        </Grid>
     </Grid>
 
 </Window>
