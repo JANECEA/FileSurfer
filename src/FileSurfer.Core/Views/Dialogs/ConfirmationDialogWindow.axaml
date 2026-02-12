@@ -1,0 +1,29 @@
+<Window x:Class="FileSurfer.Core.Views.Dialogs.ConfirmationDialogWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        Width="560"
+        Height="230"
+        d:DesignHeight="230"
+        d:DesignWidth="560"
+        Classes="DialogWindow"
+        mc:Ignorable="d">
+
+    <Window.Styles>
+        <StyleInclude Source="avares://FileSurfer.Core/Views/Dialogs/DialogWindowStyle.axaml" />
+    </Window.Styles>
+
+    <Grid Classes="MainGrid" RowDefinitions="* 45">
+        <Border Grid.Row="0" Classes="InfoBlockBorder">
+            <TextBlock x:Name="QuestionBlock" Classes="InfoBlock" />
+        </Border>
+
+        <Rectangle Grid.Row="1" Classes="BottomRectangle" />
+        <Grid Grid.Row="1" HorizontalAlignment="Right" ColumnDefinitions="Auto Auto">
+            <Button Margin="0 0 -2 0" Classes="BottomButton" Click="OnNoClicked" Content="No" />
+            <Button Grid.Column="1" Classes="BottomButton" Click="OnYesClicked" Content="Yes" />
+        </Grid>
+    </Grid>
+
+</Window>

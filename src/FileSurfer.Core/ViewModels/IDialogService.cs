@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
-using FileSurfer.Core.Views;
+using FileSurfer.Core.Views.Dialogs;
 
 namespace FileSurfer.Core.ViewModels;
 
@@ -23,21 +23,28 @@ public sealed class AvaloniaDialogService : IDialogService
     public void InfoDialog(string title, string info) =>
         Dispatcher.UIThread.Post(() =>
         {
-            new InfoDialogWindow { DialogTitle = title, Message = info }.ShowDialog(_parentWindow);
+            new InfoDialogWindow { Title = title, Message = info }.ShowDialog(_parentWindow);
         });
 
     public async Task<bool> ConfirmationDialog(string title, string question)
     {
-        bool? result = await Dispatcher.UIThread.Invoke(async () =>
+        bool? result = await Dispatcher.UIThread.InvokeAsync(async () =>
             await new ConfirmationDialogWindow
             {
-                DialogTitle = title,
+                Title = title,
                 Question = question,
             }.ShowDialog<bool?>(_parentWindow)
         );
         return result is true;
     }
 
-    public Task<string?> InputDialog(string title, string context, bool secret) =>
-        throw new System.NotImplementedException();
+    public async Task<string?> InputDialog(string title, string context, bool secret) =>
+        await Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            InputDialogWindow dialog = new() { Title = title, Context = context };
+            dialog.HideInput(secret);
+
+            string? result = await dialog.ShowDialog<string?>(_parentWindow);
+            return string.IsNullOrEmpty(result) ? null : result;
+        });
 }

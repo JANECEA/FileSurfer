@@ -3,14 +3,13 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 
-namespace FileSurfer.Core.Views;
+namespace FileSurfer.Core.Views.Dialogs;
 
 /// <summary>
-/// Represents an error dialog in the context of the <see cref="FileSurfer"/> app.
+/// Represents an information dialog in the <see cref="FileSurfer"/> app.
 /// </summary>
 public partial class InfoDialogWindow : Window
 {
-    public string DialogTitle { get; init; } = string.Empty;
     public string Message { get; init; } = string.Empty;
 
     public InfoDialogWindow() => InitializeComponent();
@@ -20,7 +19,6 @@ public partial class InfoDialogWindow : Window
     /// </summary>
     protected override void OnOpened(EventArgs e)
     {
-        Title = DialogTitle;
         InfoBlock.Text = Message;
         base.OnOpened(e);
     }

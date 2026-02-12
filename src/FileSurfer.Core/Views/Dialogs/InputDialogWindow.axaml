@@ -1,0 +1,37 @@
+<Window x:Class="FileSurfer.Core.Views.Dialogs.InputDialogWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        Width="560"
+        Height="230"
+        d:DesignHeight="230"
+        d:DesignWidth="560"
+        Classes="DialogWindow"
+        mc:Ignorable="d">
+
+    <Window.Styles>
+        <StyleInclude Source="avares://FileSurfer.Core/Views/Dialogs/DialogWindowStyle.axaml" />
+    </Window.Styles>
+
+    <Grid Classes="MainGrid" RowDefinitions="* Auto 45">
+        <Border Classes="InfoBlockBorder">
+            <TextBlock x:Name="ContextBlock" Classes="InfoBlock" />
+        </Border>
+
+        <TextBox x:Name="InputBox" Grid.Row="1" Classes="InputBox" />
+
+        <Rectangle Grid.Row="2" Classes="BottomRectangle" />
+        <Grid Grid.Row="2" HorizontalAlignment="Right" ColumnDefinitions="Auto Auto">
+            <Button Margin="0 0 -2 0" Classes="BottomButton" Click="CancelClicked" Content="Cancel" />
+
+            <Button Grid.Column="1"
+                    Classes="BottomButton"
+                    Click="ContinueClicked"
+                    Content="Continue"
+                    HotKey="Enter"
+                    IsEnabled="{Binding Text, ElementName=InputBox, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        </Grid>
+    </Grid>
+
+</Window>

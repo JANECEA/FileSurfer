@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -162,7 +161,7 @@ public partial class MainWindow : Window
         if (SftpListBox.SelectedItem is not SftpConnectionViewModel connectionVm)
             return;
 
-        EditSftpWindow window = new(connectionVm);
+        EditSftpWindow window = new() { ViewModel = connectionVm };
         window.ShowDialog(this);
     }
 
@@ -175,7 +174,7 @@ public partial class MainWindow : Window
     private void OnAddSftpButtonClicked(object sender, RoutedEventArgs e)
     {
         SftpConnectionViewModel viewModel = new(vm => _viewModel?.SftpConnectionsVms.Add(vm));
-        EditSftpWindow window = new(viewModel);
+        EditSftpWindow window = new() { ViewModel = viewModel };
         window.ShowDialog(this);
     }
 

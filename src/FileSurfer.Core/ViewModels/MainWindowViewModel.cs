@@ -16,6 +16,7 @@ using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.Models.Shell;
 using FileSurfer.Core.Models.VersionControl;
 using FileSurfer.Core.Views;
+using FileSurfer.Core.Views.Dialogs;
 using ReactiveUI;
 
 namespace FileSurfer.Core.ViewModels;

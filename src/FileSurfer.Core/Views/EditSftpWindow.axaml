@@ -41,7 +41,7 @@
             </StackPanel>
 
             <StackPanel>
-                <TextBlock Text="Password" />
+                <TextBlock Text="Password (optional)" />
                 <TextBox PasswordChar="*" Text="{Binding Password, Mode=TwoWay}" />
             </StackPanel>
 

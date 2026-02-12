@@ -28,7 +28,7 @@ public sealed class LinuxIconProvider : BaseIconProvider
 
     private readonly IShellHandler _shellHandler;
     private readonly IReadOnlyList<string> _searchPaths;
-    private readonly ConcurrentDictionary<string, string> _extToMime;
+    private readonly ConcurrentDictionary<string, string> _extToMime = new();
     private readonly ConcurrentDictionary<string, Task<Bitmap>> _mimeToIcon = new();
     private readonly Bitmap _themedGenericFileIcon;
 
@@ -42,12 +42,16 @@ public sealed class LinuxIconProvider : BaseIconProvider
             ExtractIcon(GenericMimeType) ?? base.GetFileIcon(string.Empty).Result;
 
         if (!File.Exists(GlobsParser.GlobsPath))
-        {
-            _extToMime = new ConcurrentDictionary<string, string>();
             return;
+        try
+        {
+            using StreamReader reader = File.OpenText(GlobsParser.GlobsPath);
+            _extToMime = new ConcurrentDictionary<string, string>(GlobsParser.Parse(reader));
         }
-        using StreamReader reader = File.OpenText(GlobsParser.GlobsPath);
-        _extToMime = new ConcurrentDictionary<string, string>(GlobsParser.Parse(reader));
+        catch
+        {
+            // Parsing failed, continuing without _extToMime
+        }
     }
 
     public override async Task<Bitmap> GetFileIcon(string filePath) =>

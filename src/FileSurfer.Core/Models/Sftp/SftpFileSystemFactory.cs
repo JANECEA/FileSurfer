@@ -25,6 +25,15 @@ public class SftpFileSystemFactory
 
     public async Task<ValueResult<SftpFileSystem>> TryConnectAsync(SftpConnection connection)
     {
+        if (string.IsNullOrWhiteSpace(connection.HostnameOrIpAddress))
+            return ValueResult<SftpFileSystem>.Error("Missing Hostname or IP address");
+
+        if (connection.Port == 0)
+            return ValueResult<SftpFileSystem>.Error("Missing Port");
+
+        if (string.IsNullOrEmpty(connection.Username))
+            return ValueResult<SftpFileSystem>.Error("Missing Username");
+
         string? password = !string.IsNullOrEmpty(connection.Password)
             ? connection.Password
             : await RequestPasswordAsync(connection);
