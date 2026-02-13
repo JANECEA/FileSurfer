@@ -23,6 +23,7 @@ namespace FileSurfer.Core.ViewModels;
 )]
 public sealed class FileSystemEntryViewModel : ReactiveObject
 {
+    private const double HiddenOpacity = 0.5;
     private const string DirectoryLabel = "Directory";
     private const string DriveLabel = "Drive";
     private static readonly IReadOnlyList<string> ByteUnits =
@@ -149,7 +150,9 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         string extension = entry.Extension.TrimStart('.').ToUpperInvariant();
         Type = string.IsNullOrEmpty(extension) ? "File" : $"{extension} File";
 
-        Opacity = fileSystem.FileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory) ? 0.5 : 1;
+        Opacity = fileSystem.FileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory)
+            ? HiddenOpacity
+            : 1;
         UpdateVcStatus(status);
         IsArchived = fileSystem.ArchiveManager.IsZipped(entry.PathToEntry);
         SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
@@ -170,7 +173,9 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         Size = string.Empty;
         Type = DirectoryLabel;
 
-        Opacity = fileSystem.FileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory) ? 0.5 : 1;
+        Opacity = fileSystem.FileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory)
+            ? HiddenOpacity
+            : 1;
         UpdateVcStatus(status);
         IsArchived = fileSystem.ArchiveManager.IsZipped(entry.PathToEntry);
         SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);

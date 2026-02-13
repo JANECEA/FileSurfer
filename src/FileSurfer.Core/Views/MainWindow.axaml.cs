@@ -122,7 +122,7 @@ public partial class MainWindow : Window
             }
 
             if (listBox.SelectedItem is FileSystemEntryViewModel entry)
-                _viewModel?.OpenEntry(entry);
+                _viewModel?.OpenEntry(entry.FileSystemEntry);
             else
                 _viewModel?.GoUp();
         }
@@ -135,7 +135,7 @@ public partial class MainWindow : Window
     private void PinToQuickAccess(object sender, RoutedEventArgs e)
     {
         if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
-            _viewModel?.QuickAccess.Add(entry);
+            _viewModel?.AddToQuickAccess(entry);
     }
 
     private void MoveUpQuickAccess(object sender, RoutedEventArgs e) =>
@@ -251,7 +251,7 @@ public partial class MainWindow : Window
 
     private void SideBarEntryClicked(object sender, TappedEventArgs e)
     {
-        if (sender is ListBox { SelectedItem: FileSystemEntryViewModel entry })
+        if (sender is ListBox { SelectedItem: SideBarEntryViewModel entry })
             _viewModel?.OpenLocalEntry(entry);
 
         ClearSidebar();
@@ -522,7 +522,7 @@ public partial class MainWindow : Window
                 return;
             }
             if (_viewModel.SelectedFiles.Count == 1)
-                _viewModel?.OpenEntry(_viewModel.SelectedFiles[0]);
+                _viewModel?.OpenEntry(_viewModel.SelectedFiles[0].FileSystemEntry);
         }
     }
 

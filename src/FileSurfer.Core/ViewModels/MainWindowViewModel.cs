@@ -65,17 +65,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Holds <see cref="FileSystemEntryViewModel"/>s displayed in Quick Access.
     /// </summary>
-    public ObservableCollection<FileSystemEntryViewModel> QuickAccess { get; } = new();
+    public ObservableCollection<SideBarEntryViewModel> QuickAccess { get; } = new();
 
     /// <summary>
     /// Holds the Special Folders <see cref="FileSystemEntryViewModel"/>s.
     /// </summary>
-    public ObservableCollection<FileSystemEntryViewModel> SpecialFolders { get; } = [];
+    public ObservableCollection<SideBarEntryViewModel> SpecialFolders { get; } = [];
 
     /// <summary>
     /// Holds the Drives <see cref="FileSystemEntryViewModel"/>s.
     /// </summary>
-    public ObservableCollection<FileSystemEntryViewModel> Drives { get; } = [];
+    public ObservableCollection<SideBarEntryViewModel> Drives { get; } = [];
 
     /// <summary>
     /// Holds the parameters for <see cref="SftpConnection"/>
@@ -285,7 +285,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (!FileSurferSettings.ShowSpecialFolders)
             SpecialFolders.Clear();
         else if (SpecialFolders.Count == 0)
-            foreach (FileSystemEntryViewModel entry in GetSpecialFolders())
+            foreach (SideBarEntryViewModel entry in GetSpecialFolders())
                 SpecialFolders.Add(entry);
 
         if (!FileSurferSettings.AutomaticRefresh)
@@ -445,9 +445,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Otherwise, the file is opened in the application preferred by the system.
     /// </para>
     /// </summary>
-    public void OpenEntry(FileSystemEntryViewModel entry)
+    public void OpenEntry(IFileSystemEntry entry)
     {
-        if (entry.IsDirectory)
+        if (entry is DirectoryEntry or DriveEntry)
             SetNewLocation(entry.PathToEntry);
         else if (CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
             SetNewLocation(dir!);
@@ -455,10 +455,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ForwardIfError(fs.LocalShellHandler.OpenFile(entry.PathToEntry));
     }
 
-    public void OpenLocalEntry(FileSystemEntryViewModel entry)
+    public void OpenLocalEntry(SideBarEntryViewModel entry)
     {
         CurrentFs = _localFileSystem;
-        OpenEntry(entry);
+        OpenEntry(entry.FileSystemEntry);
     }
 
     public async Task OpenSftpConnection(SftpConnectionViewModel connectionVm)
@@ -521,7 +521,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
         // To prevent collection changing during iteration
         foreach (FileSystemEntryViewModel entry in SelectedFiles.ConvertToArray())
-            OpenEntry(entry);
+            OpenEntry(entry.FileSystemEntry);
     }
 
     /// <summary>
@@ -551,37 +551,32 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SetNewLocation(parentDir);
     }
 
-    private IEnumerable<FileSystemEntryViewModel> GetSpecialFolders()
-    {
-        return [];
-        //return _localFileSystem TODO
-        //    .LocalFileInfoProvider.GetSpecialFolders()
-        //    .Where(dirPath => !string.IsNullOrEmpty(dirPath))
-        //    .Select(path => new FileSystemEntryViewModel(
-        //        _localFileSystem,
-        //        new DirectoryEntry(path)
-        //    ));
-    }
+    private IEnumerable<SideBarEntryViewModel> GetSpecialFolders() =>
+        _localFileSystem
+            .LocalFileInfoProvider.GetSpecialFolders()
+            .Where(dirPath => !string.IsNullOrEmpty(dirPath))
+            .Select(path => new SideBarEntryViewModel(_localFileSystem, new DirectoryEntry(path)));
 
     private void LoadDrives()
     {
         Drives.Clear();
         foreach (DriveEntry driveEntry in _localFileSystem.LocalFileInfoProvider.GetDrives())
-            Drives.Add(new FileSystemEntryViewModel(_localFileSystem, driveEntry));
+            Drives.Add(new SideBarEntryViewModel(_localFileSystem, driveEntry));
     }
 
     private void LoadQuickAccess()
     {
-        //foreach (string path in FileSurferSettings.QuickAccess) TODO
-        //    if (_localFileSystem.LocalFileInfoProvider.DirectoryExists(path))
-        //        QuickAccess.Add(
-        //            new FileSystemEntryViewModel(_localFileSystem, new DirectoryEntry(path))
-        //        );
-        //    else if (_localFileSystem.LocalFileInfoProvider.FileExists(path))
-        //        QuickAccess.Add(
-        //            new FileSystemEntryViewModel(_localFileSystem, new FileEntry(path))
-        //        );
+        foreach (string path in FileSurferSettings.QuickAccess)
+            if (_localFileSystem.LocalFileInfoProvider.DirectoryExists(path))
+                QuickAccess.Add(
+                    new SideBarEntryViewModel(_localFileSystem, new DirectoryEntry(path))
+                );
+            else if (_localFileSystem.LocalFileInfoProvider.FileExists(path))
+                QuickAccess.Add(new SideBarEntryViewModel(_localFileSystem, new FileEntry(path)));
     }
+
+    public void AddToQuickAccess(FileSystemEntryViewModel entry) =>
+        QuickAccess.Add(new SideBarEntryViewModel(_localFileSystem, entry.FileSystemEntry));
 
     private void LoadSftpConnections()
     {

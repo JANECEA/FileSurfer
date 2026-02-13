@@ -74,7 +74,7 @@
             </StackPanel>
         </DataTemplate>
 
-        <DataTemplate x:Key="SideBarTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
+        <DataTemplate x:Key="SideBarTemplate" x:DataType="{x:Type vm:SideBarEntryViewModel}">
             <Grid Height="27" ColumnDefinitions="Auto *">
                 <Image Grid.Column="0"
                        Width="20"
