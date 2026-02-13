@@ -58,22 +58,22 @@ public class LocalClipboardManager : ILocalClipboardManager
 
         HashSet<string> files = _programClipboard
             .Where(entry => entry is FileEntry)
-            .Select(file => PathTools.NormalizePath(file.PathToEntry))
+            .Select(file => PathTools.NormalizeLocalPath(file.PathToEntry))
             .ToHashSet();
         HashSet<string> directories = _programClipboard
             .Where(entry => entry is DirectoryEntry)
-            .Select(directory => PathTools.NormalizePath(directory.PathToEntry))
+            .Select(directory => PathTools.NormalizeLocalPath(directory.PathToEntry))
             .ToHashSet();
 
         foreach (IStorageItem item in items)
             if (item is IStorageFile)
             {
-                if (!files.Contains(PathTools.NormalizePath(item.Path.LocalPath)))
+                if (!files.Contains(PathTools.NormalizeLocalPath(item.Path.LocalPath)))
                     return false;
             }
             else if (item is IStorageFolder)
             {
-                if (!directories.Contains(PathTools.NormalizePath(item.Path.LocalPath)))
+                if (!directories.Contains(PathTools.NormalizeLocalPath(item.Path.LocalPath)))
                     return false;
             }
 
@@ -193,7 +193,7 @@ public class LocalClipboardManager : ILocalClipboardManager
         int index = 0;
         foreach (IStorageItem item in items)
         {
-            string normalizedPath = PathTools.NormalizePath(item.Path.LocalPath);
+            string normalizedPath = PathTools.NormalizeLocalPath(item.Path.LocalPath);
             if (item is IStorageFolder)
             {
                 entries[index++] = new DirectoryEntry(normalizedPath);

@@ -20,14 +20,20 @@ public interface IFileInfoProvider
     /// <summary>
     /// Gets directories in a path, with optional inclusion of hidden and system directories.
     /// </summary>
-    /// <returns>An array of directory paths.</returns>
-    public string[] GetPathDirs(string path, bool includeHidden, bool includeOs);
+    public ValueResult<List<DirectoryEntryInfo>> GetPathDirs(
+        string path,
+        bool includeHidden,
+        bool includeOs
+    );
 
     /// <summary>
     /// Gets files in a path, with optional inclusion of hidden and system files.
     /// </summary>
-    /// <returns>An array of file paths.</returns>
-    public string[] GetPathFiles(string path, bool includeHidden, bool includeOs);
+    public ValueResult<List<FileEntryInfo>> GetPathFiles(
+        string path,
+        bool includeHidden,
+        bool includeOs
+    );
 
     /// <summary>
     /// Gets the size of a file in bytes.

@@ -25,16 +25,29 @@ public static class PathTools
     /// </summary>
     /// <param name="path">Path to normalize</param>
     /// <returns>Normalized path</returns>
-    public static string NormalizePath(string path)
+    public static string NormalizeLocalPath(string path) => NormalizePathInternal(path, true);
+
+    /// <summary>
+    /// Normalizes the given path to and removes redundant separators and the trailing separator
+    /// <para/>
+    /// Separators at root level paths are kept.
+    /// </summary>
+    /// <param name="path">Path to normalize</param>
+    /// <returns>Normalized path</returns>
+    public static string NormalizePath(string path) => NormalizePathInternal(path, false);
+
+    private static string NormalizePathInternal(string path, bool getFullPath)
     {
         if (string.IsNullOrWhiteSpace(path))
             return path;
 
-        string absolutePath = Path.GetFullPath(path);
-        StringBuilder sb = new(absolutePath.Length);
+        if (getFullPath)
+            path = Path.GetFullPath(path);
+
+        StringBuilder sb = new(path.Length);
 
         bool previousWasDirSep = false;
-        foreach (char ch in absolutePath)
+        foreach (char ch in path)
         {
             bool isSep = ch == DirSeparator || ch == OtherSeparator;
             if (!isSep)
@@ -44,7 +57,7 @@ public static class PathTools
 
             previousWasDirSep = isSep;
         }
-        string root = Path.GetPathRoot(absolutePath) ?? string.Empty;
+        string root = Path.GetPathRoot(path) ?? string.Empty;
         if (sb.Length != 1 && sb.Length != root.Length && sb[^1] == DirSeparator)
             sb.Remove(sb.Length - 1, 1);
 
@@ -62,7 +75,7 @@ public static class PathTools
     public static bool NamesAreEqual(string? nameA, string? nameB) =>
         nameA is not null && nameB is not null && string.Equals(nameA, nameB, Comparison);
 
-    public static string? GetExtensionNoDot(string path)
+    public static string? GetExtensionWithDot(string path)
     {
         int extensionIndex = -1;
         for (int i = path.Length - 1; i >= 0; i--)
@@ -76,7 +89,7 @@ public static class PathTools
         if (extensionIndex < 0 || extensionIndex == path.Length - 1)
             return null;
 
-        return path[(extensionIndex + 1)..];
+        return path[extensionIndex..];
     }
 
     public static IEnumerable<string> EnumerateExtensions(string path)

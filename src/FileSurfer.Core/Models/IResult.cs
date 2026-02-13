@@ -93,6 +93,14 @@ public sealed class ValueResult<T> : IResult
         new(SimpleResult.Error(errorMessage), default);
 }
 
+public static class ValueResultExtensions
+{
+    /// <summary>
+    /// Turns value into an Ok <see cref="ValueResult{T}"/>
+    /// </summary>
+    public static ValueResult<T> OkResult<T>(this T value) => ValueResult<T>.Ok(value);
+}
+
 /// <summary>
 /// A flexible implementation of <see cref="IResult"/> that supports
 /// multiple error messages and can be updated after creation.
@@ -118,7 +126,7 @@ public sealed class Result : IResult
 
     public static Result Error(string errorMessage) => new(errorMessage, null);
 
-    public static Result MultipleErrors(IEnumerable<string> errors) => new(null, errors.ToList());
+    public static Result Error(IEnumerable<string> errors) => new(null, errors.ToList());
 
     public void AddError(string errorMessage)
     {

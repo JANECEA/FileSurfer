@@ -30,53 +30,55 @@ public class WindowsFileInfoProvider : ILocalFileInfoProvider
             .Select(driveInfo => new DriveEntry(driveInfo))
             .ToArray();
 
-    public string[] GetPathFiles(string path, bool includeHidden, bool includeOs)
+    public ValueResult<List<FileEntryInfo>> GetPathFiles(
+        string path,
+        bool includeHidden,
+        bool includeOs
+    )
     {
         try
         {
-            string[] files = Directory.GetFiles(path);
+            FileInfo[] files = new DirectoryInfo(path).GetFiles();
+            List<FileEntryInfo> fileList = new(files.Length);
 
-            if (includeHidden && includeOs)
-                return files;
-
-            for (int i = 0; i < files.Length; i++)
-            {
+            foreach (FileInfo f in files)
                 if (
-                    !includeHidden && IsHidden(files[i], false)
-                    || !includeOs && IsOsProtected(files[i], false)
+                    (includeHidden || !IsHidden(f.FullName, false))
+                    && (includeOs || !IsOsProtected(f.FullName, false))
                 )
-                    files[i] = string.Empty;
-            }
-            return files.Where(filePath => filePath != string.Empty).ToArray();
+                    fileList.Add(new FileEntryInfo(f.FullName, f.Name, f.LastWriteTime, f.Length));
+
+            return fileList.OkResult();
         }
-        catch
+        catch (Exception ex)
         {
-            return Array.Empty<string>();
+            return ValueResult<List<FileEntryInfo>>.Error(ex.Message);
         }
     }
 
-    public string[] GetPathDirs(string path, bool includeHidden, bool includeOs)
+    public ValueResult<List<DirectoryEntryInfo>> GetPathDirs(
+        string path,
+        bool includeHidden,
+        bool includeOs
+    )
     {
         try
         {
-            string[] directories = Directory.GetDirectories(path);
+            DirectoryInfo[] dirs = new DirectoryInfo(path).GetDirectories();
+            List<DirectoryEntryInfo> dirsList = new(dirs.Length);
 
-            if (includeHidden && includeOs)
-                return directories;
-
-            for (int i = 0; i < directories.Length; i++)
-            {
+            foreach (DirectoryInfo d in dirs)
                 if (
-                    !includeHidden && IsHidden(directories[i], true)
-                    || !includeOs && IsOsProtected(directories[i], true)
+                    (includeHidden || !IsHidden(d.FullName, false))
+                    && (includeOs || !IsOsProtected(d.FullName, false))
                 )
-                    directories[i] = string.Empty;
-            }
-            return directories.Where(dirPath => dirPath != string.Empty).ToArray();
+                    dirsList.Add(new DirectoryEntryInfo(d.FullName, d.Name, d.LastWriteTime));
+
+            return dirsList.OkResult();
         }
-        catch
+        catch (Exception ex)
         {
-            return Array.Empty<string>();
+            return ValueResult<List<DirectoryEntryInfo>>.Error(ex.Message);
         }
     }
 

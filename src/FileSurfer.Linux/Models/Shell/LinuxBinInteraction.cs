@@ -38,7 +38,7 @@ public class LinuxBinInteraction : IBinInteraction
 
     private static int GetNewestIndex(string stdOut, string originalPath)
     {
-        originalPath = PathTools.NormalizePath(originalPath);
+        originalPath = PathTools.NormalizeLocalPath(originalPath);
         StringReader reader = new(stdOut);
 
         int index = -1;
@@ -47,7 +47,7 @@ public class LinuxBinInteraction : IBinInteraction
             int secondSpaceIdx = line.IndexOf(' ', line.IndexOf(' ') + 1);
             string path = line[(secondSpaceIdx + 1)..];
 
-            if (PathTools.PathsAreEqualNormalized(PathTools.NormalizePath(path), originalPath))
+            if (PathTools.PathsAreEqualNormalized(PathTools.NormalizeLocalPath(path), originalPath))
                 index++;
         }
         return index;

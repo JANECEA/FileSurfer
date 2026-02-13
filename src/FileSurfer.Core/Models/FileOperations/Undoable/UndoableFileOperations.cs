@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FileSurfer.Core.Models.FileInformation;
@@ -172,8 +173,8 @@ public class FlattenFolder : IUndoableFileOperation
     private readonly string _dirName;
     private readonly string? _parentDir;
 
-    private string[] _containedDirs = Array.Empty<string>();
-    private string[] _containedFiles = Array.Empty<string>();
+    private IReadOnlyList<DirectoryEntryInfo> _containedDirs = [];
+    private IReadOnlyList<FileEntryInfo> _containedFiles = [];
 
     public FlattenFolder(
         IFileIoHandler fileIoHandler,
@@ -197,14 +198,20 @@ public class FlattenFolder : IUndoableFileOperation
         if (!result.MergeResult(RenameIfConflict(out string newDirPath)).IsOk)
             return result;
 
-        _containedDirs = _fileInfoProvider.GetPathDirs(newDirPath, true, true);
-        _containedFiles = _fileInfoProvider.GetPathFiles(newDirPath, true, true);
+        var dirsResult = _fileInfoProvider.GetPathDirs(newDirPath, true, true);
+        var filesResult = _fileInfoProvider.GetPathFiles(newDirPath, true, true);
 
-        foreach (string containedDir in _containedDirs)
-            result.MergeResult(_fileIoHandler.MoveDirTo(containedDir, _parentDir));
+        if (!dirsResult.IsOk || !filesResult.IsOk)
+            return Result.Error(dirsResult.Errors);
 
-        foreach (string containedFile in _containedFiles)
-            result.MergeResult(_fileIoHandler.MoveFileTo(containedFile, _parentDir));
+        _containedDirs = dirsResult.Value;
+        _containedFiles = filesResult.Value;
+
+        foreach (DirectoryEntryInfo dir in _containedDirs)
+            result.MergeResult(_fileIoHandler.MoveDirTo(dir.PathToEntry, _parentDir));
+
+        foreach (FileEntryInfo file in _containedFiles)
+            result.MergeResult(_fileIoHandler.MoveFileTo(file.PathToEntry, _parentDir));
 
         return result.IsOk ? _fileIoHandler.DeleteDir(newDirPath) : result;
     }
@@ -236,14 +243,14 @@ public class FlattenFolder : IUndoableFileOperation
         if (!result.MergeResult(_fileIoHandler.NewDirAt(_parentDir!, newDirName)).IsOk)
             return result;
 
-        foreach (string containedDir in _containedDirs)
+        foreach (DirectoryEntryInfo dir in _containedDirs)
         {
-            string dirPath = Path.Combine(_parentDir!, Path.GetFileName(containedDir));
+            string dirPath = Path.Combine(_parentDir!, Path.GetFileName(dir.PathToEntry));
             result.MergeResult(_fileIoHandler.MoveDirTo(dirPath, newDirPath));
         }
-        foreach (string containedFile in _containedFiles)
+        foreach (FileEntryInfo file in _containedFiles)
         {
-            string filePath = Path.Combine(_parentDir!, Path.GetFileName(containedFile));
+            string filePath = Path.Combine(_parentDir!, Path.GetFileName(file.PathToEntry));
             result.MergeResult(_fileIoHandler.MoveFileTo(filePath, newDirPath));
         }
 
@@ -274,10 +281,8 @@ public class FlattenFolder : IUndoableFileOperation
         return SimpleResult.Ok();
     }
 
-    private static bool ContainsSameName(string name, string[] paths) =>
-        paths.Any(path =>
-            string.Equals(name, Path.GetFileName(path), StringComparison.OrdinalIgnoreCase)
-        );
+    private static bool ContainsSameName(string name, IEnumerable<IFileSystemEntry> entries) =>
+        entries.Any(entry => PathTools.NamesAreEqual(name, entry.Name));
 }
 
 /// <summary>

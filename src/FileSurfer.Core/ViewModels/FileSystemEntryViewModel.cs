@@ -23,6 +23,8 @@ namespace FileSurfer.Core.ViewModels;
 )]
 public sealed class FileSystemEntryViewModel : ReactiveObject
 {
+    private const string DirectoryLabel = "Directory";
+    private const string DriveLabel = "Drive";
     private static readonly IReadOnlyList<string> ByteUnits =
     [
         "B",
@@ -135,32 +137,45 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// <param name="status">Optional version control status of the entry, defaulting to not version controlled.</param>
     public FileSystemEntryViewModel(
         IFileSystem fileSystem,
-        IFileSystemEntry entry,
+        FileEntryInfo entry,
         GitStatus status = GitStatus.NotVersionControlled
     )
     {
         FileSystemEntry = entry;
-        _ = LoadIconAsync(entry, fileSystem.IconProvider);
-
-        LastModTime =
-            fileSystem.FileInfoProvider.GetFileLastModified(entry.PathToEntry) ?? DateTime.MaxValue;
-        LastModified = GetLastModified(fileSystem.FileInfoProvider);
-        SizeB = IsDirectory ? null : fileSystem.FileInfoProvider.GetFileSizeB(entry.PathToEntry);
-        Size = SizeB is long notNullSize ? GetSizeString(notNullSize) : string.Empty;
-
-        if (IsDirectory)
-            Type = "Directory";
-        else
-        {
-            string extension = entry.Extension.TrimStart('.').ToUpperInvariant();
-            Type = string.IsNullOrEmpty(extension) ? "File" : extension + " File";
-        }
+        LastModTime = entry.LastModified;
+        LastModified = GetLastModified(LastModTime);
+        SizeB = entry.SizeB;
+        Size = GetSizeString(entry.SizeB);
+        string extension = entry.Extension.TrimStart('.').ToUpperInvariant();
+        Type = string.IsNullOrEmpty(extension) ? "File" : $"{extension} File";
 
         Opacity = fileSystem.FileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory) ? 0.5 : 1;
-
         UpdateVcStatus(status);
         IsArchived = fileSystem.ArchiveManager.IsZipped(entry.PathToEntry);
         SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
+
+        _ = LoadIconAsync(entry, fileSystem.IconProvider);
+    }
+
+    public FileSystemEntryViewModel(
+        IFileSystem fileSystem,
+        DirectoryEntryInfo entry,
+        GitStatus status = GitStatus.NotVersionControlled
+    )
+    {
+        FileSystemEntry = entry;
+        LastModTime = entry.LastModified;
+        LastModified = GetLastModified(LastModTime);
+        SizeB = null;
+        Size = string.Empty;
+        Type = DirectoryLabel;
+
+        Opacity = fileSystem.FileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory) ? 0.5 : 1;
+        UpdateVcStatus(status);
+        IsArchived = fileSystem.ArchiveManager.IsZipped(entry.PathToEntry);
+        SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
+
+        _ = LoadIconAsync(entry, fileSystem.IconProvider);
     }
 
     private async Task LoadIconAsync(IFileSystemEntry entry, IIconProvider iconProvider) =>
@@ -185,7 +200,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     public FileSystemEntryViewModel(IFileSystem fileSystem, DriveEntry driveEntry)
     {
         FileSystemEntry = driveEntry;
-        Type = "Drive";
+        Type = DriveLabel;
         _ = LoadIconAsync(driveEntry, fileSystem.IconProvider);
         LastModified = string.Empty;
         Size = GetSizeString(driveEntry.SizeB);
@@ -198,17 +213,8 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         Staged = newStatus is GitStatus.Staged;
     }
 
-    private string GetLastModified(IFileInfoProvider fileInfoProvider)
-    {
-        DateTime? time = IsDirectory
-            ? fileInfoProvider.GetDirLastModified(PathToEntry)
-            : fileInfoProvider.GetFileLastModified(PathToEntry);
-
-        if (time is DateTime notNullTime)
-            return notNullTime.ToShortDateString() + " " + notNullTime.ToShortTimeString();
-
-        return "Error";
-    }
+    private static string GetLastModified(DateTime time) =>
+        $"{time.ToShortDateString()} {time.ToShortTimeString()}";
 
     /// <summary>
     /// Converts file size in bytes to a human-readable format.

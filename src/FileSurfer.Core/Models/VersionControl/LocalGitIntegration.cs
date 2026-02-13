@@ -62,7 +62,7 @@ public class LocalGitIntegration : IGitIntegration
 
     private string? GetWorkingDir() =>
         _currentRepo is not null
-            ? PathTools.NormalizePath(_currentRepo.Info.WorkingDirectory)
+            ? PathTools.NormalizeLocalPath(_currentRepo.Info.WorkingDirectory)
             : null;
 
     public IResult PullChanges() =>
@@ -117,7 +117,7 @@ public class LocalGitIntegration : IGitIntegration
         _pathStates.Clear();
         foreach (StatusEntry? entry in repoStatus)
         {
-            string absolutePath = PathTools.NormalizePath(
+            string absolutePath = PathTools.NormalizeLocalPath(
                 Path.Combine(_currentRepo.Info.WorkingDirectory, entry.FilePath)
             );
             GitStatus status = ConvertToVcStatus(entry.State);
@@ -173,7 +173,7 @@ public class LocalGitIntegration : IGitIntegration
     public GitStatus GetStatus(string filePath) =>
         _currentRepo is not null
             ? _pathStates.GetValueOrDefault(
-                PathTools.NormalizePath(filePath),
+                PathTools.NormalizeLocalPath(filePath),
                 GitStatus.NotVersionControlled
             )
             : GitStatus.NotVersionControlled;

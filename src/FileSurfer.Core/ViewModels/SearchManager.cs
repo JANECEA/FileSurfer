@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -160,13 +159,13 @@ public class SearchManager : IDisposable
         {
             string currentDirPath = directories.Dequeue();
 
-            IEnumerable<string> dirPaths = GetAllDirs(fileSystem, currentDirPath);
+            List<DirectoryEntryInfo> dirs = GetAllDirs(fileSystem, currentDirPath);
             Task<List<FileSystemEntryViewModel>> filesTask = Task.Run(
                 () => GetFiles(fileSystem, currentDirPath, searchQuery),
                 _searchCts.Token
             );
             Task<List<FileSystemEntryViewModel>> filteredDirsTask = Task.Run(
-                () => GetDirs(fileSystem, dirPaths, searchQuery),
+                () => GetDirs(fileSystem, dirs, searchQuery),
                 _searchCts.Token
             );
             await Task.WhenAll(filesTask, filteredDirsTask);
@@ -174,8 +173,8 @@ public class SearchManager : IDisposable
             foundEntries += filesTask.Result.Count + filteredDirsTask.Result.Count;
             await PushResults(filesTask.Result.Concat(filteredDirsTask.Result), token);
 
-            foreach (string dirPath in dirPaths)
-                directories.Enqueue(dirPath);
+            foreach (DirectoryEntryInfo dir in dirs)
+                directories.Enqueue(dir.PathToEntry);
         }
         return token.IsCancellationRequested ? null : foundEntries;
     }
@@ -237,38 +236,42 @@ public class SearchManager : IDisposable
         string query
     )
     {
-        IEnumerable<string> filePaths = fileSystem.FileInfoProvider.GetPathFiles(
+        ValueResult<List<FileEntryInfo>> result = fileSystem.FileInfoProvider.GetPathFiles(
             directory,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
-        return FilterPaths(filePaths, query)
-            .Select(path => new FileSystemEntryViewModel(fileSystem, new FileEntry(path)))
+        if (!result.IsOk)
+            return [];
+
+        return FilterPaths(result.Value, query)
+            .Select(fileInfo => new FileSystemEntryViewModel(fileSystem, fileInfo))
             .ToList();
     }
 
-    private static IEnumerable<string> GetAllDirs(IFileSystem fileSystem, string directory)
+    private static List<DirectoryEntryInfo> GetAllDirs(IFileSystem fileSystem, string directory)
     {
-        IEnumerable<string> dirPaths = fileSystem.FileInfoProvider.GetPathDirs(
+        ValueResult<List<DirectoryEntryInfo>> result = fileSystem.FileInfoProvider.GetPathDirs(
             directory,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
-        return dirPaths;
+        return result.IsOk ? result.Value : [];
     }
 
     private static List<FileSystemEntryViewModel> GetDirs(
         IFileSystem fileSystem,
-        IEnumerable<string> dirs,
+        List<DirectoryEntryInfo> dirs,
         string query
     ) =>
         FilterPaths(dirs, query)
-            .Select(path => new FileSystemEntryViewModel(fileSystem, new DirectoryEntry(path)))
+            .Select(entry => new FileSystemEntryViewModel(fileSystem, entry))
             .ToList();
 
-    private static IEnumerable<string> FilterPaths(IEnumerable<string> paths, string query) =>
-        paths.Where(path =>
-            Path.GetFileName(path).Contains(query, StringComparison.CurrentCultureIgnoreCase)
+    private static IEnumerable<T> FilterPaths<T>(IEnumerable<T> entries, string query)
+        where T : IFileSystemEntry =>
+        entries.Where(entry =>
+            entry.Name.Contains(query, StringComparison.CurrentCultureIgnoreCase)
         );
 
     public void Dispose()

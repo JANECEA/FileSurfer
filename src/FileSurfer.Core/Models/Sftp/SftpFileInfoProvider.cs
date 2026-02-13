@@ -65,28 +65,54 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         return dirCacheEntry;
     }
 
-    public string[] GetPathDirs(string path, bool includeHidden, bool includeOs)
+    public ValueResult<List<DirectoryEntryInfo>> GetPathDirs(
+        string path,
+        bool includeHidden,
+        bool includeOs
+    )
     {
-        DirCacheEntry cacheEntry = GetDirectoryEntriesCached(path);
+        DirCacheEntry cacheEntry;
+        try
+        {
+            cacheEntry = GetDirectoryEntriesCached(path);
+        }
+        catch (Exception ex)
+        {
+            return ValueResult<List<DirectoryEntryInfo>>.Error(ex.Message);
+        }
 
-        List<string> dirs = new(cacheEntry.Dirs.Count);
+        List<DirectoryEntryInfo> dirs = new(cacheEntry.Dirs.Count);
         foreach (ISftpFile entry in cacheEntry.Dirs)
             if (includeHidden || !IsHidden(entry.Name, true))
-                dirs.Add(entry.FullName);
+                dirs.Add(new DirectoryEntryInfo(entry.FullName, entry.Name, entry.LastWriteTime));
 
-        return dirs.ToArray();
+        return dirs.OkResult();
     }
 
-    public string[] GetPathFiles(string path, bool includeHidden, bool includeOs)
+    public ValueResult<List<FileEntryInfo>> GetPathFiles(
+        string path,
+        bool includeHidden,
+        bool includeOs
+    )
     {
-        DirCacheEntry cacheEntry = GetDirectoryEntriesCached(path);
+        DirCacheEntry cacheEntry;
+        try
+        {
+            cacheEntry = GetDirectoryEntriesCached(path);
+        }
+        catch (Exception ex)
+        {
+            return ValueResult<List<FileEntryInfo>>.Error(ex.Message);
+        }
 
-        List<string> files = new(cacheEntry.Files.Count);
+        List<FileEntryInfo> files = new(cacheEntry.Files.Count);
         foreach (ISftpFile entry in cacheEntry.Files)
             if (includeHidden || !IsHidden(entry.Name, true))
-                files.Add(entry.FullName);
+                files.Add(
+                    new FileEntryInfo(entry.FullName, entry.Name, entry.LastWriteTime, entry.Length)
+                );
 
-        return files.ToArray();
+        return files.OkResult();
     }
 
     public long GetFileSizeB(string path)

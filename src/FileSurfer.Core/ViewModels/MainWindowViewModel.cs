@@ -46,7 +46,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private readonly SftpFileSystemFactory _sftpFileSystemFactory;
 
     private bool _isActionUserInvoked = true;
-    private DateTime _lastModified;
+    private DateTime _lastRefreshed;
     private DispatcherTimer? _refreshTimer;
 
     public SortInfo SortInfo =>
@@ -299,7 +299,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             {
                 Interval = TimeSpan.FromMilliseconds(FileSurferSettings.AutomaticRefreshInterval),
             };
-            _lastModified = DateTime.Now;
+            _lastRefreshed = DateTime.Now;
             _refreshTimer.Tick += CheckForUpdates;
             _refreshTimer.Start();
         }
@@ -318,7 +318,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void HideMessage() => ShowInfoMessage = false;
 
     /// <summary>
-    /// Compares <see cref="_lastModified"/> to the latest <see cref="Directory.GetLastWriteTime(string)"/>.
+    /// Compares <see cref="_lastRefreshed"/> to the latest <see cref="Directory.GetLastWriteTime(string)"/>.
     /// <para>
     /// Invokes <see cref="Reload"/> if <see cref="Directory.GetLastWriteTime(string)"/> is newer.
     /// </para>
@@ -338,10 +338,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         DateTime lastWriteTime =
             CurrentFs.FileInfoProvider.GetDirLastModified(CurrentDir) ?? DateTime.Now;
-        if (lastWriteTime <= _lastModified)
+        if (lastWriteTime <= _lastRefreshed)
             return false;
 
-        _lastModified = lastWriteTime;
+        _lastRefreshed = lastWriteTime;
         return true;
     }
 
@@ -362,20 +362,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         CheckVersionControl();
 
-        if (CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
-            LoadEntries(forceHardReload);
-        else
-        {
-            ForwardError($"Directory: \"{CurrentDir}\" does not exist.");
+        IResult result = LoadEntries(forceHardReload);
+        ForwardIfError(result);
+        if (!result.IsOk)
             return;
-        }
 
         if (FileEntries.Count == 0)
             ShowMessage("This directory is empty");
         else
             HideMessage();
-
-        _lastModified = DateTime.Now;
     }
 
     /// <summary>
@@ -556,14 +551,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SetNewLocation(parentDir);
     }
 
-    private IEnumerable<FileSystemEntryViewModel> GetSpecialFolders() =>
-        _localFileSystem
-            .LocalFileInfoProvider.GetSpecialFolders()
-            .Where(dirPath => !string.IsNullOrEmpty(dirPath))
-            .Select(path => new FileSystemEntryViewModel(
-                _localFileSystem,
-                new DirectoryEntry(path)
-            ));
+    private IEnumerable<FileSystemEntryViewModel> GetSpecialFolders()
+    {
+        return [];
+        //return _localFileSystem TODO
+        //    .LocalFileInfoProvider.GetSpecialFolders()
+        //    .Where(dirPath => !string.IsNullOrEmpty(dirPath))
+        //    .Select(path => new FileSystemEntryViewModel(
+        //        _localFileSystem,
+        //        new DirectoryEntry(path)
+        //    ));
+    }
 
     private void LoadDrives()
     {
@@ -574,15 +572,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private void LoadQuickAccess()
     {
-        foreach (string path in FileSurferSettings.QuickAccess)
-            if (_localFileSystem.LocalFileInfoProvider.DirectoryExists(path))
-                QuickAccess.Add(
-                    new FileSystemEntryViewModel(_localFileSystem, new DirectoryEntry(path))
-                );
-            else if (_localFileSystem.LocalFileInfoProvider.FileExists(path))
-                QuickAccess.Add(
-                    new FileSystemEntryViewModel(_localFileSystem, new FileEntry(path))
-                );
+        //foreach (string path in FileSurferSettings.QuickAccess) TODO
+        //    if (_localFileSystem.LocalFileInfoProvider.DirectoryExists(path))
+        //        QuickAccess.Add(
+        //            new FileSystemEntryViewModel(_localFileSystem, new DirectoryEntry(path))
+        //        );
+        //    else if (_localFileSystem.LocalFileInfoProvider.FileExists(path))
+        //        QuickAccess.Add(
+        //            new FileSystemEntryViewModel(_localFileSystem, new FileEntry(path))
+        //        );
     }
 
     private void LoadSftpConnections()
@@ -591,40 +589,42 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SftpConnectionsVms.Add(new SftpConnectionViewModel(connection));
     }
 
-    private void LoadEntries(bool forceHardReload)
+    private IResult LoadEntries(bool forceHardReload)
     {
         if (forceHardReload || CompareSetLastWriteTime())
-            LoadDirEntries();
-        else if (IsVersionControlled)
+            return LoadDirEntries();
+
+        if (IsVersionControlled)
             foreach (FileSystemEntryViewModel entry in FileEntries)
                 entry.UpdateVcStatus(GetVcStatus(entry.PathToEntry));
+
+        return SimpleResult.Ok();
     }
 
-    private void LoadDirEntries()
+    private IResult LoadDirEntries()
     {
-        string[] dirPaths = CurrentFs.FileInfoProvider.GetPathDirs(
+        var dirsResult = CurrentFs.FileInfoProvider.GetPathDirs(
             CurrentDir,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
-        string[] filePaths = CurrentFs.FileInfoProvider.GetPathFiles(
+        var filesResult = CurrentFs.FileInfoProvider.GetPathFiles(
             CurrentDir,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
+        if (!dirsResult.IsOk || !filesResult.IsOk)
+            return Result.Error(dirsResult.Errors);
 
-        FileSystemEntryViewModel[] dirs = dirPaths.ConvertToArray(
-            path => new FileSystemEntryViewModel(
-                CurrentFs,
-                new DirectoryEntry(path),
-                GetVcStatus(path)
-            )
+        FileSystemEntryViewModel[] dirs = dirsResult.Value.ConvertToArray(
+            entry => new FileSystemEntryViewModel(CurrentFs, entry, GetVcStatus(entry.PathToEntry))
         );
-        FileSystemEntryViewModel[] files = filePaths.ConvertToArray(
-            path => new FileSystemEntryViewModel(CurrentFs, new FileEntry(path), GetVcStatus(path))
+        FileSystemEntryViewModel[] files = filesResult.Value.ConvertToArray(
+            entry => new FileSystemEntryViewModel(CurrentFs, entry, GetVcStatus(entry.PathToEntry))
         );
 
         AddEntries(dirs, files);
+        return SimpleResult.Ok();
     }
 
     private GitStatus GetVcStatus(string path) =>

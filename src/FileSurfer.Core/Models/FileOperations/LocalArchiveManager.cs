@@ -39,7 +39,7 @@ public class LocalArchiveManager : IArchiveManager
 
     private static ArchiveType? GetZipExtension(string filePath)
     {
-        filePath = PathTools.NormalizePath(filePath);
+        filePath = PathTools.NormalizeLocalPath(filePath);
         foreach (ArchiveType type in SupportedFormats)
             if (filePath.EndsWith(type.Extension, PathTools.Comparison))
                 return type;
