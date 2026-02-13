@@ -6,11 +6,10 @@ using System.Text;
 
 namespace FileSurfer.Core.Models;
 
-[SuppressMessage(
-    "ReSharper",
-    "UnusedMember.Global",
-    Justification = "Might be useful in implementations of future classes"
-)]
+[
+    SuppressMessage("ReSharper", "UnusedMember.Global"),
+    SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
+]
 public static class PathTools
 {
     public static char DirSeparator => Path.DirectorySeparatorChar;

@@ -10,7 +10,6 @@ using FileSurfer.Core.Models.FileOperations;
 using FileSurfer.Core.Models.VersionControl;
 using FileSurfer.Core.ViewModels;
 using FileSurfer.Core.Views;
-using FileSurfer.Linux.Models;
 using FileSurfer.Linux.Models.FileInformation;
 using FileSurfer.Linux.Models.FileOperations;
 using FileSurfer.Linux.Models.Shell;

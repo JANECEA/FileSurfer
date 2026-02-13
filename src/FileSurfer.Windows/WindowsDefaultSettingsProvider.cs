@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using FileSurfer.Core;
 
 namespace FileSurfer.Windows;

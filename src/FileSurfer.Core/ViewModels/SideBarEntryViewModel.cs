@@ -26,11 +26,6 @@ public class SideBarEntryViewModel : ReactiveObject
     public string PathToEntry => FileSystemEntry.PathToEntry;
 
     /// <summary>
-    /// Specifies if this <see cref="SideBarEntryViewModel"/> is a directory.
-    /// </summary>
-    public bool IsDirectory => FileSystemEntry is DirectoryEntry or DriveEntry;
-
-    /// <summary>
     /// Holds a <see cref="Bitmap"/> representing the file.
     /// </summary>
     public Bitmap? Icon
@@ -58,7 +53,10 @@ public class SideBarEntryViewModel : ReactiveObject
     public SideBarEntryViewModel(IFileSystem fileSystem, IFileSystemEntry fileSystemEntry)
     {
         FileSystemEntry = fileSystemEntry;
-        Opacity = fileSystem.FileInfoProvider.IsHidden(fileSystemEntry.PathToEntry, IsDirectory)
+        Opacity = fileSystem.FileInfoProvider.IsHidden(
+            fileSystemEntry.PathToEntry,
+            FileSystemEntry is DirectoryEntry or DriveEntry
+        )
             ? HiddenOpacity
             : 1;
 

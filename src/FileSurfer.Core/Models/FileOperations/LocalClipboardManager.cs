@@ -159,7 +159,8 @@ public class LocalClipboardManager : ILocalClipboardManager
         {
             string imagePath = Path.Combine(destinationPath, imgName);
             image.Save(imagePath);
-            return ValueResult<IFileSystemEntry>.Ok(new FileEntry(imagePath));
+            IFileSystemEntry entry = new FileEntry(imagePath);
+            return entry.OkResult();
         }
         catch (Exception ex)
         {
@@ -213,9 +214,7 @@ public class LocalClipboardManager : ILocalClipboardManager
                 );
             }
         }
-        return result.IsOk
-            ? ValueResult<IFileSystemEntry[]>.Ok(entries)
-            : ValueResult<IFileSystemEntry[]>.Error(result);
+        return result.IsOk ? entries.OkResult() : ValueResult<IFileSystemEntry[]>.Error(result);
     }
 
     public async Task<ValueResult<IFileSystemEntry[]>> PasteAsync(
@@ -252,7 +251,7 @@ public class LocalClipboardManager : ILocalClipboardManager
             );
         }
         ValueResult<string[]> endResult = result.IsOk
-            ? ValueResult<string[]>.Ok(copyNames)
+            ? copyNames.OkResult()
             : ValueResult<string[]>.Error(result);
 
         return Task.FromResult(endResult);

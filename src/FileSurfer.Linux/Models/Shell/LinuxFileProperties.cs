@@ -36,11 +36,10 @@ public class LinuxFileProperties : IFileProperties
     {
         try
         {
-            return ValueResult<FileSystemInfo>.Ok(
-                entry.IsDirectory
-                    ? new DirectoryInfo(entry.PathToEntry)
-                    : new FileInfo(entry.PathToEntry)
-            );
+            FileSystemInfo info = entry.IsDirectory
+                ? new DirectoryInfo(entry.PathToEntry)
+                : new FileInfo(entry.PathToEntry);
+            return info.OkResult();
         }
         catch (Exception ex)
         {

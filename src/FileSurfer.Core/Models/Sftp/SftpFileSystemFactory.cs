@@ -60,9 +60,7 @@ public class SftpFileSystemFactory
                 return ValueResult<SftpFileSystem>.Error();
 
             if (sftpClient.IsConnected)
-                return ValueResult<SftpFileSystem>.Ok(
-                    new SftpFileSystem(sftpClient, GetSshClient(connectionInfo))
-                );
+                return new SftpFileSystem(sftpClient, GetSshClient(connectionInfo)).OkResult();
 
             sftpClient.Dispose();
             return ValueResult<SftpFileSystem>.Error("Host key verification failed.");

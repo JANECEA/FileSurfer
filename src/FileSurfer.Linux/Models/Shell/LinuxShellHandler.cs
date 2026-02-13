@@ -190,7 +190,7 @@ public class LinuxShellHandler : IShellCommandHandler
                 errorMessage = stdOut;
 
             if (success)
-                return ValueResult<string>.Ok(stdOut.Trim());
+                stdOut.Trim().OkResult();
 
             return string.IsNullOrWhiteSpace(errorMessage)
                 ? ValueResult<string>.Error()

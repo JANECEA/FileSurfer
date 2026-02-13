@@ -200,7 +200,7 @@
                                 <MenuItem.Header>
                                     <Grid ColumnDefinitions="Auto *">
                                         <TextBlock Classes="SortLabelTextBlock" Text="Name" />
-                                        <TextBlock Classes="SortArrowTextBlock" Text="{Binding SortInfo, Converter={StaticResource SortArrowConverter}, ConverterParameter={x:Static core:SortBy.Name}}" />
+                                        <TextBlock Grid.Column="1" Classes="SortArrowTextBlock" Text="{Binding SortInfo, Converter={StaticResource SortArrowConverter}, ConverterParameter={x:Static core:SortBy.Name}}" />
                                     </Grid>
                                 </MenuItem.Header>
                             </MenuItem>

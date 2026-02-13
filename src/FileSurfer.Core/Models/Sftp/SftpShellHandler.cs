@@ -33,8 +33,7 @@ public sealed class SftpShellHandler : IShellHandler
         try
         {
             string linkPath = filePath + ".lnk";
-            Execute($"ln -s {Quote(filePath)} {Quote(linkPath)}");
-            return SimpleResult.Ok();
+            return Execute($"ln -s {Quote(filePath)} {Quote(linkPath)}");
         }
         catch (Exception ex)
         {
@@ -47,8 +46,7 @@ public sealed class SftpShellHandler : IShellHandler
         try
         {
             string linkPath = dirPath.TrimEnd(SftpPathTools.DirSeparator) + "-link";
-            Execute($"ln -s {Quote(dirPath)} {Quote(linkPath)}");
-            return SimpleResult.Ok();
+            return Execute($"ln -s {Quote(dirPath)} {Quote(linkPath)}");
         }
         catch (Exception ex)
         {
@@ -76,12 +74,10 @@ public sealed class SftpShellHandler : IShellHandler
         }
     }
 
-    private void Execute(string command)
+    private SimpleResult Execute(string command)
     {
         SshCommand cmd = _sshClient.CreateCommand(command);
         cmd.Execute();
-
-        if (cmd.ExitStatus != 0)
-            throw new Exception(cmd.Error);
+        return cmd.ExitStatus == 0 ? SimpleResult.Ok() : SimpleResult.Error(cmd.Error);
     }
 }

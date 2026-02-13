@@ -14,6 +14,7 @@ namespace FileSurfer.Windows.Models.Shell;
 /// Windows-specific implementation of <see cref="IShellHandler"/> for shell interactions.
 /// Uses <see cref="System.Runtime.InteropServices"/> to interop with the Windows shell.
 /// </summary>
+#pragma warning disable SYSLIB1054
 public class WindowsShellHandler : ILocalShellHandler
 {
     public IResult CreateFileLink(string filePath) => CreateLink(filePath);
@@ -137,7 +138,7 @@ public class WindowsShellHandler : ILocalShellHandler
             baseInfo.ArgumentList.Add(arg);
 
         baseInfo.ArgumentList.Add(filePath);
-        return ValueResult<ProcessStartInfo>.Ok(baseInfo);
+        return baseInfo.OkResult();
     }
 
     private static ValueResult<List<string>> SplitWindowsCommandLine(string commandLine)
@@ -156,7 +157,7 @@ public class WindowsShellHandler : ILocalShellHandler
                 IntPtr p = Marshal.ReadIntPtr(argv, i * IntPtr.Size);
                 args.Add(Marshal.PtrToStringUni(p)!);
             }
-            return ValueResult<List<string>>.Ok(args);
+            return args.OkResult();
         }
         finally
         {
@@ -199,7 +200,7 @@ public class WindowsShellHandler : ILocalShellHandler
                 errorMessage = stdOut;
 
             if (success)
-                return ValueResult<string>.Ok(stdOut.Trim());
+                return stdOut.Trim().OkResult();
 
             return string.IsNullOrWhiteSpace(errorMessage)
                 ? ValueResult<string>.Error()
@@ -211,3 +212,4 @@ public class WindowsShellHandler : ILocalShellHandler
         }
     }
 }
+#pragma warning restore SYSLIB1054

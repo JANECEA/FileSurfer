@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
@@ -56,8 +55,8 @@ public class LinuxFileInfoProvider : ILocalFileInfoProvider
             return Array.Empty<DriveEntry>();
         }
         foreach (LsblkEntry entry in entries.BlockDevices)
-            if (entry is { Type: "part", Label: not null, MountPoint: not null })
-                drives.Add(new DriveEntry(entry.MountPoint, entry.Label, entry.Size));
+            if (entry is { Type: "part", Label: not null, MountPoint: not null, Size: > 0 })
+                drives.Add(new DriveEntry(entry.MountPoint, entry.Label));
 
         return drives.ToArray();
     }

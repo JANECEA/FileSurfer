@@ -25,7 +25,6 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
 {
     private const double HiddenOpacity = 0.5;
     private const string DirectoryLabel = "Directory";
-    private const string DriveLabel = "Drive";
     private static readonly IReadOnlyList<string> ByteUnits =
     [
         "B",
@@ -89,7 +88,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// <summary>
     /// Holds this <see cref="FileSystemEntryViewModel"/>'s opacity in the context of <see cref="Views.MainWindow"/>.
     /// </summary>
-    public double Opacity { get; } = 1;
+    public double Opacity { get; }
 
     /// <summary>
     /// Specifies if the file represented by this <see cref="FileSystemEntryViewModel"/> is part of a repository.
@@ -191,26 +190,6 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
             DriveEntry driveEntry => await iconProvider.GetDriveIcon(driveEntry),
             _ => throw new NotSupportedException(),
         };
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="FileSystemEntryViewModel"/> class for a drive.
-    /// <para>
-    /// Configures the properties such as name, type, icon, and total size based on the provided
-    /// <see cref="DriveEntry"/> object.
-    /// </para>
-    /// <para>
-    /// This constructor is specifically used for representing drives within the <see cref="FileSurfer"/> app.
-    /// </para>
-    /// </summary>
-    public FileSystemEntryViewModel(IFileSystem fileSystem, DriveEntry driveEntry)
-    {
-        FileSystemEntry = driveEntry;
-        Type = DriveLabel;
-        _ = LoadIconAsync(driveEntry, fileSystem.IconProvider);
-        LastModified = string.Empty;
-        Size = GetSizeString(driveEntry.SizeB);
-        SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(driveEntry);
-    }
 
     internal void UpdateVcStatus(GitStatus newStatus)
     {

@@ -93,7 +93,7 @@ public sealed class ValueResult<T> : IResult
         new(SimpleResult.Error(errorMessage), default);
 }
 
-public static class ValueResultExtensions
+public static class ResultExtensions
 {
     /// <summary>
     /// Turns value into an Ok <see cref="ValueResult{T}"/>

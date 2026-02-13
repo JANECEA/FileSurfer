@@ -75,9 +75,7 @@ public class BasicClipboardManager : IClipboardManager
                 );
             }
 
-        return result.IsOk
-            ? ValueResult<IFileSystemEntry[]>.Ok(entries)
-            : ValueResult<IFileSystemEntry[]>.Error(result);
+        return result.IsOk ? entries.OkResult() : ValueResult<IFileSystemEntry[]>.Error(result);
     }
 
     public Task<ValueResult<IFileSystemEntry[]>> PasteAsync(string currentDir, PasteType pasteType)
@@ -110,7 +108,7 @@ public class BasicClipboardManager : IClipboardManager
         }
 
         return Task.FromResult(
-            result.IsOk ? ValueResult<string[]>.Ok(copyNames) : ValueResult<string[]>.Error(result)
+            result.IsOk ? copyNames.OkResult() : ValueResult<string[]>.Error(result)
         );
     }
 }
