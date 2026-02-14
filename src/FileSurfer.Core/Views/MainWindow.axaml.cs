@@ -128,16 +128,6 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OpenClicked(object sender, RoutedEventArgs e) => _viewModel?.OpenEntries();
-
-    private void OpenInNotepad(object sender, RoutedEventArgs e) => _viewModel?.OpenInNotepad();
-
-    private void PinToQuickAccess(object sender, RoutedEventArgs e)
-    {
-        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
-            _viewModel?.AddToQuickAccess(entry);
-    }
-
     private void MoveUpQuickAccess(object sender, RoutedEventArgs e) =>
         ListBoxHelper.MoveUp(QuickAccessListBox, _viewModel!.QuickAccess);
 
@@ -176,48 +166,6 @@ public partial class MainWindow : Window
         SftpConnectionViewModel viewModel = new(vm => _viewModel?.SftpConnectionsVms.Add(vm));
         EditSftpWindow window = new() { ViewModel = viewModel };
         window.ShowDialog(this);
-    }
-
-    private void AddToArchive(object sender, RoutedEventArgs e) => _viewModel?.AddToArchive();
-
-    private void ExtractArchive(object sender, RoutedEventArgs e) => _viewModel?.ExtractArchive();
-
-    private void CopyPath(object sender, RoutedEventArgs e)
-    {
-        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
-            _viewModel?.CopyPath(entry);
-    }
-
-    private void Cut(object sender, RoutedEventArgs e) => _viewModel?.Cut();
-
-    private void Copy(object sender, RoutedEventArgs e) => _viewModel?.Copy();
-
-    private void CreateShortcut(object sender, RoutedEventArgs e)
-    {
-        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
-            _viewModel?.CreateShortcut(entry);
-    }
-
-    private void FlattenFolder(object sender, RoutedEventArgs e)
-    {
-        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
-            _viewModel?.FlattenFolder(entry);
-    }
-
-    private void Delete(object sender, RoutedEventArgs e) => _viewModel?.MoveToTrash();
-
-    private void DeletePermanently(object sender, RoutedEventArgs e) => _viewModel?.Delete();
-
-    private void ShowProperties(object sender, RoutedEventArgs e)
-    {
-        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
-            _viewModel?.ShowProperties(entry);
-    }
-
-    private void OpenAs(object sender, RoutedEventArgs e)
-    {
-        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
-            _viewModel?.OpenAs(entry);
     }
 
     /// <summary>

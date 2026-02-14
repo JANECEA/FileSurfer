@@ -397,27 +397,33 @@
                                 <Setter Property="Margin" Value="0 0 4 0" />
                                 <Setter Property="ContextMenu">
                                     <Setter.Value>
+                                        <!--  ReSharper disable Xaml.PossibleNullReferenceException  -->
                                         <ContextMenu x:DataType="vm:FileSystemEntryViewModel" Classes="FileContextMenu">
-                                            <MenuItem Classes="ContextMenuItem" Click="OpenClicked" Header="Open" />
-                                            <MenuItem Classes="ContextMenuItem" Click="OpenAs" Header="Open as" IsVisible="{Binding SupportsOpenAs}" />
-                                            <MenuItem Classes="ContextMenuItem" Click="OpenInNotepad" Header="Open in Notepad" IsVisible="{Binding !IsDirectory}" />
-                                            <MenuItem Classes="ContextMenuItem" Click="PinToQuickAccess" Header="Add to quick access" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).OpenCommand}" Header="Open" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).OpenAsCommand}" Header="Open as" IsVisible="{Binding SupportsOpenAs}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).OpenInNotepadCommand}" Header="Open in Notepad" IsVisible="{Binding !IsDirectory}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToQuickAccessCommand}" CommandParameter="{Binding}" Header="Add to quick access" />
                                             <Separator Classes="ContextMenuSeparator" />
-                                            <MenuItem Classes="ContextMenuItem" Click="AddToArchive" Header="Add to archive" />
-                                            <MenuItem Classes="ContextMenuItem" Click="ExtractArchive" Header="Extract archive" IsVisible="{Binding IsArchived}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToArchiveCommand}" Header="Add to archive" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).ExtractArchiveCommand}" Header="Extract archive" IsVisible="{Binding IsArchived}" />
                                             <Separator Classes="ContextMenuSeparator" />
-                                            <MenuItem Classes="ContextMenuItem" Click="CopyPath" Header="Copy path" />
-                                            <MenuItem Classes="ContextMenuItem" Click="Cut" Header="Cut" />
-                                            <MenuItem Classes="ContextMenuItem" Click="Copy" Header="Copy" />
-                                            <MenuItem Classes="ContextMenuItem" Click="CreateShortcut" Header="Create shortcut" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CopyPathCommand}" CommandParameter="{Binding}" Header="Copy path" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CutCommand}" Header="Cut" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CopyCommand}" Header="Copy" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CreateShortcutCommand}" Header="Create shortcut" />
                                             <Separator Classes="ContextMenuSeparator" />
-                                            <MenuItem Classes="ContextMenuItem" Click="Delete" Header="Delete" />
-                                            <MenuItem Classes="ContextMenuItem" Click="DeletePermanently" Header="Delete permanently" />
-                                            <MenuItem Classes="ContextMenuItem" Click="FlattenFolder" Header="Flatten folder" IsVisible="{Binding IsDirectory}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).MoveToTrashCommand}" Header="Move to trash" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).DeleteCommand}" Header="Delete" />
+                                            <MenuItem Classes="ContextMenuItem"
+                                                      Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).FlattenFolderCommand}"
+                                                      CommandParameter="{Binding}"
+                                                      Header="Flatten folder"
+                                                      IsVisible="{Binding IsDirectory}" />
                                             <MenuItem Classes="ContextMenuItem" Click="OnRenameClicked" Header="Rename" />
                                             <Separator Classes="ContextMenuSeparator" />
-                                            <MenuItem Classes="ContextMenuItem" Click="ShowProperties" Header="Properties" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).ShowPropertiesCommand}" CommandParameter="{Binding}" Header="Properties" />
                                         </ContextMenu>
+                                        <!--  ReSharper restore Xaml.PossibleNullReferenceException  -->
                                     </Setter.Value>
                                 </Setter>
                             </Style>

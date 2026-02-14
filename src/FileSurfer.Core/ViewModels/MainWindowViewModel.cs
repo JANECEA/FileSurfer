@@ -211,6 +211,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
     private bool _isVersionControlled = false;
 
+    public ReactiveCommand<Unit, Unit> OpenCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel, Unit> OpenAsCommand { get; }
+    public ReactiveCommand<Unit, Unit> OpenInNotepadCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel, Unit> AddToQuickAccessCommand { get; }
+    public ReactiveCommand<Unit, Task> AddToArchiveCommand { get; }
+    public ReactiveCommand<Unit, Task> ExtractArchiveCommand { get; }
     public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
     public ReactiveCommand<Unit, Unit> GoForwardCommand { get; }
     public ReactiveCommand<Unit, Unit> GoUpCommand { get; }
@@ -221,6 +227,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> NewDirCommand { get; }
     public ReactiveCommand<Unit, Task> CutCommand { get; }
     public ReactiveCommand<Unit, Task> CopyCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel, Task> CopyPathCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel, Unit> CreateShortcutCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel, Unit> FlattenFolderCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel, Unit> ShowPropertiesCommand { get; }
     public ReactiveCommand<Unit, Task> PasteCommand { get; }
     public ReactiveCommand<Unit, Unit> MoveToTrashCommand { get; }
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
@@ -252,6 +262,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
         _locationHistory = new UndoRedoHandler<Location>();
 
+        OpenCommand = ReactiveCommand.Create(OpenEntries);
+        OpenInNotepadCommand = ReactiveCommand.Create(OpenInNotepad);
+        OpenAsCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(OpenAs);
+        AddToQuickAccessCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(
+            AddToQuickAccess
+        );
+        AddToArchiveCommand = ReactiveCommand.Create(AddToArchive);
+        ExtractArchiveCommand = ReactiveCommand.Create(ExtractArchive);
         GoBackCommand = ReactiveCommand.Create(GoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward);
         GoUpCommand = ReactiveCommand.Create(GoUp);
@@ -262,6 +280,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         NewDirCommand = ReactiveCommand.Create(NewDir);
         CutCommand = ReactiveCommand.Create(Cut);
         CopyCommand = ReactiveCommand.Create(Copy);
+        CopyPathCommand = ReactiveCommand.Create<FileSystemEntryViewModel, Task>(CopyPath);
+        CreateShortcutCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(CreateShortcut);
+        FlattenFolderCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(FlattenFolder);
+        ShowPropertiesCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(ShowProperties);
         PasteCommand = ReactiveCommand.Create(Paste);
         MoveToTrashCommand = ReactiveCommand.Create(MoveToTrash);
         DeleteCommand = ReactiveCommand.Create(Delete);
@@ -743,7 +765,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private IResult SetLocationNoHistory(Location location)
     {
         if (!location.Exists())
-            return SimpleResult.Error($"Location {location.Path} does not exist.");
+            return SimpleResult.Error(
+                $"Location {location.FileSystem.GetLabel()}:{location.Path} does not exist."
+            );
 
         if (Searching)
             CancelSearch();
@@ -945,7 +969,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public async Task ExtractArchive()
     {
-        if (CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
+        if (!CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
             return;
 
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
@@ -955,9 +979,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
                 return;
             }
 
+        string[] archivePaths = SelectedFiles.ConvertToArray(e => e.PathToEntry);
         await Task.Run(() =>
         {
-            foreach (string path in SelectedFiles.Select(entry => entry.PathToEntry).ToArray())
+            foreach (string path in archivePaths)
                 ShowIfError(CurrentFs.ArchiveManager.UnzipArchive(path, CurrentDir));
         });
         Reload();
