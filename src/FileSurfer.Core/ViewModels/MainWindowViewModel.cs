@@ -85,6 +85,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ObservableCollection<SftpConnectionViewModel> SftpConnectionsVms { get; } = [];
 
     /// <summary>
+    /// Holds the label currently displayed in the PathBox.
+    /// </summary>
+    public string CurrentFsLabel
+    {
+        get => _currentFsLabel;
+        set => this.RaiseAndSetIfChanged(ref _currentFsLabel, value);
+    }
+    private string _currentFsLabel = string.Empty;
+
+    /// <summary>
     /// Holds the text currently displayed in the PathBox.
     /// </summary>
     public string PathBoxText
@@ -119,6 +129,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             _currentLocation = value;
             CurrentDir = value.Path;
             CurrentFs = CurrentLocation.FileSystem;
+            CurrentFsLabel = CurrentFs.GetLabel();
         }
     }
     private Location? _currentLocation;

@@ -34,12 +34,28 @@
         <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
 
-    <Style Selector="TextBox:focus">
-        <Setter Property="Background" Value="White" />
+    <Style Selector="TextBox.LabelBox">
+        <Setter Property="Margin" Value="0 0 0 0" />
+        <Setter Property="HorizontalContentAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+    </Style>
+
+    <Style Selector="TextBox.LabelBox:pointerover /template/ Border">
+        <Setter Property="Background" Value="{DynamicResource TextBoxColor}" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="TextBlock.ColonSeparator">
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
     <Style Selector="TextBox.PathBox">
-        <Setter Property="Margin" Value="5 0 10 0" />
+        <Setter Property="Margin" Value="0 0 10 0" />
     </Style>
 
     <Style Selector="TextBox.SearchBox">

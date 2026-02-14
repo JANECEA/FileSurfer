@@ -24,6 +24,8 @@ public interface IFileSystem
     public Location GetLocation(string path) => new(this, path);
 
     public bool IsReady();
+
+    public string GetLabel();
 }
 
 /// <summary>
@@ -31,6 +33,8 @@ public interface IFileSystem
 /// </summary>
 public sealed class LocalFileSystem : IFileSystem
 {
+    private const string Label = "local";
+
     IFileInfoProvider IFileSystem.FileInfoProvider => LocalFileInfoProvider;
     IClipboardManager IFileSystem.ClipboardManager => LocalClipboardManager;
     IShellHandler IFileSystem.ShellHandler => LocalShellHandler;
@@ -46,4 +50,6 @@ public sealed class LocalFileSystem : IFileSystem
     public required IGitIntegration GitIntegration { get; init; }
 
     public bool IsReady() => true;
+
+    public string GetLabel() => Label;
 }
