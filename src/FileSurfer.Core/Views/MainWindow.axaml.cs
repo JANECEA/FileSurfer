@@ -502,7 +502,6 @@ public partial class MainWindow : Window
             if (CommitMessageBar.IsVisible)
                 CommitMessageEntered();
 
-            ClearFocus();
             return;
         }
 

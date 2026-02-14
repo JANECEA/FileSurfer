@@ -459,10 +459,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public async Task OpenSftpConnection(SftpConnectionViewModel connectionVm)
     {
         SftpConnection connection = connectionVm.SftpConnection;
-        string initialDir = connection.InitialDirectory ?? SftpPathTools.RootDir;
 
         if (connectionVm.FileSystem is not null)
         {
+            string initialDir =
+                connection.InitialDirectory ?? connectionVm.FileSystem.FileInfoProvider.GetRoot();
             SetLocation(new Location(connectionVm.FileSystem, initialDir));
             return;
         }
@@ -476,7 +477,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
         SftpFileSystem fileSystem = result.Value;
         connectionVm.FileSystem = fileSystem;
-        SetLocation(new Location(fileSystem, initialDir));
+
+        if (!string.IsNullOrWhiteSpace(connection.InitialDirectory))
+        {
+            SetLocationNoHistory(new Location(fileSystem, fileSystem.FileInfoProvider.GetRoot()));
+            SetLocation(new Location(fileSystem, connection.InitialDirectory));
+        }
+        else
+            SetLocation(new Location(fileSystem, fileSystem.FileInfoProvider.GetRoot()));
     }
 
     public void CloseSftpConnection(SftpConnectionViewModel connectionVm)
@@ -545,7 +553,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void GoUp()
     {
-        if (Path.GetDirectoryName(CurrentDir) is string parentDir)
+        if (Path.GetDirectoryName(PathTools.NormalizePath(CurrentDir)) is string parentDir)
             SetNewLocation(parentDir);
     }
 
@@ -1093,7 +1101,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             Reload();
 
             FileSystemEntryViewModel? newEntry = FileEntries.FirstOrDefault(e =>
-                string.Equals(e.Name, newName, StringComparison.OrdinalIgnoreCase)
+                PathTools.NamesAreEqual(e.Name, newName)
             );
             if (newEntry is not null)
                 SelectedFiles.Add(newEntry);
