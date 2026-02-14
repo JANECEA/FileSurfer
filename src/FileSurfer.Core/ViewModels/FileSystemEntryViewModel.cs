@@ -152,7 +152,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         Opacity = fileSystem.FileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory)
             ? HiddenOpacity
             : 1;
-        UpdateVcStatus(status);
+        UpdateGitStatus(status);
         IsArchived = fileSystem.ArchiveManager.IsZipped(entry.PathToEntry);
         SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
 
@@ -175,7 +175,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         Opacity = fileSystem.FileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory)
             ? HiddenOpacity
             : 1;
-        UpdateVcStatus(status);
+        UpdateGitStatus(status);
         IsArchived = fileSystem.ArchiveManager.IsZipped(entry.PathToEntry);
         SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
 
@@ -191,7 +191,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
             _ => throw new NotSupportedException(),
         };
 
-    internal void UpdateVcStatus(GitStatus newStatus)
+    internal void UpdateGitStatus(GitStatus newStatus)
     {
         VersionControlled = newStatus is not GitStatus.NotVersionControlled;
         Staged = newStatus is GitStatus.Staged;

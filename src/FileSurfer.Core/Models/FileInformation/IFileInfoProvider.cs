@@ -63,6 +63,11 @@ public interface IFileInfoProvider
     public bool IsHidden(string path, bool isDirectory);
 
     /// <summary>
+    /// Returns the root of the containing filesystem
+    /// </summary>
+    public string GetRoot();
+
+    /// <summary>
     /// Determines if the file exists within the containing file system.
     /// </summary>
     public virtual bool FileExists(string path) => File.Exists(path);

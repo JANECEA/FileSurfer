@@ -37,10 +37,12 @@ namespace FileSurfer.Core.ViewModels;
 ]
 public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
+    private const string EmptyDirMessage = "This directory is empty.";
+
     private readonly IDialogService _dialogService;
     private readonly SearchManager _searchManager;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
-    private readonly UndoRedoHandler<Location> _locationHistory; // TODO FIX
+    private readonly UndoRedoHandler<Location> _locationHistory;
     private readonly Action<bool> _setDarkMode;
     private readonly LocalFileSystem _localFileSystem;
     private readonly SftpFileSystemFactory _sftpFileSystemFactory;
@@ -124,24 +126,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private IFileSystem CurrentFs { get; set; }
 
     /// <summary>
-    /// Indicates whether the <see cref="CurrentInfoMessage"/> should be shown.
-    /// </summary>
-    public bool ShowInfoMessage
-    {
-        get => _showInfoMessage;
-        set => this.RaiseAndSetIfChanged(ref _showInfoMessage, value);
-    }
-    private bool _showInfoMessage;
-
-    /// <summary>
     /// Indicates whether the current directory contains files or directories.
     /// </summary>
-    public string CurrentInfoMessage
+    public string? CurrentInfoMessage
     {
         get => _currentInfoMessage;
         set => this.RaiseAndSetIfChanged(ref _currentInfoMessage, value);
     }
-    private string _currentInfoMessage = string.Empty;
+    private string? _currentInfoMessage = null;
 
     /// <summary>
     /// Text that will be displayed in the Search bar.
@@ -189,7 +181,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             this.RaiseAndSetIfChanged(ref _currentBranch, value);
             if (_isActionUserInvoked && !string.IsNullOrEmpty(value) && Branches.Contains(value))
             {
-                ForwardIfError(CurrentFs.GitIntegration.SwitchBranches(value));
+                ShowIfError(CurrentFs.GitIntegration.SwitchBranches(value));
                 Reload();
             }
         }
@@ -309,14 +301,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             Reload(true);
     }
 
-    public void ShowMessage(string message)
-    {
-        ShowInfoMessage = true;
-        CurrentInfoMessage = message;
-    }
-
-    private void HideMessage() => ShowInfoMessage = false;
-
     /// <summary>
     /// Compares <see cref="_lastRefreshed"/> to the latest <see cref="Directory.GetLastWriteTime(string)"/>.
     /// <para>
@@ -325,7 +309,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void CheckForUpdates(object? sender, EventArgs e)
     {
-        if (CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
+        if (CurrentLocation.Exists())
         {
             if (CompareSetLastWriteTime())
                 Reload(true);
@@ -338,7 +322,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         DateTime lastWriteTime =
             CurrentFs.FileInfoProvider.GetDirLastModified(CurrentDir) ?? DateTime.Now;
-        if (lastWriteTime <= _lastRefreshed)
+        if (_lastRefreshed >= lastWriteTime)
             return false;
 
         _lastRefreshed = lastWriteTime;
@@ -360,23 +344,21 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (Searching)
             return;
 
-        CheckVersionControl();
+        CheckVersionControl(CurrentLocation);
 
-        IResult result = LoadEntries(forceHardReload);
-        ForwardIfError(result);
+        IResult result = UpdateEntries(forceHardReload);
+        ShowIfError(result);
         if (!result.IsOk)
             return;
 
-        if (FileEntries.Count == 0)
-            ShowMessage("This directory is empty");
-        else
-            HideMessage();
+        CurrentInfoMessage = FileEntries.Count > 0 ? null : EmptyDirMessage;
+        _lastRefreshed = DateTime.Now;
     }
 
     /// <summary>
     /// Opens a new <see cref="InfoDialogWindow"/> dialog.
     /// </summary>
-    private void ForwardError(string? errorMessage)
+    private void ShowError(string? errorMessage)
     {
         if (!string.IsNullOrWhiteSpace(errorMessage))
             _dialogService.InfoDialog("Unexpected error", errorMessage);
@@ -385,11 +367,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Opens a new <see cref="InfoDialogWindow"/> dialog if the result is failed.
     /// </summary>
-    private void ForwardIfError(IResult result)
+    private void ShowIfError(IResult result)
     {
         if (!result.IsOk)
             foreach (string errorMessage in result.Errors)
-                ForwardError(errorMessage);
+                ShowError(errorMessage);
     }
 
     /// <summary>
@@ -452,7 +434,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         else if (CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
             SetNewLocation(dir!);
         else if (CurrentFs is LocalFileSystem fs)
-            ForwardIfError(fs.LocalShellHandler.OpenFile(entry.PathToEntry));
+            ShowIfError(fs.LocalShellHandler.OpenFile(entry.PathToEntry));
     }
 
     public void OpenLocalEntry(SideBarEntryViewModel entry)
@@ -476,7 +458,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         );
         if (!result.IsOk)
         {
-            ForwardIfError(result);
+            ShowIfError(result);
             return;
         }
         SftpFileSystem fileSystem = result.Value;
@@ -488,12 +470,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (connectionVm.FileSystem is null)
         {
-            ForwardError("Connection is not active.");
+            ShowError("Connection is not active.");
             return;
         }
         connectionVm.FileSystem.Dispose();
         connectionVm.FileSystem = null;
-        SetLocation(new Location(_localFileSystem, "/")); // TODO Make Fs.GetRoot() or something
+        if (ReferenceEquals(connectionVm.FileSystem, CurrentFs))
+            SetLocation(
+                new Location(_localFileSystem, _localFileSystem.LocalFileInfoProvider.GetRoot())
+            );
     }
 
     /// <summary>
@@ -502,7 +487,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void OpenAs(FileSystemEntryViewModel entry)
     {
         if (!entry.IsDirectory)
-            ForwardIfError(CurrentFs.FileProperties.ShowOpenAsDialog(entry.FileSystemEntry));
+            ShowIfError(CurrentFs.FileProperties.ShowOpenAsDialog(entry.FileSystemEntry));
     }
 
     /// <summary>
@@ -534,7 +519,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
             if (!entry.IsDirectory)
-                ForwardIfError(fs.LocalShellHandler.OpenInNotepad(entry.PathToEntry));
+                ShowIfError(fs.LocalShellHandler.OpenInNotepad(entry.PathToEntry));
     }
 
     /// <summary>
@@ -584,27 +569,28 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SftpConnectionsVms.Add(new SftpConnectionViewModel(connection));
     }
 
-    private IResult LoadEntries(bool forceHardReload)
+    private IResult UpdateEntries(bool forceHardReload)
     {
         if (forceHardReload || CompareSetLastWriteTime())
-            return LoadDirEntries();
+            return LoadDirEntries(CurrentLocation);
 
         if (IsVersionControlled)
             foreach (FileSystemEntryViewModel entry in FileEntries)
-                entry.UpdateVcStatus(GetVcStatus(entry.PathToEntry));
+                entry.UpdateGitStatus(GetGitStatus(entry.PathToEntry, CurrentFs));
 
         return SimpleResult.Ok();
     }
 
-    private IResult LoadDirEntries()
+    private IResult LoadDirEntries(Location location)
     {
-        var dirsResult = CurrentFs.FileInfoProvider.GetPathDirs(
-            CurrentDir,
+        IFileSystem fs = location.FileSystem;
+        var dirsResult = fs.FileInfoProvider.GetPathDirs(
+            location.Path,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
-        var filesResult = CurrentFs.FileInfoProvider.GetPathFiles(
-            CurrentDir,
+        var filesResult = fs.FileInfoProvider.GetPathFiles(
+            location.Path,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
@@ -612,19 +598,19 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return Result.Error(dirsResult.Errors);
 
         FileSystemEntryViewModel[] dirs = dirsResult.Value.ConvertToArray(
-            entry => new FileSystemEntryViewModel(CurrentFs, entry, GetVcStatus(entry.PathToEntry))
+            entry => new FileSystemEntryViewModel(fs, entry, GetGitStatus(entry.PathToEntry, fs))
         );
         FileSystemEntryViewModel[] files = filesResult.Value.ConvertToArray(
-            entry => new FileSystemEntryViewModel(CurrentFs, entry, GetVcStatus(entry.PathToEntry))
+            entry => new FileSystemEntryViewModel(fs, entry, GetGitStatus(entry.PathToEntry, fs))
         );
 
         AddEntries(dirs, files);
         return SimpleResult.Ok();
     }
 
-    private GitStatus GetVcStatus(string path) =>
+    private GitStatus GetGitStatus(string path, IFileSystem fileSystem) =>
         IsVersionControlled
-            ? CurrentFs.GitIntegration.GetStatus(path)
+            ? fileSystem.GitIntegration.GetStatus(path)
             : GitStatus.NotVersionControlled;
 
     /// <summary>
@@ -640,7 +626,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         HashSet<string>? selectedPaths = null;
         if (SelectedFiles.Count > 0)
-            selectedPaths = SelectedFiles.Select(entry => entry.PathToEntry).ToHashSet();
+            selectedPaths = SelectedFiles.Select(entry => entry.Name).ToHashSet();
 
         FileEntries.Clear();
         if (!sortReversed || sortBy is SortBy.Type or SortBy.Size)
@@ -661,11 +647,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
 
         foreach (FileSystemEntryViewModel entry in FileEntries)
-            if (selectedPaths.Contains(entry.PathToEntry))
+            if (selectedPaths.Contains(entry.Name))
                 SelectedFiles.Add(entry);
     }
 
-    private void SortInPlace(FileSystemEntryViewModel[] entries, SortBy sortBy)
+    private static void SortInPlace(FileSystemEntryViewModel[] entries, SortBy sortBy)
     {
         Comparison<FileSystemEntryViewModel>[] comparisons =
         [
@@ -695,17 +681,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Sets <see cref="IsVersionControlled"/> and updates <see cref="Branches"/>.
     /// </summary>
-    private void CheckVersionControl()
+    private void CheckVersionControl(Location location)
     {
         IsVersionControlled =
             FileSurferSettings.GitIntegration
-            && CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir)
-            && CurrentFs.GitIntegration.InitIfGitRepository(CurrentDir);
+            && location.FileSystem.FileInfoProvider.DirectoryExists(location.Path)
+            && location.FileSystem.GitIntegration.InitIfGitRepository(location.Path);
 
-        LoadBranches();
+        LoadBranches(location);
     }
 
-    private void LoadBranches()
+    private void LoadBranches(Location location)
     {
         if (!IsVersionControlled)
         {
@@ -713,8 +699,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
         }
 
-        string currentBranch = CurrentFs.GitIntegration.GetCurrentBranchName();
-        string[] branches = CurrentFs.GitIntegration.GetBranches();
+        string currentBranch = location.FileSystem.GitIntegration.GetCurrentBranchName();
+        string[] branches = location.FileSystem.GitIntegration.GetBranches();
         if (CurrentBranch == currentBranch && Branches.EqualsUnordered(branches))
             return;
 
@@ -732,25 +718,31 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _isActionUserInvoked = true;
     }
 
-    public void SetLocationNoHistory(Location location)
+    private IResult SetLocationNoHistory(Location location)
     {
-        if (location.Exists())
-        {
-            if (Searching)
-                CancelSearch();
+        if (!location.Exists())
+            return SimpleResult.Error($"Location {location.Path} does not exist.");
 
-            CurrentLocation = location;
-            Reload(true);
-        }
-        else
-            ForwardError($"Location {location.Path} does not exist.");
+        if (Searching)
+            CancelSearch();
+
+        CheckVersionControl(location);
+        IResult result = LoadDirEntries(location);
+        if (!result.IsOk)
+            return result;
+
+        CurrentLocation = location;
+        _lastRefreshed = DateTime.Now;
+        Reload(false);
+        return SimpleResult.Ok();
     }
 
     public void SetLocation(Location location)
     {
-        SetLocationNoHistory(location);
+        IResult result = SetLocationNoHistory(location);
 
-        if (location.Exists() && !location.Equals(_locationHistory.Current))
+        ShowIfError(result);
+        if (result.IsOk && !location.Equals(_locationHistory.Current))
             _locationHistory.AddNewNode(location);
     }
 
@@ -771,15 +763,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (Searching)
             CancelSearch();
 
-        if (_locationHistory.GetPrevious() is not Location previousLocation)
-            return;
+        while (_locationHistory.GetPrevious() is Location previousLocation)
+        {
+            _locationHistory.MoveToPrevious();
 
-        _locationHistory.MoveToPrevious();
-
-        if (previousLocation.Exists())
-            SetLocationNoHistory(previousLocation);
-        else
+            if (previousLocation.Exists())
+            {
+                SetLocationNoHistory(previousLocation);
+                return;
+            }
             _locationHistory.RemoveNode(false);
+        }
     }
 
     /// <summary>
@@ -793,15 +787,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (Searching)
             CancelSearch();
 
-        if (_locationHistory.GetNext() is not Location nextLocation)
-            return;
+        while (_locationHistory.GetNext() is Location nextLocation)
+        {
+            _locationHistory.MoveToNext();
 
-        _locationHistory.MoveToNext();
-
-        if (nextLocation.Exists())
-            SetLocationNoHistory(nextLocation);
-        else
+            if (nextLocation.Exists())
+            {
+                SetLocationNoHistory(nextLocation);
+                return;
+            }
             _locationHistory.RemoveNode(true);
+        }
     }
 
     /// <summary>
@@ -810,14 +806,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void OpenPowerShell()
     {
         if (CurrentFs is LocalFileSystem fs && fs.LocalFileInfoProvider.DirectoryExists(CurrentDir))
-            ForwardIfError(fs.LocalShellHandler.OpenCmdAt(CurrentDir));
+            ShowIfError(fs.LocalShellHandler.OpenCmdAt(CurrentDir));
     }
 
     public async Task SearchAsync(string searchQuery)
     {
         if (Searching)
         {
-            HideMessage();
+            CurrentInfoMessage = null;
             await _searchManager.CancelSearchAsync();
         }
         Searching = true;
@@ -825,7 +821,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         int? foundEntries = await _searchManager.SearchAsync(CurrentFs, searchQuery, [CurrentDir]);
         if (foundEntries is 0)
-            ShowMessage("No items match your query");
+            CurrentInfoMessage = "No items match your query";
     }
 
     /// <summary>
@@ -864,7 +860,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             _undoRedoHistory.AddNewNode(operation);
             SelectedFiles.Add(FileEntries.First(entry => entry.Name == newFileName));
         }
-        ForwardIfError(result);
+        ShowIfError(result);
     }
 
     /// <summary>
@@ -891,7 +887,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             _undoRedoHistory.AddNewNode(operation);
             SelectedFiles.Add(FileEntries.First(entry => entry.Name == newDirName));
         }
-        ForwardIfError(result);
+        ShowIfError(result);
     }
 
     /// <summary>
@@ -906,7 +902,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SelectedFiles[^1].FileSystemEntry.NameWoExtension
             + LocalArchiveManager.ArchiveTypeExtension;
 
-        ForwardIfError(
+        ShowIfError(
             await Task.Run(() =>
                 CurrentFs.ArchiveManager.ZipFiles(
                     SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
@@ -933,14 +929,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
             if (!CurrentFs.ArchiveManager.IsZipped(entry.PathToEntry))
             {
-                ForwardError($"Entry \"{entry.Name}\" is not an archive.");
+                ShowError($"Entry \"{entry.Name}\" is not an archive.");
                 return;
             }
 
         await Task.Run(() =>
         {
             foreach (string path in SelectedFiles.Select(entry => entry.PathToEntry).ToArray())
-                ForwardIfError(CurrentFs.ArchiveManager.UnzipArchive(path, CurrentDir));
+                ShowIfError(CurrentFs.ArchiveManager.UnzipArchive(path, CurrentDir));
         });
         Reload();
     }
@@ -949,7 +945,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Copies the path to the selected <see cref="FileSystemEntryViewModel"/> to the system clipboard.
     /// </summary>
     public async Task CopyPath(FileSystemEntryViewModel entry) =>
-        ForwardIfError(
+        ShowIfError(
             await _localFileSystem.LocalClipboardManager.CopyPathToFileAsync(entry.PathToEntry)
         );
 
@@ -959,7 +955,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public async Task Cut()
     {
         if (SelectedFiles.Count > 0)
-            ForwardIfError(
+            ShowIfError(
                 await CurrentFs.ClipboardManager.CutAsync(
                     SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                     CurrentDir
@@ -973,7 +969,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public async Task Copy()
     {
         if (SelectedFiles.Count > 0)
-            ForwardIfError(
+            ShowIfError(
                 await CurrentFs.ClipboardManager.CopyAsync(
                     SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                     CurrentDir
@@ -1005,7 +1001,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(result.Value);
 
-        ForwardIfError(result);
+        ShowIfError(result);
         Reload();
     }
 
@@ -1049,7 +1045,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ? CurrentFs.ShellHandler.CreateDirectoryLink(entry.PathToEntry)
             : CurrentFs.ShellHandler.CreateFileLink(entry.PathToEntry);
 
-        ForwardIfError(result);
+        ShowIfError(result);
         Reload();
     }
 
@@ -1057,7 +1053,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Relays the operation to <see cref="IFileProperties"/>.
     /// </summary>
     public void ShowProperties(FileSystemEntryViewModel entry) =>
-        ForwardIfError(CurrentFs.FileProperties.ShowFileProperties(entry));
+        ShowIfError(CurrentFs.FileProperties.ShowFileProperties(entry));
 
     /// <summary>
     /// Relays the operation to <see cref="RenameOne(string)"/> or <see cref="RenameMultiple(string)"/>.
@@ -1089,7 +1085,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             if (newEntry is not null)
                 SelectedFiles.Add(newEntry);
         }
-        ForwardIfError(result);
+        ShowIfError(result);
     }
 
     private void RenameMultiple(string namingPattern)
@@ -1097,7 +1093,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry);
         if (!FileNameGenerator.CanBeRenamedCollectively(entries))
         {
-            ForwardError("Selected entries aren't of the same type.");
+            ShowError("Selected entries aren't of the same type.");
             return;
         }
 
@@ -1110,7 +1106,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(operation);
 
-        ForwardIfError(result);
+        ShowIfError(result);
         Reload();
     }
 
@@ -1133,7 +1129,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(operation);
 
-        ForwardIfError(result);
+        ShowIfError(result);
         Reload();
     }
 
@@ -1141,7 +1137,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (!entry.IsDirectory)
         {
-            ForwardError($"Cannot flatten a file: \"{entry.Name}\".");
+            ShowError($"Cannot flatten a file: \"{entry.Name}\".");
             return;
         }
 
@@ -1154,7 +1150,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(action);
 
-        ForwardIfError(result);
+        ShowIfError(result);
         Reload();
     }
 
@@ -1167,7 +1163,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void Delete()
     {
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
-            ForwardIfError(
+            ShowIfError(
                 entry.IsDirectory
                     ? CurrentFs.FileIoHandler.DeleteDir(entry.PathToEntry)
                     : CurrentFs.FileIoHandler.DeleteFile(entry.PathToEntry)
@@ -1215,7 +1211,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         else
         {
             if (FileSurferSettings.ShowUndoRedoErrorDialogs)
-                ForwardIfError(result);
+                ShowIfError(result);
 
             _undoRedoHistory.RemoveNode(true);
         }
@@ -1238,7 +1234,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         else
         {
             if (FileSurferSettings.ShowUndoRedoErrorDialogs)
-                ForwardIfError(result);
+                ShowIfError(result);
 
             _undoRedoHistory.RemoveNode(true);
         }
@@ -1280,7 +1276,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void StageFile(FileSystemEntryViewModel entry)
     {
         if (IsVersionControlled)
-            ForwardIfError(CurrentFs.GitIntegration.StagePath(entry.PathToEntry));
+            ShowIfError(CurrentFs.GitIntegration.StagePath(entry.PathToEntry));
     }
 
     /// <summary>
@@ -1289,7 +1285,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void UnstageFile(FileSystemEntryViewModel entry)
     {
         if (IsVersionControlled)
-            ForwardIfError(CurrentFs.GitIntegration.UnstagePath(entry.PathToEntry));
+            ShowIfError(CurrentFs.GitIntegration.UnstagePath(entry.PathToEntry));
     }
 
     /// <summary>
@@ -1299,7 +1295,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (IsVersionControlled)
         {
-            ForwardIfError(CurrentFs.GitIntegration.PullChanges());
+            ShowIfError(CurrentFs.GitIntegration.PullChanges());
             Reload();
         }
     }
@@ -1311,7 +1307,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (IsVersionControlled)
         {
-            ForwardIfError(CurrentFs.GitIntegration.CommitChanges(commitMessage));
+            ShowIfError(CurrentFs.GitIntegration.CommitChanges(commitMessage));
             Reload();
         }
     }
@@ -1322,7 +1318,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void Push()
     {
         if (IsVersionControlled)
-            ForwardIfError(CurrentFs.GitIntegration.PushChanges());
+            ShowIfError(CurrentFs.GitIntegration.PushChanges());
     }
 
     /// <summary>

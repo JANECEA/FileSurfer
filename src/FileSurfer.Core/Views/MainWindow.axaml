@@ -377,7 +377,7 @@
                         </Border>
                     </StackPanel>
 
-                    <Label Grid.Row="1" Classes="InfoMessage" Content="{Binding CurrentInfoMessage}" IsVisible="{Binding ShowInfoMessage}" />
+                    <Label Grid.Row="1" Classes="InfoMessage" Content="{Binding CurrentInfoMessage}" IsVisible="{Binding CurrentInfoMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
 
                     <ListBox x:Name="FileDisplay"
                              Grid.Row="2"

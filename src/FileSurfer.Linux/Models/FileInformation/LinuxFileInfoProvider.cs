@@ -14,6 +14,7 @@ namespace FileSurfer.Linux.Models.FileInformation;
 /// </summary>
 public class LinuxFileInfoProvider : ILocalFileInfoProvider
 {
+    private const string RootDir = "/";
     private readonly IShellHandler _shellHandler;
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -193,6 +194,8 @@ public class LinuxFileInfoProvider : ILocalFileInfoProvider
 
         return path[i + 1] == '.';
     }
+
+    public string GetRoot() => RootDir;
 
     private static bool IsOsProtected(string path, bool isDirectory)
     {

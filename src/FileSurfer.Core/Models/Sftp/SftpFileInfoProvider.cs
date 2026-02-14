@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using FileSurfer.Core.Models.FileInformation;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
@@ -169,6 +170,8 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
 
         return path[i + 1] == '.';
     }
+
+    public string GetRoot() => SftpPathTools.RootDir;
 
     public bool FileExists(string path)
     {

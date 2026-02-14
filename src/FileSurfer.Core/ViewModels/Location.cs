@@ -3,27 +3,28 @@ using FileSurfer.Core.Models;
 namespace FileSurfer.Core.ViewModels;
 
 /// <summary>
-/// TODO
+/// Represents a generic location (path) with its file system
 /// </summary>
 public sealed class Location
 {
     /// <summary>
-    /// TODO
+    /// Full path to the location
     /// </summary>
     public string Path { get; }
 
     /// <summary>
-    /// TODO
+    /// The relevant file system
     /// </summary>
     public IFileSystem FileSystem { get; }
 
-    public Location(IFileSystem localFileSystem, string dirPath)
+    public Location(IFileSystem fileSystem, string dirPath)
     {
         Path = dirPath;
-        FileSystem = localFileSystem;
+        FileSystem = fileSystem;
     }
 
-    public bool Exists() => FileSystem.FileInfoProvider.DirectoryExists(Path);
+    public bool Exists() =>
+        FileSystem.IsReady() && FileSystem.FileInfoProvider.DirectoryExists(Path);
 
     public bool Equals(Location? other)
     {

@@ -14,6 +14,7 @@ public sealed class SftpFileSystem : IFileSystem, IDisposable
     private const string EnvironmentNotSupported = "The SFTP environment is not supported.";
     private readonly SftpClient _sftpClient;
     private readonly SshClient? _sshClient;
+    private bool _disposed = false;
 
     IFileInfoProvider IFileSystem.FileInfoProvider => FileInfoProvider;
     IIconProvider IFileSystem.IconProvider => IconProvider;
@@ -48,11 +49,14 @@ public sealed class SftpFileSystem : IFileSystem, IDisposable
             : new SftpShellHandler(_sshClient);
     }
 
+    public bool IsReady() => !_disposed;
+
     public void Dispose()
     {
         _sftpClient.Dispose();
         _sshClient?.Dispose();
         IconProvider.Dispose();
         GitIntegration.Dispose();
+        _disposed = true;
     }
 }

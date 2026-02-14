@@ -170,6 +170,12 @@ public class WindowsFileInfoProvider : ILocalFileInfoProvider
         }
     }
 
+    public string GetRoot()
+    {
+        string dir = Directory.GetCurrentDirectory();
+        return Path.GetPathRoot(dir)!;
+    }
+
     private static bool IsOsProtected(string path, bool isDirectory)
     {
         try
