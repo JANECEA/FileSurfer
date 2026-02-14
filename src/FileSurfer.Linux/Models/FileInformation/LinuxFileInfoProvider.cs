@@ -24,17 +24,14 @@ public class LinuxFileInfoProvider : ILocalFileInfoProvider
 
     public LinuxFileInfoProvider(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
-    [SuppressMessage(
-        "ReSharper",
-        "ClassNeverInstantiated.Local",
-        Justification = "Instantiated in json deserialization"
-    )]
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     private sealed record LsblkEntry(string? Label, string? MountPoint, long Size, string? Type);
 
     private sealed record LsblkOutput(List<LsblkEntry> BlockDevices);
 
     public DriveEntry[] GetDrives()
     {
+        DriveEntry[] defaultList = [new(RootDir, "Root")];
         ValueResult<string> result = _shellHandler.ExecuteCommand(
             "lsblk",
             "-Jnbpo",
@@ -53,13 +50,13 @@ public class LinuxFileInfoProvider : ILocalFileInfoProvider
         }
         catch (Exception ex) when (ex is JsonException or NotSupportedException)
         {
-            return Array.Empty<DriveEntry>();
+            return defaultList;
         }
         foreach (LsblkEntry entry in entries.BlockDevices)
             if (entry is { Type: "part", Label: not null, MountPoint: not null, Size: > 0 })
                 drives.Add(new DriveEntry(entry.MountPoint, entry.Label));
 
-        return drives.ToArray();
+        return drives.Count > 0 ? drives.ToArray() : defaultList;
     }
 
     public ValueResult<List<FileEntryInfo>> GetPathFiles(

@@ -186,11 +186,11 @@ public class LinuxShellHandler : IShellCommandHandler
             process.WaitForExit();
 
             bool success = process.ExitCode == 0;
-            if (!success && string.IsNullOrWhiteSpace(errorMessage))
-                errorMessage = stdOut;
-
             if (success)
-                stdOut.Trim().OkResult();
+                return stdOut.Trim().OkResult();
+
+            if (string.IsNullOrWhiteSpace(errorMessage))
+                errorMessage = stdOut;
 
             return string.IsNullOrWhiteSpace(errorMessage)
                 ? ValueResult<string>.Error()
