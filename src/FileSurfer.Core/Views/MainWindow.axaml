@@ -37,7 +37,6 @@
 
     <Window.Resources>
         <views:SortArrowConverter x:Key="SortArrowConverter" />
-        <views:NotNullConverter x:Key="NotNullConverter" />
 
         <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
             <Grid Height="36" ColumnDefinitions="30 360 160 130 90 *">
@@ -337,9 +336,9 @@
                                             <ContextMenu x:DataType="vm:SftpConnectionViewModel">
                                                 <MenuItem Classes="ContextMenuItem" Click="MoveUpSftp" Header="Move up" />
                                                 <MenuItem Classes="ContextMenuItem" Click="MoveDownSftp" Header="Move down" />
-                                                <MenuItem Classes="ContextMenuItem" Click="CloseSftp" Header="Close" IsVisible="{Binding FileSystem, Converter={StaticResource NotNullConverter}}" />
                                                 <MenuItem Classes="ContextMenuItem" Click="EditSftpConnection" Header="Edit" />
-                                                <MenuItem Classes="ContextMenuItem" Click="RemoveSftp" Header="Remove" />
+                                                <MenuItem Classes="ContextMenuItem" Click="CloseSftp" Header="Close" IsVisible="{Binding FileSystem, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                                                <MenuItem Classes="ContextMenuItem" Click="RemoveSftp" Header="Remove" IsVisible="{Binding FileSystem, Converter={x:Static ObjectConverters.IsNull}}" />
                                             </ContextMenu>
                                         </Setter.Value>
                                     </Setter>

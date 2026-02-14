@@ -494,9 +494,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ShowError("Connection is not active.");
             return;
         }
-        connectionVm.FileSystem.Dispose();
+        SftpFileSystem fileSystem = connectionVm.FileSystem;
+        fileSystem.Dispose();
         connectionVm.FileSystem = null;
-        if (ReferenceEquals(connectionVm.FileSystem, CurrentFs))
+        if (ReferenceEquals(fileSystem, CurrentFs))
             SetLocation(
                 new Location(_localFileSystem, _localFileSystem.LocalFileInfoProvider.GetRoot())
             );
