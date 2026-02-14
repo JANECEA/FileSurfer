@@ -85,6 +85,9 @@ public class LinuxShellHandler : IShellCommandHandler
         if (string.IsNullOrWhiteSpace(FileSurferSettings.NotepadApp))
             return SimpleResult.Error("Set notepad app in settings.");
 
+        if (!ExecuteCommand("which", FileSurferSettings.NotepadApp).IsOk)
+            return SimpleResult.Error($"Could not find :\"{FileSurferSettings.NotepadApp}\"");
+
         try
         {
             using Process process = new();

@@ -130,6 +130,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             CurrentDir = value.Path;
             CurrentFs = CurrentLocation.FileSystem;
             CurrentFsLabel = CurrentFs.GetLabel();
+            if (FileSurferSettings.OpenInLastLocation && CurrentFs is LocalFileSystem)
+                FileSurferSettings.OpenIn = value.Path;
         }
     }
     private Location? _currentLocation;
