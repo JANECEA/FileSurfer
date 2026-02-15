@@ -111,6 +111,10 @@
         <Setter Property="Background" Value="Transparent" />
     </Style>
 
+    <Style Selector="Button.StateButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SecondaryColor}" />
+    </Style>
+
     <Style Selector="TextBlock.IconText">
         <Setter Property="FontFamily" Value="{StaticResource IconFont}" />
         <Setter Property="Foreground" Value="{DynamicResource IconColor}" />

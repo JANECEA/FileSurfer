@@ -181,7 +181,7 @@
                         Command="{Binding MoveToTrashCommand}"
                         Content="&#xF014;"
                         HotKey="Delete"
-                        ToolTip.Tip="Delete" />
+                        ToolTip.Tip="Move to Trash" />
 
                 <Rectangle Classes="ButtonSeparator" />
 
@@ -412,7 +412,7 @@
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CopyPathCommand}" CommandParameter="{Binding}" Header="Copy path" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CutCommand}" Header="Cut" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CopyCommand}" Header="Copy" />
-                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CreateShortcutCommand}" Header="Create shortcut" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CreateShortcutCommand}" CommandParameter="{Binding}" Header="Create shortcut" />
                                             <Separator Classes="ContextMenuSeparator" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).MoveToTrashCommand}" Header="Move to trash" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).DeleteCommand}" Header="Delete" />

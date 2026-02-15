@@ -277,6 +277,7 @@ public class SearchManager : IDisposable
     public void Dispose()
     {
         _searchLock.Dispose();
+        _searchCts.Cancel();
         _searchCts.Dispose();
         _animationTimer.Stop();
     }

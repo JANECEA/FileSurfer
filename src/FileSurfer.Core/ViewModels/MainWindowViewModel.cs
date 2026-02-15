@@ -251,10 +251,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> PullCommand { get; }
     public ReactiveCommand<Unit, Unit> PushCommand { get; }
 
+    public bool SelectionNotEmpty => SelectedFiles.Count > 0;
     private bool CanGoBack => _locationHistory.GetPrevious() is not null;
     private bool CanGoForward => _locationHistory.GetNext() is not null;
     private bool IsLocal => CurrentFs is LocalFileSystem;
-    private bool SelectionNotEmpty => SelectedFiles.Count > 0;
     private bool NotSearching => !Searching;
 
     /// <summary>
@@ -301,7 +301,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             this.WhenAnyValue(x => x.CanGoForward)
         );
         GoUpCommand = ReactiveCommand.Create(GoUp);
-        ReloadCommand = ReactiveCommand.Create(() => Reload(true));
+        ReloadCommand = ReactiveCommand.Create(() => Reload(true), notSearching);
         OpenPowerShellCommand = ReactiveCommand.Create(OpenPowerShell, localNotSearching);
         CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
         NewFileCommand = ReactiveCommand.Create(NewFile, notSearching);
@@ -309,13 +309,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         CutCommand = ReactiveCommand.Create(Cut, selection);
         CopyCommand = ReactiveCommand.Create(Copy, selection);
         CopyPathCommand = ReactiveCommand.Create<FileSystemEntryViewModel, Task>(CopyPath);
-        CreateShortcutCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(CreateShortcut);
+        CreateShortcutCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(
+            CreateShortcut,
+            local
+        );
         FlattenFolderCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(FlattenFolder);
         ShowPropertiesCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(
             ShowProperties,
             local
         );
-        PasteCommand = ReactiveCommand.Create(Paste);
+        PasteCommand = ReactiveCommand.Create(Paste, notSearching);
         MoveToTrashCommand = ReactiveCommand.Create(MoveToTrash, localSelection);
         DeleteCommand = ReactiveCommand.Create(Delete, selection);
         SetSortByCommand = ReactiveCommand.Create<SortBy>(SetSortBy);
@@ -1428,8 +1431,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         CurrentFs.GitIntegration.Dispose();
         _refreshTimer?.Stop();
 
-        if (Searching)
-            CancelSearch();
         _searchManager.Dispose();
 
         foreach (SftpConnectionViewModel connection in SftpConnectionsVms)
