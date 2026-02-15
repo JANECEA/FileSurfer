@@ -1,4 +1,4 @@
-<Application x:Class="FileSurfer.Linux.App"
+<Application x:Class="FileSurfer.Core.App"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:core="using:FileSurfer.Core"
