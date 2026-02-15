@@ -27,7 +27,7 @@
                     <Color x:Key="GitColor">#F34F29</Color>
                     <Color x:Key="GitTextColor">#FFFFFF</Color>
                     <Color x:Key="GitHoverColor">#B03C21</Color>
-                    <Color x:Key="AcceptColor">#B8B926</Color>
+                    <Color x:Key="AcceptColor">#98971A</Color>
                 </ResourceDictionary>
 
                 <ResourceDictionary x:Key="Dark">

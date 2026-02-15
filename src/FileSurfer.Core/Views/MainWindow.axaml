@@ -84,18 +84,6 @@
                 <TextBlock Grid.Column="1" Classes="FileInfo" FontFamily="Arial" Text="{Binding Name}" />
             </Grid>
         </DataTemplate>
-
-        <DataTemplate x:Key="SftpConnectionTemplate" x:DataType="{x:Type vm:SftpConnectionViewModel}">
-            <Grid Height="27" ColumnDefinitions="Auto *">
-                <TextBlock Grid.Column="0"
-                           Margin="20 0 12 0"
-                           VerticalAlignment="Center"
-                           Classes="IconText"
-                           FontSize="25"
-                           Text="&#xf059f;" />
-                <TextBlock Grid.Column="1" Classes="FileInfo" FontFamily="Arial" Text="{Binding HostnameOrIpAddress}" />
-            </Grid>
-        </DataTemplate>
     </Window.Resources>
 
     <DockPanel Background="{DynamicResource PrimaryColor}">
@@ -323,11 +311,7 @@
                         <Separator Background="{DynamicResource SecondaryColor}" />
 
                         <TextBlock Classes="SidebarLabel" Text="SFTP Connections" />
-                        <ListBox x:Name="SftpListBox"
-                                 Classes="SideBarListBox"
-                                 ItemTemplate="{StaticResource SftpConnectionTemplate}"
-                                 ItemsSource="{Binding SftpConnectionsVms}"
-                                 Tapped="SftpEntryClicked">
+                        <ListBox x:Name="SftpListBox" Classes="SideBarListBox" ItemsSource="{Binding SftpConnectionsVms}" Tapped="SftpEntryClicked">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
                                     <Setter Property="Padding" Value="10 3 10 3" />
@@ -343,12 +327,29 @@
                                         </Setter.Value>
                                     </Setter>
                                 </Style>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Foreground" Value="{DynamicResource IconColor}" />
+                                </Style>
                             </ListBox.Styles>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="{x:Type vm:SftpConnectionViewModel}">
+                                    <Grid>
+                                        <Grid Height="27" ColumnDefinitions="Auto *" IsVisible="{Binding FileSystem, Converter={x:Static ObjectConverters.IsNull}}">
+                                            <TextBlock Grid.Column="0" Classes="SftpIcon" Foreground="{DynamicResource IconColor}" Text="&#xf059f;" />
+                                            <TextBlock Grid.Column="1" Classes="SftpLabel" Foreground="{DynamicResource TextColor}" Text="{Binding HostnameOrIpAddress}" />
+                                        </Grid>
+                                        <Grid Height="27" ColumnDefinitions="Auto *" IsVisible="{Binding FileSystem, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                            <TextBlock Grid.Column="0" Classes="SftpIcon" Foreground="{DynamicResource AcceptColor}" Text="&#xf0789;" />
+                                            <TextBlock Grid.Column="1" Classes="SftpLabel" Foreground="{DynamicResource AcceptColor}" Text="{Binding HostnameOrIpAddress}" />
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
                         </ListBox>
 
                         <Button Classes="AddSftpButton" Click="OnAddSftpButtonClicked">
                             <Grid VerticalAlignment="Center" ColumnDefinitions="Auto *">
-                                <TextBlock Margin="33 0 5 0" Classes="AddNewSftpText IconText" FontSize="20" Text="&#xf457;" />
+                                <TextBlock Margin="33 0 5 0" Classes="AddNewSftpText IconText" FontSize="16" Text="&#xf457;" />
                                 <TextBlock Grid.Column="1" Classes="AddNewSftpText" Text="Add New" />
                             </Grid>
                         </Button>
