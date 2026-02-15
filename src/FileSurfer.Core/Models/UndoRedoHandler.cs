@@ -7,6 +7,8 @@ namespace FileSurfer.Core.Models;
 /// </summary>
 internal sealed class UndoRedoHandler<T>
 {
+    private readonly Action? _onCollectionChanged;
+
     /// <summary>
     /// Nested class representing a node in the <see cref="UndoRedoHandler{T}"/> chain.
     /// </summary>
@@ -42,8 +44,9 @@ internal sealed class UndoRedoHandler<T>
     /// <summary>
     /// Constructs a new <see cref="UndoRedoHandler{T}"/> chain.
     /// </summary>
-    public UndoRedoHandler()
+    public UndoRedoHandler(Action? onCollectionChanged = null)
     {
+        _onCollectionChanged = onCollectionChanged;
         _head = new UndoRedoNode(default);
         _tail = new UndoRedoNode(default, _head);
         _current = _head;
@@ -58,6 +61,7 @@ internal sealed class UndoRedoHandler<T>
             MoveToPrevious();
 
         _current = new UndoRedoNode(data, _current, _tail);
+        _onCollectionChanged?.Invoke();
     }
 
     /// <summary>
@@ -83,12 +87,26 @@ internal sealed class UndoRedoHandler<T>
     /// <summary>
     /// Moves to the previous <see cref="UndoRedoNode"/> in the <see cref="UndoRedoHandler{T}"/> chain.
     /// </summary>
-    public void MoveToPrevious() => _current = _current.Previous ?? _current;
+    public void MoveToPrevious()
+    {
+        if (_current.Previous is null)
+            return;
+
+        _current = _current.Previous;
+        _onCollectionChanged?.Invoke();
+    }
 
     /// <summary>
     /// Moves to the next <see cref="UndoRedoNode"/> in the <see cref="UndoRedoHandler{T}"/> chain.
     /// </summary>
-    public void MoveToNext() => _current = _current.Next ?? _current;
+    public void MoveToNext()
+    {
+        if (_current.Next is null)
+            return;
+
+        _current = _current.Next;
+        _onCollectionChanged?.Invoke();
+    }
 
     /// <summary>
     /// Removes the current <see cref="UndoRedoNode"/> from the <see cref="UndoRedoHandler{T}"/> chain.
@@ -111,5 +129,6 @@ internal sealed class UndoRedoHandler<T>
         _current.Previous.Next = _current.Next;
         _current.Next.Previous = _current.Previous;
         _current = goToPrevious ? _current.Previous : _current.Next;
+        _onCollectionChanged?.Invoke();
     }
 }

@@ -107,6 +107,10 @@
         <Setter Property="FontFamily" Value="{StaticResource IconFont}" />
     </Style>
 
+    <Style Selector="Button.StateButton /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
     <Style Selector="TextBlock.IconText">
         <Setter Property="FontFamily" Value="{StaticResource IconFont}" />
         <Setter Property="Foreground" Value="{DynamicResource IconColor}" />
@@ -117,7 +121,7 @@
     <Style Selector="TextBlock.SftpIcon">
         <Setter Property="FontFamily" Value="{StaticResource IconFont}" />
         <Setter Property="Padding" Value="0 0 4 0" />
-        <Setter Property="Margin" Value="20 0 12 0" />
+        <Setter Property="Margin" Value="15 0 12 0" />
         <Setter Property="ClipToBounds" Value="False" />
         <Setter Property="FontSize" Value="22" />
         <Setter Property="VerticalAlignment" Value="Center" />

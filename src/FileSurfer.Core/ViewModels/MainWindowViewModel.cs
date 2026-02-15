@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using FileSurfer.Core.Models;
@@ -132,6 +133,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             CurrentFsLabel = CurrentFs.GetLabel();
             if (FileSurferSettings.OpenInLastLocation && CurrentFs is LocalFileSystem)
                 FileSurferSettings.OpenIn = value.Path;
+
+            this.RaisePropertyChanged(nameof(IsLocal));
         }
     }
     private Location? _currentLocation;
@@ -174,8 +177,13 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public bool Searching
     {
         get => _searching;
-        set => this.RaiseAndSetIfChanged(ref _searching, value);
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _searching, value);
+            this.RaisePropertyChanged(nameof(NotSearching));
+        }
     }
+
     private bool _searching;
 
     /// <summary>
@@ -243,6 +251,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> PullCommand { get; }
     public ReactiveCommand<Unit, Unit> PushCommand { get; }
 
+    private bool CanGoBack => _locationHistory.GetPrevious() is not null;
+    private bool CanGoForward => _locationHistory.GetNext() is not null;
+    private bool IsLocal => CurrentFs is LocalFileSystem;
+    private bool SelectionNotEmpty => SelectedFiles.Count > 0;
+    private bool NotSearching => !Searching;
+
     /// <summary>
     /// Initializes a new <see cref="MainWindowViewModel"/>.
     /// </summary>
@@ -260,33 +274,50 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _setDarkMode = setDarkMode;
         _searchManager = new SearchManager(s => PathBoxText = s, entry => FileEntries.Add(entry));
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
-        _locationHistory = new UndoRedoHandler<Location>();
+        _locationHistory = new UndoRedoHandler<Location>(() =>
+        {
+            this.RaisePropertyChanged(nameof(CanGoBack));
+            this.RaisePropertyChanged(nameof(CanGoForward));
+        });
 
-        OpenCommand = ReactiveCommand.Create(OpenEntries);
-        OpenInNotepadCommand = ReactiveCommand.Create(OpenInNotepad);
-        OpenAsCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(OpenAs);
+        IObservable<bool> local = this.WhenAnyValue(x => x.IsLocal);
+        IObservable<bool> notSearching = this.WhenAnyValue(x => x.NotSearching);
+        IObservable<bool> selection = this.WhenAnyValue(x => x.SelectionNotEmpty);
+        IObservable<bool> localNotSearching = local.CombineLatest(notSearching, (l, nS) => l && nS);
+        IObservable<bool> localSelection = local.CombineLatest(selection, (l, sl) => l && sl);
+
+        OpenCommand = ReactiveCommand.Create(OpenEntries, local);
+        OpenInNotepadCommand = ReactiveCommand.Create(OpenInNotepad, local);
+        OpenAsCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(OpenAs, local);
         AddToQuickAccessCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(
-            AddToQuickAccess
+            AddToQuickAccess,
+            local
         );
-        AddToArchiveCommand = ReactiveCommand.Create(AddToArchive);
-        ExtractArchiveCommand = ReactiveCommand.Create(ExtractArchive);
-        GoBackCommand = ReactiveCommand.Create(GoBack);
-        GoForwardCommand = ReactiveCommand.Create(GoForward);
+        AddToArchiveCommand = ReactiveCommand.Create(AddToArchive, localNotSearching);
+        ExtractArchiveCommand = ReactiveCommand.Create(ExtractArchive, localNotSearching);
+        GoBackCommand = ReactiveCommand.Create(GoBack, this.WhenAnyValue(x => x.CanGoBack));
+        GoForwardCommand = ReactiveCommand.Create(
+            GoForward,
+            this.WhenAnyValue(x => x.CanGoForward)
+        );
         GoUpCommand = ReactiveCommand.Create(GoUp);
         ReloadCommand = ReactiveCommand.Create(() => Reload(true));
-        OpenPowerShellCommand = ReactiveCommand.Create(OpenPowerShell);
+        OpenPowerShellCommand = ReactiveCommand.Create(OpenPowerShell, localNotSearching);
         CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
-        NewFileCommand = ReactiveCommand.Create(NewFile);
-        NewDirCommand = ReactiveCommand.Create(NewDir);
-        CutCommand = ReactiveCommand.Create(Cut);
-        CopyCommand = ReactiveCommand.Create(Copy);
+        NewFileCommand = ReactiveCommand.Create(NewFile, notSearching);
+        NewDirCommand = ReactiveCommand.Create(NewDir, notSearching);
+        CutCommand = ReactiveCommand.Create(Cut, selection);
+        CopyCommand = ReactiveCommand.Create(Copy, selection);
         CopyPathCommand = ReactiveCommand.Create<FileSystemEntryViewModel, Task>(CopyPath);
         CreateShortcutCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(CreateShortcut);
         FlattenFolderCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(FlattenFolder);
-        ShowPropertiesCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(ShowProperties);
+        ShowPropertiesCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(
+            ShowProperties,
+            local
+        );
         PasteCommand = ReactiveCommand.Create(Paste);
-        MoveToTrashCommand = ReactiveCommand.Create(MoveToTrash);
-        DeleteCommand = ReactiveCommand.Create(Delete);
+        MoveToTrashCommand = ReactiveCommand.Create(MoveToTrash, localSelection);
+        DeleteCommand = ReactiveCommand.Create(Delete, selection);
         SetSortByCommand = ReactiveCommand.Create<SortBy>(SetSortBy);
         UndoCommand = ReactiveCommand.Create(Undo);
         RedoCommand = ReactiveCommand.Create(Redo);
@@ -296,15 +327,27 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         PullCommand = ReactiveCommand.Create(Pull);
         PushCommand = ReactiveCommand.Create(Push);
 
-        CurrentLocation = new Location(_localFileSystem, initialDir);
         LoadQuickAccess();
         LoadDrives();
         LoadSftpConnections();
         LoadSettings(false);
-        SetLocation(CurrentLocation);
+        SetInitialLocation(initialDir);
         FileSurferSettings.OnSettingsChange = () => LoadSettings(true);
         SelectedFiles.CollectionChanged += UpdateSelectionInfo;
         FileEntries.CollectionChanged += UpdateSelectionInfo;
+    }
+
+    private void SetInitialLocation(string localPath)
+    {
+        Location requestedLocation = new(_localFileSystem, localPath);
+        if (requestedLocation.Exists())
+            SetLocation(requestedLocation);
+        else
+        {
+            Location root = new(_localFileSystem, _localFileSystem.LocalFileInfoProvider.GetRoot());
+            SetLocation(root);
+            SetLocation(requestedLocation);
+        }
     }
 
     private void LoadSettings(bool reload)
@@ -451,6 +494,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             selectionInfo += "  " + FileSystemEntryViewModel.GetSizeString(sizeSum);
 
         SelectionInfo = selectionInfo;
+        this.RaisePropertyChanged(nameof(SelectionNotEmpty));
     }
 
     /// <summary>

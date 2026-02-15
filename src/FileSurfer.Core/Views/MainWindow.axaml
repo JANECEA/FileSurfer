@@ -88,22 +88,22 @@
 
     <DockPanel Background="{DynamicResource PrimaryColor}">
         <DockPanel Height="50" Margin="10 0" DockPanel.Dock="Top">
-            <Button Classes="TopLeftButton ArrowButton"
+            <Button Classes="StateButton TopLeftButton ArrowButton"
                     Command="{Binding GoBackCommand}"
                     Content="&#xF053;"
                     HotKey="Alt+Left"
                     ToolTip.Tip="Go Back" />
-            <Button Classes="TopLeftButton ArrowButton"
+            <Button Classes="StateButton TopLeftButton ArrowButton"
                     Command="{Binding GoForwardCommand}"
                     Content="&#xF054;"
                     HotKey="Alt+Right"
                     ToolTip.Tip="Got Forward" />
-            <Button Classes="TopLeftButton"
+            <Button Classes="StateButton TopLeftButton"
                     Command="{Binding ReloadCommand}"
                     Content="&#xF01E;"
                     HotKey="F5"
                     ToolTip.Tip="Reload" />
-            <Button Classes="TopLeftButton"
+            <Button Classes="StateButton TopLeftButton"
                     Command="{Binding OpenPowerShellCommand}"
                     Content="&#xEBC7;"
                     HotKey="F12"
@@ -139,12 +139,12 @@
 
         <Border Height="55" BorderBrush="{DynamicResource SecondaryColor}" BorderThickness="0 1 0 1" DockPanel.Dock="Top">
             <DockPanel Margin="10 0" LastChildFill="False">
-                <Button Classes="FileOperationButton"
+                <Button Classes="StateButton FileOperationButton"
                         Command="{Binding NewFileCommand}"
                         Content="&#xEA7F;"
                         HotKey="Ctrl+N"
                         ToolTip.Tip="New File" />
-                <Button Classes="FileOperationButton"
+                <Button Classes="StateButton FileOperationButton"
                         Command="{Binding NewDirCommand}"
                         Content="&#xEA80;"
                         HotKey="Ctrl+Shift+N"
@@ -153,30 +153,31 @@
                 <Rectangle Classes="ButtonSeparator" />
 
                 <Button x:Name="CutButton"
-                        Classes="FileOperationButton"
+                        Classes="StateButton FileOperationButton"
                         Command="{Binding CutCommand}"
                         Content="&#xF0190;"
                         HotKey="Ctrl+X"
                         ToolTip.Tip="Cut" />
                 <Button x:Name="CopyButton"
-                        Classes="FileOperationButton"
+                        Classes="StateButton FileOperationButton"
                         Command="{Binding CopyCommand}"
                         Content="&#xF0C5;"
                         HotKey="Ctrl+C"
                         ToolTip.Tip="Copy" />
                 <Button x:Name="PasteButton"
-                        Classes="FileOperationButton"
+                        Classes="StateButton FileOperationButton"
                         Command="{Binding PasteCommand}"
                         Content="&#xF0192;"
                         HotKey="Ctrl+V"
                         ToolTip.Tip="Paste" />
-                <Button Classes="FileOperationButton"
+                <Button Classes="StateButton FileOperationButton"
                         Click="OnRenameClicked"
                         Content="&#xF0455;"
                         HotKey="F2"
+                        IsEnabled="{Binding SelectionNotEmpty}"
                         ToolTip.Tip="Rename" />
                 <Button x:Name="DeleteButton"
-                        Classes="FileOperationButton"
+                        Classes="StateButton FileOperationButton"
                         Command="{Binding MoveToTrashCommand}"
                         Content="&#xF014;"
                         HotKey="Delete"
