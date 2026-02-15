@@ -648,8 +648,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
                 QuickAccess.Add(new SideBarEntryViewModel(_localFileSystem, new FileEntry(path)));
     }
 
-    public void AddToQuickAccess(FileSystemEntryViewModel entry) =>
-        QuickAccess.Add(new SideBarEntryViewModel(_localFileSystem, entry.FileSystemEntry));
+    public void AddToQuickAccess(FileSystemEntryViewModel? entry) =>
+        QuickAccess.Add(
+            entry is not null
+                ? new SideBarEntryViewModel(_localFileSystem, entry.FileSystemEntry)
+                : new SideBarEntryViewModel(_localFileSystem, new DirectoryEntry(CurrentDir))
+        );
 
     private void LoadSftpConnections()
     {
@@ -1035,9 +1039,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Copies the path to the selected <see cref="FileSystemEntryViewModel"/> to the system clipboard.
     /// </summary>
-    public async Task CopyPath(FileSystemEntryViewModel entry) =>
+    public async Task CopyPath(FileSystemEntryViewModel? entry) =>
         ShowIfError(
-            await _localFileSystem.LocalClipboardManager.CopyPathToFileAsync(entry.PathToEntry)
+            await _localFileSystem.LocalClipboardManager.CopyPathToFileAsync(
+                entry is null ? CurrentDir : entry.PathToEntry
+            )
         );
 
     /// <summary>
