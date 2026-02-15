@@ -10,8 +10,13 @@ public sealed class SftpShellHandler : IShellHandler
 {
     private const char QuoteChar = '\'';
     private readonly SshClient _sshClient;
+    private readonly SftpClient _sftpClient;
 
-    public SftpShellHandler(SshClient sshClient) => _sshClient = sshClient;
+    public SftpShellHandler(SshClient sshClient, SftpClient sftpClient)
+    {
+        _sshClient = sshClient;
+        _sftpClient = sftpClient;
+    }
 
     private static string Quote(string str)
     {
@@ -28,25 +33,18 @@ public sealed class SftpShellHandler : IShellHandler
         return sb.ToString();
     }
 
-    public IResult CreateFileLink(string filePath)
-    {
-        try
-        {
-            string linkPath = filePath + ".lnk";
-            return Execute($"ln -s {Quote(filePath)} {Quote(linkPath)}");
-        }
-        catch (Exception ex)
-        {
-            return SimpleResult.Error(ex.Message);
-        }
-    }
+    public IResult CreateFileLink(string filePath) =>
+        CreateLinkInternal(PathTools.NormalizePath(filePath), ".link");
 
-    public IResult CreateDirectoryLink(string dirPath)
+    public IResult CreateDirectoryLink(string dirPath) =>
+        CreateLinkInternal(PathTools.NormalizePath(dirPath), "-link");
+
+    private SimpleResult CreateLinkInternal(string path, string suffix)
     {
         try
         {
-            string linkPath = dirPath.TrimEnd(SftpPathTools.DirSeparator) + "-link";
-            return Execute($"ln -s {Quote(dirPath)} {Quote(linkPath)}");
+            _sftpClient.SymbolicLink(path, path + suffix);
+            return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
@@ -72,12 +70,5 @@ public sealed class SftpShellHandler : IShellHandler
         {
             return ValueResult<string>.Error(ex.Message);
         }
-    }
-
-    private SimpleResult Execute(string command)
-    {
-        SshCommand cmd = _sshClient.CreateCommand(command);
-        cmd.Execute();
-        return cmd.ExitStatus == 0 ? SimpleResult.Ok() : SimpleResult.Error(cmd.Error);
     }
 }

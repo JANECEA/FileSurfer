@@ -48,7 +48,7 @@ public sealed class SftpFileSystem : IFileSystem, IDisposable
         ClipboardManager = new BasicClipboardManager(FileInfoProvider, FileIoHandler);
         ShellHandler = _sshClient is null
             ? new StubShellHandler("The server refused ssh connection")
-            : new SftpShellHandler(_sshClient);
+            : new SftpShellHandler(_sshClient, _sftpClient);
     }
 
     public bool IsReady() => !_disposed;
