@@ -239,7 +239,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<FileSystemEntryViewModel, Unit> CreateShortcutCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel, Unit> FlattenFolderCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel, Unit> ShowPropertiesCommand { get; }
-    public ReactiveCommand<FileSystemEntryViewModel?, Unit> SyncDirCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Task> SyncDirCommand { get; }
     public ReactiveCommand<Unit, Task> PasteCommand { get; }
     public ReactiveCommand<Unit, Unit> MoveToTrashCommand { get; }
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
@@ -319,7 +319,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ShowProperties,
             local
         );
-        SyncDirCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(
+        SyncDirCommand = ReactiveCommand.Create<FileSystemEntryViewModel?, Task>(
             SynchronizeDir,
             notLocalnotSearching
         );
@@ -1160,9 +1160,41 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void ShowProperties(FileSystemEntryViewModel entry) =>
         ShowIfError(CurrentFs.FileProperties.ShowFileProperties(entry));
 
-    private void SynchronizeDir(FileSystemEntryViewModel? entry)
+    private async Task SynchronizeDir(FileSystemEntryViewModel? entry)
     {
+        if (CurrentFs is not SftpFileSystem fileSystem)
+        {
+            ShowError("Cannot synchronize with a local directory.");
+            return;
+        }
+
         string remoteDir = entry is null ? CurrentDir : entry.PathToEntry;
+        if (!fileSystem.FileInfoProvider.DirectoryExists(remoteDir))
+        {
+            ShowError($"Remote directory \"{remoteDir}\" does not exist.");
+            return;
+        }
+
+        string? path = await _dialogService.SuggestInputDialog(
+            "Pick local path",
+            $"Select local path for remote path \"{fileSystem.GetLabel()}:{remoteDir}\"",
+            "Recent local paths:",
+            _locationHistory
+                .GetCurrentCollectionReversed()
+                .Where(l => l.FileSystem is LocalFileSystem)
+                .Select(l => l.Path)
+                .Distinct()
+                .ToList()
+        );
+        if (path is null)
+            return;
+        if (!_localFileSystem.LocalFileInfoProvider.DirectoryExists(path))
+        {
+            ShowError($"Path \"{path}\" does not exist.");
+            return;
+        }
+
+        throw new NotImplementedException();
     }
 
     /// <summary>

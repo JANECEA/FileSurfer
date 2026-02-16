@@ -8,23 +8,39 @@
         d:DesignHeight="230"
         d:DesignWidth="560"
         Classes="DialogWindow"
+        Foreground="{DynamicResource TextColor}"
         mc:Ignorable="d">
 
     <Window.Styles>
         <StyleInclude Source="avares://FileSurfer.Core/Views/Dialogs/DialogWindowStyle.axaml" />
     </Window.Styles>
 
-    <Grid Classes="MainGrid" RowDefinitions="60 Auto * 45">
+    <Grid Classes="MainGrid" RowDefinitions="160 Auto Auto * 45">
         <Border Classes="InfoBlockBorder">
             <TextBlock x:Name="ContextBlock" Classes="InfoBlock" />
         </Border>
 
-        <TextBox x:Name="InputBox" Grid.Row="1" Classes="InputBox" />
+        <TextBox x:Name="InputBox" Grid.Row="1" Margin="15 0 15 0" Classes="InputBox" />
 
-        <ListBox x:Name="Suggestions" Grid.Row="2" Tapped="SuggestionsTapped" />
+        <TextBlock x:Name="SuggestionLabelTextBlock" Grid.Row="2" Margin="15 15 15 -15" FontSize="11" />
+        <Border Grid.Row="3" Classes="InfoBlockBorder">
+            <ScrollViewer>
+                <ListBox x:Name="Suggestions" Tapped="SuggestionsTapped">
+                    <ListBox.Styles>
+                        <Style Selector="ListBoxItem">
+                            <Setter Property="Padding" Value="10 0 10 0" />
+                            <Setter Property="Height" Value="35" />
+                            <Setter Property="Opacity" Value="0.8" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+                        </Style>
+                    </ListBox.Styles>
+                </ListBox>
+            </ScrollViewer>
+        </Border>
 
-        <Rectangle Grid.Row="3" Classes="BottomRectangle" />
-        <Grid Grid.Row="3" HorizontalAlignment="Right" ColumnDefinitions="Auto Auto">
+        <Rectangle Grid.Row="4" Classes="BottomRectangle" />
+        <Grid Grid.Row="4" HorizontalAlignment="Right" ColumnDefinitions="Auto Auto">
             <Button Margin="0 0 -2 0" Classes="BottomButton" Click="CancelClicked" Content="Cancel" />
 
             <Button Grid.Column="1"

@@ -17,6 +17,7 @@ public interface IDialogService
     public Task<string?> SuggestInputDialog(
         string title,
         string context,
+        string suggestionLabel,
         IReadOnlyList<string> options
     );
 }
@@ -58,6 +59,7 @@ public sealed class AvaloniaDialogService : IDialogService
     public async Task<string?> SuggestInputDialog(
         string title,
         string context,
+        string suggestionLabel,
         IReadOnlyList<string> options
     ) =>
         await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -67,6 +69,7 @@ public sealed class AvaloniaDialogService : IDialogService
                 Title = title,
                 Context = context,
                 Options = options,
+                SuggestionLabel = suggestionLabel,
             };
             string? result = await dialog.ShowDialog<string?>(_parentWindow);
             return string.IsNullOrEmpty(result) ? null : result;

@@ -9,6 +9,7 @@ namespace FileSurfer.Core.Views.Dialogs;
 public partial class SuggestInputDialogWindow : Window
 {
     public string Context { get; init; } = string.Empty;
+    public string SuggestionLabel { get; init; } = string.Empty;
     public IReadOnlyList<string> Options { get; init; } = [];
 
     public SuggestInputDialogWindow() => InitializeComponent();
@@ -17,6 +18,7 @@ public partial class SuggestInputDialogWindow : Window
     {
         ContextBlock.Text = Context;
         Suggestions.ItemsSource = Options;
+        SuggestionLabelTextBlock.Text = SuggestionLabel;
         base.OnOpened(e);
     }
 
