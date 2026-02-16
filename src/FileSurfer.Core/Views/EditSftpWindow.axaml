@@ -4,9 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:FileSurfer.Core.ViewModels"
-        Width="500"
+        Width="550"
         Height="410"
-        MinWidth="500"
+        MinWidth="550"
         MinHeight="410"
         x:DataType="vm:SftpConnectionViewModel"
         Background="{DynamicResource PrimaryColor}"
@@ -18,11 +18,14 @@
         WindowStartupLocation="CenterOwner"
         mc:Ignorable="d">
 
+    <Window.DataContext>
+        <vm:SftpConnectionViewModel />
+    </Window.DataContext>
+
     <Window.Styles>
         <StyleInclude Source="avares://FileSurfer.Core/Views/EditSftpWindowStyle.axaml" />
     </Window.Styles>
 
-    <!--  ReSharper disable Xaml.BindingWithoutContextNotResolved - cannot resolve because viewmodels takes constructor parameters  -->
     <Grid RowDefinitions="* Auto">
         <StackPanel Grid.Row="0" Margin="20" Spacing="12">
             <StackPanel>
@@ -41,8 +44,15 @@
             </StackPanel>
 
             <StackPanel>
-                <TextBlock Text="Password (optional)" />
-                <TextBox PasswordChar="*" Text="{Binding Password, Mode=TwoWay}" />
+                <TextBlock Text="Path to key file (optional)" />
+                <Grid ColumnDefinitions="Auto *">
+                    <CheckBox Margin="0 0 10 0"
+                              Content="Requires passphrase"
+                              FontSize="12"
+                              IsChecked="{Binding NeedsPassphrase}"
+                              IsEnabled="{Binding KeyPath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                    <TextBox Grid.Column="1" Text="{Binding KeyPath, Mode=TwoWay}" />
+                </Grid>
             </StackPanel>
 
             <StackPanel>
@@ -58,4 +68,5 @@
             </StackPanel>
         </Border>
     </Grid>
+
 </Window>

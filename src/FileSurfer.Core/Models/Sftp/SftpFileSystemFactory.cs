@@ -17,10 +17,49 @@ public class SftpFileSystemFactory
         const string title = "Input password";
         string context = $"""
             Please enter the password for:
-                    host - "{connection.HostnameOrIpAddress}"
-                username - "{connection.Username}"
+            host - "{connection.HostnameOrIpAddress}"
+            username - "{connection.Username}"
             """;
         return await _dialogService.InputDialog(title, context, true);
+    }
+
+    private async Task<string?> RequestPassphraseAsync(SftpConnection connection)
+    {
+        const string title = "Input passphrase";
+        string context = $"""
+            Please enter the password for:
+            host - "{connection.HostnameOrIpAddress}"
+            username - "{connection.Username}"
+            key path - "{connection.KeyPath}"
+            """;
+        return await _dialogService.InputDialog(title, context, true);
+    }
+
+    private async Task<ValueResult<AuthenticationMethod>> GetAuthMethod(SftpConnection connection)
+    {
+        if (string.IsNullOrWhiteSpace(connection.KeyPath))
+        {
+            string? password = await RequestPasswordAsync(connection);
+            return string.IsNullOrEmpty(password)
+                ? ValueResult<AuthenticationMethod>.Error()
+                : ValueResult<AuthenticationMethod>.Ok(
+                    new PasswordAuthenticationMethod(connection.Username, password)
+                );
+        }
+
+        string? passphrase = null;
+        if (connection.NeedsPassphrase)
+        {
+            passphrase = await RequestPassphraseAsync(connection);
+            if (string.IsNullOrEmpty(passphrase))
+                return ValueResult<AuthenticationMethod>.Error();
+        }
+        return ValueResult<AuthenticationMethod>.Ok(
+            new PrivateKeyAuthenticationMethod(
+                connection.Username,
+                new PrivateKeyFile(connection.KeyPath, passphrase)
+            )
+        );
     }
 
     public async Task<ValueResult<SftpFileSystem>> TryConnectAsync(SftpConnection connection)
@@ -34,19 +73,17 @@ public class SftpFileSystemFactory
         if (string.IsNullOrEmpty(connection.Username))
             return ValueResult<SftpFileSystem>.Error("Missing Username");
 
-        string? password = !string.IsNullOrEmpty(connection.Password)
-            ? connection.Password
-            : await RequestPasswordAsync(connection);
-
-        if (string.IsNullOrEmpty(password))
-            return ValueResult<SftpFileSystem>.Error();
         try
         {
+            ValueResult<AuthenticationMethod> authMethodResult = await GetAuthMethod(connection);
+            if (!authMethodResult.IsOk)
+                return ValueResult<SftpFileSystem>.Error(authMethodResult);
+
             ConnectionInfo connectionInfo = new(
                 connection.HostnameOrIpAddress,
                 connection.Port,
                 connection.Username,
-                new PasswordAuthenticationMethod(connection.Username, password)
+                authMethodResult.Value
             );
             SftpClient sftpClient = new(connectionInfo);
             HostKeyEventArgs? args = null;

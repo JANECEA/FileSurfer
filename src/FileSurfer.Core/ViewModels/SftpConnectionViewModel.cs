@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.Sftp;
 using ReactiveUI;
 
@@ -47,11 +48,23 @@ public sealed class SftpConnectionViewModel : ReactiveObject
         set => this.RaiseAndSetIfChanged(ref _username, value);
     }
 
-    private string _password = string.Empty;
-    public string Password
+    private string _keyPath = string.Empty;
+    public string KeyPath
     {
-        get => _password;
-        set => this.RaiseAndSetIfChanged(ref _password, value);
+        get => _keyPath;
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _keyPath, value);
+            if (string.IsNullOrWhiteSpace(value))
+                NeedsPassphrase = false;
+        }
+    }
+
+    private bool _needsPassphrase = false;
+    public bool NeedsPassphrase
+    {
+        get => _needsPassphrase;
+        set => this.RaiseAndSetIfChanged(ref _needsPassphrase, value);
     }
 
     private string? _initialDirectory = null;
@@ -69,15 +82,18 @@ public sealed class SftpConnectionViewModel : ReactiveObject
         HostnameOrIpAddress = sftpConnection.HostnameOrIpAddress;
         Port = sftpConnection.Port;
         Username = sftpConnection.Username;
-        Password = sftpConnection.Password;
+        KeyPath = sftpConnection.KeyPath;
+        NeedsPassphrase = sftpConnection.NeedsPassphrase;
         InitialDirectory = sftpConnection.InitialDirectory;
     }
 
-    public SftpConnectionViewModel(Action<SftpConnectionViewModel>? addSelf = null)
+    public SftpConnectionViewModel(Action<SftpConnectionViewModel> addSelf)
     {
         SftpConnection = new SftpConnection();
         _addSelf = addSelf;
     }
+
+    public SftpConnectionViewModel() => SftpConnection = new SftpConnection();
 
     public SftpConnectionViewModel Copy() =>
         new()
@@ -85,7 +101,8 @@ public sealed class SftpConnectionViewModel : ReactiveObject
             HostnameOrIpAddress = HostnameOrIpAddress,
             Port = Port,
             Username = Username,
-            Password = Password,
+            KeyPath = KeyPath,
+            NeedsPassphrase = NeedsPassphrase,
             InitialDirectory = InitialDirectory,
         };
 
@@ -94,13 +111,14 @@ public sealed class SftpConnectionViewModel : ReactiveObject
         HostnameOrIpAddress = saveFrom.HostnameOrIpAddress.Trim();
         Port = saveFrom.Port;
         Username = saveFrom.Username;
-        Password = saveFrom.Password;
+        KeyPath = PathTools.NormalizeLocalPath(saveFrom.KeyPath.Trim());
         InitialDirectory = saveFrom.InitialDirectory?.Trim();
 
         SftpConnection.HostnameOrIpAddress = HostnameOrIpAddress;
         SftpConnection.Port = Port;
         SftpConnection.Username = Username;
-        SftpConnection.Password = Password;
+        SftpConnection.KeyPath = KeyPath;
+        SftpConnection.NeedsPassphrase = NeedsPassphrase;
         SftpConnection.InitialDirectory = InitialDirectory;
 
         if (CreateOnSave)

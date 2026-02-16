@@ -62,7 +62,7 @@ public enum SortBy
 [SuppressMessage(
     "ReSharper",
     "MemberCanBePrivate.Global",
-    Justification = "Members are part of the settings for the app"
+    Justification = "Members represent app settings"
 )]
 public static class FileSurferSettings
 {
@@ -72,6 +72,22 @@ public static class FileSurferSettings
     private static readonly string FileSurferDataDir = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "FileSurfer"
+    );
+
+    /// <summary>
+    /// The full path to settings.json.
+    /// </summary>
+    public static readonly string SettingsFilePath = Path.Combine(
+        FileSurferDataDir,
+        "settings.json"
+    );
+
+    /// <summary>
+    /// The full path to sftp.json.
+    /// </summary>
+    public static readonly string SftpConnectionsFilePath = Path.Combine(
+        FileSurferDataDir,
+        "sftp-connections.json"
     );
 
     /// <summary>
@@ -115,22 +131,6 @@ public static class FileSurferSettings
             allowImagePastingFromClipboard = AllowImagePastingFromClipboard,
             quickAccess = QuickAccess,
         };
-
-    /// <summary>
-    /// The full path to settings.json.
-    /// </summary>
-    public static readonly string SettingsFilePath = Path.Combine(
-        FileSurferDataDir,
-        "settings.json"
-    );
-
-    /// <summary>
-    /// The full path to sftp.json.
-    /// </summary>
-    public static readonly string SftpConnectionsFilePath = Path.Combine(
-        FileSurferDataDir,
-        "sftp.json"
-    );
 
     private static string _previousSettingsJson = string.Empty;
 

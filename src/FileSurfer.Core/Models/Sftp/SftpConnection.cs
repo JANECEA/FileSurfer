@@ -30,7 +30,8 @@ public record SftpConnection
     public string HostnameOrIpAddress { get; set; } = string.Empty;
     public ushort Port { get; set; } = 22;
     public string Username { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
+    public string KeyPath { get; set; } = string.Empty;
+    public bool NeedsPassphrase { get; set; } = false;
     public string? InitialDirectory { get; set; } = null;
     public List<FingerPrint> FingerPrints { get; set; } = [];
 }
