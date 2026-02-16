@@ -222,7 +222,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> OpenCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel, Unit> OpenAsCommand { get; }
     public ReactiveCommand<Unit, Unit> OpenInNotepadCommand { get; }
-    public ReactiveCommand<FileSystemEntryViewModel, Unit> AddToQuickAccessCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Unit> AddToQuickAccessCommand { get; }
     public ReactiveCommand<Unit, Task> AddToArchiveCommand { get; }
     public ReactiveCommand<Unit, Task> ExtractArchiveCommand { get; }
     public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
@@ -235,10 +235,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> NewDirCommand { get; }
     public ReactiveCommand<Unit, Task> CutCommand { get; }
     public ReactiveCommand<Unit, Task> CopyCommand { get; }
-    public ReactiveCommand<FileSystemEntryViewModel, Task> CopyPathCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Task> CopyPathCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel, Unit> CreateShortcutCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel, Unit> FlattenFolderCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel, Unit> ShowPropertiesCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Unit> SyncDirCommand { get; }
     public ReactiveCommand<Unit, Task> PasteCommand { get; }
     public ReactiveCommand<Unit, Unit> MoveToTrashCommand { get; }
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
@@ -280,8 +281,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             this.RaisePropertyChanged(nameof(CanGoForward));
         });
 
+        IObservable<bool> canGoForward = this.WhenAnyValue(x => x.CanGoForward);
+        IObservable<bool> canGoBack = this.WhenAnyValue(x => x.CanGoBack);
         IObservable<bool> local = this.WhenAnyValue(x => x.IsLocal);
         IObservable<bool> notSearching = this.WhenAnyValue(x => x.NotSearching);
+        IObservable<bool> notLocalnotSearching = local.CombineLatest(
+            notSearching,
+            (l, nS) => !l && nS
+        );
         IObservable<bool> selection = this.WhenAnyValue(x => x.SelectionNotEmpty);
         IObservable<bool> localNotSearching = local.CombineLatest(notSearching, (l, nS) => l && nS);
         IObservable<bool> localSelection = local.CombineLatest(selection, (l, sl) => l && sl);
@@ -289,17 +296,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         OpenCommand = ReactiveCommand.Create(OpenEntries, local);
         OpenInNotepadCommand = ReactiveCommand.Create(OpenInNotepad, local);
         OpenAsCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(OpenAs, local);
-        AddToQuickAccessCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(
+        AddToQuickAccessCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(
             AddToQuickAccess,
             local
         );
         AddToArchiveCommand = ReactiveCommand.Create(AddToArchive, localNotSearching);
         ExtractArchiveCommand = ReactiveCommand.Create(ExtractArchive, localNotSearching);
-        GoBackCommand = ReactiveCommand.Create(GoBack, this.WhenAnyValue(x => x.CanGoBack));
-        GoForwardCommand = ReactiveCommand.Create(
-            GoForward,
-            this.WhenAnyValue(x => x.CanGoForward)
-        );
+        GoBackCommand = ReactiveCommand.Create(GoBack, canGoBack);
+        GoForwardCommand = ReactiveCommand.Create(GoForward, canGoForward);
         GoUpCommand = ReactiveCommand.Create(GoUp);
         ReloadCommand = ReactiveCommand.Create(() => Reload(true), notSearching);
         OpenPowerShellCommand = ReactiveCommand.Create(OpenPowerShell, localNotSearching);
@@ -308,12 +312,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         NewDirCommand = ReactiveCommand.Create(NewDir, notSearching);
         CutCommand = ReactiveCommand.Create(Cut, selection);
         CopyCommand = ReactiveCommand.Create(Copy, selection);
-        CopyPathCommand = ReactiveCommand.Create<FileSystemEntryViewModel, Task>(CopyPath);
+        CopyPathCommand = ReactiveCommand.Create<FileSystemEntryViewModel?, Task>(CopyPath);
         CreateShortcutCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(CreateShortcut);
         FlattenFolderCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(FlattenFolder);
         ShowPropertiesCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(
             ShowProperties,
             local
+        );
+        SyncDirCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(
+            SynchronizeDir,
+            notLocalnotSearching
         );
         PasteCommand = ReactiveCommand.Create(Paste, notSearching);
         MoveToTrashCommand = ReactiveCommand.Create(MoveToTrash, localSelection);
@@ -1151,6 +1159,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void ShowProperties(FileSystemEntryViewModel entry) =>
         ShowIfError(CurrentFs.FileProperties.ShowFileProperties(entry));
+
+    private void SynchronizeDir(FileSystemEntryViewModel? entry)
+    {
+        string remoteDir = entry is null ? CurrentDir : entry.PathToEntry;
+    }
 
     /// <summary>
     /// Relays the operation to <see cref="RenameOne(string)"/> or <see cref="RenameMultiple(string)"/>.

@@ -424,7 +424,7 @@
                                             <MenuItem Classes="ContextMenuItem" Click="OnRenameClicked" Header="Rename" />
                                             <Separator Classes="ContextMenuSeparator" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).ShowPropertiesCommand}" CommandParameter="{Binding}" Header="Properties" />
-                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).SynchronizeDirCommand}" CommandParameter="{Binding}" Header="Synchronize this directory">
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).SyncDirCommand}" CommandParameter="{Binding}" Header="Synchronize this directory">
                                                 <MenuItem.IsVisible>
                                                     <MultiBinding Converter="{x:Static BoolConverters.And}">
                                                         <Binding Path="IsDirectory" />
@@ -445,7 +445,7 @@
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CopyPathCommand}" Header="Copy path" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).PasteCommand}" Header="Paste" />
                                             <Separator Classes="ContextMenuSeparator" IsVisible="{Binding !#FileDisplay.((vm:MainWindowViewModel)DataContext).IsLocal}" />
-                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).SynchronizeDirCommand}" Header="Synchronize this directory" IsVisible="{Binding !#FileDisplay.((vm:MainWindowViewModel)DataContext).IsLocal}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).SyncDirCommand}" Header="Synchronize this directory" IsVisible="{Binding !#FileDisplay.((vm:MainWindowViewModel)DataContext).IsLocal}" />
                                         </ContextMenu>
                                         <!--  ReSharper restore Xaml.PossibleNullReferenceException  -->
                                     </Setter.Value>

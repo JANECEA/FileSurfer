@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
@@ -12,6 +13,12 @@ public interface IDialogService
     public Task<bool> ConfirmationDialog(string title, string question);
 
     public Task<string?> InputDialog(string title, string context, bool secret);
+
+    public Task<string?> SuggestInputDialog(
+        string title,
+        string context,
+        IReadOnlyList<string> options
+    );
 }
 
 public sealed class AvaloniaDialogService : IDialogService
@@ -44,6 +51,23 @@ public sealed class AvaloniaDialogService : IDialogService
             InputDialogWindow dialog = new() { Title = title, Context = context };
             dialog.HideInput(secret);
 
+            string? result = await dialog.ShowDialog<string?>(_parentWindow);
+            return string.IsNullOrEmpty(result) ? null : result;
+        });
+
+    public async Task<string?> SuggestInputDialog(
+        string title,
+        string context,
+        IReadOnlyList<string> options
+    ) =>
+        await Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            SuggestInputDialogWindow dialog = new()
+            {
+                Title = title,
+                Context = context,
+                Options = options,
+            };
             string? result = await dialog.ShowDialog<string?>(_parentWindow);
             return string.IsNullOrEmpty(result) ? null : result;
         });
