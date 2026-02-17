@@ -5,7 +5,7 @@ using System.IO;
 using System.Text.Json;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
-using FileSurfer.Core.Models.Shell;
+using FileSurfer.Core.Services.Shell;
 
 namespace FileSurfer.Linux.Models.FileInformation;
 

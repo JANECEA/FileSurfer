@@ -6,9 +6,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using FileSurfer.Core;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.Shell;
+using FileSurfer.Core.Services.Shell;
 
-namespace FileSurfer.Windows.Models.Shell;
+namespace FileSurfer.Windows.Services.Shell;
 
 /// <summary>
 /// Windows-specific implementation of <see cref="IShellHandler"/> for shell interactions.

@@ -1,6 +1,7 @@
-﻿using FileSurfer.Core.ViewModels;
+﻿using FileSurfer.Core.Models;
+using FileSurfer.Core.ViewModels;
 
-namespace FileSurfer.Core.Models.Shell;
+namespace FileSurfer.Core.Services.Shell;
 
 /// <summary>
 /// Provides methods to interact with file properties and dialogs

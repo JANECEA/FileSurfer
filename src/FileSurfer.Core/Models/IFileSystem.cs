@@ -1,7 +1,7 @@
 using FileSurfer.Core.Models.FileInformation;
-using FileSurfer.Core.Models.FileOperations;
-using FileSurfer.Core.Models.Shell;
-using FileSurfer.Core.Models.VersionControl;
+using FileSurfer.Core.Services.FileOperations;
+using FileSurfer.Core.Services.Shell;
+using FileSurfer.Core.Services.VersionControl;
 using FileSurfer.Core.ViewModels;
 
 namespace FileSurfer.Core.Models;

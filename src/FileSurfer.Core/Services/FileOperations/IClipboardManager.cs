@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
+using FileSurfer.Core.Models;
 
-namespace FileSurfer.Core.Models.FileOperations;
+namespace FileSurfer.Core.Services.FileOperations;
 
 /// <summary>
 /// Describes different kinds of paste operation in the context of FileSurfer

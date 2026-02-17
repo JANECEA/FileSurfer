@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using FileSurfer.Core.Models.FileOperations;
+using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.FileOperations;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
 
-namespace FileSurfer.Core.Models.Sftp;
+namespace FileSurfer.Core.Services.Sftp;
 
 public sealed class SftpFileIoHandler : IFileIoHandler
 {

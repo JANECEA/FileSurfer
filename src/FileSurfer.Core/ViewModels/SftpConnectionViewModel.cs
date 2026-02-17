@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.Sftp;
+using FileSurfer.Core.Services.Sftp;
 using ReactiveUI;
 
 namespace FileSurfer.Core.ViewModels;

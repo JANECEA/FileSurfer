@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
-namespace FileSurfer.Core.Models.Sftp;
+namespace FileSurfer.Core.Services.Sftp;
 
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public sealed class FingerPrint(string algorithm, string hash)

@@ -1,8 +1,8 @@
 using System.IO;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.Shell;
+using FileSurfer.Core.Services.Shell;
 
-namespace FileSurfer.Linux.Models.Shell;
+namespace FileSurfer.Linux.Services.Shell;
 
 /// <summary>
 /// Interacts with the <c>gio trash</c> cli utility in order to move/restore files and directories to/from the system trash.

@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 using Avalonia.Input.Platform;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
+using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 
-namespace FileSurfer.Core.Models.FileOperations;
+namespace FileSurfer.Core.Services.FileOperations;
 
 /// <summary>
 /// Interacts with the program and system clipboards using <see cref="Avalonia.Input.Platform.IClipboard"/>.

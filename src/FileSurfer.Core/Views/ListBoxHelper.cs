@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using Avalonia.Controls;
 
-namespace FileSurfer.Core.ViewModels;
+namespace FileSurfer.Core.Views;
 
 public static class ListBoxHelper
 {

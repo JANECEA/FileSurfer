@@ -1,5 +1,5 @@
 using FileSurfer.Core.Models;
-using FileSurfer.Windows.Models.Shell;
+using FileSurfer.Windows.Services.Shell;
 
 namespace FSTests;
 

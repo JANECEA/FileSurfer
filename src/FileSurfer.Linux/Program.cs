@@ -4,13 +4,14 @@ using Avalonia;
 using Avalonia.Input.Platform;
 using FileSurfer.Core;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.FileOperations;
-using FileSurfer.Core.Models.VersionControl;
+using FileSurfer.Core.Services.Dialogs;
+using FileSurfer.Core.Services.FileOperations;
+using FileSurfer.Core.Services.VersionControl;
 using FileSurfer.Core.ViewModels;
 using FileSurfer.Core.Views;
 using FileSurfer.Linux.Models.FileInformation;
-using FileSurfer.Linux.Models.FileOperations;
-using FileSurfer.Linux.Models.Shell;
+using FileSurfer.Linux.Services.FileOperations;
+using FileSurfer.Linux.Services.Shell;
 using FileSurfer.Linux.ViewModels;
 using ReactiveUI.Avalonia;
 

@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
-using FileSurfer.Core.Models.FileOperations;
-using FileSurfer.Core.Models.Shell;
-using FileSurfer.Core.Models.VersionControl;
+using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.FileOperations;
+using FileSurfer.Core.Services.Shell;
+using FileSurfer.Core.Services.VersionControl;
 using FileSurfer.Core.ViewModels;
 
 // Models that might be implemented for Sftp in the future
 
-namespace FileSurfer.Core.Models.Sftp;
+namespace FileSurfer.Core.Services.Sftp;
 
 public class StubArchiveManager : IArchiveManager
 {

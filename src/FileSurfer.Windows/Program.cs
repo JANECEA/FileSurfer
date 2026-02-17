@@ -4,13 +4,14 @@ using Avalonia;
 using Avalonia.Input.Platform;
 using FileSurfer.Core;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.FileOperations;
-using FileSurfer.Core.Models.VersionControl;
+using FileSurfer.Core.Services.Dialogs;
+using FileSurfer.Core.Services.FileOperations;
+using FileSurfer.Core.Services.VersionControl;
 using FileSurfer.Core.ViewModels;
 using FileSurfer.Core.Views;
 using FileSurfer.Windows.Models.FileInformation;
-using FileSurfer.Windows.Models.FileOperations;
-using FileSurfer.Windows.Models.Shell;
+using FileSurfer.Windows.Services.FileOperations;
+using FileSurfer.Windows.Services.Shell;
 using ReactiveUI.Avalonia;
 
 namespace FileSurfer.Windows;

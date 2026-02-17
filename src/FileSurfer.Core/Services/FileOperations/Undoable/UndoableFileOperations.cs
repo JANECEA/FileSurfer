@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
-using FileSurfer.Core.Models.Shell;
+using FileSurfer.Core.Services.Shell;
 
-namespace FileSurfer.Core.Models.FileOperations.Undoable;
+namespace FileSurfer.Core.Services.FileOperations.Undoable;
 
 /// <summary>
 /// Represents the action of moving selected files to the system trash.

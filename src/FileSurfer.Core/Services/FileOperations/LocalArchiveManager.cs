@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using SharpCompress.Archives.SevenZip;
 using SharpCompress.Archives.Zip;
@@ -8,7 +9,7 @@ using SharpCompress.Common;
 using SharpCompress.Readers;
 using SharpCompress.Writers;
 
-namespace FileSurfer.Core.Models.FileOperations;
+namespace FileSurfer.Core.Services.FileOperations;
 
 /// <summary>
 /// Handles interactions with archives using the <see cref="SharpCompress"/> package.

@@ -4,7 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using FileSurfer.Core.Views.Dialogs;
 
-namespace FileSurfer.Core.ViewModels;
+namespace FileSurfer.Core.Services.Dialogs;
 
 public sealed class AvaloniaDialogService : IDialogService
 {

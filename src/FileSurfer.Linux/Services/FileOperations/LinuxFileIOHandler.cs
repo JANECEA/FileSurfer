@@ -2,10 +2,10 @@ using System;
 using System.IO;
 using System.Linq;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.FileOperations;
+using FileSurfer.Core.Services.FileOperations;
 using Microsoft.VisualBasic.FileIO;
 
-namespace FileSurfer.Linux.Models.FileOperations;
+namespace FileSurfer.Linux.Services.FileOperations;
 
 /// <summary>
 /// Handles file IO operations in the Linux environment.

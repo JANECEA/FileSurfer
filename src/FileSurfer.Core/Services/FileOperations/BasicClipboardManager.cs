@@ -1,7 +1,8 @@
 using System.Threading.Tasks;
+using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 
-namespace FileSurfer.Core.Models.FileOperations;
+namespace FileSurfer.Core.Services.FileOperations;
 
 public class BasicClipboardManager : IClipboardManager
 {

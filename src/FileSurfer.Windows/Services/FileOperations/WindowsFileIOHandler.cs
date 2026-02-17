@@ -3,10 +3,10 @@ using System.IO;
 using System.Linq;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
-using FileSurfer.Core.Models.FileOperations;
+using FileSurfer.Core.Services.FileOperations;
 using Microsoft.VisualBasic.FileIO;
 
-namespace FileSurfer.Windows.Models.FileOperations;
+namespace FileSurfer.Windows.Services.FileOperations;
 
 /// <summary>
 /// Handles file IO operations in the Windows environment within the context of the <see cref="FileSurfer"/> app.

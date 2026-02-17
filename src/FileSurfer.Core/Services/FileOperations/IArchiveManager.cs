@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using FileSurfer.Core.Models;
 
-namespace FileSurfer.Core.Models.FileOperations;
+namespace FileSurfer.Core.Services.FileOperations;
 
 public interface IArchiveManager
 {

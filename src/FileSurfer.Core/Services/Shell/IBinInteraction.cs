@@ -1,4 +1,6 @@
-﻿namespace FileSurfer.Core.Models.Shell;
+﻿using FileSurfer.Core.Models;
+
+namespace FileSurfer.Core.Services.Shell;
 
 public interface IBinInteraction
 {

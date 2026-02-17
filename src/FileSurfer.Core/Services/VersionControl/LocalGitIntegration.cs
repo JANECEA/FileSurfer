@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FileSurfer.Core.Models.Shell;
+using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.Shell;
 using LibGit2Sharp;
 
-namespace FileSurfer.Core.Models.VersionControl;
+namespace FileSurfer.Core.Services.VersionControl;
 
 /// <summary>
 /// Handles git integration within the <see cref="FileSurfer"/> app.

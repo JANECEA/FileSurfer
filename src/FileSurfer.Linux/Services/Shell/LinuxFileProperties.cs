@@ -2,12 +2,12 @@ using System;
 using System.Globalization;
 using System.IO;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.Shell;
+using FileSurfer.Core.Services.Shell;
 using FileSurfer.Core.ViewModels;
 using FileSurfer.Linux.ViewModels;
 using Mono.Unix;
 
-namespace FileSurfer.Linux.Models.Shell;
+namespace FileSurfer.Linux.Services.Shell;
 
 public class LinuxFileProperties : IFileProperties
 {

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
-using FileSurfer.Core.Models.VersionControl;
+using FileSurfer.Core.Services.VersionControl;
 using ReactiveUI;
 
 namespace FileSurfer.Core.ViewModels;

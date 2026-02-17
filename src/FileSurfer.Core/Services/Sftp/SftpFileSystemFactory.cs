@@ -1,10 +1,11 @@
 using System;
 using System.Threading.Tasks;
-using FileSurfer.Core.ViewModels;
+using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.Dialogs;
 using Renci.SshNet;
 using Renci.SshNet.Common;
 
-namespace FileSurfer.Core.Models.Sftp;
+namespace FileSurfer.Core.Services.Sftp;
 
 public class SftpFileSystemFactory
 {

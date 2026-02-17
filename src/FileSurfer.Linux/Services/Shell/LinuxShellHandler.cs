@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.IO;
 using FileSurfer.Core;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.Shell;
+using FileSurfer.Core.Services.Shell;
 
-namespace FileSurfer.Linux.Models.Shell;
+namespace FileSurfer.Linux.Services.Shell;
 
 public interface IShellCommandHandler : ILocalShellHandler
 {

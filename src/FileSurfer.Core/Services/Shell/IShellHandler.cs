@@ -1,4 +1,6 @@
-namespace FileSurfer.Core.Models.Shell;
+using FileSurfer.Core.Models;
+
+namespace FileSurfer.Core.Services.Shell;
 
 /// <summary>
 /// Provides methods for interacting with the system shell

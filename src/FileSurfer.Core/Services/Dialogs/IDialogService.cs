@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace FileSurfer.Core.ViewModels;
+namespace FileSurfer.Core.Services.Dialogs;
 
 public interface IDialogService
 {

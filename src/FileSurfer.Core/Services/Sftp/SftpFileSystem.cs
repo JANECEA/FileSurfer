@@ -1,12 +1,13 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
-using FileSurfer.Core.Models.FileOperations;
-using FileSurfer.Core.Models.Shell;
-using FileSurfer.Core.Models.VersionControl;
+using FileSurfer.Core.Services.FileOperations;
+using FileSurfer.Core.Services.Shell;
+using FileSurfer.Core.Services.VersionControl;
 using Renci.SshNet;
 
-namespace FileSurfer.Core.Models.Sftp;
+namespace FileSurfer.Core.Services.Sftp;
 
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public sealed class SftpFileSystem : IFileSystem, IDisposable

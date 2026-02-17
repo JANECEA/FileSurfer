@@ -1,10 +1,11 @@
 using System;
 using System.Linq;
 using System.Text;
-using FileSurfer.Core.Models.Shell;
+using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.Shell;
 using Renci.SshNet;
 
-namespace FileSurfer.Core.Models.Sftp;
+namespace FileSurfer.Core.Services.Sftp;
 
 public sealed class SftpShellHandler : IShellHandler
 {
