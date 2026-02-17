@@ -34,4 +34,8 @@
   <ItemGroup>
     <ProjectReference Include="..\FileSurfer.Core\FileSurfer.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\" />
+  </ItemGroup>
 </Project>

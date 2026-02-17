@@ -1,6 +1,4 @@
-using FileSurfer.Core.Models;
-
-namespace FileSurfer.Core.ViewModels;
+namespace FileSurfer.Core.Models;
 
 /// <summary>
 /// Represents a generic location (path) with its file system

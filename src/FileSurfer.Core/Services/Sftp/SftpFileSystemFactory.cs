@@ -27,9 +27,7 @@ public class SftpFileSystemFactory
     {
         const string title = "Input passphrase";
         string context = $"""
-            Please enter the password for:
-            host - "{connection.HostnameOrIpAddress}"
-            username - "{connection.Username}"
+            Please enter the passphrase for:
             key path - "{connection.KeyPath}"
             """;
         return await _dialogService.InputDialog(title, context, true);
