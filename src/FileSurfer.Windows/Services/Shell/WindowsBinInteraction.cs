@@ -5,6 +5,8 @@ using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.Shell;
 using Microsoft.VisualBasic.FileIO;
+using FolderItem = Shell32.FolderItem;
+using FolderItemVerb = Shell32.FolderItemVerb;
 
 namespace FileSurfer.Windows.Services.Shell;
 
@@ -35,7 +37,7 @@ public class WindowsBinInteraction : IBinInteraction
     private static SimpleResult RestoreEntry(string originalPath)
     {
         Shell32.Shell shell = new();
-        Folder bin = shell.NameSpace(BinFolderId);
+        Shell32.Folder bin = shell.NameSpace(BinFolderId);
         SimpleResult result = SimpleResult.Error($"Entry: \"{originalPath}\" not found.");
         try
         {
