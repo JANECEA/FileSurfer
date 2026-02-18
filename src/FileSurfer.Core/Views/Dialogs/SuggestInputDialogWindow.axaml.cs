@@ -10,7 +10,7 @@ public partial class SuggestInputDialogWindow : Window
 {
     public string Context { get; init; } = string.Empty;
     public string SuggestionLabel { get; init; } = string.Empty;
-    public IReadOnlyList<string> Options { get; init; } = [];
+    public IEnumerable<string> Options { get; init; } = [];
 
     public SuggestInputDialogWindow() => InitializeComponent();
 

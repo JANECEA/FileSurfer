@@ -1,0 +1,85 @@
+<Window x:Class="FileSurfer.Core.Views.SftpSynchronizerWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:FileSurfer.Core.ViewModels"
+        Title="Synchronize remote directory"
+        x:DataType="vm:SftpSynchronizerViewModel"
+        Background="{DynamicResource PrimaryColor}"
+        Foreground="{DynamicResource TextColor}"
+        ShowInTaskbar="True"
+        mc:Ignorable="d">
+
+    <Window.DataContext>
+        <vm:SftpSynchronizerViewModel />
+    </Window.DataContext>
+
+    <Window.Styles>
+        <StyleInclude Source="avares://FileSurfer.Core/Views/SftpSynchronizerWindowStyle.axaml" />
+    </Window.Styles>
+
+    <Window.Resources>
+        <DataTemplate x:Key="SyncEventTemplate" x:DataType="vm:SynchronizationEvent">
+            <Grid ColumnDefinitions="Auto Auto * Auto">
+                <TextBlock Text="{Binding TimeStampStr}" />
+                <TextBlock Grid.Column="1" Text="{Binding LocalPath}" />
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="--" />
+                    <TextBlock Text="{Binding OpType}" />
+                    <TextBlock Text="--&gt;" />
+                </StackPanel>
+
+                <TextBlock Grid.Column="3" Text="{Binding RemotePath}" />
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid RowDefinitions="Auto * Auto">
+        <Grid>
+            <Rectangle />
+            <Grid Margin="15" ColumnDefinitions="Auto * Auto">
+                <StackPanel Orientation="Horizontal">
+                    <TextBox Classes="TopTextBox" Text="{Binding LocalDirLabel}" />
+                    <TextBlock Classes="TopColon" Text=":" />
+                    <TextBox Classes="TopTextBox" Text="{Binding LocalDir.Path}" />
+                </StackPanel>
+
+                <TextBlock Grid.Column="1" Classes="TopArrow" Text="&#xF061;" />
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <TextBox Classes="TopTextBox" Text="{Binding RemoteDirLabel}" />
+                    <TextBlock Classes="TopColon" Text=":" />
+                    <TextBox Classes="TopTextBox" Text="{Binding RemoteDir.Path}" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <Grid Grid.Row="1" RowDefinitions="Auto *">
+            <TextBlock Classes="SyncEventsLabel" Text="Synchronization events:" />
+            <Border Grid.Row="1" Classes="SyncEventsBorder">
+                <ScrollViewer>
+                    <ListBox IsHitTestVisible="False" ItemTemplate="{StaticResource SyncEventTemplate}" ItemsSource="{Binding SyncEvents}" />
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Rectangle />
+            <Grid Margin="15" ColumnDefinitions="* Auto">
+                <CheckBox Classes="SyncCheckBox" Content="Synchronize local directory with remote before starting" IsChecked="{Binding SyncFromRemoteOnStar}" IsEnabled="{Binding !Synchronizing}" />
+
+                <Grid Grid.Column="1">
+                    <Button Classes="SyncButton"
+                            Command="{Binding StartSyncCommand}"
+                            Content="Start sync"
+                            Foreground="{DynamicResource AcceptColor}"
+                            IsVisible="{Binding !Synchronizing}" />
+                    <Button Classes="SyncButton" Command="{Binding StopSyncCommand}" Content="Stop sync" IsVisible="{Binding Synchronizing}" />
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+
+</Window>

@@ -15,6 +15,6 @@ public interface IDialogService
         string title,
         string context,
         string suggestionLabel,
-        IReadOnlyList<string> options
+        IEnumerable<string> options
     );
 }

@@ -1164,39 +1164,33 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private async Task SynchronizeDir(FileSystemEntryViewModel? entry)
     {
-        if (CurrentFs is not SftpFileSystem fileSystem)
+        if (CurrentFs is not SftpFileSystem sftpFs)
         {
             ShowError("Cannot synchronize with a local directory.");
             return;
         }
 
-        string remoteDir = entry is null ? CurrentDir : entry.PathToEntry;
-        if (!fileSystem.FileInfoProvider.DirectoryExists(remoteDir))
-        {
-            ShowError($"Remote directory \"{remoteDir}\" does not exist.");
-            return;
-        }
+        Location remoteLocation = entry is null
+            ? CurrentLocation
+            : sftpFs.GetLocation(entry.PathToEntry);
 
-        string? path = await _dialogService.SuggestInputDialog(
-            "Pick local path",
-            $"Select local path for remote path \"{fileSystem.GetLabel()}:{remoteDir}\"",
-            "Recent local paths:",
-            _locationHistory
-                .GetCurrentCollectionReversed()
-                .Where(l => l.FileSystem is LocalFileSystem)
-                .Select(l => l.Path)
-                .Distinct()
-                .ToList()
+        ValueResult<string> localPathResult = await SftpSynchronizerHelper.GetLocalPath(
+            remoteLocation,
+            _locationHistory.GetCurrentCollectionReversed(),
+            _dialogService
         );
-        if (path is null)
+        ShowIfError(localPathResult);
+        if (!localPathResult.IsOk)
             return;
-        if (!_localFileSystem.LocalFileInfoProvider.DirectoryExists(path))
-        {
-            ShowError($"Path \"{path}\" does not exist.");
-            return;
-        }
 
-        throw new NotImplementedException();
+        new SftpSynchronizerWindow
+        {
+            DataContext = new SftpSynchronizerViewModel
+            {
+                LocalDir = new Location(_localFileSystem, localPathResult.Value),
+                RemoteDir = remoteLocation,
+            },
+        }.Show();
     }
 
     /// <summary>

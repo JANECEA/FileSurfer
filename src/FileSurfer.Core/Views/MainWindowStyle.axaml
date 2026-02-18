@@ -41,6 +41,7 @@
         <Setter Property="Focusable" Value="False" />
         <Setter Property="IsTabStop" Value="False" />
         <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="MinWidth" Value="1" />
     </Style>
 
     <Style Selector="TextBox.LabelBox:pointerover /template/ Border">

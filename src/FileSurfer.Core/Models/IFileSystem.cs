@@ -21,8 +21,6 @@ public interface IFileSystem
     public IShellHandler ShellHandler { get; }
     public IGitIntegration GitIntegration { get; }
 
-    public Location GetLocation(string path) => new(this, path);
-
     public bool IsReady();
 
     public string GetLabel();
