@@ -85,17 +85,3 @@ public class StubFileProperties : IFileProperties
 
     public IResult ShowOpenAsDialog(IFileSystemEntry entry) => SimpleResult.Error(_message);
 }
-
-public class StubShellHandler : IShellHandler
-{
-    private readonly string _message;
-
-    public StubShellHandler(string message) => _message = message;
-
-    public IResult CreateFileLink(string filePath) => SimpleResult.Error(_message);
-
-    public IResult CreateDirectoryLink(string dirPath) => SimpleResult.Error(_message);
-
-    public ValueResult<string> ExecuteCommand(string programName, params string[] args) =>
-        ValueResult<string>.Error(_message);
-}

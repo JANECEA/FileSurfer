@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
 
-namespace FileSurfer.Core.Services.Sftp;
+namespace FileSurfer.Core.Models.Sftp;
 
 public sealed class SftpFileInfoProvider : IFileInfoProvider
 {

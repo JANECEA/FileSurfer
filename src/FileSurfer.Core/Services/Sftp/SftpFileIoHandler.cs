@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.Services.FileOperations;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;

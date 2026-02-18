@@ -11,7 +11,7 @@ namespace FileSurfer.Core.Services.FileOperations.Undoable;
 /// <summary>
 /// Represents the action of moving selected files to the system trash.
 /// </summary>
-public class MoveFilesToTrash : UndoableOperation
+public sealed class MoveFilesToTrash : UndoableOperation
 {
     private readonly IBinInteraction _fileRestorer;
 
@@ -39,7 +39,7 @@ public class MoveFilesToTrash : UndoableOperation
 /// <summary>
 /// Represents the action of moving files and directories to a specific directory.
 /// </summary>
-public class MoveFilesTo : UndoableOperation
+public sealed class MoveFilesTo : UndoableOperation
 {
     private readonly string _destinationDir;
     private readonly string _originalDir;
@@ -73,7 +73,7 @@ public class MoveFilesTo : UndoableOperation
 /// <summary>
 /// Represents the action of copying files and directories to a specific directory.
 /// </summary>
-public class CopyFilesTo : UndoableOperation
+public sealed class CopyFilesTo : UndoableOperation
 {
     private readonly string _destinationDir;
 
@@ -101,7 +101,7 @@ public class CopyFilesTo : UndoableOperation
 /// <summary>
 /// Represents the action of duplicating files or directories in a specific directory.
 /// </summary>
-public class DuplicateFiles : UndoableOperation
+public sealed class DuplicateFiles : UndoableOperation
 {
     private readonly string[] _copyNames;
     private readonly string _parentDir;
@@ -132,7 +132,7 @@ public class DuplicateFiles : UndoableOperation
 /// <summary>
 /// Represents the action of renaming multiple files or directories.
 /// </summary>
-public class RenameMultiple : UndoableOperation
+public sealed class RenameMultiple : UndoableOperation
 {
     private readonly string[] _newNames;
     private readonly string _dirName;
@@ -166,7 +166,7 @@ public class RenameMultiple : UndoableOperation
 /// <summary>
 /// Represents the action of flattening a directory.
 /// </summary>
-public class FlattenFolder : IUndoableFileOperation
+public sealed class FlattenFolder : IUndoableFileOperation
 {
     private readonly IFileIoHandler _fileIoHandler;
     private readonly IFileInfoProvider _fileInfoProvider;
@@ -289,7 +289,7 @@ public class FlattenFolder : IUndoableFileOperation
 /// <summary>
 /// Represents the action of renaming one file or directory.
 /// </summary>
-public class RenameOne : IUndoableFileOperation
+public sealed class RenameOne : IUndoableFileOperation
 {
     private readonly IFileIoHandler _fileIoHandler;
     private readonly IFileSystemEntry _entry;
@@ -320,7 +320,7 @@ public class RenameOne : IUndoableFileOperation
 /// <summary>
 /// Represents the action of creating a new file.
 /// </summary>
-public class NewFileAt : IUndoableFileOperation
+public sealed class NewFileAt : IUndoableFileOperation
 {
     private readonly IFileIoHandler _fileIoHandler;
     private readonly string _path;
@@ -341,7 +341,7 @@ public class NewFileAt : IUndoableFileOperation
 /// <summary>
 /// Represents the action of creating a new directory.
 /// </summary>
-public class NewDirAt : IUndoableFileOperation
+public sealed class NewDirAt : IUndoableFileOperation
 {
     private readonly IFileIoHandler _fileIoHandler;
     private readonly string _path;

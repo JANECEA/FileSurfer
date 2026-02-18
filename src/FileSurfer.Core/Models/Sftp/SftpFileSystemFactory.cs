@@ -1,11 +1,10 @@
 using System;
 using System.Threading.Tasks;
-using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Dialogs;
 using Renci.SshNet;
 using Renci.SshNet.Common;
 
-namespace FileSurfer.Core.Services.Sftp;
+namespace FileSurfer.Core.Models.Sftp;
 
 public class SftpFileSystemFactory
 {
@@ -85,21 +84,23 @@ public class SftpFileSystemFactory
                 authMethodResult.Value
             );
             SftpClient sftpClient = new(connectionInfo);
+            SshClient sshClient = new(connectionInfo);
             HostKeyEventArgs? args = null;
             sftpClient.HostKeyReceived += (_, e) => args = e;
             sftpClient.Connect(); // HostKeyReceived is invoked before Connect returns
+            sshClient.Connect();
 
             if (args is null)
                 return ValueResult<SftpFileSystem>.Error("Host key verification failed.");
 
-            if (!await HostKeyReceivedAsync(args, connection))
+            if (!await ProcessHostKeyArgs(args, connection))
                 return ValueResult<SftpFileSystem>.Error();
 
-            if (sftpClient.IsConnected)
+            if (sftpClient.IsConnected && sshClient.IsConnected)
                 return new SftpFileSystem(
                     connection.HostnameOrIpAddress,
                     sftpClient,
-                    GetSshClient(connectionInfo)
+                    sshClient
                 ).OkResult();
 
             sftpClient.Dispose();
@@ -149,7 +150,7 @@ public class SftpFileSystemFactory
         _dialogService.InfoDialog(title, context);
     }
 
-    private async Task<bool> HostKeyReceivedAsync(HostKeyEventArgs e, SftpConnection connection)
+    private async Task<bool> ProcessHostKeyArgs(HostKeyEventArgs e, SftpConnection connection)
     {
         string algorithm = e.HostKeyName;
         string fingerprintHex = BitConverter
@@ -176,27 +177,5 @@ public class SftpFileSystemFactory
         }
 
         return e.CanTrust;
-    }
-
-    private static SshClient? GetSshClient(ConnectionInfo connectionInfo)
-    {
-        SshClient? sshClient = null;
-        try
-        {
-            sshClient = new SshClient(connectionInfo);
-            sshClient.Connect();
-
-            if (!sshClient.IsConnected)
-            {
-                sshClient.Dispose();
-                sshClient = null;
-            }
-        }
-        catch
-        {
-            sshClient?.Dispose();
-            sshClient = null;
-        }
-        return sshClient;
     }
 }

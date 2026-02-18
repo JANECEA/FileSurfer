@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
-namespace FileSurfer.Core.Services.Sftp;
+namespace FileSurfer.Core.Models.Sftp;
 
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 internal static class SftpPathTools

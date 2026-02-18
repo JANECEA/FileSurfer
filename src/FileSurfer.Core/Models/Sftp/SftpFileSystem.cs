@@ -1,20 +1,20 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.FileOperations;
+using FileSurfer.Core.Services.Sftp;
 using FileSurfer.Core.Services.Shell;
 using FileSurfer.Core.Services.VersionControl;
 using Renci.SshNet;
 
-namespace FileSurfer.Core.Services.Sftp;
+namespace FileSurfer.Core.Models.Sftp;
 
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public sealed class SftpFileSystem : IFileSystem, IDisposable
 {
     private const string EnvironmentNotSupported = "The SFTP environment is not supported.";
     private readonly SftpClient _sftpClient;
-    private readonly SshClient? _sshClient;
+    private readonly SshClient _sshClient;
     private readonly string _label;
     private bool _disposed = false;
 
@@ -38,7 +38,7 @@ public sealed class SftpFileSystem : IFileSystem, IDisposable
     public IShellHandler ShellHandler { get; }
     public StubGitIntegration GitIntegration { get; } = new(EnvironmentNotSupported);
 
-    public SftpFileSystem(string label, SftpClient sftpClient, SshClient? sshClient)
+    public SftpFileSystem(string label, SftpClient sftpClient, SshClient sshClient)
     {
         _sftpClient = sftpClient;
         _sshClient = sshClient;
@@ -47,9 +47,7 @@ public sealed class SftpFileSystem : IFileSystem, IDisposable
         FileInfoProvider = new SftpFileInfoProvider(_sftpClient);
         FileIoHandler = new SftpFileIoHandler(_sftpClient);
         ClipboardManager = new BasicClipboardManager(FileInfoProvider, FileIoHandler);
-        ShellHandler = _sshClient is null
-            ? new StubShellHandler("The server refused ssh connection")
-            : new SftpShellHandler(_sshClient, _sftpClient);
+        ShellHandler = new SftpShellHandler(_sshClient, _sftpClient);
     }
 
     public bool IsReady() => !_disposed;
@@ -59,7 +57,7 @@ public sealed class SftpFileSystem : IFileSystem, IDisposable
     public void Dispose()
     {
         _sftpClient.Dispose();
-        _sshClient?.Dispose();
+        _sshClient.Dispose();
         IconProvider.Dispose();
         GitIntegration.Dispose();
         _disposed = true;

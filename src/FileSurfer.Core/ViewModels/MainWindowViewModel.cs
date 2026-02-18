@@ -12,6 +12,7 @@ using Avalonia.Threading;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
+using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileOperations;
 using FileSurfer.Core.Services.FileOperations.Undoable;
