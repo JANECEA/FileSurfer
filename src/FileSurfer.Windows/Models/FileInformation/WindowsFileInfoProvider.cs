@@ -122,11 +122,11 @@ public class WindowsFileInfoProvider : ILocalFileInfoProvider
         }
     }
 
-    public DateTime? GetFileLastModified(string filePath)
+    public DateTime? GetFileLastModifiedUtc(string filePath)
     {
         try
         {
-            return new FileInfo(filePath).LastWriteTime;
+            return new FileInfo(filePath).LastWriteTimeUtc;
         }
         catch
         {
@@ -134,11 +134,11 @@ public class WindowsFileInfoProvider : ILocalFileInfoProvider
         }
     }
 
-    public DateTime? GetDirLastModified(string dirPath)
+    public DateTime? GetDirLastModifiedUtc(string dirPath)
     {
         try
         {
-            return new DirectoryInfo(dirPath).LastWriteTime;
+            return new DirectoryInfo(dirPath).LastWriteTimeUtc;
         }
         catch
         {

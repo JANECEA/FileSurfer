@@ -45,16 +45,16 @@ public interface IFileInfoProvider
     public long GetFileSizeB(string path);
 
     /// <summary>
-    /// Gets the last modified date of a file.
+    /// Gets the last modified Utc time of a file.
     /// </summary>
     /// <returns>The last modified date of the file, or <see langword="null"/> if the file does not exist.</returns>
-    public DateTime? GetFileLastModified(string filePath);
+    public DateTime? GetFileLastModifiedUtc(string filePath);
 
     /// <summary>
-    /// Gets the last modified date of a directory.
+    /// Gets the last modified Utc time of a directory.
     /// </summary>
     /// <returns>The last modified date of the directory, or <see langword="null"/> if the directory does not exist.</returns>
-    public DateTime? GetDirLastModified(string dirPath);
+    public DateTime? GetDirLastModifiedUtc(string dirPath);
 
     /// <summary>
     /// Checks if a path is hidden.

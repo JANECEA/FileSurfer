@@ -129,12 +129,12 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         }
     }
 
-    public DateTime? GetFileLastModified(string filePath)
+    public DateTime? GetFileLastModifiedUtc(string filePath)
     {
         try
         {
             ISftpFile file = _client.Get(filePath);
-            return file.LastWriteTime;
+            return file.LastWriteTimeUtc;
         }
         catch
         {
@@ -142,12 +142,12 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         }
     }
 
-    public DateTime? GetDirLastModified(string dirPath)
+    public DateTime? GetDirLastModifiedUtc(string dirPath)
     {
         try
         {
             ISftpFile dir = _client.Get(dirPath);
-            return dir.LastWriteTime;
+            return dir.LastWriteTimeUtc;
         }
         catch
         {

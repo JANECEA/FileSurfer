@@ -47,11 +47,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
     private readonly UndoRedoHandler<Location> _locationHistory;
     private readonly Action<bool> _setDarkMode;
-    private readonly LocalFileSystem _localFileSystem;
+    private readonly LocalFileSystem _localFs;
     private readonly SftpFileSystemFactory _sftpFileSystemFactory;
 
     private bool _isActionUserInvoked = true;
-    private DateTime _lastRefreshed;
+    private DateTime _lastRefreshedUtc;
     private DispatcherTimer? _refreshTimer;
 
     public SortInfo SortInfo =>
@@ -143,9 +143,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private IFileSystem CurrentFs { get; set; }
 
-    /// <summary>
-    /// Indicates whether the current directory contains files or directories.
-    /// </summary>
     public string? CurrentInfoMessage
     {
         get => _currentInfoMessage;
@@ -154,7 +151,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private string? _currentInfoMessage = null;
 
     /// <summary>
-    /// Text that will be displayed in the Search bar.
+    /// Watermark that will be displayed in the Search bar.
     /// </summary>
     public string SearchWaterMark
     {
@@ -265,15 +262,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public MainWindowViewModel(
         string initialDir,
-        LocalFileSystem localFileSystem,
+        LocalFileSystem localFs,
         IDialogService dialogService,
         Action<bool> setDarkMode
     )
     {
-        _localFileSystem = localFileSystem;
+        _localFs = localFs;
+        CurrentFs = localFs;
         _dialogService = dialogService;
         _sftpFileSystemFactory = new SftpFileSystemFactory(dialogService);
-        CurrentFs = localFileSystem;
         _setDarkMode = setDarkMode;
         _searchManager = new SearchManager(s => PathBoxText = s, entry => FileEntries.Add(entry));
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
@@ -349,12 +346,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private void SetInitialLocation(string localPath)
     {
-        Location requestedLocation = new(_localFileSystem, localPath);
+        Location requestedLocation = new(_localFs, localPath);
         if (requestedLocation.Exists())
             SetLocation(requestedLocation);
         else
         {
-            Location root = new(_localFileSystem, _localFileSystem.LocalFileInfoProvider.GetRoot());
+            Location root = new(_localFs, _localFs.LocalFileInfoProvider.GetRoot());
             SetLocation(root);
             SetLocation(requestedLocation);
         }
@@ -379,7 +376,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             {
                 Interval = TimeSpan.FromMilliseconds(FileSurferSettings.AutomaticRefreshInterval),
             };
-            _lastRefreshed = DateTime.Now;
+            _lastRefreshedUtc = DateTime.UtcNow;
             _refreshTimer.Tick += CheckForUpdates;
             _refreshTimer.Start();
         }
@@ -390,7 +387,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Compares <see cref="_lastRefreshed"/> to the latest <see cref="Directory.GetLastWriteTime(string)"/>.
+    /// Compares <see cref="_lastRefreshedUtc"/> to the latest <see cref="Directory.GetLastWriteTime(string)"/>.
     /// <para>
     /// Invokes <see cref="Reload"/> if <see cref="Directory.GetLastWriteTime(string)"/> is newer.
     /// </para>
@@ -408,12 +405,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private bool CompareSetLastWriteTime()
     {
-        DateTime lastWriteTime =
-            CurrentFs.FileInfoProvider.GetDirLastModified(CurrentDir) ?? DateTime.Now;
-        if (_lastRefreshed >= lastWriteTime)
+        DateTime lastWriteTimeUtc =
+            CurrentFs.FileInfoProvider.GetDirLastModifiedUtc(CurrentDir) ?? DateTime.UtcNow;
+        if (_lastRefreshedUtc >= lastWriteTimeUtc)
             return false;
 
-        _lastRefreshed = lastWriteTime;
+        _lastRefreshedUtc = lastWriteTimeUtc;
         return true;
     }
 
@@ -440,7 +437,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
 
         CurrentInfoMessage = FileEntries.Count > 0 ? null : EmptyDirMessage;
-        _lastRefreshed = DateTime.Now;
+        _lastRefreshedUtc = DateTime.UtcNow;
     }
 
     /// <summary>
@@ -528,8 +525,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     public void OpenLocalEntry(SideBarEntryViewModel entry)
     {
-        CurrentFs = _localFileSystem;
-        OpenEntry(entry.FileSystemEntry);
+        if (entry.FileSystemEntry is DirectoryEntry or DriveEntry)
+            SetLocation(_localFs.GetLocation(entry.PathToEntry));
+        else if (CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
+            SetLocation(_localFs.GetLocation(dir!));
+        else
+            ShowIfError(_localFs.LocalShellHandler.OpenFile(entry.PathToEntry));
     }
 
     public async Task OpenSftpConnection(SftpConnectionViewModel connectionVm)
@@ -546,11 +547,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         ValueResult<SftpFileSystem> result = await _sftpFileSystemFactory.TryConnectAsync(
             connection
         );
+        ShowIfError(result);
         if (!result.IsOk)
-        {
-            ShowIfError(result);
             return;
-        }
+
         SftpFileSystem fileSystem = result.Value;
         connectionVm.FileSystem = fileSystem;
 
@@ -574,9 +574,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         fileSystem.Dispose();
         connectionVm.FileSystem = null;
         if (ReferenceEquals(fileSystem, CurrentFs))
-            SetLocation(
-                new Location(_localFileSystem, _localFileSystem.LocalFileInfoProvider.GetRoot())
-            );
+            SetLocation(new Location(_localFs, _localFs.LocalFileInfoProvider.GetRoot()));
     }
 
     /// <summary>
@@ -635,34 +633,32 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     private IEnumerable<SideBarEntryViewModel> GetSpecialFolders() =>
-        _localFileSystem
+        _localFs
             .LocalFileInfoProvider.GetSpecialFolders()
             .Where(dirPath => !string.IsNullOrEmpty(dirPath))
-            .Select(path => new SideBarEntryViewModel(_localFileSystem, new DirectoryEntry(path)));
+            .Select(path => new SideBarEntryViewModel(_localFs, new DirectoryEntry(path)));
 
     private void LoadDrives()
     {
         Drives.Clear();
-        foreach (DriveEntry driveEntry in _localFileSystem.LocalFileInfoProvider.GetDrives())
-            Drives.Add(new SideBarEntryViewModel(_localFileSystem, driveEntry));
+        foreach (DriveEntry driveEntry in _localFs.LocalFileInfoProvider.GetDrives())
+            Drives.Add(new SideBarEntryViewModel(_localFs, driveEntry));
     }
 
     private void LoadQuickAccess()
     {
         foreach (string path in FileSurferSettings.QuickAccess)
-            if (_localFileSystem.LocalFileInfoProvider.DirectoryExists(path))
-                QuickAccess.Add(
-                    new SideBarEntryViewModel(_localFileSystem, new DirectoryEntry(path))
-                );
-            else if (_localFileSystem.LocalFileInfoProvider.FileExists(path))
-                QuickAccess.Add(new SideBarEntryViewModel(_localFileSystem, new FileEntry(path)));
+            if (_localFs.LocalFileInfoProvider.DirectoryExists(path))
+                QuickAccess.Add(new SideBarEntryViewModel(_localFs, new DirectoryEntry(path)));
+            else if (_localFs.LocalFileInfoProvider.FileExists(path))
+                QuickAccess.Add(new SideBarEntryViewModel(_localFs, new FileEntry(path)));
     }
 
     public void AddToQuickAccess(FileSystemEntryViewModel? entry) =>
         QuickAccess.Add(
             entry is not null
-                ? new SideBarEntryViewModel(_localFileSystem, entry.FileSystemEntry)
-                : new SideBarEntryViewModel(_localFileSystem, new DirectoryEntry(CurrentDir))
+                ? new SideBarEntryViewModel(_localFs, entry.FileSystemEntry)
+                : new SideBarEntryViewModel(_localFs, new DirectoryEntry(CurrentDir))
         );
 
     private void LoadSftpConnections()
@@ -836,7 +832,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return result;
 
         CurrentLocation = location;
-        _lastRefreshed = DateTime.Now;
+        _lastRefreshedUtc = DateTime.UtcNow;
         Reload(false);
         return SimpleResult.Ok();
     }
@@ -1051,7 +1047,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public async Task CopyPath(FileSystemEntryViewModel? entry) =>
         ShowIfError(
-            await _localFileSystem.LocalClipboardManager.CopyPathToFileAsync(
+            await _localFs.LocalClipboardManager.CopyPathToFileAsync(
                 entry is null ? CurrentDir : entry.PathToEntry
             )
         );
@@ -1187,7 +1183,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         {
             DataContext = new SftpSynchronizerViewModel
             {
-                LocalDir = new Location(_localFileSystem, localPathResult.Value),
+                LocalDir = new Location(_localFs, localPathResult.Value),
                 RemoteDir = remoteLocation,
             },
         }.Show();
