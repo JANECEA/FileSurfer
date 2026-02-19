@@ -219,6 +219,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
     private bool _isVersionControlled = false;
 
+    /// <summary>
+    /// Indicates whether there is an opened directory synchronizer window
+    /// </summary>
+    public bool IsSynchronizerOpen
+    {
+        get => _isSynchronizerOpen;
+        set => this.RaiseAndSetIfChanged(ref _isSynchronizerOpen, value);
+    }
+    private bool _isSynchronizerOpen = false;
+
     public ReactiveCommand<Unit, Unit> OpenCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel, Unit> OpenAsCommand { get; }
     public ReactiveCommand<Unit, Unit> OpenInNotepadCommand { get; }
@@ -281,17 +291,19 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             this.RaisePropertyChanged(nameof(CanGoForward));
         });
 
+        IObservable<bool> isSynchronizing = this.WhenAnyValue(x => x.IsSynchronizerOpen);
         IObservable<bool> canGoForward = this.WhenAnyValue(x => x.CanGoForward);
         IObservable<bool> canGoBack = this.WhenAnyValue(x => x.CanGoBack);
         IObservable<bool> local = this.WhenAnyValue(x => x.IsLocal);
         IObservable<bool> notSearching = this.WhenAnyValue(x => x.NotSearching);
-        IObservable<bool> notLocalnotSearching = local.CombineLatest(
-            notSearching,
-            (l, nS) => !l && nS
-        );
         IObservable<bool> selection = this.WhenAnyValue(x => x.SelectionNotEmpty);
         IObservable<bool> localNotSearching = local.CombineLatest(notSearching, (l, nS) => l && nS);
         IObservable<bool> localSelection = local.CombineLatest(selection, (l, sl) => l && sl);
+        IObservable<bool> notLocalNotSearchingNotSync = local.CombineLatest(
+            notSearching,
+            isSynchronizing,
+            (loc, nSearch, nSync) => !loc && nSearch && !nSync
+        );
 
         OpenCommand = ReactiveCommand.Create(OpenEntries, local);
         OpenInNotepadCommand = ReactiveCommand.Create(OpenInNotepad, local);
@@ -321,7 +333,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         );
         SyncDirCommand = ReactiveCommand.Create<FileSystemEntryViewModel?, Task>(
             SynchronizeDir,
-            notLocalnotSearching
+            notLocalNotSearchingNotSync
         );
         PasteCommand = ReactiveCommand.Create(Paste, notSearching);
         MoveToTrashCommand = ReactiveCommand.Create(MoveToTrash, localSelection);
@@ -1161,6 +1173,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private async Task SynchronizeDir(FileSystemEntryViewModel? entry)
     {
+        if (IsSynchronizerOpen)
+        {
+            ShowError("Another directory is being synchronized.");
+            return;
+        }
         if (CurrentFs is not SftpFileSystem sftpFs)
         {
             ShowError("Cannot synchronize with a local directory.");
@@ -1180,14 +1197,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (!localPathResult.IsOk)
             return;
 
-        new SftpSynchronizerWindow
+        SftpSynchronizerWindow window = new()
         {
             DataContext = new SftpSynchronizerViewModel
             {
                 LocalDir = new Location(_localFs, localPathResult.Value),
                 RemoteDir = remoteLocation,
             },
-        }.Show();
+        };
+        IsSynchronizerOpen = true;
+        window.Closed += (_, _) => IsSynchronizerOpen = false;
+        window.Show();
     }
 
     /// <summary>

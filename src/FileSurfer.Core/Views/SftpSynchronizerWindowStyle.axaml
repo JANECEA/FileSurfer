@@ -60,6 +60,25 @@
         <Setter Property="Margin" Value="0 0 20 0" />
     </Style>
 
+    <Style Selector="Button.SettingsButton">
+        <Setter Property="Foreground" Value="{DynamicResource IconColor}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="FontSize" Value="30" />
+        <Setter Property="Width" Value="40" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style Selector="Button.SettingsButton[IsEnabled=False]">
+        <Setter Property="Foreground" Value="{DynamicResource IconColor}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Opacity" Value="0.7" />
+    </Style>
+
     <Style Selector="Button.SyncButton:pointer-over">
         <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
     </Style>

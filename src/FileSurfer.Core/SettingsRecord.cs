@@ -57,6 +57,7 @@ public record SettingsRecord
     public int automaticRefreshInterval { get; set; } = 3000;
     public bool allowImagePastingFromClipboard { get; set; } = true;
     public List<string> quickAccess { get; set; } = new();
+    public List<string> syncIgnored { get; set; } = new();
 
     static SettingsRecord()
     {

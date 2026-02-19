@@ -70,14 +70,18 @@
             <Grid Margin="15" ColumnDefinitions="* Auto">
                 <CheckBox Classes="SyncCheckBox" Content="Synchronize local directory with remote before starting" IsChecked="{Binding SyncFromRemoteOnStar}" IsEnabled="{Binding !Synchronizing}" />
 
-                <Grid Grid.Column="1">
-                    <Button Classes="SyncButton"
-                            Command="{Binding StartSyncCommand}"
-                            Content="Start sync"
-                            Foreground="{DynamicResource AcceptColor}"
-                            IsVisible="{Binding !Synchronizing}" />
-                    <Button Classes="SyncButton" Command="{Binding StopSyncCommand}" Content="Stop sync" IsVisible="{Binding Synchronizing}" />
-                </Grid>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="20">
+                    <Button Classes="SettingsButton" Click="OpenSettings" Content="&#xf423;" IsEnabled="{Binding !Synchronizing}" />
+
+                    <Grid>
+                        <Button Classes="SyncButton"
+                                Command="{Binding StartSyncCommand}"
+                                Content="Start sync"
+                                Foreground="{DynamicResource AcceptColor}"
+                                IsVisible="{Binding !Synchronizing}" />
+                        <Button Classes="SyncButton" Command="{Binding StopSyncCommand}" Content="Stop sync" IsVisible="{Binding Synchronizing}" />
+                    </Grid>
+                </StackPanel>
             </Grid>
         </Grid>
     </Grid>

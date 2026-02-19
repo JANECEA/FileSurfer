@@ -1,13 +1,14 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+using Avalonia.Interactivity;
 
 namespace FileSurfer.Core.Views;
 
 public partial class SftpSynchronizerWindow : Window
 {
-    public SftpSynchronizerWindow()
+    public SftpSynchronizerWindow() => InitializeComponent();
+
+    private void OpenSettings(object? sender, RoutedEventArgs e)
     {
-        InitializeComponent();
+        throw new System.NotImplementedException();
     }
 }
