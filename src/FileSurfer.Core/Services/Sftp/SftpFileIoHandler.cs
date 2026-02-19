@@ -9,13 +9,13 @@ namespace FileSurfer.Core.Services.Sftp;
 
 public sealed class SftpFileIoHandler : IFileIoHandler
 {
-    private readonly SftpShellHandler _sftpShellHandler;
+    private readonly SshShellHandler _sshShellHandler;
     private readonly SftpClient _client;
 
-    public SftpFileIoHandler(SftpClient client, SftpShellHandler sftpShellHandler)
+    public SftpFileIoHandler(SftpClient client, SshShellHandler sshShellHandler)
     {
         _client = client;
-        _sftpShellHandler = sftpShellHandler;
+        _sshShellHandler = sshShellHandler;
     }
 
     public IResult NewFileAt(string dirPath, string fileName)
@@ -86,14 +86,14 @@ public sealed class SftpFileIoHandler : IFileIoHandler
 
     public IResult DeleteFile(string filePath)
     {
-        string quotedPath = SftpShellHandler.Quote(filePath);
-        return _sftpShellHandler.ExecuteSshCommand($"rm -f {quotedPath}");
+        string quotedPath = SshShellHandler.Quote(filePath);
+        return _sshShellHandler.ExecuteSshCommand($"rm -f {quotedPath}");
     }
 
     public IResult DeleteDir(string dirPath)
     {
-        string quotedPath = SftpShellHandler.Quote(dirPath);
-        return _sftpShellHandler.ExecuteSshCommand($"rm -rf {quotedPath}");
+        string quotedPath = SshShellHandler.Quote(dirPath);
+        return _sshShellHandler.ExecuteSshCommand($"rm -rf {quotedPath}");
     }
 
     private ValueResult<string> Rename(string path, string newName)
@@ -112,8 +112,8 @@ public sealed class SftpFileIoHandler : IFileIoHandler
 
     private ValueResult<string> FileOpCommand(string command, string pathA, string pathB)
     {
-        string quotedPathA = SftpShellHandler.Quote(pathA);
-        string quotedPathB = SftpShellHandler.Quote(pathB);
-        return _sftpShellHandler.ExecuteSshCommand($"{command} {quotedPathA} {quotedPathB}");
+        string quotedPathA = SshShellHandler.Quote(pathA);
+        string quotedPathB = SshShellHandler.Quote(pathB);
+        return _sshShellHandler.ExecuteSshCommand($"{command} {quotedPathA} {quotedPathB}");
     }
 }

@@ -35,7 +35,7 @@ public sealed class SftpFileSystem : IFileSystem, IDisposable
     public SftpFileIoHandler FileIoHandler { get; }
     public StubBinInteraction BinInteraction { get; } = new(EnvironmentNotSupported);
     public StubFileProperties FileProperties { get; } = new(EnvironmentNotSupported);
-    public SftpShellHandler ShellHandler { get; }
+    public SshShellHandler ShellHandler { get; }
     public StubGitIntegration GitIntegration { get; } = new(EnvironmentNotSupported);
 
     public SftpFileSystem(string label, SftpClient sftpClient, SshClient sshClient)
@@ -44,7 +44,7 @@ public sealed class SftpFileSystem : IFileSystem, IDisposable
         _sshClient = sshClient;
         _label = label;
 
-        ShellHandler = new SftpShellHandler(_sshClient, _sftpClient);
+        ShellHandler = new SshShellHandler(_sshClient, _sftpClient);
         FileInfoProvider = new SftpFileInfoProvider(_sftpClient, ShellHandler);
         FileIoHandler = new SftpFileIoHandler(_sftpClient, ShellHandler);
         ClipboardManager = new BasicClipboardManager(FileInfoProvider, FileIoHandler);

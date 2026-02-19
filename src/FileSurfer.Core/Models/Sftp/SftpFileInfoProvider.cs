@@ -16,13 +16,13 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
     );
 
     private readonly Dictionary<string, DirCacheEntry> _dirCache = new();
-    private readonly SftpShellHandler _sftpShellHandler;
+    private readonly SshShellHandler _sshShellHandler;
     private readonly SftpClient _client;
 
-    public SftpFileInfoProvider(SftpClient client, SftpShellHandler sftpShellHandler)
+    public SftpFileInfoProvider(SftpClient client, SshShellHandler sshShellHandler)
     {
         _client = client;
-        _sftpShellHandler = sftpShellHandler;
+        _sshShellHandler = sshShellHandler;
     }
 
     public bool IsLinkedToDirectory(string linkPath, out string? directory)
@@ -41,8 +41,8 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
             // Might be false negative, try ssh
         }
 
-        string path = SftpShellHandler.Quote(linkPath);
-        ValueResult<string> result = _sftpShellHandler.ExecuteSshCommand(
+        string path = SshShellHandler.Quote(linkPath);
+        ValueResult<string> result = _sshShellHandler.ExecuteSshCommand(
             $"test -L {path} && test -d {path} && readlink -f {path}"
         );
 

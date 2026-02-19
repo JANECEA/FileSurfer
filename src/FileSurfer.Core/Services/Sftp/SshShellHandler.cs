@@ -7,13 +7,13 @@ using Renci.SshNet;
 
 namespace FileSurfer.Core.Services.Sftp;
 
-public sealed class SftpShellHandler : IShellHandler
+public sealed class SshShellHandler : IShellHandler
 {
     private const char QuoteChar = '\'';
     private readonly SshClient _sshClient;
     private readonly SftpClient _sftpClient;
 
-    public SftpShellHandler(SshClient sshClient, SftpClient sftpClient)
+    public SshShellHandler(SshClient sshClient, SftpClient sftpClient)
     {
         _sshClient = sshClient;
         _sftpClient = sftpClient;
