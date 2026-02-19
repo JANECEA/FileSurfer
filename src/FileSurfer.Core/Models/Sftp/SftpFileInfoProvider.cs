@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FileSurfer.Core.Models.FileInformation;
+using FileSurfer.Core.Services.Sftp;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
 
@@ -15,26 +16,38 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
     );
 
     private readonly Dictionary<string, DirCacheEntry> _dirCache = new();
+    private readonly SftpShellHandler _sftpShellHandler;
     private readonly SftpClient _client;
 
-    public SftpFileInfoProvider(SftpClient client) => _client = client;
+    public SftpFileInfoProvider(SftpClient client, SftpShellHandler sftpShellHandler)
+    {
+        _client = client;
+        _sftpShellHandler = sftpShellHandler;
+    }
 
     public bool IsLinkedToDirectory(string linkPath, out string? directory)
     {
-        directory = null;
-        try
+        try // Fast path
         {
-            if (!_client.Get(linkPath).IsSymbolicLink)
-                return false;
-
-            _ = _client.ListDirectory(linkPath); // Test
-            directory = linkPath;
-            return true;
+            if (_client.Get(linkPath).IsSymbolicLink)
+            {
+                _ = _client.ListDirectory(linkPath);
+                directory = linkPath;
+                return true;
+            }
         }
         catch
         {
-            return false;
+            // Might be false negative, try ssh
         }
+
+        string path = SftpShellHandler.Quote(linkPath);
+        ValueResult<string> result = _sftpShellHandler.ExecuteSshCommand(
+            $"test -L {path} && test -d {path} && readlink -f {path}"
+        );
+
+        directory = result.IsOk ? PathTools.NormalizePath(result.Value.Trim()) : null;
+        return result.IsOk && !string.IsNullOrWhiteSpace(directory);
     }
 
     private DirCacheEntry GetDirectoryEntriesCached(string path)

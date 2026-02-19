@@ -19,7 +19,7 @@ public sealed class SftpShellHandler : IShellHandler
         _sftpClient = sftpClient;
     }
 
-    private static string Quote(string str)
+    public static string Quote(string str)
     {
         StringBuilder sb = new(str.Length + 2);
         sb.Append(QuoteChar);
@@ -53,14 +53,14 @@ public sealed class SftpShellHandler : IShellHandler
         }
     }
 
-    public ValueResult<string> ExecuteCommand(string programName, params string[] args)
+    ValueResult<string> IShellHandler.ExecuteCommand(string programName, string[] args) =>
+        ExecuteSshCommand($"{Quote(programName)} {string.Join(' ', args.Select(Quote))}");
+
+    public ValueResult<string> ExecuteSshCommand(string command)
     {
         try
         {
-            string argString = string.Join(' ', args.Select(Quote));
-            string commandText = $"{Quote(programName)} {argString}".Trim();
-
-            SshCommand cmd = _sshClient.CreateCommand(commandText);
+            SshCommand cmd = _sshClient.CreateCommand(command);
             string result = cmd.Execute();
 
             return cmd.ExitStatus == 0

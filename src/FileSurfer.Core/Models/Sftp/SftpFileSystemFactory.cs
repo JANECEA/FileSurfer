@@ -123,14 +123,14 @@ public class SftpFileSystemFactory
     )
     {
         const string title = "Fingerprint mismatch";
+        string algorithm = string.IsNullOrWhiteSpace(oldFingerprint.Algorithm)
+            ? "Unknown"
+            : oldFingerprint.Algorithm;
+
         string context = $"""
             The host's SSH fingerprint has changed for {connection.HostnameOrIpAddress}.
 
-            Algorithm: {(
-                string.IsNullOrEmpty(oldFingerprint.Algorithm)
-                    ? "Unknown"
-                    : oldFingerprint.Algorithm
-            )}
+            Algorithm: {algorithm}
 
             Previous fingerprint: {oldFingerprint.Hash}
             New fingerprint:      {newFingerprint.Hash}
