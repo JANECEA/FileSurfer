@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Services.Dialogs;
 using Renci.SshNet;
 using Renci.SshNet.Common;

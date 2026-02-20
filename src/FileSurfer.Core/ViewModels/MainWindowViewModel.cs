@@ -290,6 +290,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             this.RaisePropertyChanged(nameof(CanGoBack));
             this.RaisePropertyChanged(nameof(CanGoForward));
         });
+        _locationHistory.AddNewNode(new Location(localFs, localFs.LocalFileInfoProvider.GetRoot()));
 
         IObservable<bool> isSynchronizing = this.WhenAnyValue(x => x.IsSynchronizerOpen);
         IObservable<bool> canGoForward = this.WhenAnyValue(x => x.CanGoForward);
@@ -932,21 +933,22 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         Searching = true;
         FileEntries.Clear();
 
-        int? foundEntries = await _searchManager.SearchAsync(CurrentFs, searchQuery, [CurrentDir]);
+        int? foundEntries = await _searchManager.SearchAsync(CurrentFs, searchQuery, CurrentDir);
         if (foundEntries is 0)
             CurrentInfoMessage = "No items match your query";
     }
 
-    /// <summary>
-    /// Cancels the search and sets <see cref="CurrentDir"/> to the parameter or last directory.
-    /// </summary>
     public void CancelSearch()
     {
         Searching = false;
         _searchManager.CancelSearch();
 
         if (_locationHistory.Current is Location location)
-            SetLocation(location);
+        {
+            IResult result = SetLocationNoHistory(location);
+            if (!result.IsOk)
+                GoBack();
+        }
     }
 
     /// <summary>

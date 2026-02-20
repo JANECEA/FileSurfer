@@ -93,7 +93,7 @@ public class SearchManager : IDisposable
     public async Task<int?> SearchAsync(
         IFileSystem fileSystem,
         string searchQuery,
-        IEnumerable<string> dirsToSearch
+        string dirToSearch
     )
     {
         await _searchLock.WaitAsync();
@@ -109,7 +109,7 @@ public class SearchManager : IDisposable
             _updateAnimation(SearchingStates[0]);
             _animationTimer.Start();
 
-            _activeSearchTask = SearchDirectoryAsync(fileSystem, searchQuery, dirsToSearch, token);
+            _activeSearchTask = SearchDirectoryAsync(fileSystem, searchQuery, dirToSearch, token);
         }
         finally
         {
@@ -148,11 +148,12 @@ public class SearchManager : IDisposable
     private async Task<int?> SearchDirectoryAsync(
         IFileSystem fileSystem,
         string searchQuery,
-        IEnumerable<string> dirsToSearch,
+        string dirToSearch,
         CancellationToken token
     )
     {
-        Queue<string> directories = new(dirsToSearch);
+        Queue<string> directories = new();
+        directories.Enqueue(dirToSearch);
 
         int foundEntries = 0;
         while (directories.Count > 0 && !token.IsCancellationRequested)

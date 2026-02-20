@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.Sftp;
 using Renci.SshNet;

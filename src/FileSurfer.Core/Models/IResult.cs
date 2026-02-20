@@ -93,14 +93,6 @@ public sealed class ValueResult<T> : IResult
         new(SimpleResult.Error(errorMessage), default);
 }
 
-public static class ResultExtensions
-{
-    /// <summary>
-    /// Turns value into an Ok <see cref="ValueResult{T}"/>
-    /// </summary>
-    public static ValueResult<T> OkResult<T>(this T value) => ValueResult<T>.Ok(value);
-}
-
 /// <summary>
 /// A flexible implementation of <see cref="IResult"/> that supports
 /// multiple error messages and can be updated after creation.

@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 
