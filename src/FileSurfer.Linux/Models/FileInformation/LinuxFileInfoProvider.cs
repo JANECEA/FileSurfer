@@ -76,7 +76,7 @@ public class LinuxFileInfoProvider : ILocalFileInfoProvider
                     (includeHidden || !IsHidden(f.FullName, false))
                     && (includeOs || !IsOsProtected(f.FullName, false))
                 )
-                    fileList.Add(new FileEntryInfo(f.FullName, f.Name, f.LastWriteTime, f.Length));
+                    fileList.Add(new FileEntryInfo(f));
 
             return fileList.OkResult();
         }
@@ -102,7 +102,7 @@ public class LinuxFileInfoProvider : ILocalFileInfoProvider
                     (includeHidden || !IsHidden(d.FullName, false))
                     && (includeOs || !IsOsProtected(d.FullName, false))
                 )
-                    dirsList.Add(new DirectoryEntryInfo(d.FullName, d.Name, d.LastWriteTime));
+                    dirsList.Add(new DirectoryEntryInfo(d));
 
             return dirsList.OkResult();
         }

@@ -42,6 +42,7 @@ namespace FileSurfer.Core.ViewModels;
 public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
     private const string EmptyDirMessage = "This directory is empty.";
+    private const string EmptySearchMessage = "No items match your query";
 
     private readonly IDialogService _dialogService;
     private readonly SearchManager _searchManager;
@@ -935,7 +936,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         int? foundEntries = await _searchManager.SearchAsync(CurrentFs, searchQuery, CurrentDir);
         if (foundEntries is 0)
-            CurrentInfoMessage = "No items match your query";
+            CurrentInfoMessage = EmptySearchMessage;
     }
 
     public void CancelSearch()

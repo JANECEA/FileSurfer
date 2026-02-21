@@ -115,13 +115,29 @@ public class DirectoryEntry : IFileSystemEntry
 public class FileEntryInfo : FileEntry
 {
     public DateTime LastModified { get; }
+    public DateTime LastModifiedUtc { get; }
     public long SizeB { get; }
 
-    public FileEntryInfo(string pathToFile, string name, DateTime lastModified, long sizeB)
+    public FileEntryInfo(
+        string pathToFile,
+        string name,
+        long sizeB,
+        DateTime lastModified,
+        DateTime lastModifiedUtc
+    )
         : base(pathToFile, name)
     {
         LastModified = lastModified;
+        LastModifiedUtc = lastModifiedUtc;
         SizeB = sizeB;
+    }
+
+    public FileEntryInfo(FileInfo fileInfo)
+        : base(fileInfo.FullName, fileInfo.Name)
+    {
+        LastModified = fileInfo.LastWriteTime;
+        LastModifiedUtc = fileInfo.LastWriteTimeUtc;
+        SizeB = fileInfo.Length;
     }
 }
 
@@ -131,7 +147,24 @@ public class FileEntryInfo : FileEntry
 public class DirectoryEntryInfo : DirectoryEntry
 {
     public DateTime LastModified { get; }
+    public DateTime LastModifiedUtc { get; }
 
-    public DirectoryEntryInfo(string dirPath, string name, DateTime lastModified)
-        : base(dirPath, name) => LastModified = lastModified;
+    public DirectoryEntryInfo(
+        string dirPath,
+        string name,
+        DateTime lastModified,
+        DateTime lastModifiedUtc
+    )
+        : base(dirPath, name)
+    {
+        LastModified = lastModified;
+        LastModifiedUtc = lastModifiedUtc;
+    }
+
+    public DirectoryEntryInfo(DirectoryInfo dirInfo)
+        : base(dirInfo.FullName, dirInfo.Name)
+    {
+        LastModified = dirInfo.LastWriteTime;
+        LastModifiedUtc = dirInfo.LastWriteTimeUtc;
+    }
 }

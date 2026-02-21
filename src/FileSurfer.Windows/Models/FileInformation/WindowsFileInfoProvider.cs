@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FileSurfer.Core;
+using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 
@@ -46,7 +47,7 @@ public class WindowsFileInfoProvider : ILocalFileInfoProvider
                     (includeHidden || !IsHidden(f.FullName, false))
                     && (includeOs || !IsOsProtected(f.FullName, false))
                 )
-                    fileList.Add(new FileEntryInfo(f.FullName, f.Name, f.LastWriteTime, f.Length));
+                    fileList.Add(new FileEntryInfo(f));
 
             return fileList.OkResult();
         }
@@ -72,7 +73,7 @@ public class WindowsFileInfoProvider : ILocalFileInfoProvider
                     (includeHidden || !IsHidden(d.FullName, false))
                     && (includeOs || !IsOsProtected(d.FullName, false))
                 )
-                    dirsList.Add(new DirectoryEntryInfo(d.FullName, d.Name, d.LastWriteTime));
+                    dirsList.Add(new DirectoryEntryInfo(d));
 
             return dirsList.OkResult();
         }

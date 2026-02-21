@@ -96,9 +96,11 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         }
 
         List<DirectoryEntryInfo> dirs = new(cacheEntry.Dirs.Count);
-        foreach (ISftpFile entry in cacheEntry.Dirs)
-            if (includeHidden || !IsHidden(entry.Name, true))
-                dirs.Add(new DirectoryEntryInfo(entry.FullName, entry.Name, entry.LastWriteTime));
+        foreach (ISftpFile d in cacheEntry.Dirs)
+            if (includeHidden || !IsHidden(d.Name, true))
+                dirs.Add(
+                    new DirectoryEntryInfo(d.FullName, d.Name, d.LastWriteTime, d.LastWriteTimeUtc)
+                );
 
         return dirs.OkResult();
     }
@@ -120,10 +122,16 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         }
 
         List<FileEntryInfo> files = new(cacheEntry.Files.Count);
-        foreach (ISftpFile entry in cacheEntry.Files)
-            if (includeHidden || !IsHidden(entry.Name, true))
+        foreach (ISftpFile f in cacheEntry.Files)
+            if (includeHidden || !IsHidden(f.Name, true))
                 files.Add(
-                    new FileEntryInfo(entry.FullName, entry.Name, entry.LastWriteTime, entry.Length)
+                    new FileEntryInfo(
+                        f.FullName,
+                        f.Name,
+                        f.Length,
+                        f.LastWriteTime,
+                        f.LastWriteTimeUtc
+                    )
                 );
 
         return files.OkResult();

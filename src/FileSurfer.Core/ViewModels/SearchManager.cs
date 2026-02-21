@@ -90,6 +90,13 @@ public class SearchManager : IDisposable
         return timer;
     }
 
+    private CancellationToken ResetToken()
+    {
+        _searchCts.Dispose();
+        _searchCts = new CancellationTokenSource();
+        return _searchCts.Token;
+    }
+
     public async Task<int?> SearchAsync(
         IFileSystem fileSystem,
         string searchQuery,
@@ -102,13 +109,9 @@ public class SearchManager : IDisposable
             if (_activeSearchTask is not null)
                 await WaitForActiveTask();
 
-            _searchCts.Dispose();
-            _searchCts = new CancellationTokenSource();
-            CancellationToken token = _searchCts.Token;
-
+            CancellationToken token = ResetToken();
             _updateAnimation(SearchingStates[0]);
             _animationTimer.Start();
-
             _activeSearchTask = SearchDirectoryAsync(fileSystem, searchQuery, dirToSearch, token);
         }
         finally
