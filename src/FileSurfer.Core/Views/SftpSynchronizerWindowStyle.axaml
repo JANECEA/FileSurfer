@@ -4,6 +4,16 @@
         <Setter Property="Fill" Value="{DynamicResource SecondaryColor}" />
     </Style>
 
+    <Style Selector="Grid.EventEntry TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <Style Selector="TextBlock.EventPathInfo">
+        <Setter Property="TextTrimming" Value="LeadingCharacterEllipsis" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+    </Style>
+
     <Style Selector="TextBox.TopTextBox">
         <Setter Property="IsHitTestVisible" Value="False" />
         <Setter Property="Background" Value="{DynamicResource TextBoxColor}" />

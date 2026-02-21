@@ -82,17 +82,32 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
         IFileSystem fs = _root.FileSystem;
         Dictionary<string, FsEntryMeta> snapshot = new();
 
-        var dirResult = fs.FileInfoProvider.GetPathDirs(_root.Path, true, true);
-        var fileResult = fs.FileInfoProvider.GetPathFiles(_root.Path, true, true);
+        Queue<string> queue = new();
+        queue.Enqueue(_root.Path);
 
-        if (ResultExtensions.FirstError(dirResult, fileResult) is IResult result)
-            return ValueResult<Dictionary<string, FsEntryMeta>>.Error(result);
+        while (queue.Count > 0)
+        {
+            string path = queue.Dequeue();
 
-        foreach (DirectoryEntryInfo dir in dirResult.Value)
-            snapshot[dir.PathToEntry] = new FsEntryMeta(true, dir.LastModifiedUtc, 0);
+            var dirResult = fs.FileInfoProvider.GetPathDirs(path, true, true);
+            var fileResult = fs.FileInfoProvider.GetPathFiles(path, true, true);
 
-        foreach (FileEntryInfo file in fileResult.Value)
-            snapshot[file.PathToEntry] = new FsEntryMeta(false, file.LastModifiedUtc, file.SizeB);
+            if (ResultExtensions.FirstError(dirResult, fileResult) is IResult result)
+                return ValueResult<Dictionary<string, FsEntryMeta>>.Error(result);
+
+            foreach (DirectoryEntryInfo dir in dirResult.Value)
+            {
+                snapshot[dir.PathToEntry] = new FsEntryMeta(true, dir.LastModifiedUtc, 0);
+                queue.Enqueue(dir.PathToEntry);
+            }
+
+            foreach (FileEntryInfo file in fileResult.Value)
+                snapshot[file.PathToEntry] = new FsEntryMeta(
+                    false,
+                    file.LastModifiedUtc,
+                    file.SizeB
+                );
+        }
 
         return snapshot.OkResult();
     }
