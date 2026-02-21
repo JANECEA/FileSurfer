@@ -1202,11 +1202,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         SftpSynchronizerWindow window = new()
         {
-            DataContext = new SftpSynchronizerViewModel
-            {
-                LocalDir = new Location(_localFs, localPathResult.Value),
-                RemoteDir = remoteLocation,
-            },
+            DataContext = new SftpSynchronizerViewModel(
+                _dialogService,
+                new Location(_localFs, localPathResult.Value),
+                remoteLocation
+            ),
         };
         IsSynchronizerOpen = true;
         window.Closed += (_, _) => IsSynchronizerOpen = false;

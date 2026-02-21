@@ -21,17 +21,19 @@
 
     <Window.Resources>
         <DataTemplate x:Key="SyncEventTemplate" x:DataType="vm:SynchronizationEvent">
-            <Grid ColumnDefinitions="Auto Auto * Auto">
+            <Grid ColumnDefinitions="Auto Auto Auto * Auto">
                 <TextBlock Text="{Binding TimeStampStr}" />
-                <TextBlock Grid.Column="1" Text="{Binding LocalPath}" />
+                <TextBlock Grid.Column="1" Margin="0 0 30 0" Text=":" />
 
-                <StackPanel Grid.Column="2">
+                <TextBlock Grid.Column="2" Text="{Binding LocalPath}" />
+
+                <StackPanel Grid.Column="3" HorizontalAlignment="Center" Orientation="Horizontal">
                     <TextBlock Text="--" />
                     <TextBlock Text="{Binding OpType}" />
                     <TextBlock Text="--&gt;" />
                 </StackPanel>
 
-                <TextBlock Grid.Column="3" Text="{Binding RemotePath}" />
+                <TextBlock Grid.Column="4" Text="{Binding RemotePath}" />
             </Grid>
         </DataTemplate>
     </Window.Resources>
