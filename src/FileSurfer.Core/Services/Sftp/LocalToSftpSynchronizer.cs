@@ -4,14 +4,15 @@ using System.Threading.Tasks;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.Services.FileInformation;
+using FileSurfer.Core.Services.FileOperations;
 
-namespace FileSurfer.Core.Services.FileOperations;
+namespace FileSurfer.Core.Services.Sftp;
 
 /// <summary>
 /// Synchronizes a local directory to a remote one in real-time by reacting to
 /// <see cref="DirectoryWatcher"/> events and replaying them on the remote filesystem.
 /// </summary>
-public sealed class LocalToRemoteSynchronizer : IAsyncDisposable
+public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 {
     public delegate void SyncEvent(FileSystemEvent fsEvent, string remotePath, IResult result);
 
@@ -21,11 +22,11 @@ public sealed class LocalToRemoteSynchronizer : IAsyncDisposable
     private readonly string _remoteRoot;
 
     private CancellationTokenSource? _cts;
-    private Task? _watcherTask;
+    private Task<IResult>? _watcherTask;
 
     public event SyncEvent? OnSyncEvent;
 
-    public LocalToRemoteSynchronizer(
+    public LocalToSftpSynchronizer(
         IDirectoryWatcher watcher,
         string localRoot,
         string remoteRoot,
@@ -33,40 +34,41 @@ public sealed class LocalToRemoteSynchronizer : IAsyncDisposable
     )
     {
         _watcher = watcher;
+        _remoteHandler = remoteHandler;
         _localRoot = PathTools.NormalizeLocalPath(localRoot);
         _remoteRoot = PathTools.NormalizePath(remoteRoot);
-        _remoteHandler = remoteHandler;
 
         _watcher.ChangeDetected += OnFsEvent;
     }
 
-    /// <summary>
-    /// Starts watching the local directory and syncing changes to the remote.
-    /// Safe to call only once; call <see cref="StopAsync"/> before restarting.
-    /// </summary>
-    public Task StartAsync()
+    public async Task<IResult> StartAsync(bool initFromRemote)
     {
         if (_watcherTask is not null)
             throw new InvalidOperationException("Synchronizer is already running.");
 
         _cts = new CancellationTokenSource();
-        _watcherTask = Task.Run(() => _watcher.StartAsync(_cts.Token), _cts.Token);
-        return Task.CompletedTask;
+
+        _watcherTask = _watcher.StartAsync(_cts.Token);
+        IResult result = await _watcherTask;
+
+        _cts.Dispose();
+        _cts = null;
+        _watcherTask = null;
+
+        return result;
     }
 
-    /// <summary>
-    /// Signals the watcher to stop and waits for the background task to finish.
-    /// </summary>
     public async Task StopAsync()
     {
-        if (_cts is null || _watcherTask is null)
+        if (_cts is null)
             return;
 
         await _cts.CancelAsync();
 
         try
         {
-            await _watcherTask;
+            if (_watcherTask is not null)
+                await _watcherTask;
         }
         catch (OperationCanceledException)
         {
@@ -150,7 +152,8 @@ public sealed class LocalToRemoteSynchronizer : IAsyncDisposable
     {
         string normalized = PathTools.NormalizeLocalPath(localPath);
         string relative = normalized[(_localRoot.Length + 1)..];
-        return $"{_remoteRoot}/{relative.Replace(PathTools.DirSeparator, '/')}";
+        string fwSlashes = relative.Replace(PathTools.DirSeparator, SftpPathTools.DirSeparator);
+        return $"{_remoteRoot}{SftpPathTools.DirSeparator}{fwSlashes}";
     }
 
     public async ValueTask DisposeAsync()

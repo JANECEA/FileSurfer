@@ -1200,17 +1200,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (!localPathResult.IsOk)
             return;
 
-        SftpSynchronizerWindow window = new()
-        {
-            DataContext = new SftpSynchronizerViewModel(
-                _dialogService,
-                new Location(_localFs, localPathResult.Value),
-                remoteLocation
-            ),
-        };
+        SftpSynchronizerWindow syncWindow = new();
+        syncWindow.DataContext = new SftpSynchronizerViewModel(
+            new AvaloniaDialogService(syncWindow),
+            new Location(_localFs, localPathResult.Value),
+            remoteLocation
+        );
+
         IsSynchronizerOpen = true;
-        window.Closed += (_, _) => IsSynchronizerOpen = false;
-        window.Show();
+        syncWindow.Closed += (_, _) => IsSynchronizerOpen = false;
+        syncWindow.Show();
     }
 
     /// <summary>

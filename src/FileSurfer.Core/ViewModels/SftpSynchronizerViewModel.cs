@@ -1,11 +1,13 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileInformation;
 using FileSurfer.Core.Services.FileOperations;
+using FileSurfer.Core.Services.Sftp;
 using ReactiveUI;
 
 namespace FileSurfer.Core.ViewModels;
@@ -19,18 +21,18 @@ public record SynchronizationEvent
     public string TimeStampStr => TimeStamp.ToLongTimeString();
 }
 
-public class SftpSynchronizerViewModel : ReactiveObject
+public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
 {
     private const string SyncErrorTitle = "Synchronization Error";
     private static readonly TimeSpan Interval = TimeSpan.FromSeconds(3);
 
-    private readonly LocalToRemoteSynchronizer _synchronizer;
+    private readonly LocalToSftpSynchronizer _synchronizer;
     private readonly IDialogService _dialogService;
     private readonly IDirectoryWatcher _watcher;
 
-    public string LocalDirLabel => LocalDir.FileSystem.GetLabel();
+    public string LocalDirLabel { get; }
     public Location LocalDir { get; }
-    public string RemoteDirLabel => RemoteDir.FileSystem.GetLabel();
+    public string RemoteDirLabel { get; }
     public Location RemoteDir { get; }
 
     public bool InitFromRemote
@@ -47,6 +49,7 @@ public class SftpSynchronizerViewModel : ReactiveObject
         {
             this.RaiseAndSetIfChanged(ref _syncHiddenFiles, value);
             FileSurferSettings.SyncHiddenFiles = value;
+            _watcher.SyncHidden = value;
         }
     }
     private bool _syncHiddenFiles;
@@ -69,13 +72,18 @@ public class SftpSynchronizerViewModel : ReactiveObject
         Location remoteDir
     )
     {
-        SyncHiddenFiles = FileSurferSettings.SyncHiddenFiles;
-        LocalDir = localDir;
-        RemoteDir = remoteDir;
-        _dialogService = dialogService;
-        IRemoteFileIoHandler ioHandler = (IRemoteFileIoHandler)remoteDir.FileSystem.FileIoHandler;
         _watcher = new DirectoryWatcher(localDir, Interval);
-        _synchronizer = new LocalToRemoteSynchronizer(
+        LocalDir = localDir;
+        LocalDirLabel = localDir.FileSystem.GetLabel();
+        RemoteDir = remoteDir;
+        RemoteDirLabel = remoteDir.FileSystem.GetLabel();
+        _dialogService = dialogService;
+
+        SyncHiddenFiles = FileSurferSettings.SyncHiddenFiles;
+        _watcher.SyncHidden = SyncHiddenFiles;
+
+        IRemoteFileIoHandler ioHandler = (IRemoteFileIoHandler)remoteDir.FileSystem.FileIoHandler;
+        _synchronizer = new LocalToSftpSynchronizer(
             _watcher,
             localDir.Path,
             remoteDir.Path,
@@ -87,16 +95,16 @@ public class SftpSynchronizerViewModel : ReactiveObject
         StopSyncCommand = ReactiveCommand.Create(StopSynchronization);
     }
 
-    private void ShowEvent(FileSystemEvent fsEvent, string remotePath, IResult result)
+    private void ShowIfError(IResult result)
     {
         if (!result.IsOk)
-        {
-            foreach (string error in result.Errors)
+            foreach (string error in result.Errors.Where(e => !string.IsNullOrWhiteSpace(e)))
                 _dialogService.InfoDialog(SyncErrorTitle, error);
+    }
 
-            return;
-        }
-
+    private void ShowEvent(FileSystemEvent fsEvent, string remotePath, IResult result)
+    {
+        ShowIfError(result);
         SynchronizationEvent e = new()
         {
             LocalPath = fsEvent.OriginalPath,
@@ -113,13 +121,31 @@ public class SftpSynchronizerViewModel : ReactiveObject
 
         SyncEvents.Clear();
         Synchronizing = true;
-        await _synchronizer.StartAsync();
+
+        IResult result = await _synchronizer.StartAsync(InitFromRemote);
+
+        Synchronizing = false;
+
+        ShowIfError(result);
     }
 
-    private async Task StopSynchronization()
+    private async Task StopSynchronization() => await _synchronizer.StopAsync();
+
+    public async ValueTask DisposeAsync()
     {
-        await _synchronizer.StopAsync();
-        Synchronizing = false;
+        await StopSynchronization();
+        await _synchronizer.DisposeAsync();
+        await CastAndDispose(StartSyncCommand);
+        await CastAndDispose(StopSyncCommand);
+        return;
+
+        static async ValueTask CastAndDispose(IDisposable resource)
+        {
+            if (resource is IAsyncDisposable resourceAs)
+                await resourceAs.DisposeAsync();
+            else
+                resource.Dispose();
+        }
     }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor

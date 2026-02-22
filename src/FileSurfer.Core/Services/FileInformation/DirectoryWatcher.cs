@@ -85,7 +85,6 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
             DiffSnapshotsAsync(_snapshot, snapshotResult.Value);
             _snapshot = snapshotResult.Value;
         }
-
         return SimpleResult.Ok();
     }
 
