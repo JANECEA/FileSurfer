@@ -1191,7 +1191,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ? CurrentLocation
             : sftpFs.GetLocation(entry.PathToEntry);
 
-        ValueResult<string> localPathResult = await SftpSynchronizerHelper.GetLocalPath(
+        ValueResult<string> localPathResult = await SftpSynchronizerViewModel.GetLocalPath(
             remoteLocation,
             _locationHistory.GetCurrentCollectionReversed(),
             _dialogService

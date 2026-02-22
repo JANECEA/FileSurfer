@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
+using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileInformation;
@@ -130,6 +132,37 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
     }
 
     private async Task StopSynchronization() => await _synchronizer.StopAsync();
+
+    public static async Task<ValueResult<string>> GetLocalPath(
+        Location remoteLocation,
+        IEnumerable<Location> pastLocations,
+        IDialogService dialogService
+    )
+    {
+        if (!remoteLocation.Exists())
+            return ValueResult<string>.Error(
+                $"Remote directory \"{remoteLocation.Path}\" does not exist."
+            );
+
+        const string title = "Pick local path";
+        string context = $"""
+            Select local path for 
+            remote path: "{remoteLocation.FileSystem.GetLabel()}:{remoteLocation.Path}".
+            """;
+        const string suggestLabel = "Recent local paths:";
+        IEnumerable<string> suggestions = pastLocations
+            .Where(l => l.FileSystem is LocalFileSystem)
+            .Select(l => l.Path)
+            .Distinct();
+
+        string? path = await dialogService.SuggestInputDialog(
+            title,
+            context,
+            suggestLabel,
+            suggestions
+        );
+        return path is not null ? path.OkResult() : ValueResult<string>.Error();
+    }
 
     public async ValueTask DisposeAsync()
     {
