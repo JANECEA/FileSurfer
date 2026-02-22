@@ -974,7 +974,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         {
             Reload();
             _undoRedoHistory.AddNewNode(operation);
-            SelectedFiles.Add(FileEntries.First(entry => entry.Name == newFileName));
+            if (FileEntries.FirstOrDefault(e => e.Name == newFileName) is { } entry)
+                SelectedFiles.Add(entry);
         }
         ShowIfError(result);
     }
@@ -1001,7 +1002,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         {
             Reload();
             _undoRedoHistory.AddNewNode(operation);
-            SelectedFiles.Add(FileEntries.First(entry => entry.Name == newDirName));
+            if (FileEntries.FirstOrDefault(e => e.Name == newDirName) is { } entry)
+                SelectedFiles.Add(entry);
         }
         ShowIfError(result);
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
@@ -20,8 +21,10 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 
     private readonly DirectoryWatcher _watcher;
     private readonly IRemoteFileIoHandler _remoteHandler;
-    private readonly string _localRoot;
-    private readonly string _remoteRoot;
+    private readonly Location _localRoot;
+    private readonly string _localRootPath;
+    private readonly Location _remoteRoot;
+    private readonly string _remoteRootPath;
 
     private CancellationTokenSource? _cts;
     private Task<IResult>? _watcherTask;
@@ -37,8 +40,10 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
     {
         _watcher = new DirectoryWatcher(localRoot, interval);
         _remoteHandler = remoteHandler;
-        _localRoot = PathTools.NormalizeLocalPath(localRoot.Path);
-        _remoteRoot = PathTools.NormalizePath(remoteRoot.Path);
+        _remoteRoot = remoteRoot;
+        _remoteRootPath = PathTools.NormalizePath(remoteRoot.Path);
+        _localRoot = localRoot;
+        _localRootPath = PathTools.NormalizeLocalPath(localRoot.Path);
 
         _watcher.ChangeDetected += OnFsEvent;
     }
@@ -48,11 +53,14 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         if (_watcherTask is not null)
             throw new InvalidOperationException("Synchronizer is already running.");
 
+        IResult result = Initialize(initFromRemote);
+        if (!result.IsOk)
+            return result;
+
         _cts = new CancellationTokenSource();
-        _watcher.SyncHiddenFiles = FileSurferSettings.SyncHiddenFiles;
 
         _watcherTask = _watcher.StartAsync(_cts.Token);
-        IResult result = await _watcherTask;
+        result = await _watcherTask;
 
         _cts.Dispose();
         _cts = null;
@@ -61,36 +69,106 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         return result;
     }
 
-    private IResult InitializeFromLocal(Location root, bool syncHidden)
+    private static IResult ResetDir(Location dir, bool syncHidden)
     {
-        IFileSystem fs = root.FileSystem;
-        Queue<string> queue = new();
-        queue.Enqueue(root.Path);
+        IFileSystem fs = dir.FileSystem;
 
+        var dirResult = fs.FileInfoProvider.GetPathDirs(dir.Path, syncHidden, false);
+        var fileResult = fs.FileInfoProvider.GetPathFiles(dir.Path, syncHidden, false);
+        if (ResultExtensions.FirstError(dirResult, fileResult) is IResult result)
+            return result;
+
+        Result rs = Result.Ok();
+        foreach (DirectoryEntryInfo d in dirResult.Value)
+            rs.MergeResult(fs.FileIoHandler.DeleteDir(d.PathToEntry));
+
+        foreach (FileEntryInfo f in fileResult.Value)
+            rs.MergeResult(fs.FileIoHandler.DeleteFile(f.PathToEntry));
+
+        return rs;
+    }
+
+    private IResult Initialize(bool initFromRemote)
+    {
+        bool sh = FileSurferSettings.SyncHiddenFiles;
+        _watcher.SyncHiddenFiles = sh;
+
+        return initFromRemote
+            ? InitializeFrom(_remoteRoot, _localRoot, sh, ToLocalPath, DownloadFile)
+            : InitializeFrom(_localRoot, _remoteRoot, sh, ToRemotePath, UploadFile);
+    }
+
+    private static IResult InitializeFrom(
+        Location rootFrom,
+        Location rootTo,
+        bool syncHidden,
+        Func<string, string> mirrorPath,
+        Func<string, string, IResult> handleFile
+    )
+    {
+        IFileSystem fsFrom = rootFrom.FileSystem;
+        IFileSystem fsTo = rootTo.FileSystem;
+
+        IResult resetResult = ResetDir(rootTo, syncHidden);
+        if (!resetResult.IsOk)
+            return resetResult;
+
+        Queue<string> queue = new();
+        queue.Enqueue(rootFrom.Path);
+
+        Result result = Result.Ok();
         while (queue.Count > 0)
         {
             string current = queue.Dequeue();
 
-            var dirResult = fs.FileInfoProvider.GetPathDirs(current, syncHidden, false);
-            var fileResult = fs.FileInfoProvider.GetPathFiles(current, syncHidden, false);
-
-            if (ResultExtensions.FirstError(dirResult, fileResult) is IResult result)
-                return result;
+            var dirResult = fsFrom.FileInfoProvider.GetPathDirs(current, syncHidden, false);
+            var fileResult = fsFrom.FileInfoProvider.GetPathFiles(current, syncHidden, false);
+            if (ResultExtensions.FirstError(dirResult, fileResult) is IResult error)
+                return error;
 
             foreach (DirectoryEntryInfo d in dirResult.Value)
             {
-                string remotePath = ToRemotePath(d.PathToEntry);
                 queue.Enqueue(d.PathToEntry);
-                _remoteHandler.NewDirAt(SftpPathTools.GetParentDir(remotePath), d.Name);
+                string mirroredPath = mirrorPath(d.PathToEntry);
+                result.MergeResult(
+                    fsTo.FileIoHandler.NewDirAt(Path.GetDirectoryName(mirroredPath)!, d.Name)
+                );
             }
 
             foreach (FileEntryInfo f in fileResult.Value)
             {
-                string remotePath = ToRemotePath(f.PathToEntry);
-                _remoteHandler.UploadFile(f.PathToEntry, remotePath);
+                string mirroredPath = mirrorPath(f.PathToEntry);
+                result.MergeResult(handleFile(f.PathToEntry, mirroredPath));
             }
         }
-        return SimpleResult.Ok();
+        return result;
+    }
+
+    private IResult UploadFile(string localPath, string remotePath) =>
+        _remoteHandler.UploadFile(localPath, remotePath);
+
+    private IResult DownloadFile(string remotePath, string localPath) =>
+        _remoteHandler.DownloadFile(remotePath, localPath);
+
+    private string ToRemotePath(string localPath)
+    {
+        localPath = PathTools.NormalizeLocalPath(localPath);
+
+        string relative = localPath[(_localRootPath.Length + 1)..];
+        string fwSlashes = relative.Replace(PathTools.DirSeparator, SftpPathTools.DirSeparator);
+        return SftpPathTools.Combine(_remoteRootPath, fwSlashes);
+    }
+
+    private string ToLocalPath(string remotePath)
+    {
+        remotePath = PathTools.NormalizePath(remotePath);
+
+        string relative = remotePath[(_remoteRootPath.Length + 1)..];
+        string correctSlashes = relative.Replace(
+            SftpPathTools.DirSeparator,
+            PathTools.DirSeparator
+        );
+        return Path.Combine(_localRootPath, correctSlashes);
     }
 
     public async Task StopAsync()
@@ -126,14 +204,6 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
             : HandleFileEvent(fsEvent, remotePath);
 
         OnSyncEvent?.Invoke(fsEvent, remotePath, result);
-    }
-
-    private string ToRemotePath(string localPath)
-    {
-        string normalized = PathTools.NormalizeLocalPath(localPath);
-        string relative = normalized[(_localRoot.Length + 1)..];
-        string fwSlashes = relative.Replace(PathTools.DirSeparator, SftpPathTools.DirSeparator);
-        return $"{_remoteRoot}{SftpPathTools.DirSeparator}{fwSlashes}";
     }
 
     private IResult HandleFileEvent(FileSystemEvent e, string remotePath) =>

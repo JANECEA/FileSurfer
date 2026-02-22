@@ -8,61 +8,96 @@ namespace FileSurfer.Core.Models.Sftp;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 internal static class SftpPathTools
 {
-    public const string RootDir = "/";
     public const char DirSeparator = '/';
-
-    private static int LastNonSep(string path, int startIndex = -1)
-    {
-        int i = path.Length - 1;
-        if (startIndex >= 0)
-            i = startIndex;
-
-        for (; 0 <= i && i < path.Length; i--)
-            if (path[i] != DirSeparator)
-                return i;
-
-        return -1;
-    }
-
-    internal static string Combine(string pathBase, string name)
-    {
-        int lastNonSep = LastNonSep(pathBase);
-        if (lastNonSep < 0)
-            return DirSeparator + name;
-
-        StringBuilder sb = new(pathBase.Length + name.Length + 1);
-        for (int j = 0; j <= lastNonSep; j++)
-            sb.Append(pathBase[j]);
-
-        sb.Append(DirSeparator);
-        sb.Append(name);
-        return sb.ToString();
-    }
+    public const string RootDir = "/";
 
     private static IEnumerable<Range> GetParts(string path)
     {
-        int exclusivePartEnd = path.Length;
+        if (path.Length == 0)
+            yield break;
+
+        int inclusiveStart = 0;
+        if (path[0] == DirSeparator)
+        {
+            inclusiveStart = 1;
+            yield return new Range(0, 0);
+        }
+
+        for (int i = 0; i < path.Length; i++)
+        {
+            if (path[i] != DirSeparator)
+                continue;
+
+            if (inclusiveStart < i - 1)
+                yield return new Range(inclusiveStart, i);
+
+            inclusiveStart = i;
+        }
+
+        if (inclusiveStart < path.Length - 1)
+            yield return new Range(inclusiveStart, path.Length);
+    }
+
+    private static IEnumerable<Range> GetPartsReversed(string path)
+    {
+        if (path.Length == 0)
+            yield break;
+
+        int exclusiveEnd = path.Length;
         for (int i = path.Length - 1; i >= 0; i--)
         {
             if (path[i] != DirSeparator)
                 continue;
 
-            if (exclusivePartEnd - i - 1 > 0)
-                yield return new Range(i + 1, exclusivePartEnd);
+            if (exclusiveEnd > i + 1)
+                yield return new Range(i + 1, exclusiveEnd);
 
-            exclusivePartEnd = i;
+            exclusiveEnd = i;
         }
+
+        if (path[0] == DirSeparator)
+            yield return new Range(0, 0);
+    }
+
+    private static void AssemblePath(StringBuilder sb, string path, char dirSep)
+    {
+        foreach (Range partRange in GetParts(path))
+        {
+            ReadOnlySpan<char> part = path.AsSpan()[partRange];
+            sb.Append(part);
+            sb.Append(dirSep);
+        }
+    }
+
+    private static void RemoveTrailingSep(StringBuilder sb, char dirSep)
+    {
+        if (sb.Length > 0 && sb[^1] == dirSep)
+            sb.Remove(sb.Length - 1, 1);
+    }
+
+    public static string Combine(string pathBase, string pathSuffix, char dirSep = '\0')
+    {
+        if (dirSep == '\0')
+            dirSep = DirSeparator;
+
+        StringBuilder sb = new(pathBase.Length + pathSuffix.Length);
+
+        AssemblePath(sb, pathBase, dirSep);
+        AssemblePath(sb, pathSuffix, dirSep);
+        RemoveTrailingSep(sb, dirSep);
+
+        return sb.ToString();
     }
 
     internal static string GetFileName(string path)
     {
-        using IEnumerator<Range> enumerator = GetParts(path).GetEnumerator();
+        using IEnumerator<Range> enumerator = GetPartsReversed(path).GetEnumerator();
         return !enumerator.MoveNext() ? string.Empty : path[enumerator.Current];
     }
 
     internal static string GetParentDir(string path)
     {
-        using IEnumerator<Range> enumerator = GetParts(path).GetEnumerator();
+        using IEnumerator<Range> enumerator = GetPartsReversed(path).GetEnumerator();
         if (!enumerator.MoveNext() || !enumerator.MoveNext())
             return string.Empty;
 

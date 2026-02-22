@@ -6,10 +6,7 @@ using System.Text;
 
 namespace FileSurfer.Core.Models;
 
-[
-    SuppressMessage("ReSharper", "UnusedMember.Global"),
-    SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
-]
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class PathTools
 {
     public static char DirSeparator => Path.DirectorySeparatorChar;
@@ -73,23 +70,6 @@ public static class PathTools
 
     public static bool NamesAreEqual(string? nameA, string? nameB) =>
         nameA is not null && nameB is not null && string.Equals(nameA, nameB, Comparison);
-
-    public static string? GetExtensionWithDot(string path)
-    {
-        int extensionIndex = -1;
-        for (int i = path.Length - 1; i >= 0; i--)
-        {
-            if (path[i] == '.')
-                extensionIndex = i;
-
-            if (path[i] == DirSeparator)
-                break;
-        }
-        if (extensionIndex < 0 || extensionIndex == path.Length - 1)
-            return null;
-
-        return path[extensionIndex..];
-    }
 
     public static IEnumerable<string> EnumerateExtensions(string path)
     {
