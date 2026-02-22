@@ -26,7 +26,7 @@ public sealed record FileSystemEvent(
 
 public interface IDirectoryWatcher
 {
-    public bool SyncHidden { get; set; }
+    public bool SyncHiddenFiles { get; set; }
 
     public event Action<object?, FileSystemEvent>? ChangeDetected;
 
@@ -39,8 +39,10 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
 
     private readonly TimeSpan _interval;
     private readonly Location _root;
-
     private Dictionary<string, FsEntryMeta> _snapshot = new();
+
+    public bool SyncHiddenFiles { get; set; } = false;
+    public event Action<object?, FileSystemEvent>? ChangeDetected;
 
     public DirectoryWatcher(Location root, TimeSpan interval)
     {
@@ -48,21 +50,10 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
         _interval = interval;
     }
 
-    public bool SyncHidden
-    {
-        get => _syncHidden;
-        set => _syncHiddenInternal = value;
-    }
-    private bool _syncHidden = false;
-    private bool _syncHiddenInternal = false;
-
-    public event Action<object?, FileSystemEvent>? ChangeDetected;
-
     public async Task<IResult> StartAsync(CancellationToken token)
     {
-        _syncHidden = _syncHiddenInternal;
-
-        ValueResult<Dictionary<string, FsEntryMeta>> firstSnapshotResult = TakeSnapshot();
+        bool syncHidden = SyncHiddenFiles;
+        ValueResult<Dictionary<string, FsEntryMeta>> firstSnapshotResult = TakeSnapshot(syncHidden);
         if (!firstSnapshotResult.IsOk)
             return firstSnapshotResult;
 
@@ -78,7 +69,7 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
                 break; // The task has been canceled.
             }
 
-            ValueResult<Dictionary<string, FsEntryMeta>> snapshotResult = TakeSnapshot();
+            ValueResult<Dictionary<string, FsEntryMeta>> snapshotResult = TakeSnapshot(syncHidden);
             if (!snapshotResult.IsOk)
                 return snapshotResult;
 
@@ -88,7 +79,7 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
         return SimpleResult.Ok();
     }
 
-    private ValueResult<Dictionary<string, FsEntryMeta>> TakeSnapshot()
+    private ValueResult<Dictionary<string, FsEntryMeta>> TakeSnapshot(bool syncHidden)
     {
         IFileSystem fs = _root.FileSystem;
         Dictionary<string, FsEntryMeta> snapshot = new();
@@ -100,8 +91,8 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
         {
             string path = queue.Dequeue();
 
-            var dirResult = fs.FileInfoProvider.GetPathDirs(path, SyncHidden, false);
-            var fileResult = fs.FileInfoProvider.GetPathFiles(path, SyncHidden, false);
+            var dirResult = fs.FileInfoProvider.GetPathDirs(path, syncHidden, false);
+            var fileResult = fs.FileInfoProvider.GetPathFiles(path, syncHidden, false);
 
             if (ResultExtensions.FirstError(dirResult, fileResult) is IResult result)
                 return ValueResult<Dictionary<string, FsEntryMeta>>.Error(result);

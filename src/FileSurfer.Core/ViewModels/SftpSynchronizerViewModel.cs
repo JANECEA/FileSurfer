@@ -30,7 +30,6 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
 
     private readonly LocalToSftpSynchronizer _synchronizer;
     private readonly IDialogService _dialogService;
-    private readonly IDirectoryWatcher _watcher;
 
     public string LocalDirLabel { get; }
     public Location LocalDir { get; }
@@ -51,7 +50,6 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         {
             this.RaiseAndSetIfChanged(ref _syncHiddenFiles, value);
             FileSurferSettings.SyncHiddenFiles = value;
-            _watcher.SyncHidden = value;
         }
     }
     private bool _syncHiddenFiles;
@@ -74,7 +72,6 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         Location remoteDir
     )
     {
-        _watcher = new DirectoryWatcher(localDir, Interval);
         LocalDir = localDir;
         LocalDirLabel = localDir.FileSystem.GetLabel();
         RemoteDir = remoteDir;
@@ -82,15 +79,9 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         _dialogService = dialogService;
 
         SyncHiddenFiles = FileSurferSettings.SyncHiddenFiles;
-        _watcher.SyncHidden = SyncHiddenFiles;
 
         IRemoteFileIoHandler ioHandler = (IRemoteFileIoHandler)remoteDir.FileSystem.FileIoHandler;
-        _synchronizer = new LocalToSftpSynchronizer(
-            _watcher,
-            localDir.Path,
-            remoteDir.Path,
-            ioHandler
-        );
+        _synchronizer = new LocalToSftpSynchronizer(remoteDir, localDir, Interval, ioHandler);
         _synchronizer.OnSyncEvent += ShowEvent;
 
         StartSyncCommand = ReactiveCommand.Create(StartSynchronization);
@@ -119,13 +110,10 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
 
     private async Task StartSynchronization()
     {
-        _watcher.SyncHidden = SyncHiddenFiles;
-
         SyncEvents.Clear();
+
         Synchronizing = true;
-
         IResult result = await _synchronizer.StartAsync(InitFromRemote);
-
         Synchronizing = false;
 
         ShowIfError(result);

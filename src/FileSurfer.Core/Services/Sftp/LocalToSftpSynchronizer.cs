@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.Services.FileInformation;
@@ -16,7 +18,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 {
     public delegate void SyncEvent(FileSystemEvent fsEvent, string remotePath, IResult result);
 
-    private readonly IDirectoryWatcher _watcher;
+    private readonly DirectoryWatcher _watcher;
     private readonly IRemoteFileIoHandler _remoteHandler;
     private readonly string _localRoot;
     private readonly string _remoteRoot;
@@ -27,16 +29,16 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
     public event SyncEvent? OnSyncEvent;
 
     public LocalToSftpSynchronizer(
-        IDirectoryWatcher watcher,
-        string localRoot,
-        string remoteRoot,
+        Location remoteRoot,
+        Location localRoot,
+        TimeSpan interval,
         IRemoteFileIoHandler remoteHandler
     )
     {
-        _watcher = watcher;
+        _watcher = new DirectoryWatcher(localRoot, interval);
         _remoteHandler = remoteHandler;
-        _localRoot = PathTools.NormalizeLocalPath(localRoot);
-        _remoteRoot = PathTools.NormalizePath(remoteRoot);
+        _localRoot = PathTools.NormalizeLocalPath(localRoot.Path);
+        _remoteRoot = PathTools.NormalizePath(remoteRoot.Path);
 
         _watcher.ChangeDetected += OnFsEvent;
     }
@@ -47,6 +49,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
             throw new InvalidOperationException("Synchronizer is already running.");
 
         _cts = new CancellationTokenSource();
+        _watcher.SyncHiddenFiles = FileSurferSettings.SyncHiddenFiles;
 
         _watcherTask = _watcher.StartAsync(_cts.Token);
         IResult result = await _watcherTask;
@@ -56,6 +59,38 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         _watcherTask = null;
 
         return result;
+    }
+
+    private IResult InitializeFromLocal(Location root, bool syncHidden)
+    {
+        IFileSystem fs = root.FileSystem;
+        Queue<string> queue = new();
+        queue.Enqueue(root.Path);
+
+        while (queue.Count > 0)
+        {
+            string current = queue.Dequeue();
+
+            var dirResult = fs.FileInfoProvider.GetPathDirs(current, syncHidden, false);
+            var fileResult = fs.FileInfoProvider.GetPathFiles(current, syncHidden, false);
+
+            if (ResultExtensions.FirstError(dirResult, fileResult) is IResult result)
+                return result;
+
+            foreach (DirectoryEntryInfo d in dirResult.Value)
+            {
+                string remotePath = ToRemotePath(d.PathToEntry);
+                queue.Enqueue(d.PathToEntry);
+                _remoteHandler.NewDirAt(SftpPathTools.GetParentDir(remotePath), d.Name);
+            }
+
+            foreach (FileEntryInfo f in fileResult.Value)
+            {
+                string remotePath = ToRemotePath(f.PathToEntry);
+                _remoteHandler.UploadFile(f.PathToEntry, remotePath);
+            }
+        }
+        return SimpleResult.Ok();
     }
 
     public async Task StopAsync()
@@ -91,6 +126,14 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
             : HandleFileEvent(fsEvent, remotePath);
 
         OnSyncEvent?.Invoke(fsEvent, remotePath, result);
+    }
+
+    private string ToRemotePath(string localPath)
+    {
+        string normalized = PathTools.NormalizeLocalPath(localPath);
+        string relative = normalized[(_localRoot.Length + 1)..];
+        string fwSlashes = relative.Replace(PathTools.DirSeparator, SftpPathTools.DirSeparator);
+        return $"{_remoteRoot}{SftpPathTools.DirSeparator}{fwSlashes}";
     }
 
     private IResult HandleFileEvent(FileSystemEvent e, string remotePath) =>
@@ -147,14 +190,6 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 
             _ => SimpleResult.Error("Unknown event type."),
         };
-
-    private string ToRemotePath(string localPath)
-    {
-        string normalized = PathTools.NormalizeLocalPath(localPath);
-        string relative = normalized[(_localRoot.Length + 1)..];
-        string fwSlashes = relative.Replace(PathTools.DirSeparator, SftpPathTools.DirSeparator);
-        return $"{_remoteRoot}{SftpPathTools.DirSeparator}{fwSlashes}";
-    }
 
     public async ValueTask DisposeAsync()
     {
