@@ -9,6 +9,11 @@
         <Setter Property="FontSize" Value="12" />
     </Style>
 
+    <Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
     <Style Selector="TextBlock.EventPathInfo">
         <Setter Property="TextTrimming" Value="LeadingCharacterEllipsis" />
         <Setter Property="TextWrapping" Value="NoWrap" />
