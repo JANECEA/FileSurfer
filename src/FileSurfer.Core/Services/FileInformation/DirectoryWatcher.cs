@@ -122,13 +122,13 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
         Dictionary<string, FsEntryMeta> snapshot
     ) => snapshot.Where(kp => !kp.Value.IsDirectory);
 
-    private static IEnumerable<KeyValuePair<string, FsEntryMeta>> OrderEntries(
-        Dictionary<string, FsEntryMeta> snapshot,
-        bool dirsBeforeFiles
-    ) =>
-        dirsBeforeFiles
-            ? OnlyDirs(snapshot).Concat(OnlyFiles(snapshot))
-            : OnlyFiles(snapshot).Concat(OnlyDirs(snapshot));
+    private static IEnumerable<KeyValuePair<string, FsEntryMeta>> DirsFirst(
+        Dictionary<string, FsEntryMeta> snapshot
+    ) => OnlyDirs(snapshot).Concat(OnlyFiles(snapshot));
+
+    private static IEnumerable<KeyValuePair<string, FsEntryMeta>> FilesFirst(
+        Dictionary<string, FsEntryMeta> snapshot
+    ) => OnlyFiles(snapshot).Concat(OnlyDirs(snapshot));
 
     private static bool Modified(FsEntryMeta a, FsEntryMeta b) =>
         a.LastWriteTimeUtc != b.LastWriteTimeUtc || a.Length != b.Length;
@@ -138,13 +138,13 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
         Dictionary<string, FsEntryMeta> newSnapshot
     )
     {
-        foreach ((string path, FsEntryMeta entry) in OrderEntries(newSnapshot, true))
+        foreach ((string path, FsEntryMeta entry) in DirsFirst(newSnapshot))
             if (!oldSnapshot.ContainsKey(path))
                 RaiseAsync(
                     new FileSystemEvent(path, entry.IsDirectory, FileSystemEventType.Created)
                 );
 
-        foreach ((string path, FsEntryMeta entry) in OrderEntries(oldSnapshot, false))
+        foreach ((string path, FsEntryMeta entry) in FilesFirst(oldSnapshot))
             if (!newSnapshot.ContainsKey(path))
                 RaiseAsync(
                     new FileSystemEvent(path, entry.IsDirectory, FileSystemEventType.Deleted)
