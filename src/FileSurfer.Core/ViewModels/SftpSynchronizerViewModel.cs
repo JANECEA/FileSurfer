@@ -26,18 +26,30 @@ public class SftpSynchronizerViewModel : ReactiveObject
 
     private readonly LocalToRemoteSynchronizer _synchronizer;
     private readonly IDialogService _dialogService;
+    private readonly IDirectoryWatcher _watcher;
 
     public string LocalDirLabel => LocalDir.FileSystem.GetLabel();
     public Location LocalDir { get; }
     public string RemoteDirLabel => RemoteDir.FileSystem.GetLabel();
     public Location RemoteDir { get; }
 
-    public bool SyncFromRemoteOnStar
+    public bool InitFromRemote
     {
-        get => _syncFromRemoteOnStar;
-        set => this.RaiseAndSetIfChanged(ref _syncFromRemoteOnStar, value);
+        get => _initFromRemote;
+        set => this.RaiseAndSetIfChanged(ref _initFromRemote, value);
     }
-    private bool _syncFromRemoteOnStar = false;
+    private bool _initFromRemote = false;
+
+    public bool SyncHiddenFiles
+    {
+        get => _syncHiddenFiles;
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _syncHiddenFiles, value);
+            FileSurferSettings.SyncHiddenFiles = value;
+        }
+    }
+    private bool _syncHiddenFiles;
 
     public bool Synchronizing
     {
@@ -57,13 +69,14 @@ public class SftpSynchronizerViewModel : ReactiveObject
         Location remoteDir
     )
     {
+        SyncHiddenFiles = FileSurferSettings.SyncHiddenFiles;
         LocalDir = localDir;
         RemoteDir = remoteDir;
         _dialogService = dialogService;
         IRemoteFileIoHandler ioHandler = (IRemoteFileIoHandler)remoteDir.FileSystem.FileIoHandler;
-        DirectoryWatcher watcher = new(localDir, Interval);
+        _watcher = new DirectoryWatcher(localDir, Interval);
         _synchronizer = new LocalToRemoteSynchronizer(
-            watcher,
+            _watcher,
             localDir.Path,
             remoteDir.Path,
             ioHandler
@@ -96,6 +109,8 @@ public class SftpSynchronizerViewModel : ReactiveObject
 
     private async Task StartSynchronization()
     {
+        _watcher.SyncHidden = SyncHiddenFiles;
+
         SyncEvents.Clear();
         Synchronizing = true;
         await _synchronizer.StartAsync();

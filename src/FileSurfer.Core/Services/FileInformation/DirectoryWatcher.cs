@@ -26,6 +26,8 @@ public sealed record FileSystemEvent(
 
 public interface IDirectoryWatcher
 {
+    public bool SyncHidden { get; set; }
+
     public event Action<object?, FileSystemEvent>? ChangeDetected;
 
     public Task<IResult> StartAsync(CancellationToken token);
@@ -46,10 +48,20 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
         _interval = interval;
     }
 
+    public bool SyncHidden
+    {
+        get => _syncHidden;
+        set => _syncHiddenInternal = value;
+    }
+    private bool _syncHidden = false;
+    private bool _syncHiddenInternal = false;
+
     public event Action<object?, FileSystemEvent>? ChangeDetected;
 
     public async Task<IResult> StartAsync(CancellationToken token)
     {
+        _syncHidden = _syncHiddenInternal;
+
         ValueResult<Dictionary<string, FsEntryMeta>> firstSnapshotResult = TakeSnapshot();
         if (!firstSnapshotResult.IsOk)
             return firstSnapshotResult;
@@ -89,8 +101,8 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
         {
             string path = queue.Dequeue();
 
-            var dirResult = fs.FileInfoProvider.GetPathDirs(path, true, true);
-            var fileResult = fs.FileInfoProvider.GetPathFiles(path, true, true);
+            var dirResult = fs.FileInfoProvider.GetPathDirs(path, SyncHidden, false);
+            var fileResult = fs.FileInfoProvider.GetPathFiles(path, SyncHidden, false);
 
             if (ResultExtensions.FirstError(dirResult, fileResult) is IResult result)
                 return ValueResult<Dictionary<string, FsEntryMeta>>.Error(result);

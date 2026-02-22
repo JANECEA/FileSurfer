@@ -130,7 +130,7 @@ public static class FileSurferSettings
             automaticRefreshInterval = AutomaticRefreshInterval,
             allowImagePastingFromClipboard = AllowImagePastingFromClipboard,
             quickAccess = QuickAccess,
-            syncIgnored = SyncIgnored,
+            syncHiddenFiles = SyncHiddenFiles,
         };
 
     private static string _previousSettingsJson = string.Empty;
@@ -260,9 +260,9 @@ public static class FileSurferSettings
     public static List<string> QuickAccess { get; set; }
 
     /// <summary>
-    /// List of file patterns that will be ignored during directory synchronization.
+    /// Specifies if hidden files should be synchronized in the process of directory synchronization
     /// </summary>
-    public static List<string> SyncIgnored { get; set; }
+    public static bool SyncHiddenFiles { get; set; }
 
     /// <summary>
     /// List of SFTP connections defined by the user. Defaults to an empty list.
@@ -369,7 +369,7 @@ public static class FileSurferSettings
 
         AllowImagePastingFromClipboard = settings.allowImagePastingFromClipboard;
         QuickAccess = settings.quickAccess ?? new List<string>();
-        SyncIgnored = settings.syncIgnored ?? new List<string>();
+        SyncHiddenFiles = settings.syncHiddenFiles;
 
         OnSettingsChange?.Invoke();
     }
