@@ -32,7 +32,7 @@ public static class LocalPathTools
         }
         catch
         {
-            // Continue normalization
+            // GetFullPath may fail, continue with normalizing
         }
         StringBuilder sb = new(path.Length);
 

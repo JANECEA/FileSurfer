@@ -51,7 +51,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
     public async Task<IResult> StartAsync(bool initFromRemote)
     {
         if (_watcherTask is not null)
-            throw new InvalidOperationException("Synchronizer is already running.");
+            return SimpleResult.Error("Synchronizer is already running.");
 
         IResult result = Initialize(initFromRemote);
         if (!result.IsOk)
