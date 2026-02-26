@@ -7,7 +7,7 @@ using System.Text;
 namespace FileSurfer.Core.Models;
 
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-public static class PathTools
+public static class LocalPathTools
 {
     public static char DirSeparator => Path.DirectorySeparatorChar;
     public static char OtherSeparator { get; } = OperatingSystem.IsWindows() ? '/' : DirSeparator;
@@ -21,41 +21,34 @@ public static class PathTools
     /// </summary>
     /// <param name="path">Path to normalize</param>
     /// <returns>Normalized path</returns>
-    public static string NormalizeLocalPath(string path) => NormalizePathInternal(path, true);
-
-    /// <summary>
-    /// Normalizes the given path to and removes redundant separators and the trailing separator
-    /// <para/>
-    /// Separators at root level paths are kept.
-    /// </summary>
-    /// <param name="path">Path to normalize</param>
-    /// <returns>Normalized path</returns>
-    public static string NormalizePath(string path) => NormalizePathInternal(path, false);
-
-    private static string NormalizePathInternal(string path, bool getFullPath)
+    public static string NormalizePath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
             return path;
 
-        if (getFullPath)
+        try
+        {
             path = Path.GetFullPath(path);
-
+        }
+        catch
+        {
+            // Continue normalization
+        }
         StringBuilder sb = new(path.Length);
 
         bool previousWasDirSep = false;
         foreach (char ch in path)
         {
-            bool isSep = ch == DirSeparator || ch == OtherSeparator;
-            if (!isSep)
+            if (!IsSep(ch))
                 sb.Append(ch);
             else if (!previousWasDirSep)
                 sb.Append(DirSeparator);
 
-            previousWasDirSep = isSep;
+            previousWasDirSep = IsSep(ch);
         }
         string root = Path.GetPathRoot(path) ?? string.Empty;
-        if (sb.Length != 1 && sb.Length != root.Length && sb[^1] == DirSeparator)
-            sb.Remove(sb.Length - 1, 1);
+        if (sb.Length != root.Length)
+            ShaveSep(sb);
 
         return sb.ToString();
     }
@@ -78,5 +71,51 @@ public static class PathTools
         for (int index = lastSep + 1; index <= path.Length - 3; index++)
             if (path[index] == '.')
                 yield return path[(index + 1)..];
+    }
+
+    private static bool IsSep(char ch) => ch == DirSeparator || ch == OtherSeparator;
+
+    private static void ShaveSep(StringBuilder sb)
+    {
+        for (int i = sb.Length - 1; i >= 0 && IsSep(sb[i]); i--)
+            sb.Remove(sb.Length - 1, 1);
+    }
+
+    private static void ShaveNonSep(StringBuilder sb)
+    {
+        for (int i = sb.Length - 1; i >= 0 && !IsSep(sb[i]); i--)
+            sb.Remove(sb.Length - 1, 1);
+    }
+
+    public static string GetParentDir(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return string.Empty;
+
+        StringBuilder sb = new(path);
+
+        ShaveSep(sb);
+        ShaveNonSep(sb);
+        ShaveSep(sb);
+
+        return sb.ToString();
+    }
+
+    public static string GetFileName(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return string.Empty;
+
+        int nameEndExc = path.Length - 1;
+        while (nameEndExc >= 0 && IsSep(path[nameEndExc]))
+            nameEndExc--;
+
+        int nameStartInc = nameEndExc;
+        while (nameStartInc >= 0 && !IsSep(path[nameStartInc]))
+            nameStartInc--;
+
+        return nameStartInc >= 0 && nameEndExc >= 0 && nameStartInc < nameEndExc
+            ? path[nameStartInc..nameEndExc]
+            : string.Empty;
     }
 }

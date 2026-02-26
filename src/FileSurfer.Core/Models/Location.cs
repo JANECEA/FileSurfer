@@ -30,7 +30,7 @@ public sealed class Location
             return false;
 
         if (FileSystem is LocalFileSystem && other.FileSystem is LocalFileSystem)
-            return PathTools.PathsAreEqual(Path, other.Path);
+            return LocalPathTools.PathsAreEqual(Path, other.Path);
 
         return FileSystem == other.FileSystem && Path == other.Path;
     }

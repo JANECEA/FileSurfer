@@ -23,7 +23,7 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
     {
         try
         {
-            string path = SftpPathTools.Combine(dirPath, fileName);
+            string path = RemoteUnixPathTools.Combine(dirPath, fileName);
             using MemoryStream stream = new();
             _client.UploadFile(stream, path);
             return SimpleResult.Ok();
@@ -38,7 +38,7 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
     {
         try
         {
-            _client.CreateDirectory(SftpPathTools.Combine(dirPath, dirName));
+            _client.CreateDirectory(RemoteUnixPathTools.Combine(dirPath, dirName));
             return SimpleResult.Ok();
         }
         catch (Exception ex)
@@ -59,29 +59,29 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
 
     public IResult CopyFileTo(string filePath, string destinationDir)
     {
-        string fileName = SftpPathTools.GetFileName(filePath);
-        string newPath = SftpPathTools.Combine(destinationDir, fileName);
+        string fileName = RemoteUnixPathTools.GetFileName(filePath);
+        string newPath = RemoteUnixPathTools.Combine(destinationDir, fileName);
         return FileOpCommand("cp", filePath, newPath);
     }
 
     public IResult CopyDirTo(string dirPath, string destinationDir)
     {
-        string dirName = SftpPathTools.GetFileName(dirPath);
-        string newPath = SftpPathTools.Combine(destinationDir, dirName);
+        string dirName = RemoteUnixPathTools.GetFileName(dirPath);
+        string newPath = RemoteUnixPathTools.Combine(destinationDir, dirName);
         return FileOpCommand("cp -r", dirPath, newPath);
     }
 
     public IResult DuplicateFile(string filePath, string copyName)
     {
-        string parent = SftpPathTools.GetParentDir(filePath);
-        string newPath = SftpPathTools.Combine(parent, copyName);
+        string parent = RemoteUnixPathTools.GetParentDir(filePath);
+        string newPath = RemoteUnixPathTools.Combine(parent, copyName);
         return FileOpCommand("cp", filePath, newPath);
     }
 
     public IResult DuplicateDir(string dirPath, string copyName)
     {
-        string parent = SftpPathTools.GetParentDir(dirPath);
-        string newPath = SftpPathTools.Combine(parent, copyName);
+        string parent = RemoteUnixPathTools.GetParentDir(dirPath);
+        string newPath = RemoteUnixPathTools.Combine(parent, copyName);
         return FileOpCommand("cp -r", dirPath, newPath);
     }
 
@@ -99,15 +99,15 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
 
     private ValueResult<string> Rename(string path, string newName)
     {
-        string parent = SftpPathTools.GetParentDir(path);
-        string newPath = SftpPathTools.Combine(parent, newName);
+        string parent = RemoteUnixPathTools.GetParentDir(path);
+        string newPath = RemoteUnixPathTools.Combine(parent, newName);
         return FileOpCommand("mv", path, newPath);
     }
 
     private ValueResult<string> MoveTo(string path, string destDir)
     {
-        string name = SftpPathTools.GetFileName(path);
-        string newPath = SftpPathTools.Combine(destDir, name);
+        string name = RemoteUnixPathTools.GetFileName(path);
+        string newPath = RemoteUnixPathTools.Combine(destDir, name);
         return FileOpCommand("mv", path, newPath);
     }
 

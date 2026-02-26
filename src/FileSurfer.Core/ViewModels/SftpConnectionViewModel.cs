@@ -112,7 +112,7 @@ public sealed class SftpConnectionViewModel : ReactiveObject
         HostnameOrIpAddress = saveFrom.HostnameOrIpAddress.Trim();
         Port = saveFrom.Port;
         Username = saveFrom.Username;
-        KeyPath = PathTools.NormalizeLocalPath(saveFrom.KeyPath.Trim());
+        KeyPath = LocalPathTools.NormalizePath(saveFrom.KeyPath.Trim());
         InitialDirectory = saveFrom.InitialDirectory?.Trim();
 
         SftpConnection.HostnameOrIpAddress = HostnameOrIpAddress;

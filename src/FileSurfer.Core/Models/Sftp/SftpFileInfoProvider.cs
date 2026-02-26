@@ -47,7 +47,7 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
             $"test -L {path} && test -d {path} && readlink -f {path}"
         );
 
-        directory = result.IsOk ? PathTools.NormalizePath(result.Value.Trim()) : null;
+        directory = result.IsOk ? RemoteUnixPathTools.NormalizePath(result.Value.Trim()) : null;
         return result.IsOk && !string.IsNullOrWhiteSpace(directory);
     }
 
@@ -192,7 +192,7 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         return path[i + 1] == '.';
     }
 
-    public string GetRoot() => SftpPathTools.RootDir;
+    public string GetRoot() => RemoteUnixPathTools.RootDir;
 
     public bool FileExists(string path)
     {

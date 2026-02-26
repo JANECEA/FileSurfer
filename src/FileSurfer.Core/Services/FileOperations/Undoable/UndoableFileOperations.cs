@@ -283,7 +283,7 @@ public sealed class FlattenFolder : IUndoableFileOperation
     }
 
     private static bool ContainsSameName(string name, IEnumerable<IFileSystemEntry> entries) =>
-        entries.Any(entry => PathTools.NamesAreEqual(name, entry.Name));
+        entries.Any(entry => LocalPathTools.NamesAreEqual(name, entry.Name)); // TODO make polymorphic
 }
 
 /// <summary>

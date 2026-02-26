@@ -16,7 +16,6 @@ using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileOperations;
 using FileSurfer.Core.Services.FileOperations.Undoable;
-using FileSurfer.Core.Services.Sftp;
 using FileSurfer.Core.Services.Shell;
 using FileSurfer.Core.Services.VersionControl;
 using FileSurfer.Core.Views;
@@ -643,8 +642,13 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void GoUp()
     {
-        if (Path.GetDirectoryName(PathTools.NormalizePath(CurrentDir)) is string parentDir)
-            SetNewLocation(parentDir);
+        string parent = // TODO make polymorphic
+            CurrentFs is LocalFileSystem
+                ? LocalPathTools.GetParentDir(LocalPathTools.NormalizePath(CurrentDir))
+                : RemoteUnixPathTools.GetParentDir(RemoteUnixPathTools.NormalizePath(CurrentDir));
+
+        if (!string.IsNullOrWhiteSpace(parent))
+            SetNewLocation(parent);
     }
 
     private IEnumerable<SideBarEntryViewModel> GetSpecialFolders() =>
@@ -1239,7 +1243,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             Reload();
 
             FileSystemEntryViewModel? newEntry = FileEntries.FirstOrDefault(e =>
-                PathTools.NamesAreEqual(e.Name, newName)
+                LocalPathTools.NamesAreEqual(e.Name, newName) // TODO windows / sftp discrepancy
             );
             if (newEntry is not null)
                 SelectedFiles.Add(newEntry);

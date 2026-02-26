@@ -153,7 +153,7 @@ public class WindowsFileInfoProvider : ILocalFileInfoProvider
         {
             int i = path.Length - 2;
             for (; i >= 0; i--)
-                if (path[i] == PathTools.DirSeparator)
+                if (path[i] == LocalPathTools.DirSeparator)
                     break;
 
             if (path[i + 1] == '.')

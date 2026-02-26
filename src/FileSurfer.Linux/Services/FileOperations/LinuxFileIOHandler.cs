@@ -89,11 +89,12 @@ public class LinuxFileIoHandler : IFileIoHandler
 
     private static bool IsValidFileName(string fileName) =>
         !string.IsNullOrWhiteSpace(fileName)
-        && Path.GetInvalidFileNameChars().All(ch => !fileName.Contains(ch, PathTools.Comparison));
+        && Path.GetInvalidFileNameChars()
+            .All(ch => !fileName.Contains(ch, LocalPathTools.Comparison));
 
     private static bool IsValidDirName(string dirName) =>
         !string.IsNullOrWhiteSpace(dirName)
-        && Path.GetInvalidPathChars().All(ch => !dirName.Contains(ch, PathTools.Comparison));
+        && Path.GetInvalidPathChars().All(ch => !dirName.Contains(ch, LocalPathTools.Comparison));
 
     public IResult RenameFileAt(string filePath, string newName)
     {
@@ -105,7 +106,7 @@ public class LinuxFileIoHandler : IFileIoHandler
             if (Path.GetDirectoryName(filePath) is not string parentDir)
                 return SimpleResult.Error($"File \"{filePath}\" has no parent directory.");
 
-            if (!string.Equals(Path.GetFileName(filePath), newName, PathTools.Comparison))
+            if (!string.Equals(Path.GetFileName(filePath), newName, LocalPathTools.Comparison))
                 File.Move(filePath, Path.Combine(parentDir, newName));
 
             return SimpleResult.Ok();
@@ -126,7 +127,7 @@ public class LinuxFileIoHandler : IFileIoHandler
             if (Path.GetDirectoryName(dirPath) is not string parentDir)
                 return SimpleResult.Error($"\"{dirPath}\" is a root directory");
 
-            if (!string.Equals(Path.GetFileName(dirPath), newName, PathTools.Comparison))
+            if (!string.Equals(Path.GetFileName(dirPath), newName, LocalPathTools.Comparison))
                 Directory.Move(dirPath, Path.Combine(parentDir, newName));
 
             return SimpleResult.Ok();

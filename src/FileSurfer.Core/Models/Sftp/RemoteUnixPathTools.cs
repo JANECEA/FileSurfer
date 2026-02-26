@@ -6,7 +6,7 @@ using System.Text;
 namespace FileSurfer.Core.Models.Sftp;
 
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-internal static class SftpPathTools
+internal static class RemoteUnixPathTools // TODO simplify
 {
     public const char DirSeparator = '/';
     public const string RootDir = "/";
@@ -59,32 +59,45 @@ internal static class SftpPathTools
             yield return new Range(0, 0);
     }
 
-    private static void AssemblePath(StringBuilder sb, string path, char dirSep)
+    private static void AssemblePath(StringBuilder sb, string path)
     {
         foreach (Range partRange in GetParts(path))
         {
             ReadOnlySpan<char> part = path.AsSpan()[partRange];
             sb.Append(part);
-            sb.Append(dirSep);
+            //sb.Append(DirSeparator);
         }
     }
 
-    private static void RemoveTrailingSep(StringBuilder sb, char dirSep)
+    /// <summary>
+    /// Normalizes the given path to and removes redundant separators and the trailing separator
+    /// <para/>
+    /// Separators at root level paths are kept.
+    /// </summary>
+    /// <param name="path">Path to normalize</param>
+    /// <returns>Normalized path</returns>
+    public static string NormalizePath(string path)
     {
-        if (sb.Length > 0 && sb[^1] == dirSep)
+        StringBuilder sb = new(path.Length);
+        AssemblePath(sb, path);
+        RemoveTrailingSep(sb);
+
+        return sb.ToString();
+    }
+
+    private static void RemoveTrailingSep(StringBuilder sb)
+    {
+        if (sb.Length > 0 && sb[^1] == DirSeparator)
             sb.Remove(sb.Length - 1, 1);
     }
 
-    public static string Combine(string pathBase, string pathSuffix, char dirSep = '\0')
+    public static string Combine(string pathBase, string pathSuffix)
     {
-        if (dirSep == '\0')
-            dirSep = DirSeparator;
-
         StringBuilder sb = new(pathBase.Length + pathSuffix.Length);
 
-        AssemblePath(sb, pathBase, dirSep);
-        AssemblePath(sb, pathSuffix, dirSep);
-        RemoveTrailingSep(sb, dirSep);
+        AssemblePath(sb, pathBase);
+        AssemblePath(sb, pathSuffix);
+        RemoveTrailingSep(sb);
 
         return sb.ToString();
     }

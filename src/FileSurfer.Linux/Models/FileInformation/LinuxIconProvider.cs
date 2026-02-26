@@ -63,7 +63,7 @@ public sealed class LinuxIconProvider : BaseIconProvider
     private async Task<string> GetMimeType(string filePath)
     {
         string? extension = null;
-        foreach (string ext in PathTools.EnumerateExtensions(filePath))
+        foreach (string ext in LocalPathTools.EnumerateExtensions(filePath))
         {
             extension = ext;
             if (_extToMime.TryGetValue(ext, out string? mime))

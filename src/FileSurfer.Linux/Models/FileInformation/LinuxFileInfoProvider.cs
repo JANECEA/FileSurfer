@@ -183,11 +183,11 @@ public class LinuxFileInfoProvider : ILocalFileInfoProvider
             return false;
 
         int i = path.Length - 1;
-        while (i >= 0 && path[i] == PathTools.DirSeparator)
+        while (i >= 0 && path[i] == LocalPathTools.DirSeparator)
             i--;
 
         for (; i >= 0; i--)
-            if (path[i] == PathTools.DirSeparator)
+            if (path[i] == LocalPathTools.DirSeparator)
                 break;
 
         return path[i + 1] == '.';

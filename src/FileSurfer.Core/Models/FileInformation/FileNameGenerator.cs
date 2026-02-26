@@ -92,7 +92,7 @@ public static class FileNameGenerator
         for (int i = 1; i < entries.Count; i++)
             if (
                 entries[i] is FileEntry != onlyFiles
-                || !string.Equals(entries[i].Extension, extension, PathTools.Comparison)
+                || LocalPathTools.NamesAreEqual(entries[i].Extension, extension) // TODO make polymorphic
             )
                 return false;
 

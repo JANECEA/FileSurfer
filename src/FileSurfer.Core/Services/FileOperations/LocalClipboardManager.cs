@@ -41,7 +41,7 @@ public class LocalClipboardManager : ILocalClipboardManager
 
     public async Task<PasteType> GetOperationType(string currentDir)
     {
-        if (_pasteType == PasteType.Copy && PathTools.PathsAreEqual(_copyFromDir, currentDir))
+        if (_pasteType == PasteType.Copy && LocalPathTools.PathsAreEqual(_copyFromDir, currentDir))
             _pasteType = PasteType.Duplicate;
 
         if (_pasteType is PasteType.Cut or PasteType.Duplicate && await CompareClipboards())
@@ -60,22 +60,22 @@ public class LocalClipboardManager : ILocalClipboardManager
 
         HashSet<string> files = _programClipboard
             .Where(entry => entry is FileEntry)
-            .Select(file => PathTools.NormalizeLocalPath(file.PathToEntry))
+            .Select(file => LocalPathTools.NormalizePath(file.PathToEntry))
             .ToHashSet();
         HashSet<string> directories = _programClipboard
             .Where(entry => entry is DirectoryEntry)
-            .Select(directory => PathTools.NormalizeLocalPath(directory.PathToEntry))
+            .Select(directory => LocalPathTools.NormalizePath(directory.PathToEntry))
             .ToHashSet();
 
         foreach (IStorageItem item in items)
             if (item is IStorageFile)
             {
-                if (!files.Contains(PathTools.NormalizeLocalPath(item.Path.LocalPath)))
+                if (!files.Contains(LocalPathTools.NormalizePath(item.Path.LocalPath)))
                     return false;
             }
             else if (item is IStorageFolder)
             {
-                if (!directories.Contains(PathTools.NormalizeLocalPath(item.Path.LocalPath)))
+                if (!directories.Contains(LocalPathTools.NormalizePath(item.Path.LocalPath)))
                     return false;
             }
 
@@ -196,7 +196,7 @@ public class LocalClipboardManager : ILocalClipboardManager
         int index = 0;
         foreach (IStorageItem item in items)
         {
-            string normalizedPath = PathTools.NormalizeLocalPath(item.Path.LocalPath);
+            string normalizedPath = LocalPathTools.NormalizePath(item.Path.LocalPath);
             if (item is IStorageFolder)
             {
                 entries[index++] = new DirectoryEntry(normalizedPath);

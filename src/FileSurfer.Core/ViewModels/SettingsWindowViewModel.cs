@@ -194,7 +194,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         foreach (char c in input.Where(ch => !invalidChars.Contains(ch)))
             sb.Append(c);
 
-        return sb.ToString().Trim().TrimEnd(PathTools.DirSeparator);
+        return sb.ToString().Trim().TrimEnd(LocalPathTools.DirSeparator);
     }
 }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.

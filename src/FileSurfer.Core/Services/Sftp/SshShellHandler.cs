@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Text;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.Services.Shell;
 using Renci.SshNet;
 
@@ -35,10 +36,10 @@ public sealed class SshShellHandler : IShellHandler
     }
 
     public IResult CreateFileLink(string filePath) =>
-        CreateLinkInternal(PathTools.NormalizePath(filePath), ".link");
+        CreateLinkInternal(RemoteUnixPathTools.NormalizePath(filePath), ".link");
 
     public IResult CreateDirectoryLink(string dirPath) =>
-        CreateLinkInternal(PathTools.NormalizePath(dirPath), "-link");
+        CreateLinkInternal(RemoteUnixPathTools.NormalizePath(dirPath), "-link");
 
     private SimpleResult CreateLinkInternal(string path, string suffix)
     {

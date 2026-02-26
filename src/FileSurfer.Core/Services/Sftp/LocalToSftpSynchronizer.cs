@@ -41,9 +41,9 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         _watcher = new DirectoryWatcher(localRoot, interval);
         _remoteHandler = remoteHandler;
         _remoteRoot = remoteRoot;
-        _remoteRootPath = PathTools.NormalizePath(remoteRoot.Path);
+        _remoteRootPath = RemoteUnixPathTools.NormalizePath(remoteRoot.Path);
         _localRoot = localRoot;
-        _localRootPath = PathTools.NormalizeLocalPath(localRoot.Path);
+        _localRootPath = LocalPathTools.NormalizePath(localRoot.Path);
 
         _watcher.ChangeDetected += OnFsEvent;
     }
@@ -152,21 +152,24 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 
     private string ToRemotePath(string localPath)
     {
-        localPath = PathTools.NormalizeLocalPath(localPath);
+        localPath = LocalPathTools.NormalizePath(localPath);
 
         string relative = localPath[(_localRootPath.Length + 1)..];
-        string fwSlashes = relative.Replace(PathTools.DirSeparator, SftpPathTools.DirSeparator);
-        return SftpPathTools.Combine(_remoteRootPath, fwSlashes);
+        string fwSlashes = relative.Replace(
+            LocalPathTools.DirSeparator,
+            RemoteUnixPathTools.DirSeparator
+        );
+        return RemoteUnixPathTools.Combine(_remoteRootPath, fwSlashes);
     }
 
     private string ToLocalPath(string remotePath)
     {
-        remotePath = PathTools.NormalizePath(remotePath);
+        remotePath = RemoteUnixPathTools.NormalizePath(remotePath);
 
         string relative = remotePath[(_remoteRootPath.Length + 1)..];
         string correctSlashes = relative.Replace(
-            SftpPathTools.DirSeparator,
-            PathTools.DirSeparator
+            RemoteUnixPathTools.DirSeparator,
+            LocalPathTools.DirSeparator
         );
         return Path.Combine(_localRootPath, correctSlashes);
     }
@@ -218,13 +221,13 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 
             FileSystemEventType.Moved when e.NewPath is string newPath => _remoteHandler.MoveFileTo(
                 remotePath,
-                SftpPathTools.GetParentDir(ToRemotePath(newPath))
+                RemoteUnixPathTools.GetParentDir(ToRemotePath(newPath))
             ),
 
             FileSystemEventType.Copied when e.NewPath is string newPath =>
                 _remoteHandler.CopyFileTo(
                     remotePath,
-                    SftpPathTools.GetParentDir(ToRemotePath(newPath))
+                    RemoteUnixPathTools.GetParentDir(ToRemotePath(newPath))
                 ),
 
             FileSystemEventType.Moved or FileSystemEventType.Copied => SimpleResult.Error(
@@ -238,20 +241,20 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         e.EventType switch
         {
             FileSystemEventType.Created => _remoteHandler.NewDirAt(
-                SftpPathTools.GetParentDir(remotePath),
-                SftpPathTools.GetFileName(remotePath)
+                RemoteUnixPathTools.GetParentDir(remotePath),
+                RemoteUnixPathTools.GetFileName(remotePath)
             ),
 
             FileSystemEventType.Deleted => _remoteHandler.DeleteDir(remotePath),
 
             FileSystemEventType.Moved when e.NewPath is string newPath => _remoteHandler.MoveDirTo(
                 remotePath,
-                SftpPathTools.GetParentDir(ToRemotePath(newPath))
+                RemoteUnixPathTools.GetParentDir(ToRemotePath(newPath))
             ),
 
             FileSystemEventType.Copied when e.NewPath is string newPath => _remoteHandler.CopyDirTo(
                 remotePath,
-                SftpPathTools.GetParentDir(ToRemotePath(newPath))
+                RemoteUnixPathTools.GetParentDir(ToRemotePath(newPath))
             ),
 
             FileSystemEventType.Moved or FileSystemEventType.Copied => SimpleResult.Error(
