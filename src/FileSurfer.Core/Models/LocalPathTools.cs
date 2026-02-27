@@ -6,21 +6,45 @@ using System.Text;
 
 namespace FileSurfer.Core.Models;
 
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-public static class LocalPathTools
+public interface IPathTools
 {
-    public static char DirSeparator => Path.DirectorySeparatorChar;
-    public static char OtherSeparator { get; } = OperatingSystem.IsWindows() ? '/' : DirSeparator;
-    public static StringComparison Comparison { get; } =
-        OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+    public char DirSeparator { get; }
 
     /// <summary>
-    /// Normalizes the given path to an absolute path without redundant separators and without a trailing separator
+    /// Normalizes the given path to a path without redundant separators and without a trailing separator
     /// <para/>
     /// Separators at root level paths are kept.
     /// </summary>
     /// <param name="path">Path to normalize</param>
     /// <returns>Normalized path</returns>
+    public string NormalizePath(string path);
+
+    public string Combine(string pathBase, string pathSuffix);
+
+    public string GetParentDir(string path);
+
+    public string GetFileName(string path);
+}
+
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+public class LocalPathTools : IPathTools
+{
+    char IPathTools.DirSeparator => DirSeparator;
+
+    string IPathTools.NormalizePath(string path) => NormalizePath(path);
+
+    string IPathTools.Combine(string pathBase, string pathSuffix) => Combine(pathBase, pathSuffix);
+
+    string IPathTools.GetParentDir(string path) => GetParentDir(path);
+
+    string IPathTools.GetFileName(string path) => GetFileName(path);
+
+    public static char DirSeparator => Path.DirectorySeparatorChar;
+    public static char OtherSeparator { get; } =
+        OperatingSystem.IsWindows() ? Path.AltDirectorySeparatorChar : Path.DirectorySeparatorChar;
+    public static StringComparison Comparison { get; } =
+        OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+
     public static string NormalizePath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -34,8 +58,8 @@ public static class LocalPathTools
         {
             // GetFullPath may fail, continue with normalizing
         }
-        StringBuilder sb = new(path.Length);
 
+        StringBuilder sb = new(path.Length);
         bool previousWasDirSep = false;
         foreach (char ch in path)
         {
@@ -53,6 +77,27 @@ public static class LocalPathTools
         return sb.ToString();
     }
 
+    public static string Combine(string pathBase, string pathSuffix) =>
+        new StringBuilder(pathBase.Length + 1 + pathSuffix.Length)
+            .Append(pathBase.AsSpan().TrimEnd(DirSeparator).TrimEnd(OtherSeparator))
+            .Append(DirSeparator)
+            .Append(pathSuffix.AsSpan().Trim(DirSeparator).Trim(OtherSeparator))
+            .ToString();
+
+    public static string GetParentDir(string path)
+    {
+        ReadOnlySpan<char> shaved = path.AsSpan().TrimEnd(DirSeparator).TrimEnd(OtherSeparator);
+        ReadOnlySpan<char> parent = Path.GetDirectoryName(shaved);
+        return parent.IsEmpty ? path : parent.ToString();
+    }
+
+    public static string GetFileName(string path)
+    {
+        ReadOnlySpan<char> shaved = path.AsSpan().TrimEnd(DirSeparator).TrimEnd(OtherSeparator);
+        ReadOnlySpan<char> name = Path.GetFileName(shaved);
+        return name.ToString();
+    }
+
     public static bool PathsAreEqual(string? pathA, string? pathB) =>
         pathA is not null
         && pathB is not null
@@ -66,7 +111,7 @@ public static class LocalPathTools
 
     public static IEnumerable<string> EnumerateExtensions(string path)
     {
-        int lastSep = path.LastIndexOf(DirSeparator);
+        int lastSep = int.Max(path.LastIndexOf(DirSeparator), path.LastIndexOf(OtherSeparator));
 
         for (int index = lastSep + 1; index <= path.Length - 3; index++)
             if (path[index] == '.')
@@ -81,41 +126,6 @@ public static class LocalPathTools
             sb.Remove(sb.Length - 1, 1);
     }
 
-    private static void ShaveNonSep(StringBuilder sb)
-    {
-        for (int i = sb.Length - 1; i >= 0 && !IsSep(sb[i]); i--)
-            sb.Remove(sb.Length - 1, 1);
-    }
-
-    public static string GetParentDir(string path)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-            return string.Empty;
-
-        StringBuilder sb = new(path);
-
-        ShaveSep(sb);
-        ShaveNonSep(sb);
-        ShaveSep(sb);
-
-        return sb.ToString();
-    }
-
-    public static string GetFileName(string path)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-            return string.Empty;
-
-        int nameEndExc = path.Length - 1;
-        while (nameEndExc >= 0 && IsSep(path[nameEndExc]))
-            nameEndExc--;
-
-        int nameStartInc = nameEndExc;
-        while (nameStartInc >= 0 && !IsSep(path[nameStartInc]))
-            nameStartInc--;
-
-        return nameStartInc >= 0 && nameEndExc >= 0 && nameStartInc < nameEndExc
-            ? path[nameStartInc..nameEndExc]
-            : string.Empty;
-    }
+    public static string TrimEndDirectorySeparator(string path) =>
+        path.AsSpan().TrimEnd(DirSeparator).TrimEnd(OtherSeparator).ToString();
 }

@@ -5,18 +5,21 @@ using System.Text;
 namespace FileSurfer.Core.Models.Sftp;
 
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-internal static class RemoteUnixPathTools // TODO simplify
+internal class RemoteUnixPathTools : IPathTools
 {
+    char IPathTools.DirSeparator => DirSeparator;
+
+    string IPathTools.NormalizePath(string path) => NormalizePath(path);
+
+    string IPathTools.Combine(string pathBase, string pathSuffix) => Combine(pathBase, pathSuffix);
+
+    string IPathTools.GetParentDir(string path) => GetParentDir(path);
+
+    string IPathTools.GetFileName(string path) => GetFileName(path);
+
     public const char DirSeparator = '/';
     public const string RootDir = "/";
 
-    /// <summary>
-    /// Normalizes the given path to and removes redundant separators and the trailing separator
-    /// <para/>
-    /// Separators at root level paths are kept.
-    /// </summary>
-    /// <param name="path">Path to normalize</param>
-    /// <returns>Normalized path</returns>
     public static string NormalizePath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -72,7 +75,7 @@ internal static class RemoteUnixPathTools // TODO simplify
         ShaveNonSep(sb);
         ShaveSep(sb);
 
-        return sb.ToString();
+        return sb.Length > 0 ? sb.ToString() : RootDir;
     }
 
     public static string GetFileName(string path)

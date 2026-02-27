@@ -20,7 +20,7 @@ public static class FileNameGenerator
         string newName
     )
     {
-        if (!fileInfoProvider.PathExists(Path.Combine(directory, newName)))
+        if (!fileInfoProvider.PathExists(Path.Combine(directory, newName))) // TODO make polymorphic
             return newName;
 
         string nameWithoutExtension = Path.GetFileNameWithoutExtension(newName);

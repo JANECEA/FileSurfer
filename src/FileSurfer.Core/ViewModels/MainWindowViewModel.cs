@@ -642,9 +642,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void GoUp()
     {
-        string parent = // TODO make polymorphic
+        string? parent = // TODO make polymorphic
             CurrentFs is LocalFileSystem
-                ? LocalPathTools.GetParentDir(LocalPathTools.NormalizePath(CurrentDir))
+                ? Path.GetDirectoryName(LocalPathTools.NormalizePath(CurrentDir))
                 : RemoteUnixPathTools.GetParentDir(RemoteUnixPathTools.NormalizePath(CurrentDir));
 
         if (!string.IsNullOrWhiteSpace(parent))
