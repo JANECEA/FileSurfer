@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
@@ -20,10 +18,7 @@ public sealed class MoveFilesToTrash : UndoableOperation
         IFileIoHandler fileIoHandler,
         IFileSystemEntry[] entries
     )
-        : base(fileIoHandler, entries)
-    {
-        _fileRestorer = fileRestorer;
-    }
+        : base(fileIoHandler, entries) => _fileRestorer = fileRestorer;
 
     protected override IResult InvokeAction(IFileSystemEntry entry, int index) =>
         entry is DirectoryEntry
@@ -41,19 +36,22 @@ public sealed class MoveFilesToTrash : UndoableOperation
 /// </summary>
 public sealed class MoveFilesTo : UndoableOperation
 {
+    private readonly IPathTools _pathTools;
     private readonly string _destinationDir;
     private readonly string _originalDir;
 
     public MoveFilesTo(
+        IPathTools pathTools,
         IFileIoHandler fileIoHandler,
         IFileSystemEntry[] entries,
         string destinationDir
     )
         : base(fileIoHandler, entries)
     {
+        _pathTools = pathTools;
         _destinationDir = destinationDir;
         _originalDir =
-            Path.GetDirectoryName(entries[0].PathToEntry) ?? throw new InvalidOperationException();
+            entries.Length > 0 ? pathTools.GetParentDir(entries[0].PathToEntry) : string.Empty;
     }
 
     protected override IResult InvokeAction(IFileSystemEntry entry, int index) =>
@@ -63,7 +61,7 @@ public sealed class MoveFilesTo : UndoableOperation
 
     protected override IResult UndoAction(IFileSystemEntry entry, int index)
     {
-        string newPath = Path.Combine(_destinationDir, entry.Name);
+        string newPath = _pathTools.Combine(_destinationDir, entry.Name);
         return entry is DirectoryEntry
             ? FileIoHandler.MoveDirTo(newPath, _originalDir)
             : FileIoHandler.MoveFileTo(newPath, _originalDir);
@@ -75,14 +73,20 @@ public sealed class MoveFilesTo : UndoableOperation
 /// </summary>
 public sealed class CopyFilesTo : UndoableOperation
 {
+    private readonly IPathTools _pathTools;
     private readonly string _destinationDir;
 
     public CopyFilesTo(
+        IPathTools pathTools,
         IFileIoHandler fileIoHandler,
         IFileSystemEntry[] entries,
         string destinationDir
     )
-        : base(fileIoHandler, entries) => _destinationDir = destinationDir;
+        : base(fileIoHandler, entries)
+    {
+        _pathTools = pathTools;
+        _destinationDir = destinationDir;
+    }
 
     protected override IResult InvokeAction(IFileSystemEntry entry, int index) =>
         entry is DirectoryEntry
@@ -91,7 +95,7 @@ public sealed class CopyFilesTo : UndoableOperation
 
     protected override IResult UndoAction(IFileSystemEntry entry, int index)
     {
-        string newPath = Path.Combine(_destinationDir, entry.Name);
+        string newPath = _pathTools.Combine(_destinationDir, entry.Name);
         return entry is DirectoryEntry
             ? FileIoHandler.DeleteDir(newPath)
             : FileIoHandler.DeleteFile(newPath);
@@ -103,19 +107,22 @@ public sealed class CopyFilesTo : UndoableOperation
 /// </summary>
 public sealed class DuplicateFiles : UndoableOperation
 {
+    private readonly IPathTools _pathTools;
     private readonly string[] _copyNames;
     private readonly string _parentDir;
 
     public DuplicateFiles(
+        IPathTools pathTools,
         IFileIoHandler fileIoHandler,
         IFileSystemEntry[] entries,
         string[] copyNames
     )
         : base(fileIoHandler, entries)
     {
+        _pathTools = pathTools;
         _copyNames = copyNames;
         _parentDir =
-            Path.GetDirectoryName(entries[0].PathToEntry) ?? throw new InvalidOperationException();
+            entries.Length > 0 ? pathTools.GetParentDir(entries[0].PathToEntry) : string.Empty;
     }
 
     protected override IResult InvokeAction(IFileSystemEntry entry, int index) =>
@@ -125,8 +132,8 @@ public sealed class DuplicateFiles : UndoableOperation
 
     protected override IResult UndoAction(IFileSystemEntry entry, int index) =>
         entry is DirectoryEntry
-            ? FileIoHandler.DeleteDir(Path.Combine(_parentDir, _copyNames[index]))
-            : FileIoHandler.DeleteFile(Path.Combine(_parentDir, _copyNames[index]));
+            ? FileIoHandler.DeleteDir(_pathTools.Combine(_parentDir, _copyNames[index]))
+            : FileIoHandler.DeleteFile(_pathTools.Combine(_parentDir, _copyNames[index]));
 }
 
 /// <summary>
@@ -134,19 +141,21 @@ public sealed class DuplicateFiles : UndoableOperation
 /// </summary>
 public sealed class RenameMultiple : UndoableOperation
 {
+    private readonly IPathTools _pathTools;
     private readonly string[] _newNames;
     private readonly string _dirName;
 
     public RenameMultiple(
+        IPathTools pathTools,
         IFileIoHandler fileIoHandler,
         IFileSystemEntry[] entries,
         string[] newNames
     )
         : base(fileIoHandler, entries)
     {
+        _pathTools = pathTools;
         _newNames = newNames;
-        _dirName =
-            Path.GetDirectoryName(entries[0].PathToEntry) ?? throw new InvalidOperationException();
+        _dirName = pathTools.GetParentDir(entries[0].PathToEntry);
     }
 
     protected override IResult InvokeAction(IFileSystemEntry entry, int index) =>
@@ -156,7 +165,7 @@ public sealed class RenameMultiple : UndoableOperation
 
     protected override IResult UndoAction(IFileSystemEntry entry, int index)
     {
-        string newPath = Path.Combine(_dirName, _newNames[index]);
+        string newPath = _pathTools.Combine(_dirName, _newNames[index]);
         return entry is DirectoryEntry
             ? FileIoHandler.RenameDirAt(newPath, Entries[index].Name)
             : FileIoHandler.RenameFileAt(newPath, Entries[index].Name);
@@ -170,6 +179,7 @@ public sealed class FlattenFolder : IUndoableFileOperation
 {
     private readonly IFileIoHandler _fileIoHandler;
     private readonly IFileInfoProvider _fileInfoProvider;
+    private readonly IPathTools _pathTools;
     private readonly string _dirPath;
     private readonly string _dirName;
     private readonly string? _parentDir;
@@ -185,9 +195,10 @@ public sealed class FlattenFolder : IUndoableFileOperation
     {
         _fileIoHandler = fileIoHandler;
         _fileInfoProvider = fileInfoProvider;
+        _pathTools = fileInfoProvider.PathTools;
         _dirPath = dirPath;
-        _dirName = Path.GetFileName(dirPath);
-        _parentDir = Path.GetDirectoryName(dirPath);
+        _dirName = _pathTools.GetFileName(dirPath);
+        _parentDir = _pathTools.GetParentDir(dirPath);
     }
 
     public IResult Invoke()
@@ -220,7 +231,7 @@ public sealed class FlattenFolder : IUndoableFileOperation
     private IResult RenameIfConflict(out string newDirPath)
     {
         newDirPath = _dirPath;
-        if (!_fileInfoProvider.PathExists(Path.Combine(_dirPath, _dirName)))
+        if (!_fileInfoProvider.PathExists(_pathTools.Combine(_dirPath, _dirName)))
             return SimpleResult.Ok();
 
         string newName = FileNameGenerator.GetNameMultipleDirs(
@@ -229,36 +240,45 @@ public sealed class FlattenFolder : IUndoableFileOperation
             _parentDir!,
             _dirPath
         );
-        newDirPath = Path.Combine(_parentDir!, newName);
+        newDirPath = _pathTools.Combine(_parentDir!, newName);
         return _fileIoHandler.RenameDirAt(_dirPath, newName);
     }
 
     public IResult Undo()
     {
+        if (_parentDir is null)
+            return SimpleResult.Error("This operation is invalid.");
+
         Result result = Result.Ok();
         if (!result.MergeResult(CheckConditions(out string newDirName)).IsOk)
             return result;
 
-        string newDirPath = Path.Combine(_parentDir!, newDirName);
+        string newDirPath = _pathTools.Combine(_parentDir, newDirName);
 
-        if (!result.MergeResult(_fileIoHandler.NewDirAt(_parentDir!, newDirName)).IsOk)
+        if (!result.MergeResult(_fileIoHandler.NewDirAt(_parentDir, newDirName)).IsOk)
             return result;
 
         foreach (DirectoryEntryInfo dir in _containedDirs)
         {
-            string dirPath = Path.Combine(_parentDir!, Path.GetFileName(dir.PathToEntry));
+            string dirPath = _pathTools.Combine(
+                _parentDir,
+                _pathTools.GetFileName(dir.PathToEntry)
+            );
             result.MergeResult(_fileIoHandler.MoveDirTo(dirPath, newDirPath));
         }
         foreach (FileEntryInfo file in _containedFiles)
         {
-            string filePath = Path.Combine(_parentDir!, Path.GetFileName(file.PathToEntry));
+            string filePath = _pathTools.Combine(
+                _parentDir,
+                _pathTools.GetFileName(file.PathToEntry)
+            );
             result.MergeResult(_fileIoHandler.MoveFileTo(filePath, newDirPath));
         }
 
         if (!result.IsOk)
             return result;
 
-        return string.Equals(_dirName, newDirName, StringComparison.OrdinalIgnoreCase)
+        return _pathTools.NamesAreEqual(_dirName, newDirName)
             ? SimpleResult.Ok()
             : _fileIoHandler.RenameDirAt(newDirPath, _dirName);
     }
@@ -282,8 +302,8 @@ public sealed class FlattenFolder : IUndoableFileOperation
         return SimpleResult.Ok();
     }
 
-    private static bool ContainsSameName(string name, IEnumerable<IFileSystemEntry> entries) =>
-        entries.Any(entry => LocalPathTools.NamesAreEqual(name, entry.Name)); // TODO make polymorphic
+    private bool ContainsSameName(string name, IEnumerable<IFileSystemEntry> entries) =>
+        entries.Any(entry => _pathTools.NamesAreEqual(name, entry.Name));
 }
 
 /// <summary>
@@ -296,14 +316,18 @@ public sealed class RenameOne : IUndoableFileOperation
     private readonly string _newName;
     private readonly string _newPath;
 
-    public RenameOne(IFileIoHandler fileHandler, IFileSystemEntry entry, string newName)
+    public RenameOne(
+        IPathTools pathTools,
+        IFileIoHandler fileHandler,
+        IFileSystemEntry entry,
+        string newName
+    )
     {
         _fileIoHandler = fileHandler;
         _entry = entry;
         _newName = newName;
-        string dirName =
-            Path.GetDirectoryName(entry.PathToEntry) ?? throw new InvalidOperationException();
-        _newPath = Path.Combine(dirName, newName);
+        string dirName = pathTools.GetParentDir(entry.PathToEntry);
+        _newPath = pathTools.Combine(dirName, newName);
     }
 
     public IResult Invoke() =>
@@ -325,17 +349,19 @@ public sealed class NewFileAt : IUndoableFileOperation
     private readonly IFileIoHandler _fileIoHandler;
     private readonly string _path;
     private readonly string _fileName;
+    private readonly string _filePath;
 
-    public NewFileAt(IFileIoHandler fileHandler, string path, string fileName)
+    public NewFileAt(IPathTools pathTools, IFileIoHandler fileHandler, string path, string fileName)
     {
         _fileIoHandler = fileHandler;
         _path = path;
         _fileName = fileName;
+        _filePath = pathTools.Combine(path, fileName);
     }
 
     public IResult Invoke() => _fileIoHandler.NewFileAt(_path, _fileName);
 
-    public IResult Undo() => _fileIoHandler.DeleteFile(Path.Combine(_path, _fileName));
+    public IResult Undo() => _fileIoHandler.DeleteFile(_filePath);
 }
 
 /// <summary>
@@ -346,15 +372,17 @@ public sealed class NewDirAt : IUndoableFileOperation
     private readonly IFileIoHandler _fileIoHandler;
     private readonly string _path;
     private readonly string _dirName;
+    private readonly string _dirPath;
 
-    public NewDirAt(IFileIoHandler fileHandler, string path, string dirName)
+    public NewDirAt(IPathTools pathTools, IFileIoHandler fileHandler, string path, string dirName)
     {
         _fileIoHandler = fileHandler;
         _path = path;
         _dirName = dirName;
+        _dirPath = pathTools.Combine(path, dirName);
     }
 
     public IResult Invoke() => _fileIoHandler.NewDirAt(_path, _dirName);
 
-    public IResult Undo() => _fileIoHandler.DeleteDir(Path.Combine(_path, _dirName));
+    public IResult Undo() => _fileIoHandler.DeleteDir(_dirPath);
 }

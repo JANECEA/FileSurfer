@@ -11,6 +11,8 @@ namespace FileSurfer.Windows.Models.FileInformation;
 
 public class WindowsFileInfoProvider : ILocalFileInfoProvider
 {
+    public IPathTools PathTools { get; } = new LocalPathTools();
+
     public DriveEntry[] GetDrives() =>
         DriveInfo
             .GetDrives()
@@ -153,7 +155,10 @@ public class WindowsFileInfoProvider : ILocalFileInfoProvider
         {
             int i = path.Length - 2;
             for (; i >= 0; i--)
-                if (path[i] == LocalPathTools.DirSeparator)
+                if (
+                    path[i] == LocalPathTools.DirSeparator
+                    || path[i] == LocalPathTools.OtherSeparator
+                )
                     break;
 
             if (path[i + 1] == '.')

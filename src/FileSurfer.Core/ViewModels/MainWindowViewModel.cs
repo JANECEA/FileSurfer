@@ -36,6 +36,7 @@ namespace FileSurfer.Core.ViewModels;
     SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global"),
     SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
     SuppressMessage("ReSharper", "UnusedMember.Global"),
+    SuppressMessage("ReSharper", "CollectionNeverQueried.Global"),
     SuppressMessage("Performance", "CA1822:Mark members as static"),
 ]
 public sealed class MainWindowViewModel : ReactiveObject, IDisposable
@@ -143,6 +144,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private Location? _currentLocation;
 
     private IFileSystem CurrentFs { get; set; }
+
+    private IPathTools PathTools => CurrentFs.FileInfoProvider.PathTools;
 
     public string? CurrentInfoMessage
     {
@@ -532,7 +535,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (entry is DirectoryEntry or DriveEntry)
             SetNewLocation(entry.PathToEntry);
         else if (CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
-            SetNewLocation(dir!);
+            SetNewLocation(dir);
         else if (CurrentFs is LocalFileSystem fs)
             ShowIfError(fs.LocalShellHandler.OpenFile(entry.PathToEntry));
     }
@@ -542,7 +545,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (entry.FileSystemEntry is DirectoryEntry or DriveEntry)
             SetLocation(_localFs.GetLocation(entry.PathToEntry));
         else if (CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
-            SetLocation(_localFs.GetLocation(dir!));
+            SetLocation(_localFs.GetLocation(dir));
         else
             ShowIfError(_localFs.LocalShellHandler.OpenFile(entry.PathToEntry));
     }
@@ -642,10 +645,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void GoUp()
     {
-        string? parent = // TODO make polymorphic
-            CurrentFs is LocalFileSystem
-                ? Path.GetDirectoryName(LocalPathTools.NormalizePath(CurrentDir))
-                : RemoteUnixPathTools.GetParentDir(RemoteUnixPathTools.NormalizePath(CurrentDir));
+        IPathTools pathTools = CurrentFs.FileInfoProvider.PathTools;
+        string parent = pathTools.GetParentDir(pathTools.NormalizePath(CurrentDir));
 
         if (!string.IsNullOrWhiteSpace(parent))
             SetNewLocation(parent);
@@ -972,7 +973,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             FileSurferSettings.NewFileName
         );
 
-        NewFileAt operation = new(CurrentFs.FileIoHandler, CurrentDir, newFileName);
+        NewFileAt operation = new(PathTools, CurrentFs.FileIoHandler, CurrentDir, newFileName);
         IResult result = operation.Invoke();
         if (result.IsOk)
         {
@@ -1000,7 +1001,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             FileSurferSettings.NewDirectoryName
         );
 
-        NewDirAt operation = new(CurrentFs.FileIoHandler, CurrentDir, newDirName);
+        NewDirAt operation = new(PathTools, CurrentFs.FileIoHandler, CurrentDir, newDirName);
         IResult result = operation.Invoke();
         if (result.IsOk)
         {
@@ -1141,8 +1142,18 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         return ValueResult<IUndoableFileOperation>.Ok(
             pasteType is PasteType.Cut
-                ? new MoveFilesTo(CurrentFs.FileIoHandler, pastedResult.Value, CurrentDir)
-                : new CopyFilesTo(CurrentFs.FileIoHandler, pastedResult.Value, CurrentDir)
+                ? new MoveFilesTo(
+                    PathTools,
+                    CurrentFs.FileIoHandler,
+                    pastedResult.Value,
+                    CurrentDir
+                )
+                : new CopyFilesTo(
+                    PathTools,
+                    CurrentFs.FileIoHandler,
+                    pastedResult.Value,
+                    CurrentDir
+                )
         );
     }
 
@@ -1157,7 +1168,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return ValueResult<IUndoableFileOperation>.Error(copyNamesResult);
 
         return ValueResult<IUndoableFileOperation>.Ok(
-            new DuplicateFiles(CurrentFs.FileIoHandler, clipboard, copyNamesResult.Value)
+            new DuplicateFiles(PathTools, CurrentFs.FileIoHandler, clipboard, copyNamesResult.Value)
         );
     }
 
@@ -1235,7 +1246,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         FileSystemEntryViewModel entry = SelectedFiles[0];
 
-        RenameOne operation = new(CurrentFs.FileIoHandler, entry.FileSystemEntry, newName);
+        RenameOne operation = new(
+            PathTools,
+            CurrentFs.FileIoHandler,
+            entry.FileSystemEntry,
+            newName
+        );
         IResult result = operation.Invoke();
         if (result.IsOk)
         {
@@ -1243,7 +1259,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             Reload();
 
             FileSystemEntryViewModel? newEntry = FileEntries.FirstOrDefault(e =>
-                LocalPathTools.NamesAreEqual(e.Name, newName) // TODO windows / sftp discrepancy
+                CurrentFs.FileInfoProvider.PathTools.NamesAreEqual(e.Name, newName)
             );
             if (newEntry is not null)
                 SelectedFiles.Add(newEntry);
@@ -1254,13 +1270,19 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void RenameMultiple(string namingPattern)
     {
         IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry);
-        if (!FileNameGenerator.CanBeRenamedCollectively(entries))
+        if (
+            !FileNameGenerator.CanBeRenamedCollectively(
+                entries,
+                CurrentFs.FileInfoProvider.PathTools
+            )
+        )
         {
             ShowError("Selected entries aren't of the same type.");
             return;
         }
 
         RenameMultiple operation = new(
+            PathTools,
             CurrentFs.FileIoHandler,
             entries,
             FileNameGenerator.GetAvailableNames(CurrentFs.FileInfoProvider, entries, namingPattern)

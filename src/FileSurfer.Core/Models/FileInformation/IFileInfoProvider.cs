@@ -15,10 +15,15 @@ namespace FileSurfer.Core.Models.FileInformation;
 public interface IFileInfoProvider
 {
     /// <summary>
+    /// Provides methods for manipulating paths for specific filesystems
+    /// </summary>
+    public IPathTools PathTools { get; }
+
+    /// <summary>
     /// Checks if a symbolic link is referring to a directory.
     /// </summary>
     /// <returns><see langword="true"/> if the path is linked to a directory, otherwise <see langword="false"/>.</returns>
-    public bool IsLinkedToDirectory(string linkPath, out string? directory);
+    public bool IsLinkedToDirectory(string linkPath, [NotNullWhen(true)] out string? directory);
 
     /// <summary>
     /// Gets directories in a path, with optional inclusion of hidden and system directories.

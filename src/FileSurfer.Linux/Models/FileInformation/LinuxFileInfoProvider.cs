@@ -23,6 +23,8 @@ public class LinuxFileInfoProvider : ILocalFileInfoProvider
         PropertyNameCaseInsensitive = true,
     };
 
+    public IPathTools PathTools { get; } = new LocalPathTools();
+
     public LinuxFileInfoProvider(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]

@@ -71,7 +71,7 @@ public class FileEntry : IFileSystemEntry
     {
         PathToEntry = pathToFile;
         Name = Path.GetFileName(pathToFile);
-        Extension = Path.GetExtension(pathToFile); // TODO replace PathTools
+        Extension = Path.GetExtension(pathToFile);
         NameWoExtension = Path.GetFileNameWithoutExtension(pathToFile);
     }
 
@@ -79,7 +79,7 @@ public class FileEntry : IFileSystemEntry
     {
         PathToEntry = pathToFile;
         Name = name;
-        Extension = Path.GetExtension(pathToFile); // TODO replace PathTools
+        Extension = Path.GetExtension(pathToFile);
         NameWoExtension = Path.GetFileNameWithoutExtension(pathToFile);
     }
 }

@@ -17,6 +17,10 @@ internal class RemoteUnixPathTools : IPathTools
 
     string IPathTools.GetFileName(string path) => GetFileName(path);
 
+    bool IPathTools.NamesAreEqual(string? nameA, string? nameB) => NamesAreEqual(nameA, nameB);
+
+    bool IPathTools.PathsAreEqual(string? pathA, string? pathB) => PathsAreEqual(pathA, pathB);
+
     public const char DirSeparator = '/';
     public const string RootDir = "/";
 
@@ -51,6 +55,16 @@ internal class RemoteUnixPathTools : IPathTools
             .Append(DirSeparator)
             .Append(pathSuffix.AsSpan().Trim(DirSeparator))
             .ToString();
+
+    public static bool PathsAreEqual(string? pathA, string? pathB) =>
+        pathA is not null
+        && pathB is not null
+        && string.Equals(NormalizePath(pathA), NormalizePath(pathB), StringComparison.Ordinal);
+
+    public static bool NamesAreEqual(string? nameA, string? nameB) =>
+        nameA is not null
+        && nameB is not null
+        && string.Equals(nameA, nameB, StringComparison.Ordinal);
 
     private static void ShaveSep(StringBuilder sb)
     {

@@ -6,8 +6,15 @@ using System.Text;
 
 namespace FileSurfer.Core.Models;
 
+/// <summary>
+/// Provides methods for manipulating paths for specific filesystems
+/// </summary>
 public interface IPathTools
 {
+    /// <summary>
+    /// Platform-specific character used to
+    /// separate directory levels in a path string
+    /// </summary>
     public char DirSeparator { get; }
 
     /// <summary>
@@ -19,11 +26,35 @@ public interface IPathTools
     /// <returns>Normalized path</returns>
     public string NormalizePath(string path);
 
+    /// <summary>
+    /// Combines two paths
+    /// Returns the combined path without trailing separators
+    /// </summary>
     public string Combine(string pathBase, string pathSuffix);
 
+    /// <summary>
+    /// Returns the parent directory of the given path.
+    /// Trailing separators are ignored
+    /// Returns <see cref="string.Empty"/> if path has no parent directory
+    /// </summary>
     public string GetParentDir(string path);
 
+    /// <summary>
+    /// Returns the name and extension parts of the given path.
+    /// The resulting string contains the characters of path that follow the last separator in path.
+    /// Trailing separators are ignored
+    /// </summary>
     public string GetFileName(string path);
+
+    /// <summary>
+    /// Determines if two file or directory names are equal under the relevant filesystem's rules
+    /// </summary>
+    public bool NamesAreEqual(string? nameA, string? nameB);
+
+    /// <summary>
+    /// Determines if two file or directory paths are equal under the relevant filesystem's rules
+    /// </summary>
+    public bool PathsAreEqual(string? pathA, string? pathB);
 }
 
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
@@ -38,6 +69,10 @@ public class LocalPathTools : IPathTools
     string IPathTools.GetParentDir(string path) => GetParentDir(path);
 
     string IPathTools.GetFileName(string path) => GetFileName(path);
+
+    bool IPathTools.NamesAreEqual(string? nameA, string? nameB) => NamesAreEqual(nameA, nameB);
+
+    bool IPathTools.PathsAreEqual(string? pathA, string? pathB) => PathsAreEqual(pathA, pathB);
 
     public static char DirSeparator => Path.DirectorySeparatorChar;
     public static char OtherSeparator { get; } =
@@ -56,7 +91,7 @@ public class LocalPathTools : IPathTools
         }
         catch
         {
-            // GetFullPath may fail, continue with normalizing
+            // GetFullPath may fail, continue with this step
         }
 
         StringBuilder sb = new(path.Length);
@@ -95,6 +130,7 @@ public class LocalPathTools : IPathTools
     {
         ReadOnlySpan<char> shaved = path.AsSpan().TrimEnd(DirSeparator).TrimEnd(OtherSeparator);
         ReadOnlySpan<char> name = Path.GetFileName(shaved);
+        Path.GetFileName("");
         return name.ToString();
     }
 
@@ -120,12 +156,14 @@ public class LocalPathTools : IPathTools
 
     private static bool IsSep(char ch) => ch == DirSeparator || ch == OtherSeparator;
 
-    private static void ShaveSep(StringBuilder sb)
+    private static StringBuilder ShaveSep(StringBuilder sb)
     {
         for (int i = sb.Length - 1; i >= 0 && IsSep(sb[i]); i--)
             sb.Remove(sb.Length - 1, 1);
+
+        return sb;
     }
 
     public static string TrimEndDirectorySeparator(string path) =>
-        path.AsSpan().TrimEnd(DirSeparator).TrimEnd(OtherSeparator).ToString();
+        ShaveSep(new StringBuilder(path)).ToString();
 }

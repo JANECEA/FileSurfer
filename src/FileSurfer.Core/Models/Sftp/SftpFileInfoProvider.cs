@@ -20,6 +20,8 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
     private readonly SshShellHandler _sshShellHandler;
     private readonly SftpClient _client;
 
+    public IPathTools PathTools { get; } = new RemoteUnixPathTools();
+
     public SftpFileInfoProvider(SftpClient client, SshShellHandler sshShellHandler)
     {
         _client = client;

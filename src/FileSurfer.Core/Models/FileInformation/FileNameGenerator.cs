@@ -20,7 +20,8 @@ public static class FileNameGenerator
         string newName
     )
     {
-        if (!fileInfoProvider.PathExists(Path.Combine(directory, newName))) // TODO make polymorphic
+        IPathTools pathTools = fileInfoProvider.PathTools;
+        if (!fileInfoProvider.PathExists(pathTools.Combine(directory, newName)))
             return newName;
 
         string nameWithoutExtension = Path.GetFileNameWithoutExtension(newName);
@@ -29,7 +30,7 @@ public static class FileNameGenerator
         {
             string newFileName = $"{nameWithoutExtension} ({index}){extension}";
 
-            if (!fileInfoProvider.PathExists(Path.Combine(directory, newFileName)))
+            if (!fileInfoProvider.PathExists(pathTools.Combine(directory, newFileName)))
                 return newFileName;
         }
     }
@@ -44,7 +45,12 @@ public static class FileNameGenerator
         params string[] dirPaths
     )
     {
-        if (dirPaths.All(dirPath => !fileInfoProvider.PathExists(Path.Combine(dirPath, newName))))
+        IPathTools pathTools = fileInfoProvider.PathTools;
+        if (
+            dirPaths.All(dirPath =>
+                !fileInfoProvider.PathExists(pathTools.Combine(dirPath, newName))
+            )
+        )
             return newName;
 
         string nameWithoutExtension = Path.GetFileNameWithoutExtension(newName);
@@ -55,7 +61,7 @@ public static class FileNameGenerator
 
             if (
                 dirPaths.All(dirPath =>
-                    !fileInfoProvider.PathExists(Path.Combine(dirPath, newFileName))
+                    !fileInfoProvider.PathExists(pathTools.Combine(dirPath, newFileName))
                 )
             )
                 return newFileName;
@@ -81,7 +87,10 @@ public static class FileNameGenerator
     /// Determines if the files or directories represented by <paramref name="entries"/> can be collectively renamed.
     /// </summary>
     /// <returns><see langword="true"/> if <paramref name="entries"/> can be collectively renamed, otherwise <see langword="false"/>.</returns>
-    public static bool CanBeRenamedCollectively(IList<IFileSystemEntry> entries)
+    public static bool CanBeRenamedCollectively(
+        IList<IFileSystemEntry> entries,
+        IPathTools pathTools
+    )
     {
         if (entries.Count < 2)
             return true;
@@ -92,7 +101,7 @@ public static class FileNameGenerator
         for (int i = 1; i < entries.Count; i++)
             if (
                 entries[i] is FileEntry != onlyFiles
-                || LocalPathTools.NamesAreEqual(entries[i].Extension, extension) // TODO make polymorphic
+                || pathTools.NamesAreEqual(entries[i].Extension, extension)
             )
                 return false;
 
@@ -109,6 +118,8 @@ public static class FileNameGenerator
         string namingPattern
     )
     {
+        IPathTools pathTools = fileInfoProvider.PathTools;
+
         if (entries.Count == 0)
             return Array.Empty<string>();
 
@@ -116,7 +127,7 @@ public static class FileNameGenerator
         string extension = Path.GetExtension(namingPattern);
         string nameWithoutExtension = Path.GetFileNameWithoutExtension(namingPattern);
         string directory =
-            Path.GetDirectoryName(entries.First().PathToEntry)
+            pathTools.GetParentDir(entries.First().PathToEntry)
             ?? throw new ArgumentException(entries.First().PathToEntry);
 
         int lastIndex = 1;
@@ -127,7 +138,7 @@ public static class FileNameGenerator
                 string newFileName = $"{nameWithoutExtension} ({index}){extension}";
                 lastIndex++;
 
-                if (!fileInfoProvider.PathExists(Path.Combine(directory, newFileName)))
+                if (!fileInfoProvider.PathExists(pathTools.Combine(directory, newFileName)))
                 {
                     newNames[i] = newFileName;
                     break;
