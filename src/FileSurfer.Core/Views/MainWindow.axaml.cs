@@ -64,16 +64,10 @@ public partial class MainWindow : Window
         if (_viewModel is null)
             return;
 
-        if (_viewModel.SpecialFolders.Count > 0)
-        {
-            SecondSeparator.IsVisible = true;
-            SpecialsListBox.IsVisible = true;
-        }
-        else
-        {
-            SecondSeparator.IsVisible = false;
-            SpecialsListBox.IsVisible = false;
-        }
+        bool show = _viewModel.SpecialFolders.Count > 0;
+        SecondSeparator.IsVisible = show;
+        SpecialsListBox.IsVisible = show;
+        SpecialsLabel.IsVisible = show;
     }
 
     /// <summary>
@@ -112,18 +106,6 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Determines the visibility of <see cref="QuickAccessListBox"/> based on its number of items.
-    /// </summary>
-    private void OnQuickAccessChanged(object sender, AvaloniaPropertyChangedEventArgs e)
-    {
-        if (_viewModel?.QuickAccess.Count > 0)
-        {
-            FirstSeparator.IsVisible = true;
-            QuickAccessListBox.IsVisible = true;
-        }
-    }
-
-    /// <summary>
     /// Opens the item that was double tapped or goes to the parent directory of the current directory.
     /// </summary>
     private void FilesDoubleTapped(object sender, TappedEventArgs e)
@@ -140,71 +122,50 @@ public partial class MainWindow : Window
             }
 
             if (listBox.SelectedItem is FileSystemEntryViewModel entry)
-                _viewModel?.OpenEntry(entry);
+                _viewModel?.OpenEntry(entry.FileSystemEntry);
             else
                 _viewModel?.GoUp();
         }
     }
 
-    private void OpenClicked(object sender, RoutedEventArgs e) => _viewModel?.OpenEntries();
+    private void MoveUpQuickAccess(object sender, RoutedEventArgs e) =>
+        ListBoxHelper.MoveUp(QuickAccessListBox, _viewModel!.QuickAccess);
 
-    private void OpenInNotepad(object sender, RoutedEventArgs e) => _viewModel?.OpenInNotepad();
-
-    private void PinToQuickAccess(object sender, RoutedEventArgs e)
-    {
-        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
-            _viewModel?.AddToQuickAccess(entry);
-    }
-
-    private void MoveUp(object sender, RoutedEventArgs e) =>
-        _viewModel?.MoveUp(QuickAccessListBox.SelectedIndex);
-
-    private void MoveDown(object sender, RoutedEventArgs e) =>
-        _viewModel?.MoveDown(QuickAccessListBox.SelectedIndex);
+    private void MoveDownQuickAccess(object sender, RoutedEventArgs e) =>
+        ListBoxHelper.MoveDown(QuickAccessListBox, _viewModel!.QuickAccess);
 
     private void RemoveFromQuickAccess(object sender, RoutedEventArgs e) =>
-        _viewModel?.RemoveFromQuickAccess(QuickAccessListBox.SelectedIndex);
+        ListBoxHelper.Remove(QuickAccessListBox, _viewModel!.QuickAccess);
 
-    private void AddToArchive(object sender, RoutedEventArgs e) => _viewModel?.AddToArchive();
+    private void MoveUpSftp(object sender, RoutedEventArgs e) =>
+        ListBoxHelper.MoveUp(SftpListBox, _viewModel!.SftpConnectionsVms);
 
-    private void ExtractArchive(object sender, RoutedEventArgs e) => _viewModel?.ExtractArchive();
+    private void MoveDownSftp(object sender, RoutedEventArgs e) =>
+        ListBoxHelper.MoveDown(SftpListBox, _viewModel!.SftpConnectionsVms);
 
-    private void CopyPath(object sender, RoutedEventArgs e)
+    private void RemoveSftp(object sender, RoutedEventArgs e) =>
+        ListBoxHelper.Remove(SftpListBox, _viewModel!.SftpConnectionsVms);
+
+    private void EditSftpConnection(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
-            _viewModel?.CopyPath(entry);
+        if (SftpListBox.SelectedItem is not SftpConnectionViewModel connectionVm)
+            return;
+
+        EditSftpWindow window = new() { ViewModel = connectionVm };
+        window.ShowDialog(this);
     }
 
-    private void Cut(object sender, RoutedEventArgs e) => _viewModel?.Cut();
-
-    private void Copy(object sender, RoutedEventArgs e) => _viewModel?.Copy();
-
-    private void CreateShortcut(object sender, RoutedEventArgs e)
+    private void CloseSftp(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
-            _viewModel?.CreateShortcut(entry);
+        if (SftpListBox.SelectedItem is SftpConnectionViewModel connectionVm)
+            _viewModel?.CloseSftpConnection(connectionVm);
     }
 
-    private void FlattenFolder(object sender, RoutedEventArgs e)
+    private void OnAddSftpButtonClicked(object sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
-            _viewModel?.FlattenFolder(entry);
-    }
-
-    private void Delete(object sender, RoutedEventArgs e) => _viewModel?.MoveToTrash();
-
-    private void DeletePermanently(object sender, RoutedEventArgs e) => _viewModel?.Delete();
-
-    private void ShowProperties(object sender, RoutedEventArgs e)
-    {
-        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
-            _viewModel?.ShowProperties(entry);
-    }
-
-    private void OpenAs(object sender, RoutedEventArgs e)
-    {
-        if (sender is MenuItem { DataContext: FileSystemEntryViewModel entry })
-            _viewModel?.OpenAs(entry);
+        SftpConnectionViewModel viewModel = new(vm => _viewModel?.SftpConnectionsVms.Add(vm));
+        EditSftpWindow window = new() { ViewModel = viewModel };
+        window.ShowDialog(this);
     }
 
     /// <summary>
@@ -228,18 +189,31 @@ public partial class MainWindow : Window
         CommitMessageBar.IsVisible = false;
     }
 
-    /// <summary>
-    /// Clears the selection if any SideBar item has been clicked.
-    /// </summary>
+    private void ClearSidebar()
+    {
+        SpecialsListBox.SelectedItems?.Clear();
+        QuickAccessListBox.SelectedItems?.Clear();
+        DrivesListBox.SelectedItems?.Clear();
+        SftpListBox.SelectedItems?.Clear();
+    }
+
     private void SideBarEntryClicked(object sender, TappedEventArgs e)
     {
-        if (sender is ListBox { SelectedItem: FileSystemEntryViewModel entry })
-        {
-            _viewModel?.OpenEntry(entry);
-            SpecialsListBox.SelectedItems?.Clear();
-            QuickAccessListBox.SelectedItems?.Clear();
-            DrivesListBox.SelectedItems?.Clear();
-        }
+        if (sender is ListBox { SelectedItem: SideBarEntryViewModel entry })
+            _viewModel?.OpenLocalEntry(entry);
+
+        ClearSidebar();
+    }
+
+    private void SftpEntryClicked(object sender, TappedEventArgs e)
+    {
+        if (
+            _viewModel is not null
+            && sender is ListBox { SelectedItem: SftpConnectionViewModel connectionVm }
+        )
+            _ = _viewModel.OpenSftpConnection(connectionVm);
+
+        ClearSidebar();
     }
 
     /// <summary>
@@ -253,20 +227,6 @@ public partial class MainWindow : Window
 
         if (properties.IsXButton2Pressed)
             _viewModel?.GoForward();
-
-        if (_viewModel is not null && _viewModel.Searching && properties.IsMiddleButtonPressed)
-        {
-            Visual? hitElement = (Visual?)FileDisplay.InputHitTest(e.GetPosition(FileDisplay));
-            while (hitElement is not null)
-            {
-                if (hitElement is ListBoxItem { DataContext: FileSystemEntryViewModel entry })
-                {
-                    _viewModel?.OpenEntryLocation(entry);
-                    return;
-                }
-                hitElement = hitElement.GetVisualParent();
-            }
-        }
     }
 
     /// <summary>
@@ -469,7 +429,12 @@ public partial class MainWindow : Window
             firstContainer?.Focus();
         }
         else
-            MenuButton.Focus();
+            FileDisplay.Focus();
+
+        SpecialsListBox.SelectedItems?.Clear();
+        QuickAccessListBox.SelectedItems?.Clear();
+        DrivesListBox.SelectedItems?.Clear();
+        SftpListBox.SelectedItems?.Clear();
     }
 
     /// <summary>
@@ -485,13 +450,13 @@ public partial class MainWindow : Window
             if (CommitMessageBar.IsVisible)
                 CommitMessageEntered();
 
-            ClearFocus();
             return;
         }
 
         if (PathBox.IsFocused)
         {
-            _viewModel?.SetCurrentDir(PathBox.Text ?? FileSurferSettings.ThisPcLabel);
+            if (PathBox.Text is string path)
+                _viewModel?.SetNewLocation(path);
             ClearFocus();
             return;
         }
@@ -504,7 +469,7 @@ public partial class MainWindow : Window
                 return;
             }
             if (_viewModel.SelectedFiles.Count == 1)
-                _viewModel?.OpenEntry(_viewModel.SelectedFiles[0]);
+                _viewModel?.OpenEntry(_viewModel.SelectedFiles[0].FileSystemEntry);
         }
     }
 
@@ -521,18 +486,11 @@ public partial class MainWindow : Window
         ClearFocus();
     }
 
-    /// <summary>
-    /// Invokes <see cref="FileSurferSettings.UpdateQuickAccess(System.Collections.Generic.IEnumerable{FileSystemEntryViewModel})"/>
-    /// and <see cref="FileSurferSettings.SaveSettings"/>,
-    /// <para>
-    /// and also disposes of <see cref="_viewModel"/>'s resources after the app closes.
-    /// </para>
-    /// </summary>
-    private void OnClosing(object sender, WindowClosingEventArgs e)
+    private void OnClosing(object? sender, WindowClosingEventArgs? e)
     {
         if (_viewModel is not null)
         {
-            FileSurferSettings.UpdateQuickAccess(_viewModel.QuickAccess);
+            _viewModel.CloseApp();
             _viewModel.Dispose();
         }
         FileSurferSettings.SaveSettings();

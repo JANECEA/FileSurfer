@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -6,8 +5,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
-using Avalonia.Platform;
-using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 
 namespace FileSurfer.Windows.Models.FileInformation;
@@ -15,17 +12,8 @@ namespace FileSurfer.Windows.Models.FileInformation;
 /// <summary>
 /// Optimizes Windows icon delivery based on the file extension.
 /// </summary>
-public sealed class WindowsIconProvider : IIconProvider
+public sealed class WindowsIconProvider : BaseIconProvider
 {
-    private static readonly Bitmap GenericFileIcon = new(
-        AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/GenericFileIcon.png"))
-    );
-    private static readonly Bitmap DirectoryIcon = new(
-        AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/FolderIcon.png"))
-    );
-    private static readonly Bitmap DriveIcon = new(
-        AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/DriveIcon.png"))
-    );
     private static readonly IReadOnlyList<string> HaveUniqueIcons =
     [
         ".exe",
@@ -58,7 +46,7 @@ public sealed class WindowsIconProvider : IIconProvider
         Bitmap? icon = await CreateIconTask(filePath);
 
         if (icon is null)
-            return GenericFileIcon;
+            return await base.GetFileIcon(filePath);
 
         lock (_genericIconLock)
             _genericFileIcon ??= icon;
@@ -66,7 +54,7 @@ public sealed class WindowsIconProvider : IIconProvider
         return icon;
     }
 
-    public async Task<Bitmap> GetFileIcon(string filePath)
+    public override async Task<Bitmap> GetFileIcon(string filePath)
     {
         string extension = Path.GetExtension(filePath).ToLowerInvariant();
         if (string.IsNullOrWhiteSpace(extension))
@@ -89,16 +77,13 @@ public sealed class WindowsIconProvider : IIconProvider
     private ConfiguredTaskAwaitable<Bitmap?> CreateIconTask(string filePath) =>
         _iconWorker.Enqueue(filePath).ConfigureAwait(false);
 
-    public Task<Bitmap> GetDirectoryIcon(string dirPath) => Task.FromResult(DirectoryIcon);
-
-    public Task<Bitmap> GetDriveIcon(DriveEntry driveEntry) => Task.FromResult(DriveIcon);
-
-    public void Dispose()
+    public override void Dispose()
     {
         foreach (Bitmap icon in _icons.Values)
             icon.Dispose();
 
         _genericFileIcon?.Dispose();
         _iconWorker.Dispose();
+        base.Dispose();
     }
 }

@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.ViewModels;
 
 namespace FileSurfer.Core;
@@ -62,24 +62,32 @@ public enum SortBy
 [SuppressMessage(
     "ReSharper",
     "MemberCanBePrivate.Global",
-    Justification = "Members are part of the settings for the app"
+    Justification = "Members represent app settings"
 )]
 public static class FileSurferSettings
 {
     public const long ShowDialogLimitB = 250 * 1024 * 1024; // 250 MiB
     private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
     private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        WriteIndented = true,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
-        AllowTrailingCommas = true,
-        PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate,
-    };
     private static readonly string FileSurferDataDir = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "FileSurfer"
+    );
+
+    /// <summary>
+    /// The full path to settings.json.
+    /// </summary>
+    public static readonly string SettingsFilePath = Path.Combine(
+        FileSurferDataDir,
+        "settings.json"
+    );
+
+    /// <summary>
+    /// The full path to sftp.json.
+    /// </summary>
+    public static readonly string SftpConnectionsFilePath = Path.Combine(
+        FileSurferDataDir,
+        "sftp-connections.json"
     );
 
     /// <summary>
@@ -101,7 +109,6 @@ public static class FileSurferSettings
             newImageName = NewImageName,
             newFileName = NewFileName,
             newDirectoryName = NewDirectoryName,
-            thisPCLabel = ThisPcLabel,
             notepadApp = NotepadApp,
             notepadAppArgs = NotepadAppArgs,
             terminal = Terminal,
@@ -110,7 +117,7 @@ public static class FileSurferSettings
             openIn = OpenIn,
             useDarkMode = UseDarkMode,
             displayMode = DisplayMode.ToString(),
-            defaultSort = DefaultSort.ToString(),
+            defaultSort = SortingMode.ToString(),
             fileSizeUnitLimit = FileSizeUnitLimit,
             sortReversed = SortReversed,
             showSpecialFolders = ShowSpecialFolders,
@@ -123,15 +130,8 @@ public static class FileSurferSettings
             automaticRefreshInterval = AutomaticRefreshInterval,
             allowImagePastingFromClipboard = AllowImagePastingFromClipboard,
             quickAccess = QuickAccess,
+            syncHiddenFiles = SyncHiddenFiles,
         };
-
-    /// <summary>
-    /// The full path to settings.json.
-    /// </summary>
-    public static readonly string SettingsFilePath = Path.Combine(
-        FileSurferDataDir,
-        "settings.json"
-    );
 
     private static string _previousSettingsJson = string.Empty;
 
@@ -149,11 +149,6 @@ public static class FileSurferSettings
     /// Default name for newly created directories. Defaults to <c>"New Folder"</c>.
     /// </summary>
     public static string NewDirectoryName { get; set; }
-
-    /// <summary>
-    /// What "This PC" 'directory' will be called. Defaults to <c>"This PC"</c>.
-    /// </summary>
-    public static string ThisPcLabel { get; set; }
 
     /// <summary>
     /// The application, the 'Open in Notepad' context menu option will open.
@@ -181,7 +176,7 @@ public static class FileSurferSettings
     public static bool OpenInLastLocation { get; set; }
 
     /// <summary>
-    /// Specifies the default location where FileSurfer opens. Defaults to the value of <see cref="ThisPcLabel"/>.
+    /// Specifies the default location where FileSurfer opens. Defaults to the <see cref="string.Empty"/>.
     /// </summary>
     public static string OpenIn { get; set; }
 
@@ -198,7 +193,7 @@ public static class FileSurferSettings
     /// <summary>
     /// Specifies the default sorting method for files and folders. Defaults to sorting by <see cref="SortBy.Name"/>.
     /// </summary>
-    public static SortBy DefaultSort { get; set; }
+    public static SortBy SortingMode { get; set; }
 
     /// <summary>
     /// Numerical limit before FileSurfer uses the next byte unit. Defaults to <c>4096</c>.
@@ -265,6 +260,16 @@ public static class FileSurferSettings
     public static List<string> QuickAccess { get; set; }
 
     /// <summary>
+    /// Specifies if hidden files should be synchronized in the process of directory synchronization
+    /// </summary>
+    public static bool SyncHiddenFiles { get; set; }
+
+    /// <summary>
+    /// List of SFTP connections defined by the user. Defaults to an empty list.
+    /// </summary>
+    public static List<SftpConnection> SftpConnections { get; set; }
+
+    /// <summary>
     /// <para>
     /// Loads settings from the settings file and applies them to the current session.
     /// </para>
@@ -272,27 +277,35 @@ public static class FileSurferSettings
     /// </summary>
     public static void Initialize(IDefaultSettingsProvider settingsProvider)
     {
-        SettingsRecord.Initialize(settingsProvider);
-        if (!File.Exists(SettingsFilePath))
-        {
-            ImportSettings(DefaultSettings);
-            SaveSettings();
-            return;
-        }
-
-        _previousSettingsJson = File.ReadAllText(SettingsFilePath, Encoding.UTF8);
         try
         {
+            string sftpConnections = File.ReadAllText(SftpConnectionsFilePath, Encoding.UTF8);
+            SftpConnections =
+                JsonSerializer.Deserialize<List<SftpConnection>>(
+                    sftpConnections,
+                    SftpConnection.SerializerOptions
+                ) ?? throw new InvalidDataException();
+        }
+        catch
+        {
+            SftpConnections = new List<SftpConnection>();
+        }
+
+        SettingsRecord.Initialize(settingsProvider);
+        try
+        {
+            _previousSettingsJson = File.ReadAllText(SettingsFilePath, Encoding.UTF8);
             SettingsRecord settings =
-                JsonSerializer.Deserialize<SettingsRecord>(_previousSettingsJson, SerializerOptions)
-                ?? throw new InvalidDataException();
+                JsonSerializer.Deserialize<SettingsRecord>(
+                    _previousSettingsJson,
+                    SettingsRecord.SerializerOptions
+                ) ?? throw new InvalidDataException();
 
             ImportSettings(settings);
         }
         catch
         {
             ImportSettings(DefaultSettings);
-            SaveSettings();
         }
     }
 
@@ -318,11 +331,6 @@ public static class FileSurferSettings
             InvalidFileNameChars,
             defaultSettings.newDirectoryName
         );
-        ThisPcLabel = SanitizeName(
-            settings.thisPCLabel,
-            InvalidFileNameChars,
-            defaultSettings.thisPCLabel
-        );
         NotepadApp = SanitizeName(
             settings.notepadApp,
             InvalidPathChars,
@@ -336,7 +344,7 @@ public static class FileSurferSettings
         OpenIn = SanitizeName(settings.openIn, InvalidPathChars, defaultSettings.openIn);
         UseDarkMode = settings.useDarkMode;
         DisplayMode = SafeParseEnum<DisplayMode>(settings.displayMode);
-        DefaultSort = SafeParseEnum<SortBy>(settings.defaultSort);
+        SortingMode = SafeParseEnum<SortBy>(settings.defaultSort);
 
         FileSizeUnitLimit = ClampValue(
             settings.fileSizeUnitLimit,
@@ -361,6 +369,7 @@ public static class FileSurferSettings
 
         AllowImagePastingFromClipboard = settings.allowImagePastingFromClipboard;
         QuickAccess = settings.quickAccess ?? new List<string>();
+        SyncHiddenFiles = settings.syncHiddenFiles;
 
         OnSettingsChange?.Invoke();
     }
@@ -391,25 +400,24 @@ public static class FileSurferSettings
     }
 
     /// <summary>
-    /// Update Quick Access list with the specified <see cref="FileSystemEntryViewModel"/>s.
-    /// </summary>
-    /// <param name="quickAccess"></param>
-    public static void UpdateQuickAccess(IEnumerable<FileSystemEntryViewModel> quickAccess) =>
-        QuickAccess = quickAccess.Select(entry => entry.PathToEntry).ToList();
-
-    /// <summary>
     /// Saves the current settings to the settings file if any changes have been made.
     /// </summary>
     public static void SaveSettings()
     {
-        SettingsRecord settings = CurrentSettings;
-        string settingsJson = JsonSerializer.Serialize(settings, SerializerOptions);
-
         if (!Directory.Exists(FileSurferDataDir))
             Directory.CreateDirectory(FileSurferDataDir);
 
+        SettingsRecord settings = CurrentSettings;
+        string settingsJson = JsonSerializer.Serialize(settings, SettingsRecord.SerializerOptions);
+
         if (_previousSettingsJson != settingsJson)
             File.WriteAllText(SettingsFilePath, settingsJson, Encoding.UTF8);
+
+        string sftpConnectionsJson = JsonSerializer.Serialize(
+            SftpConnections,
+            SftpConnection.SerializerOptions
+        );
+        File.WriteAllText(SftpConnectionsFilePath, sftpConnectionsJson, Encoding.UTF8);
     }
 }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace FileSurfer.Core;
@@ -8,25 +9,39 @@ namespace FileSurfer.Core;
 /// <summary>
 /// Used to (de)serialize the settings.json file.
 /// </summary>
-[SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Json naming convention")]
-[JsonObjectCreationHandling(JsonObjectCreationHandling.Populate)]
+[
+    JsonObjectCreationHandling(JsonObjectCreationHandling.Populate),
+    SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Json naming convention"),
+    SuppressMessage(
+        "ReSharper",
+        "PropertyCanBeMadeInitOnly.Global",
+        Justification = "Values need to be modifiable"
+    ),
+]
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 public record SettingsRecord
 {
-    private const string ThisPcLabel = "This PC";
+    private static readonly string RootDir;
+    public static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        WriteIndented = true,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
+        AllowTrailingCommas = true,
+        PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate,
+    };
 
     private static IDefaultSettingsProvider? DefaultSettingsProvider;
 
     public string newImageName { get; set; } = "New Image";
     public string newFileName { get; set; } = "New File";
     public string newDirectoryName { get; set; } = "New Folder";
-    public string thisPCLabel { get; set; } = ThisPcLabel;
     public string notepadApp { get; set; } = string.Empty;
     public string notepadAppArgs { get; set; } = string.Empty;
     public string terminal { get; set; } = string.Empty;
     public string terminalArgs { get; set; } = string.Empty;
     public bool openInLastLocation { get; set; } = true;
-    public string openIn { get; set; } = ThisPcLabel;
+    public string openIn { get; set; } = RootDir;
     public bool useDarkMode { get; set; } = true;
     public string displayMode { get; set; } = nameof(DisplayMode.ListView);
     public string defaultSort { get; set; } = nameof(SortBy.Name);
@@ -42,9 +57,20 @@ public record SettingsRecord
     public int automaticRefreshInterval { get; set; } = 3000;
     public bool allowImagePastingFromClipboard { get; set; } = true;
     public List<string> quickAccess { get; set; } = new();
+    public bool syncHiddenFiles { get; set; } = false;
 
-    public static void Initialize(IDefaultSettingsProvider defaultSettingsProvider) =>
-        DefaultSettingsProvider = defaultSettingsProvider;
+    static SettingsRecord()
+    {
+        try
+        {
+            string? rootDir = Directory.GetDirectoryRoot(Directory.GetCurrentDirectory());
+            RootDir = rootDir ?? string.Empty;
+        }
+        catch // Unauthorized access or unsupported platform.
+        {
+            RootDir = string.Empty;
+        }
+    }
 
     public SettingsRecord()
     {
@@ -53,5 +79,8 @@ public record SettingsRecord
 
         DefaultSettingsProvider.PopulateDefaults(this);
     }
+
+    public static void Initialize(IDefaultSettingsProvider defaultSettingsProvider) =>
+        DefaultSettingsProvider = defaultSettingsProvider;
 }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.

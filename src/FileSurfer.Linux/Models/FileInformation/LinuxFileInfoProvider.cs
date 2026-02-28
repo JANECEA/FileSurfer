@@ -2,19 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
+using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
-using FileSurfer.Core.Models.Shell;
+using FileSurfer.Core.Services.Shell;
 
 namespace FileSurfer.Linux.Models.FileInformation;
 
 /// <summary>
 /// Optimizes icon delivery on Linux using the mime-type.
 /// </summary>
-public class LinuxFileInfoProvider : IFileInfoProvider
+public class LinuxFileInfoProvider : ILocalFileInfoProvider
 {
+    private const string RootDir = "/";
     private readonly IShellHandler _shellHandler;
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -22,19 +23,18 @@ public class LinuxFileInfoProvider : IFileInfoProvider
         PropertyNameCaseInsensitive = true,
     };
 
+    public IPathTools PathTools => LocalPathTools.Instance;
+
     public LinuxFileInfoProvider(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
-    [SuppressMessage(
-        "ReSharper",
-        "ClassNeverInstantiated.Local",
-        Justification = "Instantiated in json deserialization"
-    )]
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     private sealed record LsblkEntry(string? Label, string? MountPoint, long Size, string? Type);
 
     private sealed record LsblkOutput(List<LsblkEntry> BlockDevices);
 
     public DriveEntry[] GetDrives()
     {
+        DriveEntry[] defaultList = [new(RootDir, "Root")];
         ValueResult<string> result = _shellHandler.ExecuteCommand(
             "lsblk",
             "-Jnbpo",
@@ -53,62 +53,64 @@ public class LinuxFileInfoProvider : IFileInfoProvider
         }
         catch (Exception ex) when (ex is JsonException or NotSupportedException)
         {
-            return Array.Empty<DriveEntry>();
+            return defaultList;
         }
         foreach (LsblkEntry entry in entries.BlockDevices)
-            if (entry is { Type: "part", Label: not null, MountPoint: not null })
-                drives.Add(new DriveEntry(entry.MountPoint, entry.Label, entry.Size));
+            if (entry is { Type: "part", Label: not null, MountPoint: not null, Size: > 0 })
+                drives.Add(new DriveEntry(entry.MountPoint, entry.Label));
 
-        return drives.ToArray();
+        return drives.Count > 0 ? drives.ToArray() : defaultList;
     }
 
-    public string[] GetPathFiles(string path, bool includeHidden, bool includeOs)
+    public ValueResult<List<FileEntryInfo>> GetPathFiles(
+        string path,
+        bool includeHidden,
+        bool includeOs
+    )
     {
         try
         {
-            string[] files = Directory.GetFiles(path);
+            FileInfo[] files = new DirectoryInfo(path).GetFiles();
+            List<FileEntryInfo> fileList = new(files.Length);
 
-            if (includeHidden && includeOs)
-                return files;
-
-            for (int i = 0; i < files.Length; i++)
-            {
+            foreach (FileInfo f in files)
                 if (
-                    !includeHidden && IsHidden(files[i], false)
-                    || !includeOs && IsOsProtected(files[i], false)
+                    (includeHidden || !IsHidden(f.FullName, false))
+                    && (includeOs || !IsOsProtected(f.FullName, false))
                 )
-                    files[i] = string.Empty;
-            }
-            return files.Where(filePath => filePath != string.Empty).ToArray();
+                    fileList.Add(new FileEntryInfo(f));
+
+            return fileList.OkResult();
         }
-        catch
+        catch (Exception ex)
         {
-            return Array.Empty<string>();
+            return ValueResult<List<FileEntryInfo>>.Error(ex.Message);
         }
     }
 
-    public string[] GetPathDirs(string path, bool includeHidden, bool includeOs)
+    public ValueResult<List<DirectoryEntryInfo>> GetPathDirs(
+        string path,
+        bool includeHidden,
+        bool includeOs
+    )
     {
         try
         {
-            string[] directories = Directory.GetDirectories(path);
+            DirectoryInfo[] dirs = new DirectoryInfo(path).GetDirectories();
+            List<DirectoryEntryInfo> dirsList = new(dirs.Length);
 
-            if (includeHidden && includeOs)
-                return directories;
-
-            for (int i = 0; i < directories.Length; i++)
-            {
+            foreach (DirectoryInfo d in dirs)
                 if (
-                    !includeHidden && IsHidden(directories[i], true)
-                    || !includeOs && IsOsProtected(directories[i], true)
+                    (includeHidden || !IsHidden(d.FullName, true))
+                    && (includeOs || !IsOsProtected(d.FullName, true))
                 )
-                    directories[i] = string.Empty;
-            }
-            return directories.Where(dirPath => dirPath != string.Empty).ToArray();
+                    dirsList.Add(new DirectoryEntryInfo(d));
+
+            return dirsList.OkResult();
         }
-        catch
+        catch (Exception ex)
         {
-            return Array.Empty<string>();
+            return ValueResult<List<DirectoryEntryInfo>>.Error(ex.Message);
         }
     }
 
@@ -153,11 +155,11 @@ public class LinuxFileInfoProvider : IFileInfoProvider
         }
     }
 
-    public DateTime? GetFileLastModified(string filePath)
+    public DateTime? GetFileLastModifiedUtc(string filePath)
     {
         try
         {
-            return new FileInfo(filePath).LastWriteTime;
+            return new FileInfo(filePath).LastWriteTimeUtc;
         }
         catch
         {
@@ -165,11 +167,11 @@ public class LinuxFileInfoProvider : IFileInfoProvider
         }
     }
 
-    public DateTime? GetDirLastModified(string dirPath)
+    public DateTime? GetDirLastModifiedUtc(string dirPath)
     {
         try
         {
-            return new DirectoryInfo(dirPath).LastWriteTime;
+            return new DirectoryInfo(dirPath).LastWriteTimeUtc;
         }
         catch
         {
@@ -179,13 +181,21 @@ public class LinuxFileInfoProvider : IFileInfoProvider
 
     public bool IsHidden(string path, bool isDirectory)
     {
-        int i = path.Length - 2;
+        if (string.IsNullOrEmpty(path))
+            return false;
+
+        int i = path.Length - 1;
+        while (i >= 0 && path[i] == LocalPathTools.DirSeparator)
+            i--;
+
         for (; i >= 0; i--)
-            if (path[i] == PathTools.DirSeparator)
+            if (path[i] == LocalPathTools.DirSeparator)
                 break;
 
         return path[i + 1] == '.';
     }
+
+    public string GetRoot() => RootDir;
 
     private static bool IsOsProtected(string path, bool isDirectory)
     {
@@ -201,9 +211,9 @@ public class LinuxFileInfoProvider : IFileInfoProvider
         }
     }
 
-    public bool IsLinkedToDirectory(string linkPath, out string? directory)
+    public bool IsLinkedToDirectory(string linkPath, out string directory)
     {
-        directory = null;
+        directory = null!;
         FileInfo fileInfo = new(linkPath);
         if (
             fileInfo.LinkTarget is null

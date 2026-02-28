@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using FileSurfer.Core;
-using FileSurfer.Core.Models.Shell;
+using FileSurfer.Core.Services.Shell;
 
 namespace FileSurfer.Linux;
 

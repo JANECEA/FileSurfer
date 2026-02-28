@@ -1,0 +1,91 @@
+<Window x:Class="FileSurfer.Core.Views.SftpSynchronizerWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:FileSurfer.Core.ViewModels"
+        Title="Synchronize remote directory"
+        x:DataType="vm:SftpSynchronizerViewModel"
+        Background="{DynamicResource PrimaryColor}"
+        Closing="OnClosing"
+        Foreground="{DynamicResource TextColor}"
+        ShowInTaskbar="True"
+        mc:Ignorable="d">
+
+    <Window.DataContext>
+        <vm:SftpSynchronizerViewModel />
+    </Window.DataContext>
+
+    <Window.Styles>
+        <StyleInclude Source="avares://FileSurfer.Core/Views/SftpSynchronizerWindowStyle.axaml" />
+    </Window.Styles>
+
+    <Window.Resources>
+        <DataTemplate x:Key="SyncEventTemplate" x:DataType="vm:SynchronizationEvent">
+            <Grid Classes="EventEntry" ColumnDefinitions="Auto Auto * Auto *">
+                <TextBlock Text="{Binding TimeStampStr}" />
+                <TextBlock Grid.Column="1" Margin="0 0 30 0" Text=":" />
+
+                <TextBlock Grid.Column="2" HorizontalAlignment="Left" Classes="EventPathInfo" Text="{Binding LocalPath}" />
+
+                <StackPanel Grid.Column="3" Margin="20 0 20 0" HorizontalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock Text="-&gt;" />
+                    <TextBlock Margin="10 0 10 0" Text="{Binding OpType}" />
+                    <TextBlock Text="-&gt;" />
+                </StackPanel>
+
+                <TextBlock Grid.Column="4" HorizontalAlignment="Right" Classes="EventPathInfo" Text="{Binding RemotePath}" />
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid RowDefinitions="Auto * Auto">
+        <Grid>
+            <Rectangle />
+            <Grid Margin="15" ColumnDefinitions="Auto * Auto">
+                <Grid ColumnDefinitions="Auto Auto *">
+                    <TextBox Classes="TopTextBox" Text="{Binding LocalDirLabel}" />
+                    <TextBlock Grid.Column="1" Classes="TopColon" Text=":" />
+                    <TextBox Grid.Column="2" Classes="TopTextBox" Text="{Binding LocalDir.Path}" />
+                </Grid>
+
+                <TextBlock Grid.Column="1" Classes="TopArrow" Text="&#xF061;" />
+
+                <Grid Grid.Column="2" HorizontalAlignment="Right" ColumnDefinitions="Auto Auto *">
+                    <TextBox Classes="TopTextBox" Text="{Binding RemoteDirLabel}" />
+                    <TextBlock Grid.Column="1" Classes="TopColon" Text=":" />
+                    <TextBox Grid.Column="2" Classes="TopTextBox" Text="{Binding RemoteDir.Path}" />
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <Grid Grid.Row="1" RowDefinitions="Auto *">
+            <TextBlock Classes="SyncEventsLabel" Text="Synchronization events:" />
+            <Border Grid.Row="1" Classes="SyncEventsBorder">
+                <ScrollViewer>
+                    <ListBox IsHitTestVisible="False" ItemTemplate="{StaticResource SyncEventTemplate}" ItemsSource="{Binding SyncEvents}" />
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Rectangle />
+            <Grid Margin="15" ColumnDefinitions="* Auto">
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox Classes="SyncCheckBox" Content="Sync hidden files" IsChecked="{Binding SyncHiddenFiles}" IsEnabled="{Binding !Synchronizing}" />
+                    <CheckBox Classes="SyncCheckBox" Content="Initialize local directory from remote" IsChecked="{Binding InitFromRemote}" IsEnabled="{Binding !Synchronizing}" />
+                </StackPanel>
+
+                <Grid Grid.Column="1">
+                    <Button Classes="SyncButton"
+                            Command="{Binding StartSyncCommand}"
+                            Content="Start sync"
+                            Foreground="{DynamicResource AcceptColor}"
+                            IsVisible="{Binding !Synchronizing}" />
+                    <Button Classes="SyncButton" Command="{Binding StopSyncCommand}" Content="Stop sync" IsVisible="{Binding Synchronizing}" />
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+
+</Window>

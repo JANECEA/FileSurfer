@@ -6,12 +6,27 @@ namespace FileSurfer.Core.Views;
 
 public sealed record SortInfo(SortBy SortBy, bool SortReversed);
 
-public class SortArrowConverter : IValueConverter
+public abstract class OneWayConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        ConvertInternal(value, parameter);
+
+    protected abstract object ConvertInternal(object? value, object? parameter);
+
+    public object ConvertBack(
+        object? value,
+        Type targetType,
+        object? parameter,
+        CultureInfo culture
+    ) => throw new NotImplementedException();
+}
+
+public sealed class SortArrowConverter : OneWayConverter
 {
     private const string UpArrow = "\U000F04BC";
     private const string DownArrow = "\U000F04BD";
 
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    protected override object ConvertInternal(object? value, object? parameter)
     {
         if (
             value is not SortInfo sortInfo
@@ -22,11 +37,4 @@ public class SortArrowConverter : IValueConverter
 
         return sortInfo.SortReversed ? DownArrow : UpArrow;
     }
-
-    public object ConvertBack(
-        object? value,
-        Type targetType,
-        object? parameter,
-        CultureInfo culture
-    ) => throw new NotImplementedException();
 }

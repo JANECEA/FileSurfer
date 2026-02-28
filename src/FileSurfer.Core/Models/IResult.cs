@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 // ReSharper disable UnusedMember.Global
@@ -87,7 +86,7 @@ public sealed class ValueResult<T> : IResult
     public static ValueResult<T> Error(IResult result) =>
         !result.IsOk
             ? new ValueResult<T>(result, default)
-            : throw new InvalidDataException("Cannot use successful results.");
+            : throw new InvalidOperationException("Cannot use successful results.");
 
     public static ValueResult<T> Error(string errorMessage) =>
         new(SimpleResult.Error(errorMessage), default);
@@ -118,7 +117,7 @@ public sealed class Result : IResult
 
     public static Result Error(string errorMessage) => new(errorMessage, null);
 
-    public static Result MultipleErrors(IEnumerable<string> errors) => new(null, errors.ToList());
+    public static Result Error(IEnumerable<string> errors) => new(null, errors.ToList());
 
     public void AddError(string errorMessage)
     {

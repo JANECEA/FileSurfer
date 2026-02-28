@@ -73,7 +73,7 @@
             </StackPanel>
         </DataTemplate>
 
-        <DataTemplate x:Key="SideBarTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
+        <DataTemplate x:Key="SideBarTemplate" x:DataType="{x:Type vm:SideBarEntryViewModel}">
             <Grid Height="27" ColumnDefinitions="Auto *">
                 <Image Grid.Column="0"
                        Width="20"
@@ -88,36 +88,40 @@
 
     <DockPanel Background="{DynamicResource PrimaryColor}">
         <DockPanel Height="50" Margin="10 0" DockPanel.Dock="Top">
-            <Button Classes="TopLeftButton ArrowButton"
+            <Button Classes="StateButton TopLeftButton ArrowButton"
                     Command="{Binding GoBackCommand}"
                     Content="&#xF053;"
                     HotKey="Alt+Left"
                     ToolTip.Tip="Go Back" />
-            <Button Classes="TopLeftButton ArrowButton"
+            <Button Classes="StateButton TopLeftButton ArrowButton"
                     Command="{Binding GoForwardCommand}"
                     Content="&#xF054;"
                     HotKey="Alt+Right"
                     ToolTip.Tip="Got Forward" />
-            <Button Classes="TopLeftButton"
+            <Button Classes="StateButton TopLeftButton"
                     Command="{Binding ReloadCommand}"
                     Content="&#xF01E;"
                     HotKey="F5"
                     ToolTip.Tip="Reload" />
-            <Button Classes="TopLeftButton"
+            <Button Classes="StateButton TopLeftButton"
                     Command="{Binding OpenPowerShellCommand}"
                     Content="&#xEBC7;"
                     HotKey="F12"
                     ToolTip.Tip="Open terminal here" />
 
-            <Grid ColumnDefinitions="* 250">
+            <Grid ColumnDefinitions="Auto 20 * 250">
+                <TextBox Grid.Column="0" Classes="LabelBox TopTextBox" Text="{Binding CurrentFsLabel, Mode=OneWay}" />
+
+                <TextBlock Grid.Column="1" Classes="ColonSeparator" Text=":" />
+
                 <TextBox x:Name="PathBox"
-                         Grid.Column="0"
+                         Grid.Column="2"
                          Classes="PathBox TopTextBox"
                          GotFocus="TextBoxGotFocus"
                          LostFocus="PathBoxLostFocus"
-                         Text="{Binding CurrentDir, Mode=OneWay}" />
+                         Text="{Binding PathBoxText, Mode=OneWay}" />
 
-                <Grid Grid.Column="1">
+                <Grid Grid.Column="3">
                     <TextBox x:Name="SearchBox"
                              Classes="SearchBox TopTextBox"
                              GotFocus="TextBoxGotFocus"
@@ -135,47 +139,50 @@
 
         <Border Height="55" BorderBrush="{DynamicResource SecondaryColor}" BorderThickness="0 1 0 1" DockPanel.Dock="Top">
             <DockPanel Margin="10 0" LastChildFill="False">
-                <Button Classes="FileOperationButton"
+                <Button Classes="StateButton FileOperationButton"
                         Command="{Binding NewFileCommand}"
                         Content="&#xEA7F;"
                         HotKey="Ctrl+N"
                         ToolTip.Tip="New File" />
-                <Button Classes="FileOperationButton"
+                <Button Classes="StateButton FileOperationButton"
                         Command="{Binding NewDirCommand}"
                         Content="&#xEA80;"
                         HotKey="Ctrl+Shift+N"
                         ToolTip.Tip="New Directory" />
+
                 <Rectangle Classes="ButtonSeparator" />
 
                 <Button x:Name="CutButton"
-                        Classes="FileOperationButton"
+                        Classes="StateButton FileOperationButton"
                         Command="{Binding CutCommand}"
                         Content="&#xF0190;"
                         HotKey="Ctrl+X"
                         ToolTip.Tip="Cut" />
                 <Button x:Name="CopyButton"
-                        Classes="FileOperationButton"
+                        Classes="StateButton FileOperationButton"
                         Command="{Binding CopyCommand}"
                         Content="&#xF0C5;"
                         HotKey="Ctrl+C"
                         ToolTip.Tip="Copy" />
                 <Button x:Name="PasteButton"
-                        Classes="FileOperationButton"
+                        Classes="StateButton FileOperationButton"
                         Command="{Binding PasteCommand}"
                         Content="&#xF0192;"
                         HotKey="Ctrl+V"
                         ToolTip.Tip="Paste" />
-                <Button Classes="FileOperationButton"
+                <Button Classes="StateButton FileOperationButton"
                         Click="OnRenameClicked"
                         Content="&#xF0455;"
                         HotKey="F2"
+                        IsEnabled="{Binding SelectionNotEmpty}"
                         ToolTip.Tip="Rename" />
                 <Button x:Name="DeleteButton"
-                        Classes="FileOperationButton"
+                        Classes="StateButton FileOperationButton"
                         Command="{Binding MoveToTrashCommand}"
                         Content="&#xF014;"
                         HotKey="Delete"
-                        ToolTip.Tip="Delete" />
+                        ToolTip.Tip="Move to Trash" />
+
                 <Rectangle Classes="ButtonSeparator" />
 
                 <Button x:Name="MenuButton" Width="80" Classes="MenuButton" Content="&#xF176;&#xF175; Sort">
@@ -185,7 +192,7 @@
                                 <MenuItem.Header>
                                     <Grid ColumnDefinitions="Auto *">
                                         <TextBlock Classes="SortLabelTextBlock" Text="Name" />
-                                        <TextBlock Classes="SortArrowTextBlock" Text="{Binding SortInfo, Converter={StaticResource SortArrowConverter}, ConverterParameter={x:Static core:SortBy.Name}}" />
+                                        <TextBlock Grid.Column="1" Classes="SortArrowTextBlock" Text="{Binding SortInfo, Converter={StaticResource SortArrowConverter}, ConverterParameter={x:Static core:SortBy.Name}}" />
                                     </Grid>
                                 </MenuItem.Header>
                             </MenuItem>
@@ -249,12 +256,12 @@
 
                 <ScrollViewer Padding="4 10 0 3">
                     <StackPanel Orientation="Vertical">
+
+                        <TextBlock Classes="SidebarLabel" Text="Quick Access" />
                         <ListBox x:Name="QuickAccessListBox"
                                  Classes="SideBarListBox"
-                                 IsVisible="False"
                                  ItemTemplate="{StaticResource SideBarTemplate}"
                                  ItemsSource="{Binding QuickAccess}"
-                                 PropertyChanged="OnQuickAccessChanged"
                                  Tapped="SideBarEntryClicked">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
@@ -262,8 +269,8 @@
                                     <Setter Property="ContextMenu">
                                         <Setter.Value>
                                             <ContextMenu x:DataType="vm:FileSystemEntryViewModel">
-                                                <MenuItem Classes="ContextMenuItem" Click="MoveUp" Header="Move up" />
-                                                <MenuItem Classes="ContextMenuItem" Click="MoveDown" Header="Move down" />
+                                                <MenuItem Classes="ContextMenuItem" Click="MoveUpQuickAccess" Header="Move up" />
+                                                <MenuItem Classes="ContextMenuItem" Click="MoveDownQuickAccess" Header="Move down" />
                                                 <MenuItem Classes="ContextMenuItem" Click="RemoveFromQuickAccess" Header="Remove from quick access" />
                                             </ContextMenu>
                                         </Setter.Value>
@@ -271,9 +278,9 @@
                                 </Style>
                             </ListBox.Styles>
                         </ListBox>
+                        <Separator Background="{DynamicResource SecondaryColor}" />
 
-                        <Separator x:Name="FirstSeparator" Background="{DynamicResource SecondaryColor}" IsVisible="False" />
-
+                        <TextBlock x:Name="SpecialsLabel" Classes="SidebarLabel" IsVisible="False" Text="Special Folders" />
                         <ListBox x:Name="SpecialsListBox"
                                  Background="{DynamicResource PrimaryColor}"
                                  Classes="SideBarListBox"
@@ -288,9 +295,9 @@
                                 </Style>
                             </ListBox.Styles>
                         </ListBox>
-
                         <Separator x:Name="SecondSeparator" Background="{DynamicResource SecondaryColor}" IsVisible="False" />
 
+                        <TextBlock Classes="SidebarLabel" Text="System Drives" />
                         <ListBox x:Name="DrivesListBox"
                                  Classes="SideBarListBox"
                                  ItemTemplate="{StaticResource SideBarTemplate}"
@@ -302,6 +309,51 @@
                                 </Style>
                             </ListBox.Styles>
                         </ListBox>
+                        <Separator Background="{DynamicResource SecondaryColor}" />
+
+                        <TextBlock Classes="SidebarLabel" Text="SFTP Connections" />
+                        <ListBox x:Name="SftpListBox" Classes="SideBarListBox" ItemsSource="{Binding SftpConnectionsVms}" Tapped="SftpEntryClicked">
+                            <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Padding" Value="10 3 10 3" />
+                                    <Setter Property="ContextMenu">
+                                        <Setter.Value>
+                                            <ContextMenu x:DataType="vm:SftpConnectionViewModel">
+                                                <MenuItem Classes="ContextMenuItem" Click="MoveUpSftp" Header="Move up" />
+                                                <MenuItem Classes="ContextMenuItem" Click="MoveDownSftp" Header="Move down" />
+                                                <MenuItem Classes="ContextMenuItem" Click="EditSftpConnection" Header="Edit" />
+                                                <MenuItem Classes="ContextMenuItem" Click="CloseSftp" Header="Close" IsVisible="{Binding FileSystem, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                                                <MenuItem Classes="ContextMenuItem" Click="RemoveSftp" Header="Remove" IsVisible="{Binding FileSystem, Converter={x:Static ObjectConverters.IsNull}}" />
+                                            </ContextMenu>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Foreground" Value="{DynamicResource IconColor}" />
+                                </Style>
+                            </ListBox.Styles>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="{x:Type vm:SftpConnectionViewModel}">
+                                    <Grid>
+                                        <Grid Height="27" ColumnDefinitions="Auto *" IsVisible="{Binding FileSystem, Converter={x:Static ObjectConverters.IsNull}}">
+                                            <TextBlock Grid.Column="0" Classes="SftpIcon" Foreground="{DynamicResource IconColor}" Text="&#xf059f;" />
+                                            <TextBlock Grid.Column="1" Classes="SftpLabel" Foreground="{DynamicResource TextColor}" Text="{Binding HostnameOrIpAddress}" />
+                                        </Grid>
+                                        <Grid Height="27" ColumnDefinitions="Auto *" IsVisible="{Binding FileSystem, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                            <TextBlock Grid.Column="0" Classes="SftpIcon" Foreground="{DynamicResource AcceptColor}" Text="&#xf0789;" />
+                                            <TextBlock Grid.Column="1" Classes="SftpLabel" Foreground="{DynamicResource AcceptColor}" Text="{Binding HostnameOrIpAddress}" />
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <Button Classes="AddSftpButton" Click="OnAddSftpButtonClicked">
+                            <Grid VerticalAlignment="Center" ColumnDefinitions="Auto *">
+                                <TextBlock Margin="33 0 5 0" Classes="AddNewSftpText IconText" FontSize="16" Text="&#xf457;" />
+                                <TextBlock Grid.Column="1" Classes="AddNewSftpText" Text="Add New" />
+                            </Grid>
+                        </Button>
                     </StackPanel>
                 </ScrollViewer>
 
@@ -330,7 +382,7 @@
                         </Border>
                     </StackPanel>
 
-                    <Label Grid.Row="1" Classes="InfoMessage" Content="{Binding CurrentInfoMessage}" IsVisible="{Binding ShowInfoMessage}" />
+                    <Label Grid.Row="1" Classes="InfoMessage" Content="{Binding CurrentInfoMessage}" IsVisible="{Binding CurrentInfoMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
 
                     <ListBox x:Name="FileDisplay"
                              Grid.Row="2"
@@ -347,27 +399,55 @@
                                 <Setter Property="Margin" Value="0 0 4 0" />
                                 <Setter Property="ContextMenu">
                                     <Setter.Value>
+                                        <!--  ReSharper disable Xaml.PossibleNullReferenceException  -->
                                         <ContextMenu x:DataType="vm:FileSystemEntryViewModel" Classes="FileContextMenu">
-                                            <MenuItem Classes="ContextMenuItem" Click="OpenClicked" Header="Open" />
-                                            <MenuItem Classes="ContextMenuItem" Click="OpenAs" Header="Open as" IsVisible="{Binding SupportsOpenAs}" />
-                                            <MenuItem Classes="ContextMenuItem" Click="OpenInNotepad" Header="Open in Notepad" IsVisible="{Binding !IsDirectory}" />
-                                            <MenuItem Classes="ContextMenuItem" Click="PinToQuickAccess" Header="Add to quick access" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).OpenCommand}" Header="Open" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).OpenAsCommand}" Header="Open as" IsVisible="{Binding SupportsOpenAs}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).OpenInNotepadCommand}" Header="Open in Notepad" IsVisible="{Binding !IsDirectory}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToQuickAccessCommand}" CommandParameter="{Binding}" Header="Add to quick access" />
                                             <Separator Classes="ContextMenuSeparator" />
-                                            <MenuItem Classes="ContextMenuItem" Click="AddToArchive" Header="Add to archive" />
-                                            <MenuItem Classes="ContextMenuItem" Click="ExtractArchive" Header="Extract archive" IsVisible="{Binding IsArchived}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToArchiveCommand}" Header="Add to archive" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).ExtractArchiveCommand}" Header="Extract archive" IsVisible="{Binding IsArchived}" />
                                             <Separator Classes="ContextMenuSeparator" />
-                                            <MenuItem Classes="ContextMenuItem" Click="CopyPath" Header="Copy path" />
-                                            <MenuItem Classes="ContextMenuItem" Click="Cut" Header="Cut" />
-                                            <MenuItem Classes="ContextMenuItem" Click="Copy" Header="Copy" />
-                                            <MenuItem Classes="ContextMenuItem" Click="CreateShortcut" Header="Create shortcut" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CopyPathCommand}" CommandParameter="{Binding}" Header="Copy path" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CutCommand}" Header="Cut" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CopyCommand}" Header="Copy" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CreateShortcutCommand}" CommandParameter="{Binding}" Header="Create shortcut" />
                                             <Separator Classes="ContextMenuSeparator" />
-                                            <MenuItem Classes="ContextMenuItem" Click="Delete" Header="Delete" />
-                                            <MenuItem Classes="ContextMenuItem" Click="DeletePermanently" Header="Delete permanently" />
-                                            <MenuItem Classes="ContextMenuItem" Click="FlattenFolder" Header="Flatten folder" IsVisible="{Binding IsDirectory}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).MoveToTrashCommand}" Header="Move to trash" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).DeleteCommand}" Header="Delete" />
+                                            <MenuItem Classes="ContextMenuItem"
+                                                      Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).FlattenFolderCommand}"
+                                                      CommandParameter="{Binding}"
+                                                      Header="Flatten folder"
+                                                      IsVisible="{Binding IsDirectory}" />
                                             <MenuItem Classes="ContextMenuItem" Click="OnRenameClicked" Header="Rename" />
                                             <Separator Classes="ContextMenuSeparator" />
-                                            <MenuItem Classes="ContextMenuItem" Click="ShowProperties" Header="Properties" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).ShowPropertiesCommand}" CommandParameter="{Binding}" Header="Properties" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).SyncDirCommand}" CommandParameter="{Binding}" Header="Synchronize this directory">
+                                                <MenuItem.IsVisible>
+                                                    <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                                        <Binding Path="IsDirectory" />
+                                                        <Binding Path="!#FileDisplay.((vm:MainWindowViewModel)DataContext).IsLocal" />
+                                                    </MultiBinding>
+                                                </MenuItem.IsVisible>
+                                            </MenuItem>
                                         </ContextMenu>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                            <Style Selector="ListBox">
+                                <Setter Property="ContextMenu">
+                                    <Setter.Value>
+                                        <ContextMenu Classes="FileContextMenu">
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToQuickAccessCommand}" Header="Add to quick access" />
+                                            <Separator Classes="ContextMenuSeparator" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CopyPathCommand}" Header="Copy path" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).PasteCommand}" Header="Paste" />
+                                            <Separator Classes="ContextMenuSeparator" IsVisible="{Binding !#FileDisplay.((vm:MainWindowViewModel)DataContext).IsLocal}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).SyncDirCommand}" Header="Synchronize this directory" IsVisible="{Binding !#FileDisplay.((vm:MainWindowViewModel)DataContext).IsLocal}" />
+                                        </ContextMenu>
+                                        <!--  ReSharper restore Xaml.PossibleNullReferenceException  -->
                                     </Setter.Value>
                                 </Setter>
                             </Style>

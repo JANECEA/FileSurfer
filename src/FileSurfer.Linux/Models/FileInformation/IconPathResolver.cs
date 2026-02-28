@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.Shell;
+using FileSurfer.Core.Services.Shell;
 
 namespace FileSurfer.Linux.Models.FileInformation;
 
@@ -23,10 +23,14 @@ internal sealed class IconPathComparer : IComparer<IconPath>
 
         bool aIsTheme =
             _theme is not null
-            && a.RestOfPath.Contains($"{PathTools.DirSeparator}{_theme}{PathTools.DirSeparator}");
+            && a.RestOfPath.Contains(
+                $"{LocalPathTools.DirSeparator}{_theme}{LocalPathTools.DirSeparator}"
+            );
         bool bIsTheme =
             _theme is not null
-            && b.RestOfPath.Contains($"{PathTools.DirSeparator}{_theme}{PathTools.DirSeparator}");
+            && b.RestOfPath.Contains(
+                $"{LocalPathTools.DirSeparator}{_theme}{LocalPathTools.DirSeparator}"
+            );
         if (aIsTheme != bIsTheme)
             return aIsTheme ? -1 : 1;
 
@@ -38,8 +42,12 @@ internal sealed class IconPathComparer : IComparer<IconPath>
         if (a.IconCount != b.IconCount)
             return a.IconCount > b.IconCount ? -1 : 1;
 
-        bool aIsLocal = a.BaseDir.Contains($"{PathTools.DirSeparator}home{PathTools.DirSeparator}");
-        bool bIsLocal = b.BaseDir.Contains($"{PathTools.DirSeparator}home{PathTools.DirSeparator}");
+        bool aIsLocal = a.BaseDir.Contains(
+            $"{LocalPathTools.DirSeparator}home{LocalPathTools.DirSeparator}"
+        );
+        bool bIsLocal = b.BaseDir.Contains(
+            $"{LocalPathTools.DirSeparator}home{LocalPathTools.DirSeparator}"
+        );
         if (aIsLocal != bIsLocal)
             return aIsLocal ? -1 : 1;
 

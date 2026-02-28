@@ -1,0 +1,61 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style Selector="Window.DialogWindow">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
+        <Setter Property="CanResize" Value="False" />
+        <Setter Property="Icon" Value="/Assets/FileSurfer-logo.ico" />
+        <Setter Property="ShowInTaskbar" Value="False" />
+        <Setter Property="WindowStartupLocation" Value="CenterOwner" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+
+    <Style Selector="Grid.MainGrid">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
+    </Style>
+
+    <Style Selector="Border.InfoBlockBorder">
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Margin" Value="15" />
+    </Style>
+
+    <Style Selector="TextBlock.InfoBlock">
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="TextWrapping" Value="WrapWithOverflow" />
+        <Setter Property="Margin" Value="10" />
+    </Style>
+
+    <Style Selector="Rectangle.BottomRectangle">
+        <Setter Property="Fill" Value="{DynamicResource SecondaryColor}" />
+    </Style>
+
+    <Style Selector="Button.BottomButton">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+        <Setter Property="Height" Value="28" />
+        <Setter Property="Width" Value="80" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="12 6" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <Style Selector="TextBox.InputBox">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="Margin" Value="15 -5 15 10" />
+    </Style>
+
+    <Style Selector="TextBox:focus-within /template/ Border,TextBox:pointerover /template/ Border">
+        <Setter Property="Background" Value="{DynamicResource TextBoxColor}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}" />
+    </Style>
+
+</Styles>

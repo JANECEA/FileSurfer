@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FileSurfer.Core;
+using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 
 namespace FileSurfer.Windows.Models.FileInformation;
 
-public class WindowsFileInfoProvider : IFileInfoProvider
+public class WindowsFileInfoProvider : ILocalFileInfoProvider
 {
+    public IPathTools PathTools => LocalPathTools.Instance;
+
     public DriveEntry[] GetDrives() =>
         DriveInfo
             .GetDrives()
@@ -30,53 +33,55 @@ public class WindowsFileInfoProvider : IFileInfoProvider
             .Select(driveInfo => new DriveEntry(driveInfo))
             .ToArray();
 
-    public string[] GetPathFiles(string path, bool includeHidden, bool includeOs)
+    public ValueResult<List<FileEntryInfo>> GetPathFiles(
+        string path,
+        bool includeHidden,
+        bool includeOs
+    )
     {
         try
         {
-            string[] files = Directory.GetFiles(path);
+            FileInfo[] files = new DirectoryInfo(path).GetFiles();
+            List<FileEntryInfo> fileList = new(files.Length);
 
-            if (includeHidden && includeOs)
-                return files;
-
-            for (int i = 0; i < files.Length; i++)
-            {
+            foreach (FileInfo f in files)
                 if (
-                    !includeHidden && IsHidden(files[i], false)
-                    || !includeOs && IsOsProtected(files[i], false)
+                    (includeHidden || !IsHidden(f.FullName, false))
+                    && (includeOs || !IsOsProtected(f.FullName, false))
                 )
-                    files[i] = string.Empty;
-            }
-            return files.Where(filePath => filePath != string.Empty).ToArray();
+                    fileList.Add(new FileEntryInfo(f));
+
+            return fileList.OkResult();
         }
-        catch
+        catch (Exception ex)
         {
-            return Array.Empty<string>();
+            return ValueResult<List<FileEntryInfo>>.Error(ex.Message);
         }
     }
 
-    public string[] GetPathDirs(string path, bool includeHidden, bool includeOs)
+    public ValueResult<List<DirectoryEntryInfo>> GetPathDirs(
+        string path,
+        bool includeHidden,
+        bool includeOs
+    )
     {
         try
         {
-            string[] directories = Directory.GetDirectories(path);
+            DirectoryInfo[] dirs = new DirectoryInfo(path).GetDirectories();
+            List<DirectoryEntryInfo> dirsList = new(dirs.Length);
 
-            if (includeHidden && includeOs)
-                return directories;
-
-            for (int i = 0; i < directories.Length; i++)
-            {
+            foreach (DirectoryInfo d in dirs)
                 if (
-                    !includeHidden && IsHidden(directories[i], true)
-                    || !includeOs && IsOsProtected(directories[i], true)
+                    (includeHidden || !IsHidden(d.FullName, true))
+                    && (includeOs || !IsOsProtected(d.FullName, true))
                 )
-                    directories[i] = string.Empty;
-            }
-            return directories.Where(dirPath => dirPath != string.Empty).ToArray();
+                    dirsList.Add(new DirectoryEntryInfo(d));
+
+            return dirsList.OkResult();
         }
-        catch
+        catch (Exception ex)
         {
-            return Array.Empty<string>();
+            return ValueResult<List<DirectoryEntryInfo>>.Error(ex.Message);
         }
     }
 
@@ -120,11 +125,11 @@ public class WindowsFileInfoProvider : IFileInfoProvider
         }
     }
 
-    public DateTime? GetFileLastModified(string filePath)
+    public DateTime? GetFileLastModifiedUtc(string filePath)
     {
         try
         {
-            return new FileInfo(filePath).LastWriteTime;
+            return new FileInfo(filePath).LastWriteTimeUtc;
         }
         catch
         {
@@ -132,11 +137,11 @@ public class WindowsFileInfoProvider : IFileInfoProvider
         }
     }
 
-    public DateTime? GetDirLastModified(string dirPath)
+    public DateTime? GetDirLastModifiedUtc(string dirPath)
     {
         try
         {
-            return new DirectoryInfo(dirPath).LastWriteTime;
+            return new DirectoryInfo(dirPath).LastWriteTimeUtc;
         }
         catch
         {
@@ -150,7 +155,10 @@ public class WindowsFileInfoProvider : IFileInfoProvider
         {
             int i = path.Length - 2;
             for (; i >= 0; i--)
-                if (path[i] == PathTools.DirSeparator)
+                if (
+                    path[i] == LocalPathTools.DirSeparator
+                    || path[i] == LocalPathTools.OtherSeparator
+                )
                     break;
 
             if (path[i + 1] == '.')
@@ -168,6 +176,12 @@ public class WindowsFileInfoProvider : IFileInfoProvider
         }
     }
 
+    public string GetRoot()
+    {
+        string dir = Directory.GetCurrentDirectory();
+        return Path.GetPathRoot(dir)!;
+    }
+
     private static bool IsOsProtected(string path, bool isDirectory)
     {
         try
@@ -182,9 +196,9 @@ public class WindowsFileInfoProvider : IFileInfoProvider
         }
     }
 
-    public bool IsLinkedToDirectory(string linkPath, out string? directory)
+    public bool IsLinkedToDirectory(string linkPath, out string directory)
     {
-        directory = null;
+        directory = null!;
         if (!Path.GetExtension(linkPath).Equals(".lnk", StringComparison.OrdinalIgnoreCase))
             return false;
 

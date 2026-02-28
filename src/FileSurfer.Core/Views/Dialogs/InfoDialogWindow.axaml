@@ -1,0 +1,26 @@
+<Window x:Class="FileSurfer.Core.Views.Dialogs.InfoDialogWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        Width="560"
+        Height="230"
+        d:DesignHeight="230"
+        d:DesignWidth="560"
+        Classes="DialogWindow"
+        KeyDown="KeyPressed"
+        mc:Ignorable="d">
+
+    <Window.Styles>
+        <StyleInclude Source="avares://FileSurfer.Core/Views/Dialogs/DialogWindowStyle.axaml" />
+    </Window.Styles>
+
+    <Grid Classes="MainGrid" RowDefinitions="* 45">
+        <Border Classes="InfoBlockBorder">
+            <TextBlock x:Name="InfoBlock" Classes="InfoBlock" />
+        </Border>
+        <Rectangle Grid.Row="1" Classes="BottomRectangle" />
+        <Button Grid.Row="1" Classes="BottomButton" Click="CloseWindow" Content="Ok" />
+    </Grid>
+
+</Window>

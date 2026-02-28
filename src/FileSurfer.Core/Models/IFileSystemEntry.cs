@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+
 namespace FileSurfer.Core.Models;
 
 /// <summary>
@@ -24,4 +27,147 @@ public interface IFileSystemEntry
     /// Holds this entry's name without the extension
     /// </summary>
     public string NameWoExtension { get; }
+}
+
+/// <summary>
+/// Implementation of <see cref="IFileSystemEntry"/> for a drive.
+/// </summary>
+public sealed class DriveEntry : IFileSystemEntry
+{
+    public string PathToEntry { get; }
+    public string Name { get; }
+    string IFileSystemEntry.Extension => string.Empty;
+    string IFileSystemEntry.NameWoExtension => Name;
+
+    public DriveEntry(string pathToEntry, string name)
+    {
+        PathToEntry = pathToEntry;
+        Name = name;
+    }
+
+    public DriveEntry(DriveInfo driveInfo)
+    {
+        PathToEntry = driveInfo.Name;
+        Name = !string.IsNullOrEmpty(driveInfo.VolumeLabel)
+            ? $"{driveInfo.VolumeLabel} ({driveInfo.Name.TrimEnd(Path.DirectorySeparatorChar)})"
+            : driveInfo.Name.TrimEnd(Path.DirectorySeparatorChar);
+    }
+}
+
+/// <summary>
+/// Implementation of <see cref="IFileSystemEntry"/> for a file.
+/// </summary>
+public class FileEntry : IFileSystemEntry
+{
+    public string PathToEntry { get; }
+
+    public string Name { get; }
+
+    public string Extension { get; }
+
+    public string NameWoExtension { get; }
+
+    public FileEntry(string pathToFile, IPathTools pathTools)
+    {
+        PathToEntry = pathToFile;
+        Name = pathTools.GetFileName(pathToFile);
+        Extension = pathTools.GetExtension(pathToFile);
+
+        NameWoExtension = string.IsNullOrEmpty(Extension) ? Name : pathToFile[..^Extension.Length];
+    }
+
+    private protected FileEntry(string pathToFile, string name, string extension)
+    {
+        PathToEntry = pathToFile;
+        Name = name;
+        Extension = extension;
+
+        NameWoExtension = string.IsNullOrEmpty(Extension) ? Name : pathToFile[..^Extension.Length];
+    }
+}
+
+/// <summary>
+/// Implementation of <see cref="IFileSystemEntry"/> for a directory.
+/// </summary>
+public class DirectoryEntry : IFileSystemEntry
+{
+    public string PathToEntry { get; }
+
+    public string Name { get; }
+
+    string IFileSystemEntry.Extension => string.Empty;
+    string IFileSystemEntry.NameWoExtension => Name;
+
+    public DirectoryEntry(string dirPath, IPathTools pathTools)
+    {
+        PathToEntry = dirPath;
+        Name = pathTools.GetFileName(dirPath);
+    }
+
+    private protected DirectoryEntry(string dirPath, string name)
+    {
+        PathToEntry = dirPath;
+        Name = name;
+    }
+}
+
+/// <summary>
+/// Represents a universal file info object
+/// </summary>
+public class FileEntryInfo : FileEntry
+{
+    public DateTime LastModified { get; }
+    public DateTime LastModifiedUtc { get; }
+    public long SizeB { get; }
+
+    public FileEntryInfo(
+        string pathToFile,
+        string name,
+        string extension,
+        long sizeB,
+        DateTime lastModified,
+        DateTime lastModifiedUtc
+    )
+        : base(pathToFile, name, extension)
+    {
+        LastModified = lastModified;
+        LastModifiedUtc = lastModifiedUtc;
+        SizeB = sizeB;
+    }
+
+    public FileEntryInfo(FileInfo fileInfo)
+        : base(fileInfo.FullName, fileInfo.Name, fileInfo.Extension)
+    {
+        LastModified = fileInfo.LastWriteTime;
+        LastModifiedUtc = fileInfo.LastWriteTimeUtc;
+        SizeB = fileInfo.Length;
+    }
+}
+
+/// <summary>
+/// Represents a universal Directory info object
+/// </summary>
+public class DirectoryEntryInfo : DirectoryEntry
+{
+    public DateTime LastModified { get; }
+    public DateTime LastModifiedUtc { get; }
+
+    public DirectoryEntryInfo(
+        string dirPath,
+        string name,
+        DateTime lastModified,
+        DateTime lastModifiedUtc
+    )
+        : base(dirPath, name)
+    {
+        LastModified = lastModified;
+        LastModifiedUtc = lastModifiedUtc;
+    }
+
+    public DirectoryEntryInfo(DirectoryInfo dirInfo)
+        : base(dirInfo.FullName, dirInfo.Name)
+    {
+        LastModified = dirInfo.LastWriteTime;
+        LastModifiedUtc = dirInfo.LastWriteTimeUtc;
+    }
 }

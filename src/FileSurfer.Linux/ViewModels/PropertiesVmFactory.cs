@@ -3,10 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Security;
 using Avalonia.Controls;
-using FileSurfer.Core.Models;
 using FileSurfer.Core.ViewModels;
-using FileSurfer.Linux.Models.Shell;
-using Mono.Unix;
 
 namespace FileSurfer.Linux.ViewModels;
 
@@ -19,6 +16,7 @@ public interface IPropertiesVmFactory
     /// Creates the Properties window view-model
     /// </summary>
     /// <param name="entry">The underlying entry</param>
+    /// <param name="info">Info for the file system entry</param>
     /// <param name="permissions">Unix permissions in <c>rwxrwxrwx</c> format</param>
     /// <param name="owner">Name of the owner of the file system entry</param>
     public IDisplayable GetPropertiesVm(

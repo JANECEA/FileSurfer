@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Threading;
+using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
-using FileSurfer.Core.Models.FileOperations;
-using FileSurfer.Core.Models.FileOperations.Undoable;
-using FileSurfer.Core.Models.Shell;
-using FileSurfer.Core.Models.VersionControl;
+using FileSurfer.Core.Models.Sftp;
+using FileSurfer.Core.Services.Dialogs;
+using FileSurfer.Core.Services.FileOperations;
+using FileSurfer.Core.Services.FileOperations.Undoable;
+using FileSurfer.Core.Services.Shell;
+using FileSurfer.Core.Services.VersionControl;
 using FileSurfer.Core.Views;
+using FileSurfer.Core.Views.Dialogs;
 using ReactiveUI;
 
 namespace FileSurfer.Core.ViewModels;
@@ -27,44 +31,32 @@ namespace FileSurfer.Core.ViewModels;
 /// </para>
 /// Handles data directly bound to the View.
 /// </summary>
-[ // Properties are used by the window, cannot be static have to global
+[ // Properties are used by the window, cannot be static, have to be public
     SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global"),
     SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
     SuppressMessage("ReSharper", "UnusedMember.Global"),
+    SuppressMessage("ReSharper", "CollectionNeverQueried.Global"),
     SuppressMessage("Performance", "CA1822:Mark members as static"),
 ]
 public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
-    private string ThisPcLabel => FileSurferSettings.ThisPcLabel;
+    private const string EmptyDirMessage = "This directory is empty.";
+    private const string EmptySearchMessage = "No items match your query";
 
-    private readonly IFileIoHandler _fileIoHandler;
-    private readonly IBinInteraction _fileRestorer;
-    private readonly IFileInfoProvider _fileInfoProvider;
-    private readonly IFileProperties _fileProperties;
-    private readonly IShellHandler _shellHandler;
-    private readonly IVersionControl _versionControl;
-    private readonly IClipboardManager _clipboardManager;
-    private readonly FileSystemEntryVmFactory _entryVmFactory;
+    private readonly IDialogService _dialogService;
     private readonly SearchManager _searchManager;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
-    private readonly UndoRedoHandler<string> _pathHistory;
+    private readonly UndoRedoHandler<Location> _locationHistory;
     private readonly Action<bool> _setDarkMode;
-    private DispatcherTimer? _refreshTimer;
+    private readonly LocalFileSystem _localFs;
+    private readonly SftpFileSystemFactory _sftpFileSystemFactory;
 
     private bool _isActionUserInvoked = true;
-    private bool SortReversed
-    {
-        get => FileSurferSettings.SortReversed;
-        set => FileSurferSettings.SortReversed = value;
-    }
-    private SortBy SortBy
-    {
-        get => FileSurferSettings.DefaultSort;
-        set => FileSurferSettings.DefaultSort = value;
-    }
-    private DateTime _lastModified;
+    private DateTime _lastRefreshedUtc;
+    private DispatcherTimer? _refreshTimer;
 
-    public SortInfo SortInfo => new(SortBy, SortReversed);
+    public SortInfo SortInfo =>
+        new(FileSurferSettings.SortingMode, FileSurferSettings.SortReversed);
 
     /// <summary>
     /// Holds <see cref="FileSystemEntryViewModel"/>s displayed in the main window.
@@ -79,19 +71,42 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Holds <see cref="FileSystemEntryViewModel"/>s displayed in Quick Access.
     /// </summary>
-    public ObservableCollection<FileSystemEntryViewModel> QuickAccess { get; } = new();
+    public ObservableCollection<SideBarEntryViewModel> QuickAccess { get; } = new();
 
     /// <summary>
     /// Holds the Special Folders <see cref="FileSystemEntryViewModel"/>s.
     /// </summary>
-    public ObservableCollection<FileSystemEntryViewModel> SpecialFolders { get; } = [];
+    public ObservableCollection<SideBarEntryViewModel> SpecialFolders { get; } = [];
 
     /// <summary>
     /// Holds the Drives <see cref="FileSystemEntryViewModel"/>s.
     /// </summary>
-    public FileSystemEntryViewModel[] Drives =>
-        _drives ??= _fileInfoProvider.GetDrives().Select(_entryVmFactory.Drive).ToArray();
-    private FileSystemEntryViewModel[]? _drives;
+    public ObservableCollection<SideBarEntryViewModel> Drives { get; } = [];
+
+    /// <summary>
+    /// Holds the parameters for <see cref="SftpConnection"/>
+    /// </summary>
+    public ObservableCollection<SftpConnectionViewModel> SftpConnectionsVms { get; } = [];
+
+    /// <summary>
+    /// Holds the label currently displayed in the PathBox.
+    /// </summary>
+    public string CurrentFsLabel
+    {
+        get => _currentFsLabel;
+        set => this.RaiseAndSetIfChanged(ref _currentFsLabel, value);
+    }
+    private string _currentFsLabel = string.Empty;
+
+    /// <summary>
+    /// Holds the text currently displayed in the PathBox.
+    /// </summary>
+    public string PathBoxText
+    {
+        get => _pathBoxText;
+        set => this.RaiseAndSetIfChanged(ref _pathBoxText, value);
+    }
+    private string _pathBoxText = string.Empty;
 
     /// <summary>
     /// Holds the path to the current directory displayed in FileSurfer.
@@ -99,32 +114,47 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public string CurrentDir
     {
         get => _currentDir;
-        set => this.RaiseAndSetIfChanged(ref _currentDir, value);
+        set
+        {
+            _currentDir = value;
+            PathBoxText = value;
+            SetSearchWaterMark(CurrentDir);
+        }
     }
     private string _currentDir = string.Empty;
 
-    /// <summary>
-    /// Indicates whether the <see cref="CurrentInfoMessage"/> should be shown.
-    /// </summary>
-    public bool ShowInfoMessage
+    public Location CurrentLocation
     {
-        get => _showInfoMessage;
-        set => this.RaiseAndSetIfChanged(ref _showInfoMessage, value);
-    }
-    private bool _showInfoMessage;
+        get =>
+            _currentLocation
+            ?? throw new InvalidOperationException("Location was not initialized.");
+        set
+        {
+            _currentLocation = value;
+            CurrentDir = value.Path;
+            CurrentFs = CurrentLocation.FileSystem;
+            CurrentFsLabel = CurrentFs.GetLabel();
+            if (FileSurferSettings.OpenInLastLocation && CurrentFs is LocalFileSystem)
+                FileSurferSettings.OpenIn = value.Path;
 
-    /// <summary>
-    /// Indicates whether the current directory contains files or directories.
-    /// </summary>
-    public string CurrentInfoMessage
+            this.RaisePropertyChanged(nameof(IsLocal));
+        }
+    }
+    private Location? _currentLocation;
+
+    private IFileSystem CurrentFs { get; set; }
+
+    private IPathTools PathTools => CurrentFs.FileInfoProvider.PathTools;
+
+    public string? CurrentInfoMessage
     {
         get => _currentInfoMessage;
         set => this.RaiseAndSetIfChanged(ref _currentInfoMessage, value);
     }
-    private string _currentInfoMessage = string.Empty;
+    private string? _currentInfoMessage = null;
 
     /// <summary>
-    /// Text that will be displayed in the Search bar.
+    /// Watermark that will be displayed in the Search bar.
     /// </summary>
     public string SearchWaterMark
     {
@@ -149,8 +179,13 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public bool Searching
     {
         get => _searching;
-        set => this.RaiseAndSetIfChanged(ref _searching, value);
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _searching, value);
+            this.RaisePropertyChanged(nameof(NotSearching));
+        }
     }
+
     private bool _searching;
 
     /// <summary>
@@ -169,7 +204,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             this.RaiseAndSetIfChanged(ref _currentBranch, value);
             if (_isActionUserInvoked && !string.IsNullOrEmpty(value) && Branches.Contains(value))
             {
-                ForwardIfError(_versionControl.SwitchBranches(value));
+                ShowIfError(CurrentFs.GitIntegration.SwitchBranches(value));
                 Reload();
             }
         }
@@ -186,6 +221,22 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
     private bool _isVersionControlled = false;
 
+    /// <summary>
+    /// Indicates whether there is an opened directory synchronizer window
+    /// </summary>
+    public bool IsSynchronizerOpen
+    {
+        get => _isSynchronizerOpen;
+        set => this.RaiseAndSetIfChanged(ref _isSynchronizerOpen, value);
+    }
+    private bool _isSynchronizerOpen = false;
+
+    public ReactiveCommand<Unit, Unit> OpenCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel, Unit> OpenAsCommand { get; }
+    public ReactiveCommand<Unit, Unit> OpenInNotepadCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Unit> AddToQuickAccessCommand { get; }
+    public ReactiveCommand<Unit, Task> AddToArchiveCommand { get; }
+    public ReactiveCommand<Unit, Task> ExtractArchiveCommand { get; }
     public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
     public ReactiveCommand<Unit, Unit> GoForwardCommand { get; }
     public ReactiveCommand<Unit, Unit> GoUpCommand { get; }
@@ -196,6 +247,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> NewDirCommand { get; }
     public ReactiveCommand<Unit, Task> CutCommand { get; }
     public ReactiveCommand<Unit, Task> CopyCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Task> CopyPathCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel, Unit> CreateShortcutCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel, Unit> FlattenFolderCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel, Unit> ShowPropertiesCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Task> SyncDirCommand { get; }
     public ReactiveCommand<Unit, Task> PasteCommand { get; }
     public ReactiveCommand<Unit, Unit> MoveToTrashCommand { get; }
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
@@ -208,57 +264,83 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> PullCommand { get; }
     public ReactiveCommand<Unit, Unit> PushCommand { get; }
 
+    public bool SelectionNotEmpty => SelectedFiles.Count > 0;
+    private bool CanGoBack => _locationHistory.GetPrevious() is not null;
+    private bool CanGoForward => _locationHistory.GetNext() is not null;
+    private bool IsLocal => CurrentFs is LocalFileSystem;
+    private bool NotSearching => !Searching;
+
     /// <summary>
     /// Initializes a new <see cref="MainWindowViewModel"/>.
     /// </summary>
     public MainWindowViewModel(
         string initialDir,
-        IFileIoHandler fileIoHandler,
-        IBinInteraction fileRestorer,
-        IFileProperties fileProperties,
-        IFileInfoProvider fileInfoProvider,
-        IIconProvider iconProvider,
-        IShellHandler shellHandler,
-        IVersionControl versionControl,
-        IClipboardManager clipboardManager,
+        LocalFileSystem localFs,
+        IDialogService dialogService,
         Action<bool> setDarkMode
     )
     {
-        _fileIoHandler = fileIoHandler;
-        _fileRestorer = fileRestorer;
-        _fileProperties = fileProperties;
-        _fileInfoProvider = fileInfoProvider;
-        _shellHandler = shellHandler;
-        _versionControl = versionControl;
-        _clipboardManager = clipboardManager;
+        _localFs = localFs;
+        CurrentFs = localFs;
+        _dialogService = dialogService;
+        _sftpFileSystemFactory = new SftpFileSystemFactory(dialogService);
         _setDarkMode = setDarkMode;
-        _entryVmFactory = new FileSystemEntryVmFactory(
-            _fileInfoProvider,
-            _fileProperties,
-            iconProvider
-        );
-        _searchManager = new SearchManager(
-            _entryVmFactory,
-            _fileInfoProvider,
-            s => CurrentDir = s,
-            entry => FileEntries.Add(entry)
-        );
+        _searchManager = new SearchManager(s => PathBoxText = s, entry => FileEntries.Add(entry));
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
-        _pathHistory = new UndoRedoHandler<string>();
+        _locationHistory = new UndoRedoHandler<Location>(() =>
+        {
+            this.RaisePropertyChanged(nameof(CanGoBack));
+            this.RaisePropertyChanged(nameof(CanGoForward));
+        });
+        _locationHistory.AddNewNode(new Location(localFs, localFs.LocalFileInfoProvider.GetRoot()));
 
-        GoBackCommand = ReactiveCommand.Create(GoBack);
-        GoForwardCommand = ReactiveCommand.Create(GoForward);
+        IObservable<bool> isSynchronizing = this.WhenAnyValue(x => x.IsSynchronizerOpen);
+        IObservable<bool> canGoForward = this.WhenAnyValue(x => x.CanGoForward);
+        IObservable<bool> canGoBack = this.WhenAnyValue(x => x.CanGoBack);
+        IObservable<bool> local = this.WhenAnyValue(x => x.IsLocal);
+        IObservable<bool> notSearching = this.WhenAnyValue(x => x.NotSearching);
+        IObservable<bool> selection = this.WhenAnyValue(x => x.SelectionNotEmpty);
+        IObservable<bool> localNotSearching = local.CombineLatest(notSearching, (l, nS) => l && nS);
+        IObservable<bool> localSelection = local.CombineLatest(selection, (l, sl) => l && sl);
+        IObservable<bool> notLocalNotSearchingNotSync = local.CombineLatest(
+            notSearching,
+            isSynchronizing,
+            (loc, nSearch, nSync) => !loc && nSearch && !nSync
+        );
+
+        OpenCommand = ReactiveCommand.Create(OpenEntries, local);
+        OpenInNotepadCommand = ReactiveCommand.Create(OpenInNotepad, local);
+        OpenAsCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(OpenAs, local);
+        AddToQuickAccessCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(
+            AddToQuickAccess,
+            local
+        );
+        AddToArchiveCommand = ReactiveCommand.Create(AddToArchive, localNotSearching);
+        ExtractArchiveCommand = ReactiveCommand.Create(ExtractArchive, localNotSearching);
+        GoBackCommand = ReactiveCommand.Create(GoBack, canGoBack);
+        GoForwardCommand = ReactiveCommand.Create(GoForward, canGoForward);
         GoUpCommand = ReactiveCommand.Create(GoUp);
-        ReloadCommand = ReactiveCommand.Create(() => Reload(true));
-        OpenPowerShellCommand = ReactiveCommand.Create(OpenPowerShell);
-        CancelSearchCommand = ReactiveCommand.Create(() => CancelSearch(null));
-        NewFileCommand = ReactiveCommand.Create(NewFile);
-        NewDirCommand = ReactiveCommand.Create(NewDir);
-        CutCommand = ReactiveCommand.Create(Cut);
-        CopyCommand = ReactiveCommand.Create(Copy);
-        PasteCommand = ReactiveCommand.Create(Paste);
-        MoveToTrashCommand = ReactiveCommand.Create(MoveToTrash);
-        DeleteCommand = ReactiveCommand.Create(Delete);
+        ReloadCommand = ReactiveCommand.Create(() => Reload(true), notSearching);
+        OpenPowerShellCommand = ReactiveCommand.Create(OpenPowerShell, localNotSearching);
+        CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
+        NewFileCommand = ReactiveCommand.Create(NewFile, notSearching);
+        NewDirCommand = ReactiveCommand.Create(NewDir, notSearching);
+        CutCommand = ReactiveCommand.Create(Cut, selection);
+        CopyCommand = ReactiveCommand.Create(Copy, selection);
+        CopyPathCommand = ReactiveCommand.Create<FileSystemEntryViewModel?, Task>(CopyPath);
+        CreateShortcutCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(CreateShortcut);
+        FlattenFolderCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(FlattenFolder);
+        ShowPropertiesCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(
+            ShowProperties,
+            local
+        );
+        SyncDirCommand = ReactiveCommand.Create<FileSystemEntryViewModel?, Task>(
+            SynchronizeDir,
+            notLocalNotSearchingNotSync
+        );
+        PasteCommand = ReactiveCommand.Create(Paste, notSearching);
+        MoveToTrashCommand = ReactiveCommand.Create(MoveToTrash, localSelection);
+        DeleteCommand = ReactiveCommand.Create(Delete, selection);
         SetSortByCommand = ReactiveCommand.Create<SortBy>(SetSortBy);
         UndoCommand = ReactiveCommand.Create(Undo);
         RedoCommand = ReactiveCommand.Create(Redo);
@@ -269,11 +351,26 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         PushCommand = ReactiveCommand.Create(Push);
 
         LoadQuickAccess();
+        LoadDrives();
+        LoadSftpConnections();
         LoadSettings(false);
-        SetCurrentDir(initialDir);
+        SetInitialLocation(initialDir);
         FileSurferSettings.OnSettingsChange = () => LoadSettings(true);
         SelectedFiles.CollectionChanged += UpdateSelectionInfo;
         FileEntries.CollectionChanged += UpdateSelectionInfo;
+    }
+
+    private void SetInitialLocation(string localPath)
+    {
+        Location requestedLocation = new(_localFs, localPath);
+        if (requestedLocation.Exists())
+            SetLocation(requestedLocation);
+        else
+        {
+            Location root = new(_localFs, _localFs.LocalFileInfoProvider.GetRoot());
+            SetLocation(root);
+            SetLocation(requestedLocation);
+        }
     }
 
     private void LoadSettings(bool reload)
@@ -281,7 +378,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (!FileSurferSettings.ShowSpecialFolders)
             SpecialFolders.Clear();
         else if (SpecialFolders.Count == 0)
-            foreach (FileSystemEntryViewModel entry in GetSpecialFolders())
+            foreach (SideBarEntryViewModel entry in GetSpecialFolders())
                 SpecialFolders.Add(entry);
 
         if (!FileSurferSettings.AutomaticRefresh)
@@ -295,7 +392,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             {
                 Interval = TimeSpan.FromMilliseconds(FileSurferSettings.AutomaticRefreshInterval),
             };
-            _lastModified = DateTime.Now;
+            _lastRefreshedUtc = DateTime.UtcNow;
             _refreshTimer.Tick += CheckForUpdates;
             _refreshTimer.Start();
         }
@@ -305,61 +402,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             Reload(true);
     }
 
-    private void SetCurrentDirNoHistory(string dirPath)
-    {
-        if (Directory.Exists(dirPath))
-        {
-            dirPath = Path.GetFullPath(dirPath);
-            _lastModified = Directory.GetLastWriteTime(dirPath);
-        }
-        else if (dirPath != ThisPcLabel && !Searching)
-        {
-            ForwardError($"Directory \"{dirPath}\" does not exist.");
-            dirPath = _pathHistory.Current ?? GetClosestExistingParent(dirPath);
-        }
-
-        CurrentDir = dirPath;
-        if (IsValidDirectory(dirPath))
-        {
-            if (FileSurferSettings.OpenInLastLocation)
-                FileSurferSettings.OpenIn = dirPath;
-
-            if (Searching)
-                CancelSearch(dirPath);
-
-            SetSearchWaterMark(dirPath);
-            Reload(true);
-        }
-    }
-
-    /// <summary>
-    /// Sets the <see cref="CurrentDir"/> and adds the directory to <see cref="_pathHistory"/>,
-    /// </summary>
-    public void SetCurrentDir(string dirPath)
-    {
-        SetCurrentDirNoHistory(dirPath);
-
-        if (IsValidDirectory(dirPath) && CurrentDir != _pathHistory.Current)
-            _pathHistory.AddNewNode(dirPath);
-    }
-
-    public void ShowMessage(string message)
-    {
-        ShowInfoMessage = true;
-        CurrentInfoMessage = message;
-    }
-
-    private void HideMessage() => ShowInfoMessage = false;
-
-    /// <summary>
-    /// Compares <see cref="_lastModified"/> to the latest <see cref="Directory.GetLastWriteTime(string)"/>.
-    /// <para>
-    /// Invokes <see cref="Reload"/> if <see cref="Directory.GetLastWriteTime(string)"/> is newer.
-    /// </para>
-    /// </summary>
     private void CheckForUpdates(object? sender, EventArgs e)
     {
-        if (Directory.Exists(CurrentDir))
+        if (CurrentLocation.Exists())
         {
             if (CompareSetLastWriteTime())
                 Reload(true);
@@ -370,11 +415,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private bool CompareSetLastWriteTime()
     {
-        DateTime lastWriteTime = Directory.GetLastWriteTime(CurrentDir);
-        if (lastWriteTime <= _lastModified)
+        DateTime lastWriteTimeUtc =
+            CurrentFs.FileInfoProvider.GetDirLastModifiedUtc(CurrentDir) ?? DateTime.UtcNow;
+        if (_lastRefreshedUtc >= lastWriteTimeUtc)
             return false;
 
-        _lastModified = lastWriteTime;
+        _lastRefreshedUtc = lastWriteTimeUtc;
         return true;
     }
 
@@ -393,58 +439,34 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (Searching)
             return;
 
-        CheckVersionControl();
+        CheckVersionControl(CurrentLocation);
 
-        if (CurrentDir == ThisPcLabel)
-            ShowDrives();
-        else if (Directory.Exists(CurrentDir))
-            LoadEntries(forceHardReload);
-        else
-        {
-            ForwardError($"Directory: \"{CurrentDir}\" does not exist.");
-            SetCurrentDir(GetClosestExistingParent(CurrentDir));
+        IResult result = UpdateEntries(forceHardReload);
+        ShowIfError(result);
+        if (!result.IsOk)
             return;
-        }
 
-        if (FileEntries.Count == 0)
-            ShowMessage("This directory is empty");
-        else
-            HideMessage();
-
-        _lastModified = DateTime.Now;
-    }
-
-    private string GetClosestExistingParent(string dirPath)
-    {
-        string? path = dirPath;
-
-        while (!Directory.Exists(path))
-            if ((path = Path.GetDirectoryName(path)) is null)
-                return ThisPcLabel;
-
-        return path;
+        CurrentInfoMessage = FileEntries.Count > 0 ? null : EmptyDirMessage;
+        _lastRefreshedUtc = DateTime.UtcNow;
     }
 
     /// <summary>
-    /// Opens a new <see cref="ErrorWindow"/> dialog.
+    /// Opens a new <see cref="InfoDialogWindow"/> dialog.
     /// </summary>
-    private void ForwardError(string? errorMessage)
+    private void ShowError(string? errorMessage)
     {
-        if (!string.IsNullOrEmpty(errorMessage))
-            Dispatcher.UIThread.Post(() =>
-            {
-                new ErrorWindow { ErrorMessage = errorMessage }.Show();
-            });
+        if (!string.IsNullOrWhiteSpace(errorMessage))
+            _dialogService.InfoDialog("Unexpected error", errorMessage);
     }
 
     /// <summary>
-    /// Opens a new <see cref="ErrorWindow"/> dialog if the result is failed.
+    /// Opens a new <see cref="InfoDialogWindow"/> dialog if the result is failed.
     /// </summary>
-    private void ForwardIfError(IResult result)
+    private void ShowIfError(IResult result)
     {
         if (!result.IsOk)
             foreach (string errorMessage in result.Errors)
-                ForwardError(errorMessage);
+                ShowError(errorMessage);
     }
 
     /// <summary>
@@ -454,13 +476,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public int GetNameEndIndex(FileSystemEntryViewModel entry) =>
         SelectedFiles.Count > 0 ? entry.FileSystemEntry.NameWoExtension.Length : 0;
 
-    private bool IsValidDirectory(string path) =>
-        path == ThisPcLabel || (!string.IsNullOrEmpty(path) && Directory.Exists(path));
-
     private void SetSearchWaterMark(string dirPath)
     {
-        string? dirName = Path.GetFileName(dirPath);
-        dirName = string.IsNullOrEmpty(dirName) ? Path.GetPathRoot(dirPath) : dirName;
+        string dirName = PathTools.GetFileName(dirPath);
+        dirName = string.IsNullOrEmpty(dirName) ? CurrentFs.FileInfoProvider.GetRoot() : dirName;
         SearchWaterMark = $"Search {dirName}";
     }
 
@@ -469,12 +488,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void UpdateSelectionInfo(object? sender, NotifyCollectionChangedEventArgs? args)
     {
-        if (CurrentDir == ThisPcLabel)
-        {
-            SelectionInfo = Drives.Length == 1 ? "1 drive" : $"{FileEntries.Count} drives";
-            return;
-        }
-
         string selectionInfo = FileEntries.Count == 1 ? "1 item" : $"{FileEntries.Count} items";
 
         if (SelectedFiles.Count == 1)
@@ -498,6 +511,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             selectionInfo += "  " + FileSystemEntryViewModel.GetSizeString(sizeSum);
 
         SelectionInfo = selectionInfo;
+        this.RaisePropertyChanged(nameof(SelectionNotEmpty));
     }
 
     /// <summary>
@@ -509,17 +523,68 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Otherwise, the file is opened in the application preferred by the system.
     /// </para>
     /// </summary>
-    public void OpenEntry(FileSystemEntryViewModel entry)
+    public void OpenEntry(IFileSystemEntry entry)
     {
-        if (entry.IsDirectory)
-            SetCurrentDir(entry.PathToEntry);
-        else if (_fileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? directory))
+        if (entry is DirectoryEntry or DriveEntry)
+            SetNewLocation(entry.PathToEntry);
+        else if (CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
+            SetNewLocation(dir);
+        else if (CurrentFs is LocalFileSystem fs)
+            ShowIfError(fs.LocalShellHandler.OpenFile(entry.PathToEntry));
+    }
+
+    public void OpenLocalEntry(SideBarEntryViewModel entry)
+    {
+        if (entry.FileSystemEntry is DirectoryEntry or DriveEntry)
+            SetLocation(_localFs.GetLocation(entry.PathToEntry));
+        else if (CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
+            SetLocation(_localFs.GetLocation(dir));
+        else
+            ShowIfError(_localFs.LocalShellHandler.OpenFile(entry.PathToEntry));
+    }
+
+    public async Task OpenSftpConnection(SftpConnectionViewModel connectionVm)
+    {
+        SftpConnection connection = connectionVm.SftpConnection;
+
+        if (connectionVm.FileSystem is not null)
         {
-            if (directory is not null)
-                SetCurrentDir(directory);
+            string initialDir =
+                connection.InitialDirectory ?? connectionVm.FileSystem.FileInfoProvider.GetRoot();
+            SetLocation(new Location(connectionVm.FileSystem, initialDir));
+            return;
+        }
+        ValueResult<SftpFileSystem> result = await _sftpFileSystemFactory.TryConnectAsync(
+            connection
+        );
+        ShowIfError(result);
+        if (!result.IsOk)
+            return;
+
+        SftpFileSystem fileSystem = result.Value;
+        connectionVm.FileSystem = fileSystem;
+
+        if (!string.IsNullOrWhiteSpace(connection.InitialDirectory))
+        {
+            SetLocationNoHistory(new Location(fileSystem, fileSystem.FileInfoProvider.GetRoot()));
+            SetLocation(new Location(fileSystem, connection.InitialDirectory));
         }
         else
-            ForwardIfError(_shellHandler.OpenFile(entry.PathToEntry));
+            SetLocation(new Location(fileSystem, fileSystem.FileInfoProvider.GetRoot()));
+    }
+
+    public void CloseSftpConnection(SftpConnectionViewModel connectionVm)
+    {
+        if (connectionVm.FileSystem is null)
+        {
+            ShowError("Connection is not active.");
+            return;
+        }
+        SftpFileSystem fileSystem = connectionVm.FileSystem;
+        fileSystem.Dispose();
+        connectionVm.FileSystem = null;
+        if (ReferenceEquals(fileSystem, CurrentFs))
+            SetLocation(new Location(_localFs, _localFs.LocalFileInfoProvider.GetRoot()));
     }
 
     /// <summary>
@@ -528,7 +593,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void OpenAs(FileSystemEntryViewModel entry)
     {
         if (!entry.IsDirectory)
-            ForwardIfError(_fileProperties.ShowOpenAsDialog(entry.FileSystemEntry));
+            ShowIfError(CurrentFs.FileProperties.ShowOpenAsDialog(entry.FileSystemEntry));
     }
 
     /// <summary>
@@ -541,13 +606,13 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             foreach (FileSystemEntryViewModel entry in SelectedFiles)
                 if (
                     entry.IsDirectory
-                    || _fileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out _)
+                    || CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out _)
                 )
                     return;
         }
         // To prevent collection changing during iteration
         foreach (FileSystemEntryViewModel entry in SelectedFiles.ConvertToArray())
-            OpenEntry(entry);
+            OpenEntry(entry.FileSystemEntry);
     }
 
     /// <summary>
@@ -555,44 +620,13 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void OpenInNotepad()
     {
+        if (CurrentFs is not LocalFileSystem fs)
+            return;
+
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
             if (!entry.IsDirectory)
-                ForwardIfError(_shellHandler.OpenInNotepad(entry.PathToEntry));
+                ShowIfError(fs.LocalShellHandler.OpenInNotepad(entry.PathToEntry));
     }
-
-    /// <summary>
-    /// Adds the selected <see cref="FileSystemEntryViewModel"/> to Quick Access.
-    /// </summary>
-    public void AddToQuickAccess(FileSystemEntryViewModel entry) => QuickAccess.Add(entry);
-
-    /// <summary>
-    /// Moves the <see cref="FileSystemEntryViewModel"/> under the index up within the Quick Access list.
-    /// </summary>
-    public void MoveUp(int i)
-    {
-        if (i > 0)
-            (QuickAccess[i - 1], QuickAccess[i]) = (QuickAccess[i], QuickAccess[i - 1]);
-    }
-
-    /// <summary>
-    /// Moves the <see cref="FileSystemEntryViewModel"/> under the index down within the Quick Access list.
-    /// </summary>
-    public void MoveDown(int i)
-    {
-        if (i < QuickAccess.Count - 1)
-            (QuickAccess[i], QuickAccess[i + 1]) = (QuickAccess[i + 1], QuickAccess[i]);
-    }
-
-    /// <summary>
-    /// Removes the <see cref="FileSystemEntryViewModel"/> under the index from the Quick Access list.
-    /// </summary>
-    public void RemoveFromQuickAccess(int index) => QuickAccess.RemoveAt(index);
-
-    /// <summary>
-    /// Opens the location of the selected entry during searching.
-    /// </summary>
-    public void OpenEntryLocation(FileSystemEntryViewModel entry) =>
-        SetCurrentDir(Path.GetDirectoryName(entry.PathToEntry) ?? ThisPcLabel);
 
     /// <summary>
     /// Navigates up one directory level from the current directory.
@@ -604,90 +638,128 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void GoUp()
     {
-        if (Path.GetDirectoryName(PathTools.NormalizePath(CurrentDir)) is not string parentDir)
-            SetCurrentDir(ThisPcLabel);
-        else if (CurrentDir != ThisPcLabel)
-            SetCurrentDir(parentDir);
+        IPathTools pathTools = CurrentFs.FileInfoProvider.PathTools;
+        string parent = pathTools.GetParentDir(pathTools.NormalizePath(CurrentDir));
+
+        if (!string.IsNullOrWhiteSpace(parent))
+            SetNewLocation(parent);
     }
 
-    private IEnumerable<FileSystemEntryViewModel> GetSpecialFolders() =>
-        _fileInfoProvider
-            .GetSpecialFolders()
+    private IEnumerable<SideBarEntryViewModel> GetSpecialFolders() =>
+        _localFs
+            .LocalFileInfoProvider.GetSpecialFolders()
             .Where(dirPath => !string.IsNullOrEmpty(dirPath))
-            .Select(_entryVmFactory.Directory);
+            .Select(path => new SideBarEntryViewModel(
+                _localFs,
+                new DirectoryEntry(path, LocalPathTools.Instance)
+            ));
+
+    private void LoadDrives()
+    {
+        Drives.Clear();
+        foreach (DriveEntry driveEntry in _localFs.LocalFileInfoProvider.GetDrives())
+            Drives.Add(new SideBarEntryViewModel(_localFs, driveEntry));
+    }
 
     private void LoadQuickAccess()
     {
         foreach (string path in FileSurferSettings.QuickAccess)
-            if (Directory.Exists(path))
-                QuickAccess.Add(_entryVmFactory.Directory(path));
-            else if (File.Exists(path))
-                QuickAccess.Add(_entryVmFactory.File(path));
+        {
+            IFileSystemEntry? entry = null;
+            if (_localFs.LocalFileInfoProvider.DirectoryExists(path))
+                entry = new DirectoryEntry(path, LocalPathTools.Instance);
+            else if (_localFs.LocalFileInfoProvider.FileExists(path))
+                entry = new FileEntry(path, LocalPathTools.Instance);
+
+            if (entry is not null)
+                QuickAccess.Add(new SideBarEntryViewModel(_localFs, entry));
+        }
     }
 
-    private void ShowDrives()
+    public void AddToQuickAccess(FileSystemEntryViewModel? entry) =>
+        QuickAccess.Add(
+            entry is not null
+                ? new SideBarEntryViewModel(_localFs, entry.FileSystemEntry)
+                : new SideBarEntryViewModel(
+                    _localFs,
+                    new DirectoryEntry(CurrentDir, LocalPathTools.Instance)
+                )
+        );
+
+    private void LoadSftpConnections()
     {
-        FileEntries.Clear();
-        foreach (FileSystemEntryViewModel drive in Drives)
-            FileEntries.Add(drive);
+        foreach (SftpConnection connection in FileSurferSettings.SftpConnections)
+            SftpConnectionsVms.Add(new SftpConnectionViewModel(connection));
     }
 
-    private void LoadEntries(bool forceHardReload)
+    private IResult UpdateEntries(bool forceHardReload)
     {
         if (forceHardReload || CompareSetLastWriteTime())
-            LoadDirEntries();
-        else if (IsVersionControlled)
+            return LoadDirEntries(CurrentLocation);
+
+        if (IsVersionControlled)
             foreach (FileSystemEntryViewModel entry in FileEntries)
-                entry.UpdateVcStatus(GetVcStatus(entry.PathToEntry));
+                entry.UpdateGitStatus(GetGitStatus(entry.PathToEntry, CurrentFs));
+
+        return SimpleResult.Ok();
     }
 
-    private void LoadDirEntries()
+    private IResult LoadDirEntries(Location location)
     {
-        string[] dirPaths = _fileInfoProvider.GetPathDirs(
-            CurrentDir,
+        IFileSystem fs = location.FileSystem;
+        var dirsResult = fs.FileInfoProvider.GetPathDirs(
+            location.Path,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
-        string[] filePaths = _fileInfoProvider.GetPathFiles(
-            CurrentDir,
+        var filesResult = fs.FileInfoProvider.GetPathFiles(
+            location.Path,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
+        if (!dirsResult.IsOk || !filesResult.IsOk)
+            return Result.Error(dirsResult.Errors);
 
-        FileSystemEntryViewModel[] dirs = dirPaths.ConvertToArray(path =>
-            _entryVmFactory.Directory(path, GetVcStatus(path))
+        FileSystemEntryViewModel[] dirs = dirsResult.Value.ConvertToArray(
+            entry => new FileSystemEntryViewModel(fs, entry, GetGitStatus(entry.PathToEntry, fs))
         );
-        FileSystemEntryViewModel[] files = filePaths.ConvertToArray(path =>
-            _entryVmFactory.File(path, GetVcStatus(path))
+        FileSystemEntryViewModel[] files = filesResult.Value.ConvertToArray(
+            entry => new FileSystemEntryViewModel(fs, entry, GetGitStatus(entry.PathToEntry, fs))
         );
 
         AddEntries(dirs, files);
+        return SimpleResult.Ok();
     }
 
-    private VcStatus GetVcStatus(string path) =>
-        IsVersionControlled ? _versionControl.GetStatus(path) : VcStatus.NotVersionControlled;
+    private GitStatus GetGitStatus(string path, IFileSystem fileSystem) =>
+        IsVersionControlled
+            ? fileSystem.GitIntegration.GetStatus(path)
+            : GitStatus.NotVersionControlled;
 
     /// <summary>
     /// Adds directories and files to <see cref="FileEntries"/>.
     /// </summary>
     private void AddEntries(FileSystemEntryViewModel[] dirs, FileSystemEntryViewModel[] files)
     {
-        SortInPlace(files, SortBy);
-        SortInPlace(dirs, SortBy);
+        SortBy sortBy = FileSurferSettings.SortingMode;
+        bool sortReversed = FileSurferSettings.SortReversed;
+
+        SortInPlace(files, sortBy);
+        SortInPlace(dirs, sortBy);
 
         HashSet<string>? selectedPaths = null;
         if (SelectedFiles.Count > 0)
-            selectedPaths = SelectedFiles.Select(entry => entry.PathToEntry).ToHashSet();
+            selectedPaths = SelectedFiles.Select(entry => entry.Name).ToHashSet();
 
         FileEntries.Clear();
-        if (!SortReversed || SortBy is SortBy.Type or SortBy.Size)
+        if (!sortReversed || sortBy is SortBy.Type or SortBy.Size)
             for (int i = 0; i < dirs.Length; i++)
                 FileEntries.Add(dirs[i]);
         else
             for (int i = dirs.Length - 1; i >= 0; i--)
                 FileEntries.Add(dirs[i]);
 
-        if (!SortReversed)
+        if (!sortReversed)
             for (int i = 0; i < files.Length; i++)
                 FileEntries.Add(files[i]);
         else
@@ -698,11 +770,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
 
         foreach (FileSystemEntryViewModel entry in FileEntries)
-            if (selectedPaths.Contains(entry.PathToEntry))
+            if (selectedPaths.Contains(entry.Name))
                 SelectedFiles.Add(entry);
     }
 
-    private void SortInPlace(FileSystemEntryViewModel[] entries, SortBy sortBy)
+    private static void SortInPlace(FileSystemEntryViewModel[] entries, SortBy sortBy)
     {
         Comparison<FileSystemEntryViewModel>[] comparisons =
         [
@@ -732,17 +804,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Sets <see cref="IsVersionControlled"/> and updates <see cref="Branches"/>.
     /// </summary>
-    private void CheckVersionControl()
+    private void CheckVersionControl(Location location)
     {
         IsVersionControlled =
             FileSurferSettings.GitIntegration
-            && Directory.Exists(CurrentDir)
-            && _versionControl.InitIfVersionControlled(CurrentDir);
+            && location.FileSystem.FileInfoProvider.DirectoryExists(location.Path)
+            && location.FileSystem.GitIntegration.InitIfGitRepository(location.Path);
 
-        LoadBranches();
+        LoadBranches(location);
     }
 
-    private void LoadBranches()
+    private void LoadBranches(Location location)
     {
         if (!IsVersionControlled)
         {
@@ -750,8 +822,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
         }
 
-        string currentBranch = _versionControl.GetCurrentBranchName();
-        string[] branches = _versionControl.GetBranches();
+        string currentBranch = location.FileSystem.GitIntegration.GetCurrentBranchName();
+        string[] branches = location.FileSystem.GitIntegration.GetBranches();
         if (CurrentBranch == currentBranch && Branches.EqualsUnordered(branches))
             return;
 
@@ -769,10 +841,46 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _isActionUserInvoked = true;
     }
 
+    private IResult SetLocationNoHistory(Location location)
+    {
+        if (!location.Exists())
+            return SimpleResult.Error(
+                $"Location {location.FileSystem.GetLabel()}:{location.Path} does not exist."
+            );
+
+        if (Searching)
+            CancelSearch();
+
+        CheckVersionControl(location);
+        IResult result = LoadDirEntries(location);
+        if (!result.IsOk)
+            return result;
+
+        CurrentLocation = location;
+        _lastRefreshedUtc = DateTime.UtcNow;
+        Reload(false);
+        return SimpleResult.Ok();
+    }
+
+    public void SetLocation(Location location)
+    {
+        IResult result = SetLocationNoHistory(location);
+
+        ShowIfError(result);
+        if (result.IsOk && !location.Equals(_locationHistory.Current))
+            _locationHistory.AddNewNode(location);
+    }
+
+    public void SetNewLocation(string path)
+    {
+        Location location = CurrentFs.GetLocation(path);
+        SetLocation(location);
+    }
+
     /// <summary>
-    /// Sets the current directory to the previous directory in <see cref="_pathHistory"/>.
+    /// Sets the current directory to the previous directory in <see cref="_locationHistory"/>.
     /// <para>
-    /// Removes the directory from <see cref="_pathHistory"/> in case it's invalid.
+    /// Removes the directory from <see cref="_locationHistory"/> in case it's invalid.
     /// </para>
     /// </summary>
     public void GoBack()
@@ -780,21 +888,23 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (Searching)
             CancelSearch();
 
-        if (_pathHistory.GetPrevious() is not string previousPath)
-            return;
+        while (_locationHistory.GetPrevious() is Location previousLocation)
+        {
+            _locationHistory.MoveToPrevious();
 
-        _pathHistory.MoveToPrevious();
-
-        if (IsValidDirectory(previousPath))
-            SetCurrentDirNoHistory(previousPath);
-        else
-            _pathHistory.RemoveNode(false);
+            if (previousLocation.Exists())
+            {
+                SetLocationNoHistory(previousLocation);
+                return;
+            }
+            _locationHistory.RemoveNode(false);
+        }
     }
 
     /// <summary>
-    /// Sets the current directory to the next directory in <see cref="_pathHistory"/>.
+    /// Sets the current directory to the next directory in <see cref="_locationHistory"/>.
     /// <para>
-    /// Removes the directory from <see cref="_pathHistory"/> in case it's invalid.
+    /// Removes the directory from <see cref="_locationHistory"/> in case it's invalid.
     /// </para>
     /// </summary>
     public void GoForward()
@@ -802,15 +912,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (Searching)
             CancelSearch();
 
-        if (_pathHistory.GetNext() is not string nextPath)
-            return;
+        while (_locationHistory.GetNext() is Location nextLocation)
+        {
+            _locationHistory.MoveToNext();
 
-        _pathHistory.MoveToNext();
-
-        if (IsValidDirectory(nextPath))
-            SetCurrentDirNoHistory(nextPath);
-        else
-            _pathHistory.RemoveNode(true);
+            if (nextLocation.Exists())
+            {
+                SetLocationNoHistory(nextLocation);
+                return;
+            }
+            _locationHistory.RemoveNode(true);
+        }
     }
 
     /// <summary>
@@ -818,46 +930,40 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void OpenPowerShell()
     {
-        if (CurrentDir != ThisPcLabel && !Searching)
-            ForwardIfError(_shellHandler.OpenCmdAt(CurrentDir));
+        if (CurrentFs is LocalFileSystem fs && fs.LocalFileInfoProvider.DirectoryExists(CurrentDir))
+            ShowIfError(fs.LocalShellHandler.OpenCmdAt(CurrentDir));
     }
 
     public async Task SearchAsync(string searchQuery)
     {
         if (Searching)
         {
-            HideMessage();
+            CurrentInfoMessage = null;
             await _searchManager.CancelSearchAsync();
         }
-
-        string currentDir = _pathHistory.Current ?? ThisPcLabel;
         Searching = true;
         FileEntries.Clear();
 
-        int? foundEntries =
-            currentDir != ThisPcLabel
-                ? await _searchManager.SearchAsync(searchQuery, [currentDir])
-                : await _searchManager.SearchAsync(
-                    searchQuery,
-                    _fileInfoProvider.GetDrives().Select(drive => drive.PathToEntry)
-                );
-
+        int? foundEntries = await _searchManager.SearchAsync(CurrentFs, searchQuery, CurrentDir);
         if (foundEntries is 0)
-            ShowMessage("No items match your query");
+            CurrentInfoMessage = EmptySearchMessage;
     }
 
-    /// <summary>
-    /// Cancels the search and sets <see cref="CurrentDir"/> to the parameter or last directory.
-    /// </summary>
-    public void CancelSearch(string? directory = null)
+    public void CancelSearch()
     {
         Searching = false;
         _searchManager.CancelSearch();
-        SetCurrentDir(directory ?? _pathHistory.Current ?? ThisPcLabel);
+
+        if (_locationHistory.Current is Location location)
+        {
+            IResult result = SetLocationNoHistory(location);
+            if (!result.IsOk)
+                GoBack();
+        }
     }
 
     /// <summary>
-    /// Creates a new file using <see cref="_fileIoHandler"/> in <see cref="CurrentDir"/>
+    /// Creates a new file using <see cref="CurrentFs"/> in <see cref="CurrentDir"/>
     /// with the name specified in <see cref="FileSurferSettings.NewFileName"/>.
     /// <para>
     /// Invokes <see cref="Reload"/> and adds a new <see cref="NewFileAt"/> operation
@@ -867,23 +973,25 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void NewFile()
     {
         string newFileName = FileNameGenerator.GetAvailableName(
+            CurrentFs.FileInfoProvider,
             CurrentDir,
             FileSurferSettings.NewFileName
         );
 
-        NewFileAt operation = new(_fileIoHandler, CurrentDir, newFileName);
+        NewFileAt operation = new(PathTools, CurrentFs.FileIoHandler, CurrentDir, newFileName);
         IResult result = operation.Invoke();
         if (result.IsOk)
         {
             Reload();
             _undoRedoHistory.AddNewNode(operation);
-            SelectedFiles.Add(FileEntries.First(entry => entry.Name == newFileName));
+            if (FileEntries.FirstOrDefault(e => e.Name == newFileName) is { } entry)
+                SelectedFiles.Add(entry);
         }
-        ForwardIfError(result);
+        ShowIfError(result);
     }
 
     /// <summary>
-    /// Creates a new directory using <see cref="_fileIoHandler"/> in <see cref="CurrentDir"/>
+    /// Creates a new directory using <see cref="CurrentFs"/> in <see cref="CurrentDir"/>
     /// with the name specified in <see cref="FileSurferSettings.NewDirectoryName"/>.
     /// <para>
     /// Invokes <see cref="Reload"/> and adds a new <see cref="NewDirAt"/> operation
@@ -893,19 +1001,21 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void NewDir()
     {
         string newDirName = FileNameGenerator.GetAvailableName(
+            CurrentFs.FileInfoProvider,
             CurrentDir,
             FileSurferSettings.NewDirectoryName
         );
 
-        NewDirAt operation = new(_fileIoHandler, CurrentDir, newDirName);
+        NewDirAt operation = new(PathTools, CurrentFs.FileIoHandler, CurrentDir, newDirName);
         IResult result = operation.Invoke();
         if (result.IsOk)
         {
             Reload();
             _undoRedoHistory.AddNewNode(operation);
-            SelectedFiles.Add(FileEntries.First(entry => entry.Name == newDirName));
+            if (FileEntries.FirstOrDefault(e => e.Name == newDirName) is { } entry)
+                SelectedFiles.Add(entry);
         }
-        ForwardIfError(result);
+        ShowIfError(result);
     }
 
     /// <summary>
@@ -913,18 +1023,23 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public async Task AddToArchive()
     {
-        if (!Directory.Exists(CurrentDir))
+        if (!CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
             return;
 
         string archiveName =
-            SelectedFiles[^1].FileSystemEntry.NameWoExtension + ArchiveManager.ArchiveTypeExtension;
+            SelectedFiles[^1].FileSystemEntry.NameWoExtension
+            + LocalArchiveManager.ArchiveTypeExtension;
 
-        ForwardIfError(
+        ShowIfError(
             await Task.Run(() =>
-                ArchiveManager.ZipFiles(
+                CurrentFs.ArchiveManager.ZipFiles(
                     SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                     CurrentDir,
-                    FileNameGenerator.GetAvailableName(CurrentDir, archiveName)
+                    FileNameGenerator.GetAvailableName(
+                        CurrentFs.FileInfoProvider,
+                        CurrentDir,
+                        archiveName
+                    )
                 )
             )
         );
@@ -936,20 +1051,21 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public async Task ExtractArchive()
     {
-        if (!Directory.Exists(CurrentDir))
+        if (!CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
             return;
 
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
-            if (!ArchiveManager.IsZipped(entry.PathToEntry))
+            if (!CurrentFs.ArchiveManager.IsZipped(entry.PathToEntry))
             {
-                ForwardError($"Entry \"{entry.Name}\" is not an archive.");
+                ShowError($"Entry \"{entry.Name}\" is not an archive.");
                 return;
             }
 
+        string[] archivePaths = SelectedFiles.ConvertToArray(e => e.PathToEntry);
         await Task.Run(() =>
         {
-            foreach (string path in SelectedFiles.Select(entry => entry.PathToEntry).ToArray())
-                ForwardIfError(ArchiveManager.UnzipArchive(path, CurrentDir));
+            foreach (string path in archivePaths)
+                ShowIfError(CurrentFs.ArchiveManager.UnzipArchive(path, CurrentDir));
         });
         Reload();
     }
@@ -957,17 +1073,21 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Copies the path to the selected <see cref="FileSystemEntryViewModel"/> to the system clipboard.
     /// </summary>
-    public void CopyPath(FileSystemEntryViewModel entry) =>
-        _clipboardManager.CopyPathToFileAsync(entry.PathToEntry);
+    public async Task CopyPath(FileSystemEntryViewModel? entry) =>
+        ShowIfError(
+            await _localFs.LocalClipboardManager.CopyPathToFileAsync(
+                entry is null ? CurrentDir : entry.PathToEntry
+            )
+        );
 
     /// <summary>
-    /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="_clipboardManager"/>.
+    /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="IClipboardManager"/>.
     /// </summary>
     public async Task Cut()
     {
         if (SelectedFiles.Count > 0)
-            ForwardIfError(
-                await _clipboardManager.CutAsync(
+            ShowIfError(
+                await CurrentFs.ClipboardManager.CutAsync(
                     SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                     CurrentDir
                 )
@@ -975,13 +1095,13 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="_clipboardManager"/>.
+    /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="IClipboardManager"/>.
     /// </summary>
     public async Task Copy()
     {
         if (SelectedFiles.Count > 0)
-            ForwardIfError(
-                await _clipboardManager.CopyAsync(
+            ShowIfError(
+                await CurrentFs.ClipboardManager.CopyAsync(
                     SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
                     CurrentDir
                 )
@@ -989,9 +1109,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Determines the type of paste operation and executes it using <see cref="_clipboardManager"/>.
+    /// Determines the type of paste operation and executes it using <see cref="IClipboardManager"/>.
     /// <para>
-    /// Adds the appropriate <see cref="IUndoableFileOperation"/> to <see cref="_pathHistory"/> if the operation was a success.
+    /// Adds the appropriate <see cref="IUndoableFileOperation"/> to <see cref="_locationHistory"/> if the operation was a success.
     /// </para>
     /// Invokes <see cref="Reload"/>.
     /// </summary>
@@ -999,11 +1119,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (
             FileSurferSettings.AllowImagePastingFromClipboard
-            && (await _clipboardManager.PasteImageAsync(CurrentDir)).IsOk
+            && CurrentFs is LocalFileSystem fileSystem
+            && (await fileSystem.LocalClipboardManager.PasteImageAsync(CurrentDir)).IsOk
         )
             return;
 
-        PasteType pasteType = await _clipboardManager.GetOperationType(CurrentDir);
+        PasteType pasteType = await CurrentFs.ClipboardManager.GetOperationType(CurrentDir);
 
         ValueResult<IUndoableFileOperation> result =
             pasteType == PasteType.Duplicate ? await DuplicateFiles() : await PasteFiles(pasteType);
@@ -1011,13 +1132,13 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(result.Value);
 
-        ForwardIfError(result);
+        ShowIfError(result);
         Reload();
     }
 
     private async Task<ValueResult<IUndoableFileOperation>> PasteFiles(PasteType pasteType)
     {
-        ValueResult<IFileSystemEntry[]> pastedResult = await _clipboardManager.PasteAsync(
+        ValueResult<IFileSystemEntry[]> pastedResult = await CurrentFs.ClipboardManager.PasteAsync(
             CurrentDir,
             pasteType
         );
@@ -1026,42 +1147,92 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         return ValueResult<IUndoableFileOperation>.Ok(
             pasteType is PasteType.Cut
-                ? new MoveFilesTo(_fileIoHandler, pastedResult.Value, CurrentDir)
-                : new CopyFilesTo(_fileIoHandler, pastedResult.Value, CurrentDir)
+                ? new MoveFilesTo(
+                    PathTools,
+                    CurrentFs.FileIoHandler,
+                    pastedResult.Value,
+                    CurrentDir
+                )
+                : new CopyFilesTo(
+                    PathTools,
+                    CurrentFs.FileIoHandler,
+                    pastedResult.Value,
+                    CurrentDir
+                )
         );
     }
 
     private async Task<ValueResult<IUndoableFileOperation>> DuplicateFiles()
     {
-        IFileSystemEntry[] clipboard = _clipboardManager.GetClipboard();
+        IFileSystemEntry[] clipboard = CurrentFs.ClipboardManager.GetClipboard();
 
-        ValueResult<string[]> copyNamesResult = await _clipboardManager.Duplicate(CurrentDir);
+        ValueResult<string[]> copyNamesResult = await CurrentFs.ClipboardManager.DuplicateAsync(
+            CurrentDir
+        );
         if (!copyNamesResult.IsOk)
             return ValueResult<IUndoableFileOperation>.Error(copyNamesResult);
 
         return ValueResult<IUndoableFileOperation>.Ok(
-            new DuplicateFiles(_fileIoHandler, clipboard, copyNamesResult.Value)
+            new DuplicateFiles(PathTools, CurrentFs.FileIoHandler, clipboard, copyNamesResult.Value)
         );
     }
 
     /// <summary>
-    /// Relays the operation to <see cref="_fileIoHandler"/> and invokes <see cref="Reload"/>.
+    /// Relays the operation to <see cref="IShellHandler"/> and invokes <see cref="Reload"/>.
     /// </summary>
     public void CreateShortcut(FileSystemEntryViewModel entry)
     {
         IResult result = entry.IsDirectory
-            ? _shellHandler.CreateDirectoryLink(entry.PathToEntry)
-            : _shellHandler.CreateFileLink(entry.PathToEntry);
+            ? CurrentFs.ShellHandler.CreateDirectoryLink(entry.PathToEntry)
+            : CurrentFs.ShellHandler.CreateFileLink(entry.PathToEntry);
 
-        ForwardIfError(result);
+        ShowIfError(result);
         Reload();
     }
 
     /// <summary>
-    /// Relays the operation to <see cref="_fileIoHandler"/>.
+    /// Relays the operation to <see cref="IFileProperties"/>.
     /// </summary>
     public void ShowProperties(FileSystemEntryViewModel entry) =>
-        ForwardIfError(_fileProperties.ShowFileProperties(entry));
+        ShowIfError(CurrentFs.FileProperties.ShowFileProperties(entry));
+
+    private async Task SynchronizeDir(FileSystemEntryViewModel? entry)
+    {
+        if (IsSynchronizerOpen)
+        {
+            ShowError("Another directory is being synchronized.");
+            return;
+        }
+        if (CurrentFs is not SftpFileSystem sftpFs)
+        {
+            ShowError("Cannot synchronize with a local directory.");
+            return;
+        }
+
+        Location remoteLocation = entry is null
+            ? CurrentLocation
+            : sftpFs.GetLocation(entry.PathToEntry);
+
+        ValueResult<string> localPathResult = await SftpSynchronizerViewModel.GetLocalPath(
+            remoteLocation,
+            _locationHistory.GetCurrentCollectionReversed(),
+            _dialogService
+        );
+        ShowIfError(localPathResult);
+        if (!localPathResult.IsOk)
+            return;
+
+        SftpSynchronizerWindow syncWindow = new();
+        syncWindow.DataContext = new SftpSynchronizerViewModel(
+            new AvaloniaDialogService(syncWindow),
+            new Location(_localFs, localPathResult.Value),
+            remoteLocation
+        );
+
+        IsSynchronizerOpen = true;
+        syncWindow.Closed += (_, _) => IsSynchronizerOpen = false;
+        syncWindow.Show();
+    }
 
     /// <summary>
     /// Relays the operation to <see cref="RenameOne(string)"/> or <see cref="RenameMultiple(string)"/>.
@@ -1080,7 +1251,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         FileSystemEntryViewModel entry = SelectedFiles[0];
 
-        RenameOne operation = new(_fileIoHandler, entry.FileSystemEntry, newName);
+        RenameOne operation = new(
+            PathTools,
+            CurrentFs.FileIoHandler,
+            entry.FileSystemEntry,
+            newName
+        );
         IResult result = operation.Invoke();
         if (result.IsOk)
         {
@@ -1088,38 +1264,44 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             Reload();
 
             FileSystemEntryViewModel? newEntry = FileEntries.FirstOrDefault(e =>
-                string.Equals(e.Name, newName, StringComparison.OrdinalIgnoreCase)
+                CurrentFs.FileInfoProvider.PathTools.NamesAreEqual(e.Name, newName)
             );
             if (newEntry is not null)
                 SelectedFiles.Add(newEntry);
         }
-        ForwardIfError(result);
+        ShowIfError(result);
     }
 
     private void RenameMultiple(string namingPattern)
     {
         IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry);
-        if (!FileNameGenerator.CanBeRenamedCollectively(entries))
+        if (
+            !FileNameGenerator.CanBeRenamedCollectively(
+                entries,
+                CurrentFs.FileInfoProvider.PathTools
+            )
+        )
         {
-            ForwardError("Selected entries aren't of the same type.");
+            ShowError("Selected entries aren't of the same type.");
             return;
         }
 
         RenameMultiple operation = new(
-            _fileIoHandler,
+            PathTools,
+            CurrentFs.FileIoHandler,
             entries,
-            FileNameGenerator.GetAvailableNames(entries, namingPattern)
+            FileNameGenerator.GetAvailableNames(CurrentFs.FileInfoProvider, entries, namingPattern)
         );
         IResult result = operation.Invoke();
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(operation);
 
-        ForwardIfError(result);
+        ShowIfError(result);
         Reload();
     }
 
     /// <summary>
-    /// Moves the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/> to the system trash using <see cref="_fileIoHandler"/>.
+    /// Moves the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/> to the system trash using <see cref="CurrentFs"/>.
     /// <para>
     /// Adds the operation to <see cref="_undoRedoHistory"/> if the operation was successful.
     /// </para>
@@ -1128,8 +1310,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void MoveToTrash()
     {
         MoveFilesToTrash operation = new(
-            _fileRestorer,
-            _fileIoHandler,
+            CurrentFs.BinInteraction,
+            CurrentFs.FileIoHandler,
             SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry)
         );
 
@@ -1137,7 +1319,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(operation);
 
-        ForwardIfError(result);
+        ShowIfError(result);
         Reload();
     }
 
@@ -1145,16 +1327,20 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (!entry.IsDirectory)
         {
-            ForwardError($"Cannot flatten a file: \"{entry.Name}\".");
+            ShowError($"Cannot flatten a file: \"{entry.Name}\".");
             return;
         }
 
-        FlattenFolder action = new(_fileIoHandler, _fileInfoProvider, entry.PathToEntry);
+        FlattenFolder action = new(
+            CurrentFs.FileIoHandler,
+            CurrentFs.FileInfoProvider,
+            entry.PathToEntry
+        );
         IResult result = action.Invoke();
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(action);
 
-        ForwardIfError(result);
+        ShowIfError(result);
         Reload();
     }
 
@@ -1167,25 +1353,27 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void Delete()
     {
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
-            ForwardIfError(
+            ShowIfError(
                 entry.IsDirectory
-                    ? _fileIoHandler.DeleteDir(entry.PathToEntry)
-                    : _fileIoHandler.DeleteFile(entry.PathToEntry)
+                    ? CurrentFs.FileIoHandler.DeleteDir(entry.PathToEntry)
+                    : CurrentFs.FileIoHandler.DeleteFile(entry.PathToEntry)
             );
 
         Reload();
     }
 
     /// <summary>
-    /// Sets <see cref="SortBy"/> to the parameter and determines <see cref="SortReversed"/>.
+    /// Sets <see cref="SortBy"/> to the parameter and determines <see cref="FileSurferSettings.SortReversed"/>.
     /// <para>
     /// Invokes <see cref="Reload"/>.
     /// </para>
     /// </summary>
     private void SetSortBy(SortBy sortBy)
     {
-        SortReversed = SortBy == sortBy && !SortReversed;
-        SortBy = sortBy;
+        FileSurferSettings.SortReversed =
+            FileSurferSettings.SortingMode == sortBy && !FileSurferSettings.SortReversed;
+
+        FileSurferSettings.SortingMode = sortBy;
         Reload(true);
     }
 
@@ -1213,7 +1401,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         else
         {
             if (FileSurferSettings.ShowUndoRedoErrorDialogs)
-                ForwardIfError(result);
+                ShowIfError(result);
 
             _undoRedoHistory.RemoveNode(true);
         }
@@ -1236,7 +1424,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         else
         {
             if (FileSurferSettings.ShowUndoRedoErrorDialogs)
-                ForwardIfError(result);
+                ShowIfError(result);
 
             _undoRedoHistory.RemoveNode(true);
         }
@@ -1248,7 +1436,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void SelectAll()
     {
         SelectedFiles.Clear();
-
         foreach (FileSystemEntryViewModel entry in FileEntries)
             SelectedFiles.Add(entry);
     }
@@ -1274,64 +1461,75 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Relays the operations to <see cref="_versionControl"/>.
+    /// Relays the operations to <see cref="IFileIoHandler"/>.
     /// </summary>
     public void StageFile(FileSystemEntryViewModel entry)
     {
         if (IsVersionControlled)
-            ForwardIfError(_versionControl.StagePath(entry.PathToEntry));
+            ShowIfError(CurrentFs.GitIntegration.StagePath(entry.PathToEntry));
     }
 
     /// <summary>
-    /// Relays the operations to <see cref="_versionControl"/>.
+    /// Relays the operations to <see cref="IGitIntegration"/>.
     /// </summary>
     public void UnstageFile(FileSystemEntryViewModel entry)
     {
         if (IsVersionControlled)
-            ForwardIfError(_versionControl.UnstagePath(entry.PathToEntry));
+            ShowIfError(CurrentFs.GitIntegration.UnstagePath(entry.PathToEntry));
     }
 
     /// <summary>
-    /// Relays the operations to <see cref="_versionControl"/>.
+    /// Relays the operations to <see cref="IGitIntegration"/>.
     /// </summary>
     private void Pull()
     {
         if (IsVersionControlled)
         {
-            ForwardIfError(_versionControl.DownloadChanges());
+            ShowIfError(CurrentFs.GitIntegration.PullChanges());
             Reload();
         }
     }
 
     /// <summary>
-    /// Relays the operations to <see cref="_versionControl"/>.
+    /// Relays the operations to <see cref="IGitIntegration"/>.
     /// </summary>
     public void Commit(string commitMessage)
     {
         if (IsVersionControlled)
         {
-            ForwardIfError(_versionControl.CommitChanges(commitMessage));
+            ShowIfError(CurrentFs.GitIntegration.CommitChanges(commitMessage));
             Reload();
         }
     }
 
     /// <summary>
-    /// Relays the operations to <see cref="_versionControl"/>.
+    /// Relays the operations to <see cref="IGitIntegration"/>.
     /// </summary>
     private void Push()
     {
         if (IsVersionControlled)
-            ForwardIfError(_versionControl.UploadChanges());
+            ShowIfError(CurrentFs.GitIntegration.PushChanges());
+    }
+
+    /// <summary>
+    /// Call on app closing
+    /// </summary>
+    public void CloseApp()
+    {
+        FileSurferSettings.QuickAccess = QuickAccess.Select(entry => entry.PathToEntry).ToList();
+        FileSurferSettings.SftpConnections = SftpConnectionsVms
+            .Select(vm => vm.SftpConnection)
+            .ToList();
     }
 
     public void Dispose()
     {
-        _versionControl.Dispose();
+        CurrentFs.GitIntegration.Dispose();
         _refreshTimer?.Stop();
-        _entryVmFactory.Dispose();
 
-        if (Searching)
-            CancelSearch();
         _searchManager.Dispose();
+
+        foreach (SftpConnectionViewModel connection in SftpConnectionsVms)
+            connection.FileSystem?.Dispose();
     }
 }

@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
-using FileSurfer.Core.Models.FileOperations;
-using FileSurfer.Core.Models.Shell;
-using FileSurfer.Core.Models.VersionControl;
+using FileSurfer.Core.Services.VersionControl;
 using ReactiveUI;
 
 namespace FileSurfer.Core.ViewModels;
@@ -26,6 +23,8 @@ namespace FileSurfer.Core.ViewModels;
 )]
 public sealed class FileSystemEntryViewModel : ReactiveObject
 {
+    private const double HiddenOpacity = 0.5;
+    private const string DirectoryLabel = "Directory";
     private static readonly IReadOnlyList<string> ByteUnits =
     [
         "B",
@@ -89,7 +88,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// <summary>
     /// Holds this <see cref="FileSystemEntryViewModel"/>'s opacity in the context of <see cref="Views.MainWindow"/>.
     /// </summary>
-    public double Opacity { get; } = 1;
+    public double Opacity { get; }
 
     /// <summary>
     /// Specifies if the file represented by this <see cref="FileSystemEntryViewModel"/> is part of a repository.
@@ -133,40 +132,54 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// the provided path and version control status.
     /// </para>
     /// </summary>
-    /// <param name="fileInfoProvider">Provider for file operations like retrieving file size and modification time.</param>
-    /// <param name="fileProperties">Determines if the open as dialogue can be invoked on this entry</param>
-    /// <param name="iconProvider">Provider for retrieving file icons.</param>
+    /// <param name="fileSystem">Current fileSystem</param>
     /// <param name="entry">The file or directory entry.</param>
     /// <param name="status">Optional version control status of the entry, defaulting to not version controlled.</param>
     public FileSystemEntryViewModel(
-        IFileInfoProvider fileInfoProvider,
-        IFileProperties fileProperties,
-        IIconProvider iconProvider,
-        IFileSystemEntry entry,
-        VcStatus status
+        IFileSystem fileSystem,
+        FileEntryInfo entry,
+        GitStatus status = GitStatus.NotVersionControlled
     )
     {
         FileSystemEntry = entry;
-        _ = LoadIconAsync(entry, iconProvider);
+        LastModTime = entry.LastModified;
+        LastModified = GetLastModified(LastModTime);
+        SizeB = entry.SizeB;
+        Size = GetSizeString(entry.SizeB);
+        string extension = entry.Extension.TrimStart('.').ToUpperInvariant();
+        Type = string.IsNullOrEmpty(extension) ? "File" : $"{extension} File";
 
-        LastModTime = fileInfoProvider.GetFileLastModified(entry.PathToEntry) ?? DateTime.MaxValue;
-        LastModified = GetLastModified(fileInfoProvider);
-        SizeB = IsDirectory ? null : fileInfoProvider.GetFileSizeB(entry.PathToEntry);
-        Size = SizeB is long notNullSize ? GetSizeString(notNullSize) : string.Empty;
+        Opacity = fileSystem.FileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory)
+            ? HiddenOpacity
+            : 1;
+        UpdateGitStatus(status);
+        IsArchived = fileSystem.ArchiveManager.IsZipped(entry.PathToEntry);
+        SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
 
-        if (IsDirectory)
-            Type = "Directory";
-        else
-        {
-            string extension = entry.Extension.TrimStart('.').ToUpperInvariant();
-            Type = string.IsNullOrEmpty(extension) ? "File" : extension + " File";
-        }
+        _ = LoadIconAsync(entry, fileSystem.IconProvider);
+    }
 
-        Opacity = fileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory) ? 0.5 : 1;
+    public FileSystemEntryViewModel(
+        IFileSystem fileSystem,
+        DirectoryEntryInfo entry,
+        GitStatus status = GitStatus.NotVersionControlled
+    )
+    {
+        FileSystemEntry = entry;
+        LastModTime = entry.LastModified;
+        LastModified = GetLastModified(LastModTime);
+        SizeB = null;
+        Size = string.Empty;
+        Type = DirectoryLabel;
 
-        UpdateVcStatus(status);
-        IsArchived = ArchiveManager.IsZipped(entry.PathToEntry);
-        SupportsOpenAs = fileProperties.SupportsOpenAs(entry);
+        Opacity = fileSystem.FileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory)
+            ? HiddenOpacity
+            : 1;
+        UpdateGitStatus(status);
+        IsArchived = fileSystem.ArchiveManager.IsZipped(entry.PathToEntry);
+        SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
+
+        _ = LoadIconAsync(entry, fileSystem.IconProvider);
     }
 
     private async Task LoadIconAsync(IFileSystemEntry entry, IIconProvider iconProvider) =>
@@ -178,50 +191,14 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
             _ => throw new NotSupportedException(),
         };
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="FileSystemEntryViewModel"/> class for a drive.
-    /// <para>
-    /// Configures the properties such as name, type, icon, and total size based on the provided
-    /// <see cref="DriveInfo"/> object.
-    /// </para>
-    /// <para>
-    /// This constructor is specifically used for representing drives within the <see cref="FileSurfer"/> app.
-    /// </para>
-    /// </summary>
-    /// <param name="iconProvider">Provides the drive icon.</param>
-    /// <param name="fileProperties">Determines if the open as dialogue can be invoked on this entry</param>
-    /// <param name="driveEntry">The drive information associated with this entry.</param>
-    public FileSystemEntryViewModel(
-        IIconProvider iconProvider,
-        IFileProperties fileProperties,
-        DriveEntry driveEntry
-    )
+    internal void UpdateGitStatus(GitStatus newStatus)
     {
-        FileSystemEntry = driveEntry;
-        Type = "Drive";
-        _ = LoadIconAsync(driveEntry, iconProvider);
-        LastModified = string.Empty;
-        Size = GetSizeString(driveEntry.SizeB);
-        SupportsOpenAs = fileProperties.SupportsOpenAs(driveEntry);
+        VersionControlled = newStatus is not GitStatus.NotVersionControlled;
+        Staged = newStatus is GitStatus.Staged;
     }
 
-    internal void UpdateVcStatus(VcStatus newStatus)
-    {
-        VersionControlled = newStatus is not VcStatus.NotVersionControlled;
-        Staged = newStatus is VcStatus.Staged;
-    }
-
-    private string GetLastModified(IFileInfoProvider fileInfoProvider)
-    {
-        DateTime? time = IsDirectory
-            ? fileInfoProvider.GetDirLastModified(PathToEntry)
-            : fileInfoProvider.GetFileLastModified(PathToEntry);
-
-        if (time is DateTime notNullTime)
-            return notNullTime.ToShortDateString() + " " + notNullTime.ToShortTimeString();
-
-        return "Error";
-    }
+    private static string GetLastModified(DateTime time) =>
+        $"{time.ToShortDateString()} {time.ToShortTimeString()}";
 
     /// <summary>
     /// Converts file size in bytes to a human-readable format.
