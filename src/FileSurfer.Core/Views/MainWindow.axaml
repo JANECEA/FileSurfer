@@ -255,7 +255,7 @@
                 </Grid.ColumnDefinitions>
 
                 <ScrollViewer Padding="4 10 0 3">
-                    <StackPanel Orientation="Vertical">
+                    <StackPanel Margin="0 0 0 40" Orientation="Vertical">
 
                         <TextBlock Classes="SidebarLabel" Text="Quick Access" />
                         <ListBox x:Name="QuickAccessListBox"

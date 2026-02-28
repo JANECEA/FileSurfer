@@ -62,8 +62,8 @@
         <Grid Grid.Row="1" RowDefinitions="Auto *">
             <TextBlock Classes="SyncEventsLabel" Text="Synchronization events:" />
             <Border Grid.Row="1" Classes="SyncEventsBorder">
-                <ScrollViewer>
-                    <ListBox IsHitTestVisible="False" ItemTemplate="{StaticResource SyncEventTemplate}" ItemsSource="{Binding SyncEvents}" />
+                <ScrollViewer x:Name="SyncEventsViewer">
+                    <ListBox IsHitTestVisible="False" ItemTemplate="{StaticResource SyncEventTemplate}" ItemsSource="{Binding SyncEvents}" SizeChanged="SyncEventsSizeChanged" />
                 </ScrollViewer>
             </Border>
         </Grid>

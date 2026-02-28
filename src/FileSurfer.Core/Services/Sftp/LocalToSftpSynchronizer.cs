@@ -154,11 +154,13 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         localPath = LocalPathTools.NormalizePath(localPath);
 
         string relative = localPath[(_localRootPath.Length + 1)..];
-        string fwSlashes = relative.Replace(
-            LocalPathTools.DirSeparator,
-            RemoteUnixPathTools.DirSeparator
-        );
-        return RemoteUnixPathTools.Combine(_remoteRootPath, fwSlashes);
+        if (LocalPathTools.DirSeparator != RemoteUnixPathTools.DirSeparator)
+            relative = relative.Replace(
+                LocalPathTools.DirSeparator,
+                RemoteUnixPathTools.DirSeparator
+            );
+
+        return RemoteUnixPathTools.Combine(_remoteRootPath, relative);
     }
 
     private string ToLocalPath(string remotePath)
@@ -166,11 +168,13 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         remotePath = RemoteUnixPathTools.NormalizePath(remotePath);
 
         string relative = remotePath[(_remoteRootPath.Length + 1)..];
-        string correctSlashes = relative.Replace(
-            RemoteUnixPathTools.DirSeparator,
-            LocalPathTools.DirSeparator
-        );
-        return LocalPathTools.Combine(_localRootPath, correctSlashes);
+        if (RemoteUnixPathTools.DirSeparator != LocalPathTools.DirSeparator)
+            relative = relative.Replace(
+                RemoteUnixPathTools.DirSeparator,
+                LocalPathTools.DirSeparator
+            );
+
+        return LocalPathTools.Combine(_localRootPath, relative);
     }
 
     public async Task StopAsync()
@@ -208,7 +212,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
             : HandleFileEvent(fsEvent, remotePath);
 
         if (OnSyncEvent is not null)
-            await OnSyncEvent.Invoke(fsEvent, remotePath, result);
+            await OnSyncEvent(fsEvent, remotePath, result);
     }
 
     private IResult HandleFileEvent(FileSystemEvent e, string remotePath) =>

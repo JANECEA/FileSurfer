@@ -161,6 +161,6 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
     private async Task RaiseAsync(FileSystemEvent fsEvent)
     {
         if (ChangeDetected is not null)
-            await ChangeDetected.Invoke(this, fsEvent);
+            await ChangeDetected(this, fsEvent);
     }
 }

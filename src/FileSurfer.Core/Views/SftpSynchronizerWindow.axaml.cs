@@ -19,4 +19,7 @@ public partial class SftpSynchronizerWindow : Window
             // Disposing failed
         }
     }
+
+    private void SyncEventsSizeChanged(object? sender, SizeChangedEventArgs e) =>
+        SyncEventsViewer.ScrollToEnd();
 }

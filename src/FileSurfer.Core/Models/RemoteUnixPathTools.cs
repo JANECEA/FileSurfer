@@ -103,17 +103,12 @@ internal class RemoteUnixPathTools : IPathTools
         if (string.IsNullOrWhiteSpace(path))
             return string.Empty;
 
-        int nameEndExc = path.Length - 1;
-        while (nameEndExc >= 0 && path[nameEndExc] == DirSeparator)
-            nameEndExc--;
+        ReadOnlySpan<char> trimmed = path.AsSpan().TrimEnd(DirSeparator);
+        int sepIndex = trimmed.LastIndexOf(DirSeparator);
+        if (sepIndex == -1)
+            return trimmed.ToString();
 
-        int nameStartInc = nameEndExc;
-        while (nameStartInc >= 0 && path[nameStartInc] != DirSeparator)
-            nameStartInc--;
-
-        return nameStartInc >= 0 && nameEndExc >= 0 && nameStartInc < nameEndExc
-            ? path[nameStartInc..nameEndExc]
-            : string.Empty;
+        return trimmed[(sepIndex + 1)..].ToString();
     }
 
     public static string GetExtension(string path)
