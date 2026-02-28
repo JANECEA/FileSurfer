@@ -39,18 +39,18 @@ public sealed class DriveEntry : IFileSystemEntry
     string IFileSystemEntry.Extension => string.Empty;
     string IFileSystemEntry.NameWoExtension => Name;
 
+    public DriveEntry(string pathToEntry, string name)
+    {
+        PathToEntry = pathToEntry;
+        Name = name;
+    }
+
     public DriveEntry(DriveInfo driveInfo)
     {
         PathToEntry = driveInfo.Name;
         Name = !string.IsNullOrEmpty(driveInfo.VolumeLabel)
             ? $"{driveInfo.VolumeLabel} ({driveInfo.Name.TrimEnd(Path.DirectorySeparatorChar)})"
             : driveInfo.Name.TrimEnd(Path.DirectorySeparatorChar);
-    }
-
-    public DriveEntry(string pathToEntry, string name)
-    {
-        PathToEntry = pathToEntry;
-        Name = name;
     }
 }
 
@@ -67,20 +67,22 @@ public class FileEntry : IFileSystemEntry
 
     public string NameWoExtension { get; }
 
-    public FileEntry(string pathToFile)
+    public FileEntry(string pathToFile, IPathTools pathTools)
     {
         PathToEntry = pathToFile;
-        Name = Path.GetFileName(pathToFile);
-        Extension = Path.GetExtension(pathToFile);
-        NameWoExtension = Path.GetFileNameWithoutExtension(pathToFile);
+        Name = pathTools.GetFileName(pathToFile);
+        Extension = pathTools.GetExtension(pathToFile);
+
+        NameWoExtension = string.IsNullOrEmpty(Extension) ? Name : pathToFile[..^Extension.Length];
     }
 
-    private protected FileEntry(string pathToFile, string name)
+    private protected FileEntry(string pathToFile, string name, string extension)
     {
         PathToEntry = pathToFile;
         Name = name;
-        Extension = Path.GetExtension(pathToFile);
-        NameWoExtension = Path.GetFileNameWithoutExtension(pathToFile);
+        Extension = extension;
+
+        NameWoExtension = string.IsNullOrEmpty(Extension) ? Name : pathToFile[..^Extension.Length];
     }
 }
 
@@ -96,10 +98,10 @@ public class DirectoryEntry : IFileSystemEntry
     string IFileSystemEntry.Extension => string.Empty;
     string IFileSystemEntry.NameWoExtension => Name;
 
-    public DirectoryEntry(string dirPath)
+    public DirectoryEntry(string dirPath, IPathTools pathTools)
     {
         PathToEntry = dirPath;
-        Name = Path.GetFileName(dirPath);
+        Name = pathTools.GetFileName(dirPath);
     }
 
     private protected DirectoryEntry(string dirPath, string name)
@@ -121,11 +123,12 @@ public class FileEntryInfo : FileEntry
     public FileEntryInfo(
         string pathToFile,
         string name,
+        string extension,
         long sizeB,
         DateTime lastModified,
         DateTime lastModifiedUtc
     )
-        : base(pathToFile, name)
+        : base(pathToFile, name, extension)
     {
         LastModified = lastModified;
         LastModifiedUtc = lastModifiedUtc;
@@ -133,7 +136,7 @@ public class FileEntryInfo : FileEntry
     }
 
     public FileEntryInfo(FileInfo fileInfo)
-        : base(fileInfo.FullName, fileInfo.Name)
+        : base(fileInfo.FullName, fileInfo.Name, fileInfo.Extension)
     {
         LastModified = fileInfo.LastWriteTime;
         LastModifiedUtc = fileInfo.LastWriteTimeUtc;

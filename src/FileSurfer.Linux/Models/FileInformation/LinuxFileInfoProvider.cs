@@ -23,7 +23,7 @@ public class LinuxFileInfoProvider : ILocalFileInfoProvider
         PropertyNameCaseInsensitive = true,
     };
 
-    public IPathTools PathTools { get; } = new LocalPathTools();
+    public IPathTools PathTools => LocalPathTools.Instance;
 
     public LinuxFileInfoProvider(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
@@ -211,9 +211,9 @@ public class LinuxFileInfoProvider : ILocalFileInfoProvider
         }
     }
 
-    public bool IsLinkedToDirectory(string linkPath, out string? directory)
+    public bool IsLinkedToDirectory(string linkPath, out string directory)
     {
-        directory = null;
+        directory = null!;
         FileInfo fileInfo = new(linkPath);
         if (
             fileInfo.LinkTarget is null

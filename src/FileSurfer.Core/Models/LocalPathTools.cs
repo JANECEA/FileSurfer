@@ -47,6 +47,12 @@ public interface IPathTools
     public string GetFileName(string path);
 
     /// <summary>
+    /// Returns extension part of the given path.
+    /// Trailing separators are ignored
+    /// </summary>
+    public string GetExtension(string path);
+
+    /// <summary>
     /// Determines if two file or directory names are equal under the relevant filesystem's rules
     /// </summary>
     public bool NamesAreEqual(string? nameA, string? nameB);
@@ -60,6 +66,8 @@ public interface IPathTools
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public class LocalPathTools : IPathTools
 {
+    public static readonly LocalPathTools Instance = new();
+
     char IPathTools.DirSeparator => DirSeparator;
 
     string IPathTools.NormalizePath(string path) => NormalizePath(path);
@@ -70,6 +78,8 @@ public class LocalPathTools : IPathTools
 
     string IPathTools.GetFileName(string path) => GetFileName(path);
 
+    string IPathTools.GetExtension(string path) => GetExtension(path);
+
     bool IPathTools.NamesAreEqual(string? nameA, string? nameB) => NamesAreEqual(nameA, nameB);
 
     bool IPathTools.PathsAreEqual(string? pathA, string? pathB) => PathsAreEqual(pathA, pathB);
@@ -79,6 +89,8 @@ public class LocalPathTools : IPathTools
         OperatingSystem.IsWindows() ? Path.AltDirectorySeparatorChar : Path.DirectorySeparatorChar;
     public static StringComparison Comparison { get; } =
         OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+
+    private LocalPathTools() { }
 
     public static string NormalizePath(string path)
     {
@@ -121,17 +133,23 @@ public class LocalPathTools : IPathTools
 
     public static string GetParentDir(string path)
     {
-        ReadOnlySpan<char> shaved = path.AsSpan().TrimEnd(DirSeparator).TrimEnd(OtherSeparator);
-        ReadOnlySpan<char> parent = Path.GetDirectoryName(shaved);
+        ReadOnlySpan<char> trimmed = path.AsSpan().TrimEnd(DirSeparator).TrimEnd(OtherSeparator);
+        ReadOnlySpan<char> parent = Path.GetDirectoryName(trimmed);
         return parent.IsEmpty ? path : parent.ToString();
     }
 
     public static string GetFileName(string path)
     {
-        ReadOnlySpan<char> shaved = path.AsSpan().TrimEnd(DirSeparator).TrimEnd(OtherSeparator);
-        ReadOnlySpan<char> name = Path.GetFileName(shaved);
-        Path.GetFileName("");
+        ReadOnlySpan<char> trimmed = path.AsSpan().TrimEnd(DirSeparator).TrimEnd(OtherSeparator);
+        ReadOnlySpan<char> name = Path.GetFileName(trimmed);
         return name.ToString();
+    }
+
+    public static string GetExtension(string path)
+    {
+        ReadOnlySpan<char> trimmed = path.AsSpan().TrimEnd(DirSeparator).TrimEnd(OtherSeparator);
+        ReadOnlySpan<char> extension = Path.GetExtension(trimmed);
+        return extension.ToString();
     }
 
     public static bool PathsAreEqual(string? pathA, string? pathB) =>

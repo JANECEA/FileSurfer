@@ -11,7 +11,7 @@ namespace FileSurfer.Windows.Models.FileInformation;
 
 public class WindowsFileInfoProvider : ILocalFileInfoProvider
 {
-    public IPathTools PathTools { get; } = new LocalPathTools();
+    public IPathTools PathTools => LocalPathTools.Instance;
 
     public DriveEntry[] GetDrives() =>
         DriveInfo
@@ -196,9 +196,9 @@ public class WindowsFileInfoProvider : ILocalFileInfoProvider
         }
     }
 
-    public bool IsLinkedToDirectory(string linkPath, out string? directory)
+    public bool IsLinkedToDirectory(string linkPath, out string directory)
     {
-        directory = null;
+        directory = null!;
         if (!Path.GetExtension(linkPath).Equals(".lnk", StringComparison.OrdinalIgnoreCase))
             return false;
 

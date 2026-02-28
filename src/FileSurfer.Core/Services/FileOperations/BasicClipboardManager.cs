@@ -14,6 +14,8 @@ public class BasicClipboardManager : IClipboardManager
     private PasteType _pasteType = PasteType.Copy;
     private IFileSystemEntry[] _clipboard = [];
 
+    private IPathTools PathTools => _fileInfoProvider.PathTools;
+
     public BasicClipboardManager(IFileInfoProvider fileInfoProvider, IFileIoHandler fileIoHandler)
     {
         _fileInfoProvider = fileInfoProvider;
@@ -60,7 +62,7 @@ public class BasicClipboardManager : IClipboardManager
         foreach (IFileSystemEntry entry in _clipboard)
             if (entry is DirectoryEntry)
             {
-                entries[index++] = new DirectoryEntry(entry.PathToEntry);
+                entries[index++] = new DirectoryEntry(entry.PathToEntry, PathTools);
                 result.MergeResult(
                     pasteType is PasteType.Cut
                         ? _fileIoHandler.MoveDirTo(entry.PathToEntry, destinationPath)
@@ -69,7 +71,7 @@ public class BasicClipboardManager : IClipboardManager
             }
             else if (entry is FileEntry)
             {
-                entries[index++] = new FileEntry(entry.PathToEntry);
+                entries[index++] = new FileEntry(entry.PathToEntry, PathTools);
                 result.MergeResult(
                     _pasteType is PasteType.Cut
                         ? _fileIoHandler.MoveFileTo(entry.PathToEntry, destinationPath)

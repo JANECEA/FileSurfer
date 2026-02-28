@@ -26,6 +26,8 @@ public class LocalClipboardManager : ILocalClipboardManager
     private string _copyFromDir = string.Empty;
     private PasteType _pasteType = PasteType.Copy;
 
+    private IPathTools PathTools => _fileInfoProvider.PathTools;
+
     public LocalClipboardManager(
         IClipboard clipboardManager,
         IStorageProvider storageProvider,
@@ -161,7 +163,7 @@ public class LocalClipboardManager : ILocalClipboardManager
         {
             string imagePath = Path.Combine(destinationPath, imgName);
             image.Save(imagePath);
-            IFileSystemEntry entry = new FileEntry(imagePath);
+            IFileSystemEntry entry = new FileEntry(imagePath, PathTools);
             return entry.OkResult();
         }
         catch (Exception ex)
@@ -199,7 +201,7 @@ public class LocalClipboardManager : ILocalClipboardManager
             string normalizedPath = LocalPathTools.NormalizePath(item.Path.LocalPath);
             if (item is IStorageFolder)
             {
-                entries[index++] = new DirectoryEntry(normalizedPath);
+                entries[index++] = new DirectoryEntry(normalizedPath, PathTools);
                 result.MergeResult(
                     pasteType is PasteType.Cut
                         ? _fileIoHandler.MoveDirTo(normalizedPath, destinationPath)
@@ -208,7 +210,7 @@ public class LocalClipboardManager : ILocalClipboardManager
             }
             else if (item is IStorageFile)
             {
-                entries[index++] = new FileEntry(normalizedPath);
+                entries[index++] = new FileEntry(normalizedPath, PathTools);
                 result.MergeResult(
                     _pasteType is PasteType.Cut
                         ? _fileIoHandler.MoveFileTo(normalizedPath, destinationPath)

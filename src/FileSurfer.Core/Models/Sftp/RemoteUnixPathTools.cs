@@ -7,6 +7,8 @@ namespace FileSurfer.Core.Models.Sftp;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 internal class RemoteUnixPathTools : IPathTools
 {
+    public static readonly RemoteUnixPathTools Instance = new();
+
     char IPathTools.DirSeparator => DirSeparator;
 
     string IPathTools.NormalizePath(string path) => NormalizePath(path);
@@ -17,12 +19,16 @@ internal class RemoteUnixPathTools : IPathTools
 
     string IPathTools.GetFileName(string path) => GetFileName(path);
 
+    string IPathTools.GetExtension(string path) => GetExtension(path);
+
     bool IPathTools.NamesAreEqual(string? nameA, string? nameB) => NamesAreEqual(nameA, nameB);
 
     bool IPathTools.PathsAreEqual(string? pathA, string? pathB) => PathsAreEqual(pathA, pathB);
 
     public const char DirSeparator = '/';
     public const string RootDir = "/";
+
+    private RemoteUnixPathTools() { }
 
     public static string NormalizePath(string path)
     {
@@ -108,5 +114,14 @@ internal class RemoteUnixPathTools : IPathTools
         return nameStartInc >= 0 && nameEndExc >= 0 && nameStartInc < nameEndExc
             ? path[nameStartInc..nameEndExc]
             : string.Empty;
+    }
+
+    public static string GetExtension(string path)
+    {
+        int index = path.LastIndexOf('.');
+        if (string.IsNullOrWhiteSpace(path) || index == -1)
+            return string.Empty;
+
+        return path.AsSpan()[index..].TrimEnd(DirSeparator).ToString();
     }
 }

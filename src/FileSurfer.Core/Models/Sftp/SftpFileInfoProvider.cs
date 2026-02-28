@@ -20,7 +20,7 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
     private readonly SshShellHandler _sshShellHandler;
     private readonly SftpClient _client;
 
-    public IPathTools PathTools { get; } = new RemoteUnixPathTools();
+    public IPathTools PathTools => RemoteUnixPathTools.Instance;
 
     public SftpFileInfoProvider(SftpClient client, SshShellHandler sshShellHandler)
     {
@@ -28,7 +28,7 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         _sshShellHandler = sshShellHandler;
     }
 
-    public bool IsLinkedToDirectory(string linkPath, out string? directory)
+    public bool IsLinkedToDirectory(string linkPath, out string directory)
     {
         try // Fast path
         {
@@ -49,7 +49,7 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
             $"test -L {path} && test -d {path} && readlink -f {path}"
         );
 
-        directory = result.IsOk ? RemoteUnixPathTools.NormalizePath(result.Value.Trim()) : null;
+        directory = result.IsOk ? RemoteUnixPathTools.NormalizePath(result.Value.Trim()) : null!;
         return result.IsOk && !string.IsNullOrWhiteSpace(directory);
     }
 
@@ -124,20 +124,22 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         }
 
         List<FileEntryInfo> files = new(cacheEntry.Files.Count);
-        foreach (ISftpFile f in cacheEntry.Files)
-            if (includeHidden || !IsHidden(f.Name, true))
-                files.Add(
-                    new FileEntryInfo(
-                        f.FullName,
-                        f.Name,
-                        f.Length,
-                        f.LastWriteTime,
-                        f.LastWriteTimeUtc
-                    )
-                );
+        foreach (ISftpFile file in cacheEntry.Files)
+            if (includeHidden || !IsHidden(file.Name, true))
+                files.Add(FromISftpFile(file));
 
         return files.OkResult();
     }
+
+    private static FileEntryInfo FromISftpFile(ISftpFile file) =>
+        new(
+            file.FullName,
+            file.Name,
+            RemoteUnixPathTools.GetExtension(file.FullName),
+            file.Length,
+            file.LastWriteTime,
+            file.LastWriteTimeUtc
+        );
 
     public long GetFileSizeB(string path)
     {

@@ -656,7 +656,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _localFs
             .LocalFileInfoProvider.GetSpecialFolders()
             .Where(dirPath => !string.IsNullOrEmpty(dirPath))
-            .Select(path => new SideBarEntryViewModel(_localFs, new DirectoryEntry(path)));
+            .Select(path => new SideBarEntryViewModel(
+                _localFs,
+                new DirectoryEntry(path, LocalPathTools.Instance)
+            ));
 
     private void LoadDrives()
     {
@@ -668,17 +671,26 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void LoadQuickAccess()
     {
         foreach (string path in FileSurferSettings.QuickAccess)
+        {
+            IFileSystemEntry? entry = null;
             if (_localFs.LocalFileInfoProvider.DirectoryExists(path))
-                QuickAccess.Add(new SideBarEntryViewModel(_localFs, new DirectoryEntry(path)));
+                entry = new DirectoryEntry(path, LocalPathTools.Instance);
             else if (_localFs.LocalFileInfoProvider.FileExists(path))
-                QuickAccess.Add(new SideBarEntryViewModel(_localFs, new FileEntry(path)));
+                entry = new FileEntry(path, LocalPathTools.Instance);
+
+            if (entry is not null)
+                QuickAccess.Add(new SideBarEntryViewModel(_localFs, entry));
+        }
     }
 
     public void AddToQuickAccess(FileSystemEntryViewModel? entry) =>
         QuickAccess.Add(
             entry is not null
                 ? new SideBarEntryViewModel(_localFs, entry.FileSystemEntry)
-                : new SideBarEntryViewModel(_localFs, new DirectoryEntry(CurrentDir))
+                : new SideBarEntryViewModel(
+                    _localFs,
+                    new DirectoryEntry(CurrentDir, LocalPathTools.Instance)
+                )
         );
 
     private void LoadSftpConnections()
