@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
-namespace FileSurfer.Core.Models.Sftp;
+namespace FileSurfer.Core.Models;
 
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 internal class RemoteUnixPathTools : IPathTools
@@ -118,10 +118,10 @@ internal class RemoteUnixPathTools : IPathTools
 
     public static string GetExtension(string path)
     {
-        int index = path.LastIndexOf('.');
-        if (string.IsNullOrWhiteSpace(path) || index == -1)
-            return string.Empty;
+        ReadOnlySpan<char> trimmed = path.AsSpan().TrimEnd(DirSeparator);
+        int sepIndex = trimmed.LastIndexOf(DirSeparator);
+        int dotIndex = trimmed.LastIndexOf('.');
 
-        return path.AsSpan()[index..].TrimEnd(DirSeparator).ToString();
+        return sepIndex < dotIndex ? trimmed[dotIndex..].ToString() : string.Empty;
     }
 }
