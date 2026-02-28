@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Dialogs;
@@ -81,7 +82,8 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         SyncHiddenFiles = FileSurferSettings.SyncHiddenFiles;
 
         IRemoteFileIoHandler ioHandler = (IRemoteFileIoHandler)remoteDir.FileSystem.FileIoHandler;
-        _synchronizer = new LocalToSftpSynchronizer(remoteDir, localDir, Interval, ioHandler);
+        IDirectoryWatcher watcher = new DirectoryWatcher(localDir, Interval);
+        _synchronizer = new LocalToSftpSynchronizer(remoteDir, localDir, watcher, ioHandler);
         _synchronizer.OnSyncEvent += ShowEvent;
 
         StartSyncCommand = ReactiveCommand.Create(StartSynchronization);
@@ -95,7 +97,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
                 _dialogService.InfoDialog(SyncErrorTitle, error);
     }
 
-    private void ShowEvent(FileSystemEvent fsEvent, string remotePath, IResult result)
+    private async Task ShowEvent(FileSystemEvent fsEvent, string remotePath, IResult result)
     {
         ShowIfError(result);
         SynchronizationEvent e = new()
@@ -105,7 +107,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
             RemotePath = remotePath,
             TimeStamp = DateTime.Now,
         };
-        SyncEvents.Add(e);
+        await Dispatcher.UIThread.InvokeAsync(() => SyncEvents.Add(e));
     }
 
     private async Task StartSynchronization()

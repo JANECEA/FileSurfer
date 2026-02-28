@@ -28,7 +28,7 @@ public interface IDirectoryWatcher
 {
     public bool SyncHiddenFiles { get; set; }
 
-    public event Action<object?, FileSystemEvent>? ChangeDetected;
+    public event Func<object?, FileSystemEvent, Task>? ChangeDetected;
 
     public Task<IResult> StartAsync(CancellationToken token);
 }
@@ -42,7 +42,7 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
     private Dictionary<string, FsEntryMeta> _snapshot = new();
 
     public bool SyncHiddenFiles { get; set; } = false;
-    public event Action<object?, FileSystemEvent>? ChangeDetected;
+    public event Func<object?, FileSystemEvent, Task>? ChangeDetected;
 
     public DirectoryWatcher(Location root, TimeSpan interval)
     {
@@ -73,7 +73,7 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
             if (!snapshotResult.IsOk)
                 return snapshotResult;
 
-            DiffSnapshotsAsync(_snapshot, snapshotResult.Value);
+            await DiffSnapshotsAsync(_snapshot, snapshotResult.Value);
             _snapshot = snapshotResult.Value;
         }
         return SimpleResult.Ok();
@@ -133,20 +133,20 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
     private static bool Modified(FsEntryMeta a, FsEntryMeta b) =>
         a.LastWriteTimeUtc != b.LastWriteTimeUtc || a.Length != b.Length;
 
-    private void DiffSnapshotsAsync(
+    private async Task DiffSnapshotsAsync(
         Dictionary<string, FsEntryMeta> oldSnapshot,
         Dictionary<string, FsEntryMeta> newSnapshot
     )
     {
         foreach ((string path, FsEntryMeta entry) in DirsFirst(newSnapshot))
             if (!oldSnapshot.ContainsKey(path))
-                RaiseAsync(
+                await RaiseAsync(
                     new FileSystemEvent(path, entry.IsDirectory, FileSystemEventType.Created)
                 );
 
         foreach ((string path, FsEntryMeta entry) in FilesFirst(oldSnapshot))
             if (!newSnapshot.ContainsKey(path))
-                RaiseAsync(
+                await RaiseAsync(
                     new FileSystemEvent(path, entry.IsDirectory, FileSystemEventType.Deleted)
                 );
 
@@ -155,8 +155,12 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
                 oldSnapshot.TryGetValue(filePath, out FsEntryMeta? oldEntry)
                 && Modified(entry, oldEntry)
             )
-                RaiseAsync(new FileSystemEvent(filePath, false, FileSystemEventType.Updated));
+                await RaiseAsync(new FileSystemEvent(filePath, false, FileSystemEventType.Updated));
     }
 
-    private void RaiseAsync(FileSystemEvent fsEvent) => ChangeDetected?.Invoke(this, fsEvent);
+    private async Task RaiseAsync(FileSystemEvent fsEvent)
+    {
+        if (ChangeDetected is not null)
+            await ChangeDetected.Invoke(this, fsEvent);
+    }
 }

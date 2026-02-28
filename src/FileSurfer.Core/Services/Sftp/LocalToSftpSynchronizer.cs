@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.Services.FileInformation;
 using FileSurfer.Core.Services.FileOperations;
 
@@ -16,9 +15,9 @@ namespace FileSurfer.Core.Services.Sftp;
 /// </summary>
 public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 {
-    public delegate void SyncEvent(FileSystemEvent fsEvent, string remotePath, IResult result);
+    public delegate Task SyncEvent(FileSystemEvent fsEvent, string remotePath, IResult result);
 
-    private readonly DirectoryWatcher _watcher;
+    private readonly IDirectoryWatcher _watcher;
     private readonly IRemoteFileIoHandler _remoteHandler;
     private readonly Location _localRoot;
     private readonly string _localRootPath;
@@ -33,11 +32,11 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
     public LocalToSftpSynchronizer(
         Location remoteRoot,
         Location localRoot,
-        TimeSpan interval,
+        IDirectoryWatcher watcher,
         IRemoteFileIoHandler remoteHandler
     )
     {
-        _watcher = new DirectoryWatcher(localRoot, interval);
+        _watcher = watcher;
         _remoteHandler = remoteHandler;
         _remoteRoot = remoteRoot;
         _remoteRootPath = RemoteUnixPathTools.NormalizePath(remoteRoot.Path);
@@ -198,15 +197,18 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         }
     }
 
-    private void OnFsEvent(object? sender, FileSystemEvent fsEvent)
+    private async Task OnFsEvent(object? sender, FileSystemEvent fsEvent)
     {
         string remotePath = ToRemotePath(fsEvent.OriginalPath);
+
+        await Task.Yield();
 
         IResult result = fsEvent.IsDirectory
             ? HandleDirEvent(fsEvent, remotePath)
             : HandleFileEvent(fsEvent, remotePath);
 
-        OnSyncEvent?.Invoke(fsEvent, remotePath, result);
+        if (OnSyncEvent is not null)
+            await OnSyncEvent.Invoke(fsEvent, remotePath, result);
     }
 
     private IResult HandleFileEvent(FileSystemEvent e, string remotePath) =>
