@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
@@ -108,6 +107,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
     {
         IFileSystem fsFrom = rootFrom.FileSystem;
         IFileSystem fsTo = rootTo.FileSystem;
+        IPathTools pathToolsTo = fsTo.FileInfoProvider.PathTools;
 
         IResult resetResult = ResetDir(rootTo, syncHidden);
         if (!resetResult.IsOk)
@@ -131,7 +131,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
                 queue.Enqueue(d.PathToEntry);
                 string mirroredPath = mirrorPath(d.PathToEntry);
                 result.MergeResult(
-                    fsTo.FileIoHandler.NewDirAt(Path.GetDirectoryName(mirroredPath)!, d.Name)
+                    fsTo.FileIoHandler.NewDirAt(pathToolsTo.GetParentDir(mirroredPath), d.Name)
                 );
             }
 
@@ -171,7 +171,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
             RemoteUnixPathTools.DirSeparator,
             LocalPathTools.DirSeparator
         );
-        return Path.Combine(_localRootPath, correctSlashes);
+        return LocalPathTools.Combine(_localRootPath, correctSlashes);
     }
 
     public async Task StopAsync()

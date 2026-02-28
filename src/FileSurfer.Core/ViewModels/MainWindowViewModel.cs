@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -403,12 +402,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             Reload(true);
     }
 
-    /// <summary>
-    /// Compares <see cref="_lastRefreshedUtc"/> to the latest <see cref="Directory.GetLastWriteTime(string)"/>.
-    /// <para>
-    /// Invokes <see cref="Reload"/> if <see cref="Directory.GetLastWriteTime(string)"/> is newer.
-    /// </para>
-    /// </summary>
     private void CheckForUpdates(object? sender, EventArgs e)
     {
         if (CurrentLocation.Exists())
@@ -485,8 +478,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private void SetSearchWaterMark(string dirPath)
     {
-        string? dirName = Path.GetFileName(dirPath);
-        dirName = string.IsNullOrEmpty(dirName) ? Path.GetPathRoot(dirPath) : dirName;
+        string dirName = PathTools.GetFileName(dirPath);
+        dirName = string.IsNullOrEmpty(dirName) ? CurrentFs.FileInfoProvider.GetRoot() : dirName;
         SearchWaterMark = $"Search {dirName}";
     }
 
