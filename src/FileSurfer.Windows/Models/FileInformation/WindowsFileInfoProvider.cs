@@ -72,8 +72,8 @@ public class WindowsFileInfoProvider : ILocalFileInfoProvider
 
             foreach (DirectoryInfo d in dirs)
                 if (
-                    (includeHidden || !IsHidden(d.FullName, false))
-                    && (includeOs || !IsOsProtected(d.FullName, false))
+                    (includeHidden || !IsHidden(d.FullName, true))
+                    && (includeOs || !IsOsProtected(d.FullName, true))
                 )
                     dirsList.Add(new DirectoryEntryInfo(d));
 

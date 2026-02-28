@@ -151,15 +151,6 @@ public class LocalGitIntegration : IGitIntegration
             return GitStatus.NotVersionControlled;
 
         if (
-            status.HasFlag(FileStatus.NewInIndex)
-            || status.HasFlag(FileStatus.ModifiedInIndex)
-            || status.HasFlag(FileStatus.DeletedFromIndex)
-            || status.HasFlag(FileStatus.RenamedInIndex)
-            || status.HasFlag(FileStatus.TypeChangeInIndex)
-        )
-            return GitStatus.Staged;
-
-        if (
             status.HasFlag(FileStatus.NewInWorkdir)
             || status.HasFlag(FileStatus.ModifiedInWorkdir)
             || status.HasFlag(FileStatus.DeletedFromWorkdir)
@@ -167,6 +158,15 @@ public class LocalGitIntegration : IGitIntegration
             || status.HasFlag(FileStatus.TypeChangeInWorkdir)
         )
             return GitStatus.Unstaged;
+
+        if (
+            status.HasFlag(FileStatus.NewInIndex)
+            || status.HasFlag(FileStatus.ModifiedInIndex)
+            || status.HasFlag(FileStatus.DeletedFromIndex)
+            || status.HasFlag(FileStatus.RenamedInIndex)
+            || status.HasFlag(FileStatus.TypeChangeInIndex)
+        )
+            return GitStatus.Staged;
 
         return GitStatus.NotVersionControlled;
     }

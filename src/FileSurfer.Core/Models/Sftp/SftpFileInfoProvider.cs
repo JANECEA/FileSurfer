@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.Sftp;
@@ -10,13 +11,6 @@ namespace FileSurfer.Core.Models.Sftp;
 
 public sealed class SftpFileInfoProvider : IFileInfoProvider
 {
-    private sealed record DirCacheEntry(
-        DateTime LastWriteTimeUtc,
-        IReadOnlyList<ISftpFile> Files,
-        IReadOnlyList<ISftpFile> Dirs
-    );
-
-    private readonly Dictionary<string, DirCacheEntry> _dirCache = new();
     private readonly SshShellHandler _sshShellHandler;
     private readonly SftpClient _client;
 
@@ -53,33 +47,8 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         return result.IsOk && !string.IsNullOrWhiteSpace(directory);
     }
 
-    private DirCacheEntry GetDirectoryEntriesCached(string path)
-    {
-        ISftpFile dirInfo = _client.Get(path);
-        DateTime currentWriteTime = dirInfo.LastWriteTimeUtc;
-
-        if (
-            _dirCache.TryGetValue(path, out DirCacheEntry? cache)
-            && cache.LastWriteTimeUtc >= currentWriteTime
-        )
-            return cache;
-
-        List<ISftpFile> files = new();
-        List<ISftpFile> dirs = new();
-
-        foreach (ISftpFile entry in _client.ListDirectory(path))
-            if (entry.Name is not ("." or ".."))
-            {
-                if (entry.IsRegularFile || entry.IsSymbolicLink)
-                    files.Add(entry);
-                else if (entry.IsDirectory)
-                    dirs.Add(entry);
-            }
-
-        DirCacheEntry dirCacheEntry = new(currentWriteTime, files, dirs);
-        _dirCache[path] = dirCacheEntry;
-        return dirCacheEntry;
-    }
+    private IEnumerable<ISftpFile> ListDir(string path) =>
+        _client.ListDirectory(path).Where(e => e.Name is not ("." or ".."));
 
     public ValueResult<List<DirectoryEntryInfo>> GetPathDirs(
         string path,
@@ -87,25 +56,22 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         bool includeOs
     )
     {
-        DirCacheEntry cacheEntry;
         try
         {
-            cacheEntry = GetDirectoryEntriesCached(path);
+            IEnumerable<ISftpFile> dirs = ListDir(path).Where(e => e.IsDirectory);
+            if (!includeHidden)
+                dirs = dirs.Where(e => !IsHidden(e.FullName, true));
+
+            return dirs.Select(MakeDirInfo).ToList().OkResult();
         }
         catch (Exception ex)
         {
             return ValueResult<List<DirectoryEntryInfo>>.Error(ex.Message);
         }
-
-        List<DirectoryEntryInfo> dirs = new(cacheEntry.Dirs.Count);
-        foreach (ISftpFile d in cacheEntry.Dirs)
-            if (includeHidden || !IsHidden(d.Name, true))
-                dirs.Add(
-                    new DirectoryEntryInfo(d.FullName, d.Name, d.LastWriteTime, d.LastWriteTimeUtc)
-                );
-
-        return dirs.OkResult();
     }
+
+    private static DirectoryEntryInfo MakeDirInfo(ISftpFile dir) =>
+        new(dir.FullName, dir.Name, dir.LastWriteTime, dir.LastWriteTimeUtc);
 
     public ValueResult<List<FileEntryInfo>> GetPathFiles(
         string path,
@@ -113,25 +79,22 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         bool includeOs
     )
     {
-        DirCacheEntry cacheEntry;
         try
         {
-            cacheEntry = GetDirectoryEntriesCached(path);
+            IEnumerable<ISftpFile> files = ListDir(path)
+                .Where(e => e.IsRegularFile || e.IsSymbolicLink);
+            if (!includeHidden)
+                files = files.Where(e => !IsHidden(e.FullName, false));
+
+            return files.Select(MakeFileInfo).ToList().OkResult();
         }
         catch (Exception ex)
         {
             return ValueResult<List<FileEntryInfo>>.Error(ex.Message);
         }
-
-        List<FileEntryInfo> files = new(cacheEntry.Files.Count);
-        foreach (ISftpFile file in cacheEntry.Files)
-            if (includeHidden || !IsHidden(file.Name, true))
-                files.Add(FromISftpFile(file));
-
-        return files.OkResult();
     }
 
-    private static FileEntryInfo FromISftpFile(ISftpFile file) =>
+    private static FileEntryInfo MakeFileInfo(ISftpFile file) =>
         new(
             file.FullName,
             file.Name,
