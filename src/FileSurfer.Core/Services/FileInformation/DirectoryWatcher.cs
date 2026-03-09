@@ -58,6 +58,8 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
             return firstSnapshotResult;
 
         _snapshot = firstSnapshotResult.Value;
+
+        Task<IResult> comparisonTask = Task.FromResult<IResult>(SimpleResult.Ok());
         while (!token.IsCancellationRequested)
         {
             try
@@ -69,13 +71,25 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
                 break; // The task has been canceled.
             }
 
-            ValueResult<Dictionary<string, FsEntryMeta>> snapshotResult = TakeSnapshot(syncHidden);
-            if (!snapshotResult.IsOk)
-                return snapshotResult;
+            if (comparisonTask.IsCompleted)
+            {
+                if (!comparisonTask.Result.IsOk)
+                    return comparisonTask.Result;
 
-            await DiffSnapshotsAsync(_snapshot, snapshotResult.Value);
-            _snapshot = snapshotResult.Value;
+                comparisonTask = Task.Run(() => DiffOnce(syncHidden));
+            }
         }
+        return await comparisonTask;
+    }
+
+    private async Task<IResult> DiffOnce(bool syncHidden)
+    {
+        ValueResult<Dictionary<string, FsEntryMeta>> snapshotResult = TakeSnapshot(syncHidden);
+        if (!snapshotResult.IsOk)
+            return snapshotResult;
+
+        await DiffSnapshotsAsync(_snapshot, snapshotResult.Value);
+        _snapshot = snapshotResult.Value;
         return SimpleResult.Ok();
     }
 
@@ -160,7 +174,9 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
 
     private async Task RaiseAsync(FileSystemEvent fsEvent)
     {
-        if (ChangeDetected is not null)
-            await ChangeDetected(this, fsEvent);
+        Func<object?, FileSystemEvent, Task>? eventMethod = ChangeDetected;
+
+        if (eventMethod is not null)
+            await eventMethod(this, fsEvent);
     }
 }

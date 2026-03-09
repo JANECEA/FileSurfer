@@ -123,8 +123,7 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
         try
         {
             using FileStream localStream = new(localPath, FileMode.Open, FileAccess.Read);
-            using SftpFileStream sftpStream = _client.OpenWrite(remotePath);
-            localStream.CopyTo(sftpStream);
+            _client.UploadFile(localStream, remotePath, true);
             return SimpleResult.Ok();
         }
         catch (Exception ex)
@@ -138,8 +137,7 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
         try
         {
             using FileStream localStream = new(localPath, FileMode.OpenOrCreate, FileAccess.Write);
-            using SftpFileStream sftpStream = _client.OpenRead(remotePath);
-            sftpStream.CopyTo(localStream);
+            _client.DownloadFile(remotePath, localStream);
             return SimpleResult.Ok();
         }
         catch (Exception ex)

@@ -211,8 +211,9 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
             ? HandleDirEvent(fsEvent, remotePath)
             : HandleFileEvent(fsEvent, remotePath);
 
-        if (OnSyncEvent is not null)
-            await OnSyncEvent(fsEvent, remotePath, result);
+        SyncEvent? eventMethod = OnSyncEvent;
+        if (eventMethod is not null)
+            await eventMethod(fsEvent, remotePath, result);
     }
 
     private IResult HandleFileEvent(FileSystemEvent e, string remotePath) =>
