@@ -14,9 +14,15 @@
         <Setter Property="BorderThickness" Value="0" />
     </Style>
 
-    <Style Selector="TextBlock.EventPathInfo">
+    <Style Selector="TextBlock.EventRelPathInfo">
+        <Setter Property="TextTrimming" Value="None" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+    </Style>
+
+    <Style Selector="TextBlock.EventBasePathInfo">
         <Setter Property="TextTrimming" Value="LeadingCharacterEllipsis" />
         <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="Opacity" Value="0.7" />
     </Style>
 
     <Style Selector="TextBox.TopTextBox">

@@ -21,20 +21,26 @@
     </Window.Styles>
 
     <Window.Resources>
-        <DataTemplate x:Key="SyncEventTemplate" x:DataType="vm:SynchronizationEvent">
+        <DataTemplate x:Key="SyncEventTemplate" x:DataType="vm:SyncEventViewModel">
             <Grid Classes="EventEntry" ColumnDefinitions="Auto Auto * Auto *">
                 <TextBlock Text="{Binding TimeStampStr}" />
-                <TextBlock Grid.Column="1" Margin="0 0 30 0" Text=":" />
+                <TextBlock Grid.Column="1" Margin="0 0 35 0" Text=":" />
 
-                <TextBlock Grid.Column="2" HorizontalAlignment="Left" Classes="EventPathInfo" Text="{Binding LocalPath}" />
+                <Grid Grid.Column="2" HorizontalAlignment="Left" ColumnDefinitions="* Auto">
+                    <TextBlock Classes="EventBasePathInfo" Text="{Binding LocalBasePath}" />
+                    <TextBlock Grid.Column="1" Classes="EventRelPathInfo" Text="{Binding LocalRelPath}" />
+                </Grid>
 
-                <StackPanel Grid.Column="3" Margin="20 0 20 0" HorizontalAlignment="Center" Orientation="Horizontal">
+                <StackPanel Grid.Column="3" Margin="25 0 25 0" HorizontalAlignment="Center" Orientation="Horizontal">
                     <TextBlock Text="-&gt;" />
                     <TextBlock Margin="10 0 10 0" Text="{Binding OpType}" />
                     <TextBlock Text="-&gt;" />
                 </StackPanel>
 
-                <TextBlock Grid.Column="4" HorizontalAlignment="Right" Classes="EventPathInfo" Text="{Binding RemotePath}" />
+                <Grid Grid.Column="4" HorizontalAlignment="Right" ColumnDefinitions="* Auto">
+                    <TextBlock Classes="EventBasePathInfo" Text="{Binding RemoteBasePath}" />
+                    <TextBlock Grid.Column="1" Classes="EventRelPathInfo" Text="{Binding RemoteRelPath}" />
+                </Grid>
             </Grid>
         </DataTemplate>
     </Window.Resources>

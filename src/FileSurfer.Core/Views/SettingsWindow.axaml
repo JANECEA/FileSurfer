@@ -149,17 +149,17 @@
                         <TextBlock Classes="Section" Text="Advanced" />
 
                         <Grid ColumnDefinitions="200 *" RowDefinitions="Auto Auto">
-                            <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Preferred terminal:" />
+                            <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Preferred Terminal:" />
                             <StackPanel Grid.Row="0" Grid.Column="1" Margin="5 0 0 5">
                                 <Grid ColumnDefinitions="200 Auto *">
                                     <TextBox Grid.Column="0" Text="{Binding Terminal}" />
                                     <TextBlock Grid.Column="1" Margin="10 0 10 0" VerticalAlignment="Center" Text="Args:" />
                                     <TextBox Grid.Column="2" Text="{Binding TerminalArgs}" />
                                 </Grid>
-                                <TextBlock Classes="Subtext" Text="*Arguments must be specified so the target directory can be appended (e.g. `wezterm`, `start --cwd`)." />
+                                <TextBlock Classes="Subtext" Text="*Specify arguments so the target directory can be appended (e.g. `wezterm`, `start --cwd`)." />
                             </StackPanel>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Path to Notepad App:" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Preferred Notepad App:" />
                             <StackPanel Grid.Row="1" Grid.Column="1" Margin="5 0 0 5">
                                 <Grid ColumnDefinitions="200 Auto *">
                                     <TextBox Grid.Column="0" Text="{Binding NotepadApp}" />

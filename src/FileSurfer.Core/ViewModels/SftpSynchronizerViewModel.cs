@@ -15,13 +15,45 @@ using ReactiveUI;
 
 namespace FileSurfer.Core.ViewModels;
 
-public record SynchronizationEvent
+public record SyncEventViewModel
 {
-    public required string LocalPath { get; init; }
-    public required string RemotePath { get; init; }
+    public required string LocalBasePath { get; init; }
+    public required string LocalRelPath { get; init; }
+    public required string RemoteBasePath { get; init; }
+    public required string RemoteRelPath { get; init; }
     public required FileSystemEventType OpType { get; init; }
     public required DateTime TimeStamp { get; init; }
     public string TimeStampStr => TimeStamp.ToLongTimeString();
+}
+
+public class SyncEventVmFactory
+{
+    private readonly string _localRoot;
+    private readonly string _remoteRoot;
+
+    public SyncEventVmFactory(string localRoot, string remoteRoot)
+    {
+        _localRoot = LocalPathTools.NormalizePath(localRoot) + LocalPathTools.DirSeparator;
+        _remoteRoot =
+            RemoteUnixPathTools.NormalizePath(remoteRoot) + RemoteUnixPathTools.DirSeparator;
+    }
+
+    public SyncEventViewModel GetEvent(FileSystemEvent fsEvent, string remotePath) =>
+        new()
+        {
+            LocalBasePath = _localRoot,
+            LocalRelPath = MakeRelative(_localRoot, fsEvent.OriginalPath, LocalPathTools.Instance),
+            OpType = fsEvent.EventType,
+            RemoteBasePath = _remoteRoot,
+            RemoteRelPath = MakeRelative(_remoteRoot, remotePath, RemoteUnixPathTools.Instance),
+            TimeStamp = DateTime.Now,
+        };
+
+    private static string MakeRelative(string basePath, string absolutePath, IPathTools pathTools)
+    {
+        absolutePath = pathTools.NormalizePath(absolutePath);
+        return absolutePath[basePath.Length..];
+    }
 }
 
 public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
@@ -31,6 +63,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
 
     private readonly LocalToSftpSynchronizer _synchronizer;
     private readonly IDialogService _dialogService;
+    private readonly SyncEventVmFactory _syncEventVmFactory;
 
     public string LocalDirLabel { get; }
     public Location LocalDir { get; }
@@ -62,7 +95,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
     }
     private bool _synchronizing = false;
 
-    public ObservableCollection<SynchronizationEvent> SyncEvents { get; } = [];
+    public ObservableCollection<SyncEventViewModel> SyncEvents { get; } = [];
 
     public ReactiveCommand<Unit, Task> StartSyncCommand { get; }
     public ReactiveCommand<Unit, Task> StopSyncCommand { get; }
@@ -77,6 +110,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         LocalDirLabel = localDir.FileSystem.GetLabel();
         RemoteDir = remoteDir;
         RemoteDirLabel = remoteDir.FileSystem.GetLabel();
+        _syncEventVmFactory = new SyncEventVmFactory(localDir.Path, remoteDir.Path);
         _dialogService = dialogService;
 
         SyncHiddenFiles = FileSurferSettings.SyncHiddenFiles;
@@ -100,13 +134,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
     private async Task ShowEvent(FileSystemEvent fsEvent, string remotePath, IResult result)
     {
         ShowIfError(result);
-        SynchronizationEvent e = new()
-        {
-            LocalPath = fsEvent.OriginalPath,
-            OpType = fsEvent.EventType,
-            RemotePath = remotePath,
-            TimeStamp = DateTime.Now,
-        };
+        SyncEventViewModel e = _syncEventVmFactory.GetEvent(fsEvent, remotePath);
         await Dispatcher.UIThread.InvokeAsync(() => SyncEvents.Add(e));
     }
 

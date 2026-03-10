@@ -443,7 +443,7 @@
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToQuickAccessCommand}" Header="Add to quick access" />
                                             <Separator Classes="ContextMenuSeparator" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CopyPathCommand}" Header="Copy path" />
-                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).PasteCommand}" Header="Paste" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).PasteCommand}" Header="Paste here" />
                                             <Separator Classes="ContextMenuSeparator" IsVisible="{Binding !#FileDisplay.((vm:MainWindowViewModel)DataContext).IsLocal}" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).SyncDirCommand}" Header="Synchronize this directory" IsVisible="{Binding !#FileDisplay.((vm:MainWindowViewModel)DataContext).IsLocal}" />
                                         </ContextMenu>
