@@ -243,33 +243,22 @@
                     <StackPanel Margin="15 3 15 -2">
                         <ToolTip.Tip>
                             <Grid ColumnDefinitions="Auto Auto" RowDefinitions="Auto Auto">
-                                <TextBlock Grid.Row="0"
-                                           Grid.Column="0"
-                                           Foreground="{DynamicResource TextColor}"
-                                           Text="2"
-                                           TextAlignment="Right" />
-                                <TextBlock Grid.Row="0" Grid.Column="1" Foreground="{DynamicResource TextColor}" Text=" commits to pull" />
-                                <TextBlock Grid.Row="1"
-                                           Grid.Column="0"
-                                           Foreground="{DynamicResource TextColor}"
-                                           Text="3"
-                                           TextAlignment="Right" />
-                                <TextBlock Grid.Row="1" Grid.Column="1" Foreground="{DynamicResource TextColor}" Text=" commits to push" />
+                                <TextBlock Grid.Row="0" Grid.Column="0" Classes="GitTooltipNumber" Text="{Binding RepoStateInfo.CommitsToPull}" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Classes="GitTooltipText" Text=" commits to pull" />
+                                <TextBlock Grid.Row="1" Grid.Column="0" Classes="GitTooltipNumber" Text="{Binding RepoStateInfo.CommitsToPush}" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Classes="GitTooltipText" Text=" commits to push" />
                             </Grid>
                         </ToolTip.Tip>
-                        <TextBlock Margin="0"
-                                   Padding="0 0 2 0"
-                                   HorizontalAlignment="Center"
-                                   FontFamily="{DynamicResource IconFont}"
-                                   FontSize="26"
-                                   Foreground="{DynamicResource GitColor}"
-                                   Text="&#xE702;" />
+
+                        <TextBlock Margin="0" Classes="GitIcon" Text="&#xE702;" />
+
                         <StackPanel Margin="0 -5 0 0" HorizontalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock Padding="0" FontSize="12" Foreground="{DynamicResource IconColor}" Text="2" />
-                            <TextBlock Padding="0" FontSize="12" Foreground="{DynamicResource IconColor}" Text=" / " />
-                            <TextBlock Padding="0" FontSize="12" Foreground="{DynamicResource IconColor}" Text="3" />
+                            <TextBlock Classes="GitStateText" Text="{Binding RepoStateInfo.CommitsToPull}" />
+                            <TextBlock Classes="GitStateText" Text=" / " />
+                            <TextBlock Classes="GitStateText" Text="{Binding RepoStateInfo.CommitsToPush}" />
                         </StackPanel>
                     </StackPanel>
+
                     <ComboBox Classes="BranchComboBox" ItemsSource="{Binding Branches}" SelectedItem="{Binding CurrentBranch, Mode=TwoWay}" />
                     <Button Classes="GitButton" Command="{Binding PullCommand}" Content="PULL" />
                     <Button Classes="GitButton" Click="OnCommitClicked" Content="COMMIT" />

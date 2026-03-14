@@ -24,6 +24,16 @@ using ReactiveUI;
 namespace FileSurfer.Core.ViewModels;
 
 /// <summary>
+/// Bundles repository state data for easier manipulation in the view.
+/// </summary>
+public record struct RepoStateInfo(int CommitsToPull, int CommitsToPush);
+
+/// <summary>
+/// Bundles sorting state data for easier manipulation in the view.
+/// </summary>
+public record struct SortInfo(SortBy SortBy, bool SortReversed);
+
+/// <summary>
 /// The MainWindowViewModel is the ViewModel for the main window of the application.
 /// <para>
 /// It serves as the intermediary between the View and the Model
@@ -220,6 +230,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         set => this.RaiseAndSetIfChanged(ref _isVersionControlled, value);
     }
     private bool _isVersionControlled = false;
+
+    /// <summary>
+    /// Indicates whether the current directory is version controlled.
+    /// </summary>
+    public RepoStateInfo RepoStateInfo
+    {
+        get => _repoStateInfo;
+        set => this.RaiseAndSetIfChanged(ref _repoStateInfo, value);
+    }
+    private RepoStateInfo _repoStateInfo = new(0, 0);
 
     /// <summary>
     /// Indicates whether there is an opened directory synchronizer window
