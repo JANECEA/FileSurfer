@@ -175,7 +175,6 @@
     </Style>
 
     <Style Selector="ComboBox.BranchComboBox">
-        <Setter Property="DockPanel.Dock" Value="Right" />
         <Setter Property="Height" Value="35" />
         <Setter Property="Width" Value="120" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -196,13 +195,18 @@
         <Setter Property="BorderThickness" Value="1" />
     </Style>
 
+    <Style Selector="ComboBoxItem">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+    </Style>
+
     <Style Selector="ComboBoxItem:selected /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource SecondaryColor}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
     </Style>
 
     <Style Selector="Button.GitButton">
         <Setter Property="FontSize" Value="10" />
-        <Setter Property="DockPanel.Dock" Value="Right" />
         <Setter Property="Height" Value="35" />
         <Setter Property="Width" Value="60" />
         <Setter Property="Padding" Value="0" />
