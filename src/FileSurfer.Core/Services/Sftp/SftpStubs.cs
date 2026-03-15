@@ -38,6 +38,8 @@ public class StubGitIntegration : IGitIntegration
 
     public GitStatus GetStatus(string filePath) => GitStatus.NotVersionControlled;
 
+    public IResult FetchChanges() => SimpleResult.Error(_message);
+
     public IResult PullChanges() => SimpleResult.Error(_message);
 
     public RepoDetails? GetRepositoryState() => null;

@@ -248,7 +248,7 @@
                             </Grid>
                         </ToolTip.Tip>
 
-                        <Button Margin="0" Classes="GitIcon" Content="&#xE702;" ToolTip.Tip="Git Fetch" />
+                        <Button Classes="GitIcon" Command="{Binding FetchCommand}" Content="&#xE702;" ToolTip.Tip="Git Fetch" />
 
                         <StackPanel Margin="0 -4 0 0" HorizontalAlignment="Center" Orientation="Horizontal">
                             <TextBlock Classes="GitStateText" Text="{Binding RepoStateInfo.CommitsToPull}" />

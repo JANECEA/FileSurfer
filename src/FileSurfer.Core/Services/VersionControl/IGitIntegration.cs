@@ -49,6 +49,12 @@ public interface IGitIntegration : IDisposable
     /// Downloads the latest changes from the version control system to the local repository.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult FetchChanges();
+
+    /// <summary>
+    /// Downloads and merges the latest changes from the version control system to the local repository.
+    /// </summary>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
     public IResult PullChanges();
 
     /// <summary>

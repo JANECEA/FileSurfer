@@ -185,6 +185,7 @@
 
     <Style Selector="Button.GitIcon">
         <Setter Property="Padding" Value="3.5 -3 -15 0" />
+        <Setter Property="Margin" Value="0" />
         <Setter Property="Height" Value="27" />
         <Setter Property="Width" Value="28" />
         <Setter Property="HorizontalAlignment" Value="Center" />

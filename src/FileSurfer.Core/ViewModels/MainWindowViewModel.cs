@@ -283,6 +283,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> SelectAllCommand { get; }
     public ReactiveCommand<Unit, Unit> SelectNoneCommand { get; }
     public ReactiveCommand<Unit, Unit> InvertSelectionCommand { get; }
+    public ReactiveCommand<Unit, Unit> FetchCommand { get; }
     public ReactiveCommand<Unit, Unit> PullCommand { get; }
     public ReactiveCommand<Unit, Unit> PushCommand { get; }
 
@@ -369,6 +370,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         SelectAllCommand = ReactiveCommand.Create(SelectAll);
         SelectNoneCommand = ReactiveCommand.Create(SelectNone);
         InvertSelectionCommand = ReactiveCommand.Create(InvertSelection);
+        FetchCommand = ReactiveCommand.Create(Fetch);
         PullCommand = ReactiveCommand.Create(Pull);
         PushCommand = ReactiveCommand.Create(Push);
 
@@ -1503,9 +1505,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ShowIfError(CurrentFs.GitIntegration.UnstagePath(entry.PathToEntry));
     }
 
-    /// <summary>
-    /// Relays the operations to <see cref="IGitIntegration"/>.
-    /// </summary>
+    private void Fetch()
+    {
+        if (IsVersionControlled)
+        {
+            ShowIfError(CurrentFs.GitIntegration.FetchChanges());
+            Reload();
+        }
+    }
+
     private void Pull()
     {
         if (IsVersionControlled)

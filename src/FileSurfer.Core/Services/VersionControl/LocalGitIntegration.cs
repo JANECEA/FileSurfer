@@ -71,6 +71,35 @@ public class LocalGitIntegration : IGitIntegration
             ? LocalPathTools.NormalizePath(_currentRepo.Info.WorkingDirectory)
             : null;
 
+    public IResult FetchChanges()
+    {
+        if (_currentRepo is null)
+            return SimpleResult.Error(MissingRepoMessage);
+
+        try
+        {
+            Remote? remote = _currentRepo.Head.TrackedBranch is Branch branch
+                ? _currentRepo.Network.Remotes[branch.RemoteName]
+                : _currentRepo.Network.Remotes["origin"];
+
+            if (remote is null)
+                return SimpleResult.Error("No tracking information found.");
+
+            Commands.Fetch(
+                _currentRepo,
+                remote.Name,
+                remote.FetchRefSpecs.Select(spec => spec.Specification),
+                null,
+                null
+            );
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
     public IResult PullChanges() =>
         _currentRepo is null
             ? SimpleResult.Error(MissingRepoMessage)
