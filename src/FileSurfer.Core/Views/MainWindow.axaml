@@ -40,7 +40,7 @@
             <Grid Height="36">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30" />
-                    <ColumnDefinition Width="*" MinWidth="90" />
+                    <ColumnDefinition Width="*" MinWidth="90" MaxWidth="400" />
                     <ColumnDefinition Width="160" />
                     <ColumnDefinition Width="130" />
                     <ColumnDefinition Width="90" />
@@ -418,7 +418,7 @@
                 <Grid Grid.Column="2" RowDefinitions="Auto Auto * Auto Auto">
                     <Grid x:Name="LabelsPanel" Grid.Row="0" Height="30" Margin="55 0 0 0">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" MinWidth="90 " />
+                            <ColumnDefinition Width="*" MinWidth="90 " MaxWidth="400" />
                             <ColumnDefinition Width="160" />
                             <ColumnDefinition Width="130" />
                             <ColumnDefinition Width="100" />
