@@ -114,8 +114,21 @@ public class LocalGitIntegration : IGitIntegration
         }
     }
 
-    public ValueResult<string> PullChanges() =>
-        _currentRepo is not null ? ExecuteGitCommand("pull") : MissingRepoResult;
+    public ValueResult<string> PullChanges()
+    {
+        if (_currentRepo is null)
+            return MissingRepoResult;
+
+        Branch branch = _currentRepo.Head;
+        if (branch.TrackedBranch is not null)
+            return ExecuteGitCommand("pull");
+
+        Remote? origin = _currentRepo.Network.Remotes["origin"];
+        if (origin is null)
+            return ValueResult<string>.Error("No remote configured for this repository.");
+
+        return ExecuteGitCommand("pull", "origin", branch.FriendlyName);
+    }
 
     public RepoDetails? GetRepositoryState()
     {
@@ -299,12 +312,25 @@ public class LocalGitIntegration : IGitIntegration
         return true;
     }
 
-    public ValueResult<string> PushChanges()
+    private ValueResult<string> PushChangesInternal()
     {
         if (_currentRepo is null)
             return MissingRepoResult;
 
-        ValueResult<string> result = ExecuteGitCommand("push");
+        Branch currentBranch = _currentRepo.Head;
+        if (currentBranch.TrackedBranch is not null)
+            return ExecuteGitCommand("push");
+
+        Remote? origin = _currentRepo.Network.Remotes["origin"];
+        if (origin is null)
+            return ValueResult<string>.Error("No remote configured for this repository.");
+
+        return ExecuteGitCommand("push", "origin", currentBranch.FriendlyName);
+    }
+
+    public ValueResult<string> PushChanges()
+    {
+        ValueResult<string> result = PushChangesInternal();
         if (result.IsOk && string.IsNullOrWhiteSpace(result.Value))
             result = "Changes pushed successfully.".OkResult();
 
