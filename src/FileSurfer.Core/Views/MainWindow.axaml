@@ -7,10 +7,8 @@
         xmlns:views="clr-namespace:FileSurfer.Core.Views"
         xmlns:vm="clr-namespace:FileSurfer.Core.ViewModels"
         Title="FileSurfer"
-        MinWidth="860"
+        MinWidth="910"
         MinHeight="400"
-        d:DesignHeight="450"
-        d:DesignWidth="1200"
         x:DataType="vm:MainWindowViewModel"
         Closing="OnClosing"
         DataContextChanged="ViewModelLoaded"
@@ -240,7 +238,7 @@
                 </Button>
 
                 <StackPanel DockPanel.Dock="Right" IsVisible="{Binding IsVersionControlled}" Orientation="Horizontal">
-                    <StackPanel Margin="15 3 15 -2">
+                    <StackPanel Margin="15 6 15 -5">
                         <ToolTip.Tip>
                             <Grid ColumnDefinitions="Auto Auto" RowDefinitions="Auto Auto">
                                 <TextBlock Grid.Row="0" Grid.Column="0" Classes="GitTooltipNumber" Text="{Binding RepoStateInfo.CommitsToPull}" />
@@ -250,9 +248,9 @@
                             </Grid>
                         </ToolTip.Tip>
 
-                        <TextBlock Margin="0" Classes="GitIcon" Text="&#xE702;" />
+                        <Button Margin="0" Classes="GitIcon" Content="&#xE702;" ToolTip.Tip="Git Fetch" />
 
-                        <StackPanel Margin="0 -5 0 0" HorizontalAlignment="Center" Orientation="Horizontal">
+                        <StackPanel Margin="0 -4 0 0" HorizontalAlignment="Center" Orientation="Horizontal">
                             <TextBlock Classes="GitStateText" Text="{Binding RepoStateInfo.CommitsToPull}" />
                             <TextBlock Classes="GitStateText" Text=" / " />
                             <TextBlock Classes="GitStateText" Text="{Binding RepoStateInfo.CommitsToPush}" />
