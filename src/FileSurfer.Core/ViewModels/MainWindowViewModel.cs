@@ -374,7 +374,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         InvertSelectionCommand = ReactiveCommand.Create(InvertSelection);
         StageCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(StageEntry);
         UnstageCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(UnstageEntry);
-        RestoreCommand = null!;
+        RestoreCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(RestoreEntry);
         FetchCommand = ReactiveCommand.Create(Fetch);
         PullCommand = ReactiveCommand.Create(Pull);
         PushCommand = ReactiveCommand.Create(Push);
@@ -1522,6 +1522,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         if (IsVersionControlled)
             ShowIfError(CurrentFs.GitIntegration.UnstagePath(entry.PathToEntry));
+    }
+
+    public void RestoreEntry(FileSystemEntryViewModel entry)
+    {
+        if (IsVersionControlled)
+            ShowIfError(CurrentFs.GitIntegration.RestorePath(entry.PathToEntry));
     }
 
     private void Fetch()

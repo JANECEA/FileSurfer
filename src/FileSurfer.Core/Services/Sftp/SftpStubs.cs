@@ -54,7 +54,9 @@ public class StubGitIntegration : IGitIntegration
 
     public IResult StagePath(string path) => _result;
 
-    public IResult UnstagePath(string filePath) => _result;
+    public IResult UnstagePath(string path) => _result;
+
+    public IResult RestorePath(string path) => _result;
 
     public ValueResult<string> CommitChanges(string commitMessage) => _result;
 

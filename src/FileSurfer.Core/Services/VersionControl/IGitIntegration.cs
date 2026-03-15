@@ -93,9 +93,16 @@ public interface IGitIntegration : IDisposable
     /// <summary>
     /// Unstages changes in the specified file or directory, reverting it to the previous staged state.
     /// </summary>
-    /// <param name="filePath">The path of the file or directory to unstage.</param>
+    /// <param name="path">The path of the file or directory to unstage.</param>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult UnstagePath(string filePath);
+    public IResult UnstagePath(string path);
+
+    /// <summary>
+    /// Restore changes in the specified file or directory, reverting it to the last commit state.
+    /// </summary>
+    /// <param name="path">The path of the file or directory to restore.</param>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult RestorePath(string path);
 
     /// <summary>
     /// Commits the staged changes with the specified commit message.

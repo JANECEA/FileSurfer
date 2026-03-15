@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Shell;
 using LibGit2Sharp;
@@ -26,6 +27,10 @@ public class LocalGitIntegration : IGitIntegration
         IncludeIgnored = false,
         IncludeUnaltered = false,
         RecurseIgnoredDirs = false,
+    };
+    private static readonly CheckoutOptions CheckoutOpts = new()
+    {
+        CheckoutModifiers = CheckoutModifiers.Force,
     };
 
     private readonly IShellHandler _shellHandler;
@@ -226,14 +231,30 @@ public class LocalGitIntegration : IGitIntegration
         }
     }
 
-    public IResult UnstagePath(string filePath)
+    public IResult UnstagePath(string path)
     {
         try
         {
             if (_currentRepo is null)
                 return MissingRepoResult;
 
-            Commands.Unstage(_currentRepo, filePath);
+            Commands.Unstage(_currentRepo, path);
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public IResult RestorePath(string path)
+    {
+        if (_currentRepo is null)
+            return MissingRepoResult;
+
+        try
+        {
+            _currentRepo.CheckoutPaths("HEAD", [path], CheckoutOpts);
             return SimpleResult.Ok();
         }
         catch (Exception ex)
@@ -272,10 +293,22 @@ public class LocalGitIntegration : IGitIntegration
         return true;
     }
 
-    public ValueResult<string> PushChanges() =>
-        _currentRepo is not null
-            ? _shellHandler.ExecuteCommand("git", "-C", GetWorkingDir(_currentRepo), "push")
-            : MissingRepoResult;
+    public ValueResult<string> PushChanges()
+    {
+        if (_currentRepo is null)
+            return MissingRepoResult;
+
+        ValueResult<string> result = _shellHandler.ExecuteCommand(
+            "git",
+            "-C",
+            GetWorkingDir(_currentRepo),
+            "push"
+        );
+        if (result.IsOk && string.IsNullOrWhiteSpace(result.Value))
+            result = "Changes pushed successfully.".OkResult();
+
+        return result;
+    }
 
     public void Dispose() => _currentRepo?.Dispose();
 }
