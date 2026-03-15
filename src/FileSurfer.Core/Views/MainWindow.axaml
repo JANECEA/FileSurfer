@@ -22,7 +22,7 @@
         <StyleInclude Source="avares://FileSurfer.Core/Views/MainWindowStyle.axaml" />
     </Window.Styles>
 
-    <!--  ReSharper disable Xaml.BindingWithoutContextNotResolved - cannot resolve because viewmodels takes constructor parameters  -->
+    <!--  ReSharper disable Xaml.BindingWithoutContextNotResolved - cannot resolve because viewmodel takes constructor parameters  -->
     <Window.KeyBindings>
         <KeyBinding Command="{Binding DeleteCommand}" Gesture="Shift+Delete" />
         <KeyBinding Command="{Binding UndoCommand}" Gesture="Ctrl+Z" />
@@ -70,6 +70,16 @@
                 <TextBlock Classes="IconViewInfo" Text="{Binding Name}" />
             </StackPanel>
         </DataTemplate>
+
+        <ItemsPanelTemplate x:Key="ListViewPanel">
+            <StackPanel Loaded="WrapPanelLoaded" Orientation="Vertical" />
+        </ItemsPanelTemplate>
+
+        <!--  ReSharper disable Xaml.RedundantResource  -->
+        <ItemsPanelTemplate x:Key="IconViewPanel">
+            <WrapPanel Orientation="Horizontal" />
+        </ItemsPanelTemplate>
+        <!--  ReSharper restore Xaml.RedundantResource  -->
 
         <DataTemplate x:Key="SideBarTemplate" x:DataType="{x:Type vm:SideBarEntryViewModel}">
             <Grid Height="27" ColumnDefinitions="Auto *">
@@ -408,6 +418,7 @@
                              Classes="FileDisplay"
                              DoubleTapped="FilesDoubleTapped"
                              ItemTemplate="{StaticResource ListViewTemplate}"
+                             ItemsPanel="{StaticResource ListViewPanel}"
                              ItemsSource="{Binding FileEntries}"
                              SelectedItems="{Binding SelectedFiles}"
                              SelectionMode="Multiple"
@@ -501,11 +512,6 @@
                                 </Setter>
                             </Style>
                         </ListBox.Styles>
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel Loaded="WrapPanelLoaded" Orientation="Vertical" />
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
                     </ListBox>
 
                     <Border x:Name="NewNameBar" Grid.Row="3" Classes="InputBorder">

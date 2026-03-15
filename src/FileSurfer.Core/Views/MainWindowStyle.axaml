@@ -356,6 +356,7 @@
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Padding" Value="0 0 10 0" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
     </Style>
 
     <Style Selector="TextBlock.SftpLabel">
