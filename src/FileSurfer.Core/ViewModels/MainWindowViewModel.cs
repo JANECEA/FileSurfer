@@ -474,18 +474,18 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _lastRefreshedUtc = DateTime.UtcNow;
     }
 
-    /// <summary>
-    /// Opens a new <see cref="InfoDialogWindow"/> dialog.
-    /// </summary>
     private void ShowError(string? errorMessage)
     {
         if (!string.IsNullOrWhiteSpace(errorMessage))
             _dialogService.InfoDialog("Unexpected error", errorMessage);
     }
 
-    /// <summary>
-    /// Opens a new <see cref="InfoDialogWindow"/> dialog if the result is failed.
-    /// </summary>
+    private void ShowInfo(string? infoMessage)
+    {
+        if (!string.IsNullOrWhiteSpace(infoMessage))
+            _dialogService.InfoDialog("Info dialog", infoMessage);
+    }
+
     private void ShowIfError(IResult result)
     {
         if (!result.IsOk)
@@ -1516,11 +1516,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private void Pull()
     {
-        if (IsVersionControlled)
-        {
-            ShowIfError(CurrentFs.GitIntegration.PullChanges());
-            Reload();
-        }
+        if (!IsVersionControlled)
+            return;
+
+        ValueResult<string> result = CurrentFs.GitIntegration.PullChanges();
+        if (result.IsOk)
+            ShowInfo(result.Value);
+        else
+            ShowIfError(result);
+
+        Reload();
     }
 
     /// <summary>
@@ -1540,8 +1545,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     private void Push()
     {
-        if (IsVersionControlled)
-            ShowIfError(CurrentFs.GitIntegration.PushChanges());
+        if (!IsVersionControlled)
+            return;
+
+        ValueResult<string> result = CurrentFs.GitIntegration.PushChanges();
+        if (result.IsOk)
+            ShowInfo(result.Value);
+        else
+            ShowIfError(result);
+
+        Reload();
     }
 
     /// <summary>

@@ -13,6 +13,9 @@ namespace FileSurfer.Core.Services.VersionControl;
 /// </summary>
 public class LocalGitIntegration : IGitIntegration
 {
+    private static readonly ValueResult<string> MissingRepoResult = ValueResult<string>.Error(
+        "No git repository found."
+    );
     private static readonly StatusOptions StatusOptions = new()
     {
         IncludeUntracked = true,
@@ -25,16 +28,10 @@ public class LocalGitIntegration : IGitIntegration
         RecurseIgnoredDirs = false,
     };
 
-    private const string MissingRepoMessage = "No git repository found";
-
     private readonly IShellHandler _shellHandler;
-
     private readonly Dictionary<string, GitStatus> _pathStates = new();
     private Repository? _currentRepo;
 
-    /// <summary>
-    /// Initializes a new <see cref="LocalGitIntegration"/>.
-    /// </summary>
     public LocalGitIntegration(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
     public bool InitIfGitRepository(string directoryPath)
@@ -66,15 +63,13 @@ public class LocalGitIntegration : IGitIntegration
         }
     }
 
-    private string? GetWorkingDir() =>
-        _currentRepo is not null
-            ? LocalPathTools.NormalizePath(_currentRepo.Info.WorkingDirectory)
-            : null;
+    private static string GetWorkingDir(Repository repo) =>
+        LocalPathTools.NormalizePath(repo.Info.WorkingDirectory);
 
     public IResult FetchChanges()
     {
         if (_currentRepo is null)
-            return SimpleResult.Error(MissingRepoMessage);
+            return MissingRepoResult;
 
         try
         {
@@ -100,10 +95,10 @@ public class LocalGitIntegration : IGitIntegration
         }
     }
 
-    public IResult PullChanges() =>
-        _currentRepo is null
-            ? SimpleResult.Error(MissingRepoMessage)
-            : _shellHandler.ExecuteCommand("git", "-C", GetWorkingDir()!, "pull");
+    public ValueResult<string> PullChanges() =>
+        _currentRepo is not null
+            ? _shellHandler.ExecuteCommand("git", "-C", GetWorkingDir(_currentRepo), "pull")
+            : MissingRepoResult;
 
     public RepoDetails? GetRepositoryState()
     {
@@ -130,7 +125,7 @@ public class LocalGitIntegration : IGitIntegration
     public IResult SwitchBranches(string branchName)
     {
         if (_currentRepo is null)
-            return SimpleResult.Error(MissingRepoMessage);
+            return MissingRepoResult;
 
         try
         {
@@ -220,7 +215,7 @@ public class LocalGitIntegration : IGitIntegration
         try
         {
             if (_currentRepo is null)
-                return SimpleResult.Error(MissingRepoMessage);
+                return MissingRepoResult;
 
             Commands.Stage(_currentRepo, path);
             return SimpleResult.Ok();
@@ -236,7 +231,7 @@ public class LocalGitIntegration : IGitIntegration
         try
         {
             if (_currentRepo is null)
-                return SimpleResult.Error(MissingRepoMessage);
+                return MissingRepoResult;
 
             Commands.Unstage(_currentRepo, filePath);
             return SimpleResult.Ok();
@@ -250,7 +245,7 @@ public class LocalGitIntegration : IGitIntegration
     public IResult CommitChanges(string commitMessage)
     {
         if (_currentRepo is null)
-            return SimpleResult.Error(MissingRepoMessage);
+            return MissingRepoResult;
 
         if (!ValidateCommitMessage(commitMessage))
             return SimpleResult.Error($"Commit message: \"{commitMessage}\" is invalid.");
@@ -258,7 +253,7 @@ public class LocalGitIntegration : IGitIntegration
         return _shellHandler.ExecuteCommand(
             "git",
             "-C",
-            GetWorkingDir()!,
+            GetWorkingDir(_currentRepo),
             "commit",
             "-m",
             commitMessage.Trim()
@@ -277,13 +272,10 @@ public class LocalGitIntegration : IGitIntegration
         return true;
     }
 
-    public IResult PushChanges() =>
-        _currentRepo is null
-            ? SimpleResult.Error(MissingRepoMessage)
-            : _shellHandler.ExecuteCommand("git", "-C", GetWorkingDir()!, "push");
+    public ValueResult<string> PushChanges() =>
+        _currentRepo is not null
+            ? _shellHandler.ExecuteCommand("git", "-C", GetWorkingDir(_currentRepo), "push")
+            : MissingRepoResult;
 
-    /// <summary>
-    /// Disposes of <see cref="_currentRepo"/>.
-    /// </summary>
     public void Dispose() => _currentRepo?.Dispose();
 }

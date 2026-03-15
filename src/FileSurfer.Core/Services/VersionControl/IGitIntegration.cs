@@ -55,7 +55,7 @@ public interface IGitIntegration : IDisposable
     /// Downloads and merges the latest changes from the version control system to the local repository.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult PullChanges();
+    public ValueResult<string> PullChanges();
 
     /// <summary>
     /// Retrieves how many commits the local repository is behind and ahead of the remote.
@@ -108,5 +108,5 @@ public interface IGitIntegration : IDisposable
     /// Uploads the committed changes to the remote repository.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult PushChanges();
+    public ValueResult<string> PushChanges();
 }
