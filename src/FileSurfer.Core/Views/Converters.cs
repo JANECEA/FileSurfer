@@ -17,7 +17,7 @@ public abstract class OneWayConverter : IValueConverter
         Type targetType,
         object? parameter,
         CultureInfo culture
-    ) => throw new NotImplementedException();
+    ) => throw new InvalidOperationException();
 }
 
 public sealed class SortArrowConverter : OneWayConverter

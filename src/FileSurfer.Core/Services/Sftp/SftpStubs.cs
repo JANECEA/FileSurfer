@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.FileOperations;
@@ -55,6 +54,10 @@ public class StubGitIntegration : IGitIntegration
     public IResult StagePath(string path) => _result;
 
     public IResult UnstagePath(string path) => _result;
+
+    public IResult StashChanges() => _result;
+
+    public IResult PopChanges() => _result;
 
     public IResult RestorePath(string path) => _result;
 

@@ -98,6 +98,18 @@ public interface IGitIntegration : IDisposable
     public IResult UnstagePath(string path);
 
     /// <summary>
+    /// Stashes changes made to the current directory and reverts to a state of the last commit.
+    /// </summary>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult StashChanges();
+
+    /// <summary>
+    /// Applies last changes made to the current directory and pops the stash entry.
+    /// </summary>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult PopChanges();
+
+    /// <summary>
     /// Restore changes in the specified file or directory, reverting it to the last commit state.
     /// </summary>
     /// <param name="path">The path of the file or directory to restore.</param>

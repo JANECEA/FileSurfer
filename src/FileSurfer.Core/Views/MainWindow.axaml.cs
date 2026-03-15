@@ -316,7 +316,7 @@ public partial class MainWindow : Window
     {
         if (CommitInputBox.Text is string commitMessage)
         {
-            _viewModel?.Commit(commitMessage.Trim());
+            _viewModel?.GitCommit(commitMessage.Trim());
             CommitMessageBar.IsVisible = false;
             CommitInputBox.Text = string.Empty;
         }
@@ -330,9 +330,9 @@ public partial class MainWindow : Window
         if (sender is CheckBox { DataContext: FileSystemEntryViewModel entry } checkBox)
         {
             if (checkBox.IsChecked is true)
-                _viewModel?.StageEntry(entry);
+                _viewModel?.GitStage(entry);
             else
-                _viewModel?.UnstageEntry(entry);
+                _viewModel?.GitUnstage(entry);
         }
     }
 

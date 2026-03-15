@@ -32,6 +32,10 @@ public class LocalGitIntegration : IGitIntegration
     {
         CheckoutModifiers = CheckoutModifiers.Force,
     };
+    private static readonly StashApplyOptions StashApplyOptions = new()
+    {
+        ApplyModifiers = StashApplyModifiers.ReinstateIndex,
+    };
 
     private readonly IShellHandler _shellHandler;
     private readonly Dictionary<string, GitStatus> _pathStates = new();
@@ -159,7 +163,10 @@ public class LocalGitIntegration : IGitIntegration
 
         try
         {
-            Branch branch = _currentRepo.Branches[branchName];
+            Branch? branch = _currentRepo.Branches[branchName];
+            if (branch is null)
+                return SimpleResult.Error($"Could not find branch \"{branchName}\".");
+
             Commands.Checkout(_currentRepo, branch);
             return SimpleResult.Ok();
         }
@@ -265,6 +272,65 @@ public class LocalGitIntegration : IGitIntegration
 
             Commands.Unstage(_currentRepo, path);
             return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public IResult StashChanges()
+    {
+        if (_currentRepo is null)
+            return MissingRepoResult;
+
+        try
+        {
+            Signature? signature = _currentRepo.Config.BuildSignature(DateTimeOffset.Now);
+            if (signature is null)
+                return SimpleResult.Error("Configuration not found.");
+
+            Stash? stash = _currentRepo.Stashes.Add(
+                signature,
+                "Stash invoked by: FileSurfer",
+                StashModifiers.IncludeUntracked
+            );
+            return stash is null
+                ? SimpleResult.Error("No local changes to save.")
+                : SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public IResult PopChanges()
+    {
+        if (_currentRepo is null)
+            return MissingRepoResult;
+
+        try
+        {
+            StashApplyStatus status = _currentRepo.Stashes.Pop(0, StashApplyOptions);
+            return status switch
+            {
+                StashApplyStatus.Applied => SimpleResult.Ok(),
+                StashApplyStatus.Conflicts => SimpleResult.Error(
+                    """
+                    Applying the stash would result in conflicts.
+                    Commit or stash your current changes and try again.
+                    """
+                ),
+                StashApplyStatus.NotFound => SimpleResult.Error("No stash entries found."),
+                StashApplyStatus.UncommittedChanges => SimpleResult.Error(
+                    """
+                    Your local changes to the following files would be overwritten by stash pop.
+                    Commit or stash them first.
+                    """
+                ),
+                _ => throw new ArgumentOutOfRangeException(nameof(status)),
+            };
         }
         catch (Exception ex)
         {

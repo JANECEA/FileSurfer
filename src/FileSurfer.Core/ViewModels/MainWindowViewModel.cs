@@ -282,12 +282,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> SelectAllCommand { get; }
     public ReactiveCommand<Unit, Unit> SelectNoneCommand { get; }
     public ReactiveCommand<Unit, Unit> InvertSelectionCommand { get; }
-    public ReactiveCommand<FileSystemEntryViewModel?, Unit> StageCommand { get; }
-    public ReactiveCommand<FileSystemEntryViewModel?, Unit> UnstageCommand { get; }
-    public ReactiveCommand<FileSystemEntryViewModel?, Unit> RestoreCommand { get; }
-    public ReactiveCommand<Unit, Unit> FetchCommand { get; }
-    public ReactiveCommand<Unit, Unit> PullCommand { get; }
-    public ReactiveCommand<Unit, Unit> PushCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitStageCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitUnstageCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitRestoreCommand { get; }
+    public ReactiveCommand<Unit, Unit> GitStashCommand { get; }
+    public ReactiveCommand<Unit, Unit> GitStashPopCommand { get; }
+    public ReactiveCommand<Unit, Unit> GitFetchCommand { get; }
+    public ReactiveCommand<Unit, Unit> GitPullCommand { get; }
+    public ReactiveCommand<Unit, Unit> GitPushCommand { get; }
 
     public bool SelectionNotEmpty => SelectedFiles.Count > 0;
     private bool CanGoBack => _locationHistory.GetPrevious() is not null;
@@ -372,12 +374,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         SelectAllCommand = ReactiveCommand.Create(SelectAll);
         SelectNoneCommand = ReactiveCommand.Create(SelectNone);
         InvertSelectionCommand = ReactiveCommand.Create(InvertSelection);
-        StageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(StageEntry);
-        UnstageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(UnstageEntry);
-        RestoreCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(RestoreEntry);
-        FetchCommand = ReactiveCommand.Create(Fetch);
-        PullCommand = ReactiveCommand.Create(Pull);
-        PushCommand = ReactiveCommand.Create(Push);
+        GitStageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitStage);
+        GitUnstageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitUnstage);
+        GitRestoreCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitRestore);
+        GitStashCommand = ReactiveCommand.Create(GitStash);
+        GitStashPopCommand = ReactiveCommand.Create(GitStashPop);
+        GitFetchCommand = ReactiveCommand.Create(GitFetch);
+        GitPullCommand = ReactiveCommand.Create(GitPull);
+        GitPushCommand = ReactiveCommand.Create(GitPush);
 
         LoadQuickAccess();
         LoadDrives();
@@ -1509,7 +1513,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Relays the operations to <see cref="IFileIoHandler"/>.
     /// </summary>
-    public void StageEntry(FileSystemEntryViewModel? entry)
+    public void GitStage(FileSystemEntryViewModel? entry)
     {
         if (!IsVersionControlled)
             return;
@@ -1528,7 +1532,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Relays the operations to <see cref="IGitIntegration"/>.
     /// </summary>
-    public void UnstageEntry(FileSystemEntryViewModel? entry)
+    public void GitUnstage(FileSystemEntryViewModel? entry)
     {
         if (!IsVersionControlled)
             return;
@@ -1544,7 +1548,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
                 ShowIfError(CurrentFs.GitIntegration.UnstagePath(e.PathToEntry));
     }
 
-    public void RestoreEntry(FileSystemEntryViewModel? entry)
+    public void GitRestore(FileSystemEntryViewModel? entry)
     {
         if (!IsVersionControlled)
             return;
@@ -1563,7 +1567,25 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         Reload(true);
     }
 
-    private void Fetch()
+    private void GitStash()
+    {
+        if (IsVersionControlled)
+        {
+            ShowIfError(CurrentFs.GitIntegration.StashChanges());
+            Reload(true);
+        }
+    }
+
+    private void GitStashPop()
+    {
+        if (IsVersionControlled)
+        {
+            ShowIfError(CurrentFs.GitIntegration.PopChanges());
+            Reload(true);
+        }
+    }
+
+    private void GitFetch()
     {
         if (IsVersionControlled)
         {
@@ -1572,7 +1594,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    private void Pull()
+    private void GitPull()
     {
         if (!IsVersionControlled)
             return;
@@ -1589,7 +1611,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Relays the operations to <see cref="IGitIntegration"/>.
     /// </summary>
-    public void Commit(string commitMessage)
+    public void GitCommit(string commitMessage)
     {
         if (!IsVersionControlled)
             return;
@@ -1606,7 +1628,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Relays the operations to <see cref="IGitIntegration"/>.
     /// </summary>
-    private void Push()
+    private void GitPush()
     {
         if (!IsVersionControlled)
             return;
