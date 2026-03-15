@@ -424,15 +424,41 @@
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).OpenAsCommand}" Header="Open as" IsVisible="{Binding SupportsOpenAs}" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).OpenInNotepadCommand}" Header="Open in Notepad" IsVisible="{Binding !IsDirectory}" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToQuickAccessCommand}" CommandParameter="{Binding}" Header="Add to quick access" />
+
                                             <Separator Classes="ContextMenuSeparator" />
+
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToArchiveCommand}" Header="Add to archive" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).ExtractArchiveCommand}" Header="Extract archive" IsVisible="{Binding IsArchived}" />
+
                                             <Separator Classes="ContextMenuSeparator" />
+
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CopyPathCommand}" CommandParameter="{Binding}" Header="Copy path" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CutCommand}" Header="Cut" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CopyCommand}" Header="Copy" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CreateShortcutCommand}" CommandParameter="{Binding}" Header="Create shortcut" />
+
+                                            <Separator Classes="ContextMenuSeparator" IsVisible="{Binding VersionControlled}" />
+
+                                            <MenuItem Classes="ContextMenuItem"
+                                                      Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).StageCommand}"
+                                                      CommandParameter="{Binding}"
+                                                      Header="Git Stage"
+                                                      IsEnabled="{Binding !Staged}"
+                                                      IsVisible="{Binding VersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem"
+                                                      Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).UnstageCommand}"
+                                                      CommandParameter="{Binding}"
+                                                      Header="Git Unstage"
+                                                      IsEnabled="{Binding Staged}"
+                                                      IsVisible="{Binding VersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem"
+                                                      Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).RestoreCommand}"
+                                                      CommandParameter="{Binding}"
+                                                      Header="Git Restore"
+                                                      IsVisible="{Binding VersionControlled}" />
+
                                             <Separator Classes="ContextMenuSeparator" />
+
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).MoveToTrashCommand}" Header="Move to trash" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).DeleteCommand}" Header="Delete" />
                                             <MenuItem Classes="ContextMenuItem"
@@ -441,7 +467,9 @@
                                                       Header="Flatten folder"
                                                       IsVisible="{Binding IsDirectory}" />
                                             <MenuItem Classes="ContextMenuItem" Click="OnRenameClicked" Header="Rename" />
+
                                             <Separator Classes="ContextMenuSeparator" />
+
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).ShowPropertiesCommand}" CommandParameter="{Binding}" Header="Properties" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).SyncDirCommand}" CommandParameter="{Binding}" Header="Synchronize this directory">
                                                 <MenuItem.IsVisible>

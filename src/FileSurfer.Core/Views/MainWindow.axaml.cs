@@ -348,9 +348,9 @@ public partial class MainWindow : Window
         if (sender is CheckBox { DataContext: FileSystemEntryViewModel entry } checkBox)
         {
             if (checkBox.IsChecked is true)
-                _viewModel?.StageFile(entry);
+                _viewModel?.StageEntry(entry);
             else
-                _viewModel?.UnstageFile(entry);
+                _viewModel?.UnstageEntry(entry);
         }
     }
 

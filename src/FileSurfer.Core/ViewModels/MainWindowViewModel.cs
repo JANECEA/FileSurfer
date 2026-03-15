@@ -18,7 +18,6 @@ using FileSurfer.Core.Services.FileOperations.Undoable;
 using FileSurfer.Core.Services.Shell;
 using FileSurfer.Core.Services.VersionControl;
 using FileSurfer.Core.Views;
-using FileSurfer.Core.Views.Dialogs;
 using ReactiveUI;
 
 namespace FileSurfer.Core.ViewModels;
@@ -217,7 +216,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             if (_isActionUserInvoked && !string.IsNullOrEmpty(value) && Branches.Contains(value))
             {
                 ShowIfError(CurrentFs.GitIntegration.SwitchBranches(value));
-                Reload();
+                Reload(true);
             }
         }
     }
@@ -283,6 +282,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> SelectAllCommand { get; }
     public ReactiveCommand<Unit, Unit> SelectNoneCommand { get; }
     public ReactiveCommand<Unit, Unit> InvertSelectionCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel, Unit> StageCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel, Unit> UnstageCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel, Unit> RestoreCommand { get; }
     public ReactiveCommand<Unit, Unit> FetchCommand { get; }
     public ReactiveCommand<Unit, Unit> PullCommand { get; }
     public ReactiveCommand<Unit, Unit> PushCommand { get; }
@@ -370,6 +372,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         SelectAllCommand = ReactiveCommand.Create(SelectAll);
         SelectNoneCommand = ReactiveCommand.Create(SelectNone);
         InvertSelectionCommand = ReactiveCommand.Create(InvertSelection);
+        StageCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(StageEntry);
+        UnstageCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(UnstageEntry);
+        RestoreCommand = null!;
         FetchCommand = ReactiveCommand.Create(Fetch);
         PullCommand = ReactiveCommand.Create(Pull);
         PushCommand = ReactiveCommand.Create(Push);
@@ -1490,7 +1495,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Relays the operations to <see cref="IFileIoHandler"/>.
     /// </summary>
-    public void StageFile(FileSystemEntryViewModel entry)
+    public void StageEntry(FileSystemEntryViewModel entry)
     {
         if (IsVersionControlled)
             ShowIfError(CurrentFs.GitIntegration.StagePath(entry.PathToEntry));
@@ -1499,7 +1504,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Relays the operations to <see cref="IGitIntegration"/>.
     /// </summary>
-    public void UnstageFile(FileSystemEntryViewModel entry)
+    public void UnstageEntry(FileSystemEntryViewModel entry)
     {
         if (IsVersionControlled)
             ShowIfError(CurrentFs.GitIntegration.UnstagePath(entry.PathToEntry));
