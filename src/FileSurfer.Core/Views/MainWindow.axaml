@@ -238,7 +238,7 @@
                 </Button>
 
                 <StackPanel DockPanel.Dock="Right" IsVisible="{Binding IsVersionControlled}" Orientation="Horizontal">
-                    <StackPanel Margin="15 6 15 -5">
+                    <StackPanel Margin="15 6 15 -5" Background="Transparent">
                         <ToolTip.Tip>
                             <Grid ColumnDefinitions="Auto Auto" RowDefinitions="Auto Auto">
                                 <TextBlock Grid.Row="0" Grid.Column="0" Classes="GitTooltipNumber" Text="{Binding RepoStateInfo.CommitsToPull}" />
@@ -248,7 +248,7 @@
                             </Grid>
                         </ToolTip.Tip>
 
-                        <Button Classes="GitIcon" Command="{Binding FetchCommand}" Content="&#xE702;" ToolTip.Tip="Git Fetch" />
+                        <Button Classes="GitIcon" Command="{Binding FetchCommand}" Content="&#xE702;" ToolTip.Tip="Fetch changes" />
 
                         <StackPanel Margin="0 -4 0 0" HorizontalAlignment="Center" Orientation="Horizontal">
                             <TextBlock Classes="GitStateText" Text="{Binding RepoStateInfo.CommitsToPull}" />

@@ -56,7 +56,7 @@ public class StubGitIntegration : IGitIntegration
 
     public IResult UnstagePath(string filePath) => _result;
 
-    public IResult CommitChanges(string commitMessage) => _result;
+    public ValueResult<string> CommitChanges(string commitMessage) => _result;
 
     public ValueResult<string> PushChanges() => _result;
 }

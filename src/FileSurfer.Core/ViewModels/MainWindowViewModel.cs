@@ -1332,6 +1332,18 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         Reload();
     }
 
+    private void StageIfVersionControlled(IEnumerable<FileSystemEntryViewModel> entries)
+    {
+        if (!IsVersionControlled)
+            return;
+
+        Result result = Result.Ok();
+        foreach (FileSystemEntryViewModel entry in entries)
+            result.MergeResult(CurrentFs.GitIntegration.StagePath(entry.PathToEntry));
+
+        ShowIfError(result);
+    }
+
     /// <summary>
     /// Moves the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/> to the system trash using <see cref="CurrentFs"/>.
     /// <para>
@@ -1351,6 +1363,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(operation);
 
+        StageIfVersionControlled(SelectedFiles);
         ShowIfError(result);
         Reload();
     }
@@ -1391,6 +1404,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
                     : CurrentFs.FileIoHandler.DeleteFile(entry.PathToEntry)
             );
 
+        StageIfVersionControlled(SelectedFiles);
         Reload();
     }
 
@@ -1538,11 +1552,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void Commit(string commitMessage)
     {
-        if (IsVersionControlled)
-        {
-            ShowIfError(CurrentFs.GitIntegration.CommitChanges(commitMessage));
-            Reload();
-        }
+        if (!IsVersionControlled)
+            return;
+
+        ValueResult<string> result = CurrentFs.GitIntegration.CommitChanges(commitMessage);
+        if (result.IsOk)
+            ShowInfo(result.Value);
+        else
+            ShowIfError(result);
+
+        Reload();
     }
 
     /// <summary>

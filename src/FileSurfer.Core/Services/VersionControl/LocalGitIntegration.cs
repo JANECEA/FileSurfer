@@ -242,13 +242,13 @@ public class LocalGitIntegration : IGitIntegration
         }
     }
 
-    public IResult CommitChanges(string commitMessage)
+    public ValueResult<string> CommitChanges(string commitMessage)
     {
         if (_currentRepo is null)
             return MissingRepoResult;
 
         if (!ValidateCommitMessage(commitMessage))
-            return SimpleResult.Error($"Commit message: \"{commitMessage}\" is invalid.");
+            return ValueResult<string>.Error($"Commit message: \"{commitMessage}\" is invalid.");
 
         return _shellHandler.ExecuteCommand(
             "git",
