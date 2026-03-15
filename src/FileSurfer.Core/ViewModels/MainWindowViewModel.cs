@@ -282,9 +282,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> SelectAllCommand { get; }
     public ReactiveCommand<Unit, Unit> SelectNoneCommand { get; }
     public ReactiveCommand<Unit, Unit> InvertSelectionCommand { get; }
-    public ReactiveCommand<FileSystemEntryViewModel, Unit> StageCommand { get; }
-    public ReactiveCommand<FileSystemEntryViewModel, Unit> UnstageCommand { get; }
-    public ReactiveCommand<FileSystemEntryViewModel, Unit> RestoreCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Unit> StageCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Unit> UnstageCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Unit> RestoreCommand { get; }
     public ReactiveCommand<Unit, Unit> FetchCommand { get; }
     public ReactiveCommand<Unit, Unit> PullCommand { get; }
     public ReactiveCommand<Unit, Unit> PushCommand { get; }
@@ -372,9 +372,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         SelectAllCommand = ReactiveCommand.Create(SelectAll);
         SelectNoneCommand = ReactiveCommand.Create(SelectNone);
         InvertSelectionCommand = ReactiveCommand.Create(InvertSelection);
-        StageCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(StageEntry);
-        UnstageCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(UnstageEntry);
-        RestoreCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(RestoreEntry);
+        StageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(StageEntry);
+        UnstageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(UnstageEntry);
+        RestoreCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(RestoreEntry);
         FetchCommand = ReactiveCommand.Create(Fetch);
         PullCommand = ReactiveCommand.Create(Pull);
         PushCommand = ReactiveCommand.Create(Push);
@@ -1509,28 +1509,58 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Relays the operations to <see cref="IFileIoHandler"/>.
     /// </summary>
-    public void StageEntry(FileSystemEntryViewModel entry)
+    public void StageEntry(FileSystemEntryViewModel? entry)
     {
-        if (IsVersionControlled)
+        if (!IsVersionControlled)
+            return;
+
+        if (entry is not null)
+        {
             ShowIfError(CurrentFs.GitIntegration.StagePath(entry.PathToEntry));
+            return;
+        }
+
+        foreach (FileSystemEntryViewModel e in FileEntries)
+            if (e.VersionControlled)
+                ShowIfError(CurrentFs.GitIntegration.StagePath(e.PathToEntry));
     }
 
     /// <summary>
     /// Relays the operations to <see cref="IGitIntegration"/>.
     /// </summary>
-    public void UnstageEntry(FileSystemEntryViewModel entry)
+    public void UnstageEntry(FileSystemEntryViewModel? entry)
     {
-        if (IsVersionControlled)
+        if (!IsVersionControlled)
+            return;
+
+        if (entry is not null)
+        {
             ShowIfError(CurrentFs.GitIntegration.UnstagePath(entry.PathToEntry));
+            return;
+        }
+
+        foreach (FileSystemEntryViewModel e in FileEntries)
+            if (e.VersionControlled)
+                ShowIfError(CurrentFs.GitIntegration.UnstagePath(e.PathToEntry));
     }
 
-    public void RestoreEntry(FileSystemEntryViewModel entry)
+    public void RestoreEntry(FileSystemEntryViewModel? entry)
     {
-        if (IsVersionControlled)
+        if (!IsVersionControlled)
+            return;
+
+        if (entry is not null)
         {
             ShowIfError(CurrentFs.GitIntegration.RestorePath(entry.PathToEntry));
             Reload(true);
+            return;
         }
+
+        foreach (FileSystemEntryViewModel e in FileEntries)
+            if (e.VersionControlled)
+                ShowIfError(CurrentFs.GitIntegration.RestorePath(e.PathToEntry));
+
+        Reload(true);
     }
 
     private void Fetch()

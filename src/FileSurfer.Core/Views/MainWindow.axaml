@@ -439,19 +439,19 @@
                                             <MenuItem Classes="ContextMenuItem"
                                                       Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).StageCommand}"
                                                       CommandParameter="{Binding}"
-                                                      Header="Git Stage"
+                                                      Header="Git stage"
                                                       IsEnabled="{Binding !Staged}"
                                                       IsVisible="{Binding VersionControlled}" />
                                             <MenuItem Classes="ContextMenuItem"
                                                       Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).UnstageCommand}"
                                                       CommandParameter="{Binding}"
-                                                      Header="Git Unstage"
+                                                      Header="Git unstage"
                                                       IsEnabled="{Binding Staged}"
                                                       IsVisible="{Binding VersionControlled}" />
                                             <MenuItem Classes="ContextMenuItem"
                                                       Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).RestoreCommand}"
                                                       CommandParameter="{Binding}"
-                                                      Header="Git Restore"
+                                                      Header="Git restore"
                                                       IsVisible="{Binding VersionControlled}" />
 
                                             <Separator Classes="ContextMenuSeparator" />
@@ -483,9 +483,16 @@
                                     <Setter.Value>
                                         <ContextMenu Classes="FileContextMenu">
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToQuickAccessCommand}" Header="Add to quick access" />
+
                                             <Separator Classes="ContextMenuSeparator" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CopyPathCommand}" Header="Copy path" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).PasteCommand}" Header="Paste here" />
+
+                                            <Separator Classes="ContextMenuSeparator" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).StageCommand}" Header="Git stage all" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).UnstageCommand}" Header="Git unstage all" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).RestoreCommand}" Header="Git restore all" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
+
                                             <Separator Classes="ContextMenuSeparator" IsVisible="{Binding !#FileDisplay.((vm:MainWindowViewModel)DataContext).IsLocal}" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).SyncDirCommand}" Header="Synchronize this directory" IsVisible="{Binding !#FileDisplay.((vm:MainWindowViewModel)DataContext).IsLocal}" />
                                         </ContextMenu>
