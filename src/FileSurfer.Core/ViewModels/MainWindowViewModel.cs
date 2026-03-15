@@ -1527,7 +1527,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public void RestoreEntry(FileSystemEntryViewModel entry)
     {
         if (IsVersionControlled)
+        {
             ShowIfError(CurrentFs.GitIntegration.RestorePath(entry.PathToEntry));
+            Reload(true);
+        }
     }
 
     private void Fetch()

@@ -255,7 +255,16 @@ public class LocalGitIntegration : IGitIntegration
         try
         {
             _currentRepo.CheckoutPaths("HEAD", [path], CheckoutOpts);
-            return SimpleResult.Ok();
+            IResult result = _shellHandler.ExecuteCommand(
+                "git",
+                "-C",
+                GetWorkingDir(_currentRepo),
+                "clean",
+                "-fd",
+                "--",
+                path
+            );
+            return result;
         }
         catch (Exception ex)
         {
