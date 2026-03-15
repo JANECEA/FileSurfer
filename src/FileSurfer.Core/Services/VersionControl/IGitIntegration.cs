@@ -24,6 +24,8 @@ public enum GitStatus
     Unstaged,
 }
 
+public record struct RepoDetails(int CommitsToPull, int CommitsToPush);
+
 /// <summary>
 /// Defines methods for interacting with the Git version control system withing the <see cref="FileSurfer"/> app.
 /// </summary>
@@ -48,6 +50,13 @@ public interface IGitIntegration : IDisposable
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
     public IResult PullChanges();
+
+    /// <summary>
+    /// Retrieves how many commits the local repository is behind and ahead of the remote.
+    /// <br/>
+    /// Returns null in case there is no upstream configuration or the upstream branch does not exist.
+    /// </summary>
+    public RepoDetails? GetRepositoryState();
 
     /// <summary>
     /// Retrieves a list of all branches in the version control system.

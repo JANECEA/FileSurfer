@@ -40,6 +40,8 @@ public class StubGitIntegration : IGitIntegration
 
     public IResult PullChanges() => SimpleResult.Error(_message);
 
+    public RepoDetails? GetRepositoryState() => null;
+
     public string[] GetBranches() => Array.Empty<string>();
 
     public string GetCurrentBranchName() => string.Empty;

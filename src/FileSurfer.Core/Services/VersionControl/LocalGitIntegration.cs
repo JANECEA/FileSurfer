@@ -71,6 +71,20 @@ public class LocalGitIntegration : IGitIntegration
             ? SimpleResult.Error(MissingRepoMessage)
             : _shellHandler.ExecuteCommand("git", "-C", GetWorkingDir()!, "pull");
 
+    public RepoDetails? GetRepositoryState()
+    {
+        BranchTrackingDetails? details = _currentRepo?.Head.TrackingDetails;
+        if (details is null)
+            return null;
+
+        int? behind = details.BehindBy;
+        int? ahead = details.AheadBy;
+        if (behind is null || ahead is null)
+            return null;
+
+        return new RepoDetails(behind.Value, ahead.Value);
+    }
+
     public string GetCurrentBranchName() =>
         _currentRepo is null ? string.Empty : _currentRepo.Head.FriendlyName;
 

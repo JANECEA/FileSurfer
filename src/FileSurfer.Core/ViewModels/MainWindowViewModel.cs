@@ -24,14 +24,15 @@ using ReactiveUI;
 namespace FileSurfer.Core.ViewModels;
 
 /// <summary>
-/// Bundles repository state data for easier manipulation in the view.
-/// </summary>
-public record struct RepoStateInfo(int CommitsToPull, int CommitsToPush);
-
-/// <summary>
 /// Bundles sorting state data for easier manipulation in the view.
 /// </summary>
 public record struct SortInfo(SortBy SortBy, bool SortReversed);
+
+/// <summary>
+/// Bundles repository state data for easier manipulation in the view.
+/// </summary>
+[SuppressMessage("ReSharper", "NotAccessedPositionalProperty.Global")]
+public record struct RepoStateInfo(string CommitsToPull, string CommitsToPush);
 
 /// <summary>
 /// The MainWindowViewModel is the ViewModel for the main window of the application.
@@ -52,6 +53,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
     private const string EmptyDirMessage = "This directory is empty.";
     private const string EmptySearchMessage = "No items match your query";
+    private const string NoRemoteMark = "-";
 
     private readonly IDialogService _dialogService;
     private readonly SearchManager _searchManager;
@@ -232,14 +234,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private bool _isVersionControlled = false;
 
     /// <summary>
-    /// Indicates whether the current directory is version controlled.
+    /// Holds the current commit repository state info
     /// </summary>
     public RepoStateInfo RepoStateInfo
     {
         get => _repoStateInfo;
         set => this.RaiseAndSetIfChanged(ref _repoStateInfo, value);
     }
-    private RepoStateInfo _repoStateInfo = new(0, 0);
+    private RepoStateInfo _repoStateInfo = new(string.Empty, string.Empty);
 
     /// <summary>
     /// Indicates whether there is an opened directory synchronizer window
@@ -831,17 +833,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             && location.FileSystem.FileInfoProvider.DirectoryExists(location.Path)
             && location.FileSystem.GitIntegration.InitIfGitRepository(location.Path);
 
-        LoadBranches(location);
+        if (IsVersionControlled)
+        {
+            LoadBranches(location);
+            LoadRepoStateInfo();
+        }
     }
 
     private void LoadBranches(Location location)
     {
-        if (!IsVersionControlled)
-        {
-            Branches.Clear();
-            return;
-        }
-
         string currentBranch = location.FileSystem.GitIntegration.GetCurrentBranchName();
         string[] branches = location.FileSystem.GitIntegration.GetBranches();
         if (CurrentBranch == currentBranch && Branches.EqualsUnordered(branches))
@@ -860,6 +860,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         CurrentBranch = currentBranch;
         _isActionUserInvoked = true;
     }
+
+    private void LoadRepoStateInfo() =>
+        RepoStateInfo = CurrentFs.GitIntegration.GetRepositoryState() is RepoDetails info
+            ? new RepoStateInfo(info.CommitsToPull.ToString(), info.CommitsToPush.ToString())
+            : new RepoStateInfo(NoRemoteMark, NoRemoteMark);
 
     private IResult SetLocationNoHistory(Location location)
     {
