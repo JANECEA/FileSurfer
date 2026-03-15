@@ -299,7 +299,7 @@
 
     <Style Selector="Border.LabelBorder">
         <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}" />
-        <Setter Property="BorderThickness" Value="0 0 1 0" />
+        <Setter Property="BorderThickness" Value="1 0 0 0" />
         <Setter Property="Margin" Value="0 0 10 0" />
     </Style>
 
@@ -337,10 +337,11 @@
     <Style Selector="Label.InfoLabel">
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+        <Setter Property="Padding" Value="10 0 0 0" />
     </Style>
 
     <Style Selector="CheckBox.StagedCheckbox">
-        <Setter Property="Margin" Value="20 0 60 0" />
+        <Setter Property="Margin" Value="20 0 0 0" />
     </Style>
 
     <Style Selector="CheckBox.StagedCheckbox:checked /template/ Border#NormalRectangle">
@@ -355,8 +356,8 @@
         <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Padding" Value="0 0 10 0" />
-        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
     </Style>
 
     <Style Selector="TextBlock.SftpLabel">

@@ -37,21 +37,38 @@
         <views:SortArrowConverter x:Key="SortArrowConverter" />
 
         <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
-            <Grid Height="36" ColumnDefinitions="30 360 160 130 90 *">
+            <Grid Height="36">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30" />
+                    <ColumnDefinition Width="*" MinWidth="90" />
+                    <ColumnDefinition Width="160" />
+                    <ColumnDefinition Width="130" />
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+
                 <Image Grid.Column="0"
                        Width="28"
                        Height="28"
                        Margin="0 0 13 0"
                        Opacity="{Binding Opacity}"
                        Source="{Binding Icon}" />
-                <TextBlock Grid.Column="1"
-                           Classes="FileInfo"
-                           FontSize="15"
-                           FontWeight="Regular"
-                           Text="{Binding Name}" />
+
+                <Canvas Grid.Column="1">
+                    <TextBlock Canvas.Top="8"
+                               Width="{Binding $parent[Canvas].Bounds.Width}"
+                               Classes="FileInfo"
+                               FontSize="15"
+                               FontWeight="Regular"
+                               Text="{Binding Name}" />
+                </Canvas>
+
                 <TextBlock Grid.Column="2" Classes="FileInfo" Text="{Binding LastModified}" />
+
                 <TextBlock Grid.Column="3" Classes="FileInfo" Text="{Binding Type}" />
+
                 <TextBlock Grid.Column="4" Classes="FileInfo" Text="{Binding Size}" TextAlignment="Right" />
+
                 <CheckBox Grid.Column="5"
                           Classes="StagedCheckbox"
                           Click="StagedToggle"
@@ -62,17 +79,27 @@
 
         <DataTemplate x:Key="IconViewTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
             <StackPanel Width="80" Spacing="10">
-                <Image Width="60"
-                       Height="60"
-                       Margin="5 5 5 2"
-                       Opacity="{Binding Opacity}"
-                       Source="{Binding Icon}" />
+                <Grid>
+                    <Image Width="60"
+                           Height="60"
+                           Margin="5 5 5 2"
+                           Opacity="{Binding Opacity}"
+                           Source="{Binding Icon}" />
+                    <CheckBox Margin="0 0 5 -5"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Bottom"
+                              Classes="StagedCheckbox"
+                              Click="StagedToggle"
+                              IsChecked="{Binding Staged}"
+                              IsVisible="{Binding VersionControlled}" />
+                </Grid>
+
                 <TextBlock Classes="IconViewInfo" Text="{Binding Name}" />
             </StackPanel>
         </DataTemplate>
 
         <ItemsPanelTemplate x:Key="ListViewPanel">
-            <StackPanel Loaded="WrapPanelLoaded" Orientation="Vertical" />
+            <VirtualizingStackPanel Loaded="WrapPanelLoaded" Orientation="Vertical" />
         </ItemsPanelTemplate>
 
         <!--  ReSharper disable Xaml.RedundantResource  -->
@@ -389,27 +416,31 @@
                 <GridSplitter Grid.Column="1" Classes="GridSplitter" />
 
                 <Grid Grid.Column="2" RowDefinitions="Auto Auto * Auto Auto">
-                    <StackPanel x:Name="LabelsPanel"
-                                Grid.Row="0"
-                                Height="30"
-                                Margin="55 0 0 0"
-                                Orientation="Horizontal">
-                        <Border Width="350" Classes="LabelBorder">
+                    <Grid x:Name="LabelsPanel" Grid.Row="0" Height="30" Margin="55 0 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" MinWidth="90 " />
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="100" />
+                            <ColumnDefinition Width="130" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border BorderThickness="0" Classes="LabelBorder">
                             <Label Classes="InfoLabel" Content="Name" />
                         </Border>
-                        <Border Width="150" Classes="LabelBorder">
+                        <Border Grid.Column="1" Classes="LabelBorder">
                             <Label Classes="InfoLabel" Content="Date" />
                         </Border>
-                        <Border Width="120" Classes="LabelBorder">
+                        <Border Grid.Column="2" Classes="LabelBorder">
                             <Label Classes="InfoLabel" Content="Type" />
                         </Border>
-                        <Border Width="100" Classes="LabelBorder">
+                        <Border Grid.Column="3" Classes="LabelBorder">
                             <Label Classes="InfoLabel" Content="Size" />
                         </Border>
-                        <Border Width="100" Classes="LabelBorder" IsVisible="{Binding IsVersionControlled}">
+                        <Border Grid.Column="4" Classes="LabelBorder" IsVisible="{Binding IsVersionControlled}">
                             <Label Classes="InfoLabel" Content="Staged" />
                         </Border>
-                    </StackPanel>
+                    </Grid>
 
                     <Label Grid.Row="1" Classes="InfoMessage" Content="{Binding CurrentInfoMessage}" IsVisible="{Binding CurrentInfoMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
 
