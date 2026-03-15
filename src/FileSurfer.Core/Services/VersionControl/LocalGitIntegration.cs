@@ -39,6 +39,20 @@ public class LocalGitIntegration : IGitIntegration
 
     public LocalGitIntegration(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
+    private ValueResult<string> ExecuteGitCommand(params string[] restOfCommand)
+    {
+        string[] commandStart = ["-C", GetWorkingDir(_currentRepo!)];
+        string[] wholeCommand = new string[commandStart.Length + restOfCommand.Length];
+
+        for (int i = 0; i < commandStart.Length; i++)
+            wholeCommand[i] = commandStart[i];
+
+        for (int i = 0; i < restOfCommand.Length; i++)
+            wholeCommand[i + commandStart.Length] = restOfCommand[i];
+
+        return _shellHandler.ExecuteCommand("git", wholeCommand);
+    }
+
     public bool InitIfGitRepository(string directoryPath)
     {
         string? repoRoot = Repository.Discover(directoryPath);
@@ -101,9 +115,7 @@ public class LocalGitIntegration : IGitIntegration
     }
 
     public ValueResult<string> PullChanges() =>
-        _currentRepo is not null
-            ? _shellHandler.ExecuteCommand("git", "-C", GetWorkingDir(_currentRepo), "pull")
-            : MissingRepoResult;
+        _currentRepo is not null ? ExecuteGitCommand("pull") : MissingRepoResult;
 
     public RepoDetails? GetRepositoryState()
     {
@@ -255,15 +267,7 @@ public class LocalGitIntegration : IGitIntegration
         try
         {
             _currentRepo.CheckoutPaths("HEAD", [path], CheckoutOpts);
-            IResult result = _shellHandler.ExecuteCommand(
-                "git",
-                "-C",
-                GetWorkingDir(_currentRepo),
-                "clean",
-                "-fd",
-                "--",
-                path
-            );
+            IResult result = ExecuteGitCommand("clean", "-fd", "--", path);
             return result;
         }
         catch (Exception ex)
@@ -280,14 +284,7 @@ public class LocalGitIntegration : IGitIntegration
         if (!ValidateCommitMessage(commitMessage))
             return ValueResult<string>.Error($"Commit message: \"{commitMessage}\" is invalid.");
 
-        return _shellHandler.ExecuteCommand(
-            "git",
-            "-C",
-            GetWorkingDir(_currentRepo),
-            "commit",
-            "-m",
-            commitMessage.Trim()
-        );
+        return ExecuteGitCommand("commit", "-m", commitMessage.Trim());
     }
 
     private static bool ValidateCommitMessage(string commitMessage)
@@ -307,12 +304,7 @@ public class LocalGitIntegration : IGitIntegration
         if (_currentRepo is null)
             return MissingRepoResult;
 
-        ValueResult<string> result = _shellHandler.ExecuteCommand(
-            "git",
-            "-C",
-            GetWorkingDir(_currentRepo),
-            "push"
-        );
+        ValueResult<string> result = ExecuteGitCommand("push");
         if (result.IsOk && string.IsNullOrWhiteSpace(result.Value))
             result = "Changes pushed successfully.".OkResult();
 
