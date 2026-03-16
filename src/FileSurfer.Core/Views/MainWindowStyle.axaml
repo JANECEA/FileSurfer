@@ -175,8 +175,12 @@
     </Style>
 
     <Style Selector="TextBlock.GitTooltipNumber">
-        <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
         <Setter Property="TextAlignment" Value="Right" />
+    </Style>
+
+    <Style Selector="ToolTip">
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}" />
     </Style>
 
     <Style Selector="TextBlock.GitTooltipText">

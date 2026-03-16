@@ -285,7 +285,7 @@
                             </Grid>
                         </ToolTip.Tip>
 
-                        <Button Classes="GitIcon" Command="{Binding GitFetchCommand}" Content="&#xE702;" ToolTip.Tip="Fetch changes" />
+                        <Button Classes="GitIcon" Command="{Binding GitFetchCommand}" Content="&#xE702;" ToolTip.Tip="Fetch commits from remote" />
 
                         <StackPanel Margin="0 -4 0 0" HorizontalAlignment="Center" Orientation="Horizontal">
                             <TextBlock Classes="GitStateText" Text="{Binding RepoStateInfo.CommitsToPull}" />
@@ -294,10 +294,10 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <ComboBox Classes="BranchComboBox" ItemsSource="{Binding Branches}" SelectedItem="{Binding CurrentBranch, Mode=TwoWay}" />
-                    <Button Classes="GitButton" Command="{Binding GitPullCommand}" Content="PULL" />
-                    <Button Classes="GitButton" Click="OnCommitClicked" Content="COMMIT" />
-                    <Button Classes="GitButton" Command="{Binding GitPushCommand}" Content="PUSH" />
+                    <ComboBox Classes="BranchComboBox" ItemsSource="{Binding Branches}" SelectedItem="{Binding CurrentBranch, Mode=TwoWay}" ToolTip.Tip="Local branches" />
+                    <Button Classes="GitButton" Command="{Binding GitPullCommand}" Content="PULL" ToolTip.Tip="Pull commits from remote" />
+                    <Button Classes="GitButton" Click="OnCommitClicked" Content="COMMIT" ToolTip.Tip="Commit staged changes" />
+                    <Button Classes="GitButton" Command="{Binding GitPushCommand}" Content="PUSH" ToolTip.Tip="Push commits to remote" />
                 </StackPanel>
             </DockPanel>
         </Border>
@@ -531,13 +531,13 @@
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).PasteCommand}" Header="Paste here" />
 
                                             <Separator Classes="ContextMenuSeparator" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
-                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitStageCommand}" Header="Git stage all" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
-                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitUnstageCommand}" Header="Git unstage all" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitStageCommand}" Header="Git stage this directory" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitUnstageCommand}" Header="Git unstage this directory" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
 
                                             <Separator Classes="ContextMenuSeparator" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitStashCommand}" Header="Git stash changes" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitStashPopCommand}" Header="Git stash pop" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
-                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitRestoreCommand}" Header="Git restore all" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitRestoreCommand}" Header="Git restore this directory" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
 
                                             <Separator Classes="ContextMenuSeparator" IsVisible="{Binding !#FileDisplay.((vm:MainWindowViewModel)DataContext).IsLocal}" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).SyncDirCommand}" Header="Synchronize this directory" IsVisible="{Binding !#FileDisplay.((vm:MainWindowViewModel)DataContext).IsLocal}" />
