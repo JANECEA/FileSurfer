@@ -1372,7 +1372,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         Reload();
     }
 
-    public void FlattenFolder(FileSystemEntryViewModel entry)
+    private void FlattenFolder(FileSystemEntryViewModel entry)
     {
         if (!entry.IsDirectory)
         {
@@ -1393,12 +1393,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         Reload();
     }
 
-    /// <summary>
-    /// Permanently deletes the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/>.
-    /// <para>
-    /// Invokes <see cref="Reload"/>.
-    /// </para>
-    /// </summary>
     public void Delete()
     {
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
@@ -1412,12 +1406,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         Reload();
     }
 
-    /// <summary>
-    /// Sets <see cref="SortBy"/> to the parameter and determines <see cref="FileSurferSettings.SortReversed"/>.
-    /// <para>
-    /// Invokes <see cref="Reload"/>.
-    /// </para>
-    /// </summary>
     private void SetSortBy(SortBy sortBy)
     {
         FileSurferSettings.SortReversed =
@@ -1427,10 +1415,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         Reload(true);
     }
 
-    /// <summary>
-    /// Invokes <see cref="IUndoableFileOperation.Undo()"/> on the current
-    /// <see cref="IUndoableFileOperation"/> and goes back in <see cref="_undoRedoHistory"/>.
-    /// </summary>
     private void Undo()
     {
         if (_undoRedoHistory.IsTail())
@@ -1457,10 +1441,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    /// <summary>
-    /// Moves forward in <see cref="_undoRedoHistory"/> and invokes
-    /// <see cref="IUndoableFileOperation.Invoke()"/> on the current <see cref="IUndoableFileOperation"/>.
-    /// </summary>
     private void Redo()
     {
         _undoRedoHistory.MoveToNext();
@@ -1480,9 +1460,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    /// <summary>
-    /// Adds all <see cref="FileSystemEntryViewModel"/>s in <see cref="FileEntries"/> to <see cref="SelectedFiles"/>.
-    /// </summary>
     private void SelectAll()
     {
         SelectedFiles.Clear();
@@ -1490,14 +1467,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SelectedFiles.Add(entry);
     }
 
-    /// <summary>
-    /// Clears <see cref="SelectedFiles"/>.
-    /// </summary>
     private void SelectNone() => SelectedFiles.Clear();
 
-    /// <summary>
-    /// Inverts the current selection in <see cref="SelectedFiles"/> compared to <see cref="FileEntries"/>.
-    /// </summary>
     private void InvertSelection()
     {
         HashSet<string> oldSelectionNames = SelectedFiles.Select(entry => entry.Name).ToHashSet();
@@ -1510,61 +1481,25 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    /// <summary>
-    /// Relays the operations to <see cref="IFileIoHandler"/>.
-    /// </summary>
     public void GitStage(FileSystemEntryViewModel? entry)
     {
-        if (!IsVersionControlled)
-            return;
-
-        if (entry is not null)
-        {
-            ShowIfError(CurrentFs.GitIntegration.StagePath(entry.PathToEntry));
-            return;
-        }
-
-        foreach (FileSystemEntryViewModel e in FileEntries)
-            if (e.VersionControlled)
-                ShowIfError(CurrentFs.GitIntegration.StagePath(e.PathToEntry));
+        if (IsVersionControlled)
+            ShowIfError(CurrentFs.GitIntegration.StagePath(entry?.PathToEntry ?? CurrentDir));
     }
 
-    /// <summary>
-    /// Relays the operations to <see cref="IGitIntegration"/>.
-    /// </summary>
     public void GitUnstage(FileSystemEntryViewModel? entry)
     {
-        if (!IsVersionControlled)
-            return;
-
-        if (entry is not null)
-        {
-            ShowIfError(CurrentFs.GitIntegration.UnstagePath(entry.PathToEntry));
-            return;
-        }
-
-        foreach (FileSystemEntryViewModel e in FileEntries)
-            if (e.VersionControlled)
-                ShowIfError(CurrentFs.GitIntegration.UnstagePath(e.PathToEntry));
+        if (IsVersionControlled)
+            ShowIfError(CurrentFs.GitIntegration.UnstagePath(entry?.PathToEntry ?? CurrentDir));
     }
 
-    public void GitRestore(FileSystemEntryViewModel? entry)
+    private void GitRestore(FileSystemEntryViewModel? entry)
     {
-        if (!IsVersionControlled)
-            return;
-
-        if (entry is not null)
+        if (IsVersionControlled)
         {
-            ShowIfError(CurrentFs.GitIntegration.RestorePath(entry.PathToEntry));
+            ShowIfError(CurrentFs.GitIntegration.RestorePath(entry?.PathToEntry ?? CurrentDir));
             Reload(true);
-            return;
         }
-
-        foreach (FileSystemEntryViewModel e in FileEntries)
-            if (e.VersionControlled)
-                ShowIfError(CurrentFs.GitIntegration.RestorePath(e.PathToEntry));
-
-        Reload(true);
     }
 
     private void GitStash()

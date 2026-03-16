@@ -249,10 +249,14 @@ public class LocalGitIntegration : IGitIntegration
 
     public IResult StagePath(string path)
     {
+        if (_currentRepo is null)
+            return MissingRepoResult;
+
+        path = LocalPathTools.NormalizePath(path);
         try
         {
-            if (_currentRepo is null)
-                return MissingRepoResult;
+            if (LocalPathTools.PathsAreEqualNormalized(path, GetWorkingDir(_currentRepo)))
+                path = "*";
 
             Commands.Stage(_currentRepo, path);
             return SimpleResult.Ok();
@@ -265,10 +269,14 @@ public class LocalGitIntegration : IGitIntegration
 
     public IResult UnstagePath(string path)
     {
+        if (_currentRepo is null)
+            return MissingRepoResult;
+
+        path = LocalPathTools.NormalizePath(path);
         try
         {
-            if (_currentRepo is null)
-                return MissingRepoResult;
+            if (LocalPathTools.PathsAreEqualNormalized(path, GetWorkingDir(_currentRepo)))
+                path = "*";
 
             Commands.Unstage(_currentRepo, path);
             return SimpleResult.Ok();
@@ -343,11 +351,16 @@ public class LocalGitIntegration : IGitIntegration
         if (_currentRepo is null)
             return MissingRepoResult;
 
+        path = LocalPathTools.NormalizePath(path);
         try
         {
+            if (LocalPathTools.PathsAreEqualNormalized(path, GetWorkingDir(_currentRepo)))
+            {
+                Commands.Checkout(_currentRepo, "HEAD", CheckoutOpts);
+                return ExecuteGitCommand("clean", "-fd");
+            }
             _currentRepo.CheckoutPaths("HEAD", [path], CheckoutOpts);
-            IResult result = ExecuteGitCommand("clean", "-fd", "--", path);
-            return result;
+            return ExecuteGitCommand("clean", "-fd", "--", path);
         }
         catch (Exception ex)
         {
