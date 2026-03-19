@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.FileOperations;
@@ -30,31 +29,41 @@ public class StubArchiveManager : IArchiveManager
 
 public class StubGitIntegration : IGitIntegration
 {
-    private readonly string _message;
+    private readonly ValueResult<string> _result;
 
-    public StubGitIntegration(string message) => _message = message;
+    public StubGitIntegration(string message) => _result = ValueResult<string>.Error(message);
+
+    public void Dispose() { }
 
     public bool InitIfGitRepository(string directoryPath) => false;
 
     public GitStatus GetStatus(string filePath) => GitStatus.NotVersionControlled;
 
-    public IResult PullChanges() => SimpleResult.Error(_message);
+    public IResult FetchChanges() => _result;
 
-    public string[] GetBranches() => Array.Empty<string>();
+    public ValueResult<string> PullChanges() => _result;
+
+    public RepoDetails? GetRepositoryState() => null;
+
+    public string[] GetBranches() => [];
 
     public string GetCurrentBranchName() => string.Empty;
 
-    public IResult SwitchBranches(string branchName) => SimpleResult.Error(_message);
+    public IResult SwitchBranches(string branchName) => _result;
 
-    public IResult StagePath(string path) => SimpleResult.Error(_message);
+    public IResult StagePath(string path) => _result;
 
-    public IResult UnstagePath(string filePath) => SimpleResult.Error(_message);
+    public IResult UnstagePath(string path) => _result;
 
-    public IResult CommitChanges(string commitMessage) => SimpleResult.Error(_message);
+    public IResult StashChanges() => _result;
 
-    public IResult PushChanges() => SimpleResult.Error(_message);
+    public IResult PopChanges() => _result;
 
-    public void Dispose() { }
+    public IResult RestorePath(string path) => _result;
+
+    public ValueResult<string> CommitChanges(string commitMessage) => _result;
+
+    public ValueResult<string> PushChanges() => _result;
 }
 
 public class StubBinInteraction : IBinInteraction

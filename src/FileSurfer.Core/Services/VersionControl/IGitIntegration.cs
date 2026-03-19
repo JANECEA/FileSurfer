@@ -24,6 +24,8 @@ public enum GitStatus
     Unstaged,
 }
 
+public record struct RepoDetails(int CommitsToPull, int CommitsToPush);
+
 /// <summary>
 /// Defines methods for interacting with the Git version control system withing the <see cref="FileSurfer"/> app.
 /// </summary>
@@ -47,7 +49,20 @@ public interface IGitIntegration : IDisposable
     /// Downloads the latest changes from the version control system to the local repository.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult PullChanges();
+    public IResult FetchChanges();
+
+    /// <summary>
+    /// Downloads and merges the latest changes from the version control system to the local repository.
+    /// </summary>
+    /// <returns>A <see cref="ValueResult{string}"/> representing the result of the operation and standard output of the command.</returns>
+    public ValueResult<string> PullChanges();
+
+    /// <summary>
+    /// Retrieves how many commits the local repository is behind and ahead of the remote.
+    /// <br/>
+    /// Returns null in case there is no upstream configuration or the upstream branch does not exist.
+    /// </summary>
+    public RepoDetails? GetRepositoryState();
 
     /// <summary>
     /// Retrieves a list of all branches in the version control system.
@@ -78,20 +93,39 @@ public interface IGitIntegration : IDisposable
     /// <summary>
     /// Unstages changes in the specified file or directory, reverting it to the previous staged state.
     /// </summary>
-    /// <param name="filePath">The path of the file or directory to unstage.</param>
+    /// <param name="path">The path of the file or directory to unstage.</param>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult UnstagePath(string filePath);
+    public IResult UnstagePath(string path);
+
+    /// <summary>
+    /// Stashes changes made to the current directory and reverts to a state of the last commit.
+    /// </summary>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult StashChanges();
+
+    /// <summary>
+    /// Applies last changes made to the current directory and pops the stash entry.
+    /// </summary>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult PopChanges();
+
+    /// <summary>
+    /// Restore changes in the specified file or directory, reverting it to the last commit state.
+    /// </summary>
+    /// <param name="path">The path of the file or directory to restore.</param>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult RestorePath(string path);
 
     /// <summary>
     /// Commits the staged changes with the specified commit message.
     /// </summary>
     /// <param name="commitMessage">The message describing the commit.</param>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult CommitChanges(string commitMessage);
+    /// <returns>A <see cref="ValueResult{string}"/> representing the result of the operation and standard output of the command.</returns>
+    public ValueResult<string> CommitChanges(string commitMessage);
 
     /// <summary>
     /// Uploads the committed changes to the remote repository.
     /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult PushChanges();
+    /// <returns>A <see cref="ValueResult{string}"/> representing the result of the operation and standard output of the command.</returns>
+    public ValueResult<string> PushChanges();
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
@@ -19,9 +20,10 @@ namespace FileSurfer.Core.Views;
 public partial class MainWindow : Window
 {
     private MainWindowViewModel? _viewModel;
-    private WrapPanel? _filePanel;
     private readonly DataTemplate _iconViewTemplate;
     private readonly DataTemplate _listViewTemplate;
+    private readonly ItemsPanelTemplate _listViewPanel;
+    private readonly ItemsPanelTemplate _iconViewPanel;
     private readonly KeyBinding _selectAllKb;
     private readonly KeyBinding _invertSelection;
     private readonly KeyGesture _deleteGesture = KeyGesture.Parse("Delete");
@@ -39,11 +41,16 @@ public partial class MainWindow : Window
         if (
             Resources["ListViewTemplate"] is not DataTemplate listViewTemplate
             || Resources["IconViewTemplate"] is not DataTemplate iconViewTemplate
+            || Resources["ListViewPanel"] is not ItemsPanelTemplate listViewPanel
+            || Resources["IconViewPanel"] is not ItemsPanelTemplate iconViewPanel
         )
-            throw new ArgumentNullException();
+            throw new UnreachableException();
 
         _listViewTemplate = listViewTemplate;
         _iconViewTemplate = iconViewTemplate;
+        _listViewPanel = listViewPanel;
+        _iconViewPanel = iconViewPanel;
+
         _selectAllKb = KeyBindings.First(keyBinding =>
             keyBinding.Gesture is { KeyModifiers: KeyModifiers.Control, Key: Key.A }
         );
@@ -78,31 +85,6 @@ public partial class MainWindow : Window
     {
         if (FileSurferSettings.DisplayMode is DisplayMode.IconView)
             IconView();
-    }
-
-    /// <summary>
-    /// Recursively finds <see cref="WrapPanel"/> within the visual elements.
-    /// <para>
-    /// This function is necessary because <see cref="_filePanel"/> can't be accessed via <c>x:Name</c>.
-    /// </para>
-    /// </summary>
-    private WrapPanel? FindWrapPanel(Control parent)
-    {
-        foreach (Visual child in parent.GetVisualChildren())
-        {
-            if (child is WrapPanel panel)
-            {
-                _filePanel = panel;
-                return panel;
-            }
-
-            if (child is Control control)
-            {
-                if (FindWrapPanel(control) is WrapPanel result)
-                    return result;
-            }
-        }
-        return null;
     }
 
     /// <summary>
@@ -334,7 +316,7 @@ public partial class MainWindow : Window
     {
         if (CommitInputBox.Text is string commitMessage)
         {
-            _viewModel?.Commit(commitMessage.Trim());
+            _viewModel?.GitCommit(commitMessage.Trim());
             CommitMessageBar.IsVisible = false;
             CommitInputBox.Text = string.Empty;
         }
@@ -348,38 +330,24 @@ public partial class MainWindow : Window
         if (sender is CheckBox { DataContext: FileSystemEntryViewModel entry } checkBox)
         {
             if (checkBox.IsChecked is true)
-                _viewModel?.StageFile(entry);
+                _viewModel?.GitStage(entry);
             else
-                _viewModel?.UnstageFile(entry);
+                _viewModel?.GitUnstage(entry);
         }
     }
 
-    /// <summary>
-    /// Switches the display mode to <see cref="DisplayMode.ListView"/>.
-    /// </summary>
     private void ListView(object? sender = null, RoutedEventArgs? e = null)
     {
-        WrapPanel? wrapPanel = _filePanel ?? FindWrapPanel(FileDisplay);
-        if (wrapPanel is null)
-            return;
-
-        wrapPanel.Orientation = Avalonia.Layout.Orientation.Vertical;
         LabelsPanel.IsVisible = true;
+        FileDisplay.ItemsPanel = _listViewPanel;
         FileDisplay.ItemTemplate = _listViewTemplate;
         FileSurferSettings.DisplayMode = DisplayMode.ListView;
     }
 
-    /// <summary>
-    /// Switches the display mode to <see cref="DisplayMode.IconView"/>.
-    /// </summary>
     private void IconView(object? sender = null, RoutedEventArgs? e = null)
     {
-        WrapPanel? wrapPanel = _filePanel ?? FindWrapPanel(FileDisplay);
-        if (wrapPanel is null)
-            return;
-
-        wrapPanel.Orientation = Avalonia.Layout.Orientation.Horizontal;
         LabelsPanel.IsVisible = false;
+        FileDisplay.ItemsPanel = _iconViewPanel;
         FileDisplay.ItemTemplate = _iconViewTemplate;
         FileSurferSettings.DisplayMode = DisplayMode.IconView;
     }

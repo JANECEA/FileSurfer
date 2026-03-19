@@ -1,10 +1,9 @@
 using System;
 using System.Globalization;
 using Avalonia.Data.Converters;
+using FileSurfer.Core.ViewModels;
 
 namespace FileSurfer.Core.Views;
-
-public sealed record SortInfo(SortBy SortBy, bool SortReversed);
 
 public abstract class OneWayConverter : IValueConverter
 {
@@ -18,7 +17,7 @@ public abstract class OneWayConverter : IValueConverter
         Type targetType,
         object? parameter,
         CultureInfo culture
-    ) => throw new NotImplementedException();
+    ) => throw new InvalidOperationException();
 }
 
 public sealed class SortArrowConverter : OneWayConverter

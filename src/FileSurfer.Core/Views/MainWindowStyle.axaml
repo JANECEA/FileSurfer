@@ -174,8 +174,42 @@
         <Setter Property="Margin" Value="5 0 15 0" />
     </Style>
 
+    <Style Selector="TextBlock.GitTooltipNumber">
+        <Setter Property="TextAlignment" Value="Right" />
+    </Style>
+
+    <Style Selector="ToolTip">
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}" />
+    </Style>
+
+    <Style Selector="TextBlock.GitTooltipText">
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+    </Style>
+
+    <Style Selector="Button.GitIcon">
+        <Setter Property="Padding" Value="3.5 -3 -15 0" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="Height" Value="27" />
+        <Setter Property="Width" Value="28" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="FontFamily" Value="{DynamicResource IconFont}" />
+        <Setter Property="FontSize" Value="26" />
+        <Setter Property="Foreground" Value="{DynamicResource GitColor}" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="Button.GitIcon:pointerover /template/ ContentPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource GitHoverColor}" />
+    </Style>
+
+    <Style Selector="TextBlock.GitStateText">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource IconColor}" />
+    </Style>
+
     <Style Selector="ComboBox.BranchComboBox">
-        <Setter Property="DockPanel.Dock" Value="Right" />
         <Setter Property="Height" Value="35" />
         <Setter Property="Width" Value="120" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -196,13 +230,18 @@
         <Setter Property="BorderThickness" Value="1" />
     </Style>
 
+    <Style Selector="ComboBoxItem">
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+    </Style>
+
     <Style Selector="ComboBoxItem:selected /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource SecondaryColor}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
     </Style>
 
     <Style Selector="Button.GitButton">
         <Setter Property="FontSize" Value="10" />
-        <Setter Property="DockPanel.Dock" Value="Right" />
         <Setter Property="Height" Value="35" />
         <Setter Property="Width" Value="60" />
         <Setter Property="Padding" Value="0" />
@@ -264,7 +303,7 @@
 
     <Style Selector="Border.LabelBorder">
         <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}" />
-        <Setter Property="BorderThickness" Value="0 0 1 0" />
+        <Setter Property="BorderThickness" Value="1 0 0 0" />
         <Setter Property="Margin" Value="0 0 10 0" />
     </Style>
 
@@ -302,10 +341,11 @@
     <Style Selector="Label.InfoLabel">
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+        <Setter Property="Padding" Value="10 0 0 0" />
     </Style>
 
     <Style Selector="CheckBox.StagedCheckbox">
-        <Setter Property="Margin" Value="20 0 60 0" />
+        <Setter Property="Margin" Value="20 0 0 0" />
     </Style>
 
     <Style Selector="CheckBox.StagedCheckbox:checked /template/ Border#NormalRectangle">
@@ -320,6 +360,7 @@
         <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Padding" Value="0 0 10 0" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
     </Style>
 

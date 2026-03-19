@@ -7,10 +7,8 @@
         xmlns:views="clr-namespace:FileSurfer.Core.Views"
         xmlns:vm="clr-namespace:FileSurfer.Core.ViewModels"
         Title="FileSurfer"
-        MinWidth="860"
+        MinWidth="910"
         MinHeight="400"
-        d:DesignHeight="450"
-        d:DesignWidth="1200"
         x:DataType="vm:MainWindowViewModel"
         Closing="OnClosing"
         DataContextChanged="ViewModelLoaded"
@@ -24,7 +22,7 @@
         <StyleInclude Source="avares://FileSurfer.Core/Views/MainWindowStyle.axaml" />
     </Window.Styles>
 
-    <!--  ReSharper disable Xaml.BindingWithoutContextNotResolved - cannot resolve because viewmodels takes constructor parameters  -->
+    <!--  ReSharper disable Xaml.BindingWithoutContextNotResolved - cannot resolve because viewmodel takes constructor parameters  -->
     <Window.KeyBindings>
         <KeyBinding Command="{Binding DeleteCommand}" Gesture="Shift+Delete" />
         <KeyBinding Command="{Binding UndoCommand}" Gesture="Ctrl+Z" />
@@ -39,21 +37,38 @@
         <views:SortArrowConverter x:Key="SortArrowConverter" />
 
         <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
-            <Grid Height="36" ColumnDefinitions="30 360 160 130 90 *">
+            <Grid Height="36">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30" />
+                    <ColumnDefinition Width="*" MinWidth="90" MaxWidth="400" />
+                    <ColumnDefinition Width="160" />
+                    <ColumnDefinition Width="130" />
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+
                 <Image Grid.Column="0"
                        Width="28"
                        Height="28"
                        Margin="0 0 13 0"
                        Opacity="{Binding Opacity}"
                        Source="{Binding Icon}" />
-                <TextBlock Grid.Column="1"
-                           Classes="FileInfo"
-                           FontSize="15"
-                           FontWeight="Regular"
-                           Text="{Binding Name}" />
+
+                <Canvas Grid.Column="1">
+                    <TextBlock Canvas.Top="8"
+                               Width="{Binding $parent[Canvas].Bounds.Width}"
+                               Classes="FileInfo"
+                               FontSize="15"
+                               FontWeight="Regular"
+                               Text="{Binding Name}" />
+                </Canvas>
+
                 <TextBlock Grid.Column="2" Classes="FileInfo" Text="{Binding LastModified}" />
+
                 <TextBlock Grid.Column="3" Classes="FileInfo" Text="{Binding Type}" />
+
                 <TextBlock Grid.Column="4" Classes="FileInfo" Text="{Binding Size}" TextAlignment="Right" />
+
                 <CheckBox Grid.Column="5"
                           Classes="StagedCheckbox"
                           Click="StagedToggle"
@@ -64,14 +79,34 @@
 
         <DataTemplate x:Key="IconViewTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
             <StackPanel Width="80" Spacing="10">
-                <Image Width="60"
-                       Height="60"
-                       Margin="5 5 5 2"
-                       Opacity="{Binding Opacity}"
-                       Source="{Binding Icon}" />
+                <Grid>
+                    <Image Width="60"
+                           Height="60"
+                           Margin="5 5 5 2"
+                           Opacity="{Binding Opacity}"
+                           Source="{Binding Icon}" />
+                    <CheckBox Margin="0 0 5 -5"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Bottom"
+                              Classes="StagedCheckbox"
+                              Click="StagedToggle"
+                              IsChecked="{Binding Staged}"
+                              IsVisible="{Binding VersionControlled}" />
+                </Grid>
+
                 <TextBlock Classes="IconViewInfo" Text="{Binding Name}" />
             </StackPanel>
         </DataTemplate>
+
+        <ItemsPanelTemplate x:Key="ListViewPanel">
+            <VirtualizingStackPanel Loaded="WrapPanelLoaded" Orientation="Vertical" />
+        </ItemsPanelTemplate>
+
+        <!--  ReSharper disable Xaml.RedundantResource  -->
+        <ItemsPanelTemplate x:Key="IconViewPanel">
+            <WrapPanel Orientation="Horizontal" />
+        </ItemsPanelTemplate>
+        <!--  ReSharper restore Xaml.RedundantResource  -->
 
         <DataTemplate x:Key="SideBarTemplate" x:DataType="{x:Type vm:SideBarEntryViewModel}">
             <Grid Height="27" ColumnDefinitions="Auto *">
@@ -239,10 +274,31 @@
                     </Button.Flyout>
                 </Button>
 
-                <Button Classes="GitButton" Command="{Binding PushCommand}" Content="PUSH" IsVisible="{Binding IsVersionControlled}" />
-                <Button Classes="GitButton" Click="OnCommitClicked" Content="COMMIT" IsVisible="{Binding IsVersionControlled}" />
-                <Button Classes="GitButton" Command="{Binding PullCommand}" Content="PULL" IsVisible="{Binding IsVersionControlled}" />
-                <ComboBox Classes="BranchComboBox" IsVisible="{Binding IsVersionControlled}" ItemsSource="{Binding Branches}" SelectedItem="{Binding CurrentBranch, Mode=TwoWay}" />
+                <StackPanel DockPanel.Dock="Right" IsVisible="{Binding IsVersionControlled}" Orientation="Horizontal">
+                    <StackPanel Margin="15 6 15 -5" Background="Transparent">
+                        <ToolTip.Tip>
+                            <Grid ColumnDefinitions="Auto Auto" RowDefinitions="Auto Auto">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Classes="GitTooltipNumber" Text="{Binding RepoStateInfo.CommitsToPull}" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Classes="GitTooltipText" Text=" commits to pull" />
+                                <TextBlock Grid.Row="1" Grid.Column="0" Classes="GitTooltipNumber" Text="{Binding RepoStateInfo.CommitsToPush}" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Classes="GitTooltipText" Text=" commits to push" />
+                            </Grid>
+                        </ToolTip.Tip>
+
+                        <Button Classes="GitIcon" Command="{Binding GitFetchCommand}" Content="&#xE702;" ToolTip.Tip="Fetch commits from remote" />
+
+                        <StackPanel Margin="0 -4 0 0" HorizontalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Classes="GitStateText" Text="{Binding RepoStateInfo.CommitsToPull}" />
+                            <TextBlock Classes="GitStateText" Text=" / " />
+                            <TextBlock Classes="GitStateText" Text="{Binding RepoStateInfo.CommitsToPush}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <ComboBox Classes="BranchComboBox" ItemsSource="{Binding Branches}" SelectedItem="{Binding CurrentBranch, Mode=TwoWay}" ToolTip.Tip="Local branches" />
+                    <Button Classes="GitButton" Command="{Binding GitPullCommand}" Content="PULL" ToolTip.Tip="Pull commits from remote" />
+                    <Button Classes="GitButton" Click="OnCommitClicked" Content="COMMIT" ToolTip.Tip="Commit staged changes" />
+                    <Button Classes="GitButton" Command="{Binding GitPushCommand}" Content="PUSH" ToolTip.Tip="Push commits to remote" />
+                </StackPanel>
             </DockPanel>
         </Border>
 
@@ -360,27 +416,31 @@
                 <GridSplitter Grid.Column="1" Classes="GridSplitter" />
 
                 <Grid Grid.Column="2" RowDefinitions="Auto Auto * Auto Auto">
-                    <StackPanel x:Name="LabelsPanel"
-                                Grid.Row="0"
-                                Height="30"
-                                Margin="55 0 0 0"
-                                Orientation="Horizontal">
-                        <Border Width="350" Classes="LabelBorder">
+                    <Grid x:Name="LabelsPanel" Grid.Row="0" Height="30" Margin="55 0 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" MinWidth="90 " MaxWidth="400" />
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="100" />
+                            <ColumnDefinition Width="130" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border BorderThickness="0" Classes="LabelBorder">
                             <Label Classes="InfoLabel" Content="Name" />
                         </Border>
-                        <Border Width="150" Classes="LabelBorder">
+                        <Border Grid.Column="1" Classes="LabelBorder">
                             <Label Classes="InfoLabel" Content="Date" />
                         </Border>
-                        <Border Width="120" Classes="LabelBorder">
+                        <Border Grid.Column="2" Classes="LabelBorder">
                             <Label Classes="InfoLabel" Content="Type" />
                         </Border>
-                        <Border Width="100" Classes="LabelBorder">
+                        <Border Grid.Column="3" Classes="LabelBorder">
                             <Label Classes="InfoLabel" Content="Size" />
                         </Border>
-                        <Border Width="100" Classes="LabelBorder" IsVisible="{Binding IsVersionControlled}">
+                        <Border Grid.Column="4" Classes="LabelBorder" IsVisible="{Binding IsVersionControlled}">
                             <Label Classes="InfoLabel" Content="Staged" />
                         </Border>
-                    </StackPanel>
+                    </Grid>
 
                     <Label Grid.Row="1" Classes="InfoMessage" Content="{Binding CurrentInfoMessage}" IsVisible="{Binding CurrentInfoMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
 
@@ -389,6 +449,7 @@
                              Classes="FileDisplay"
                              DoubleTapped="FilesDoubleTapped"
                              ItemTemplate="{StaticResource ListViewTemplate}"
+                             ItemsPanel="{StaticResource ListViewPanel}"
                              ItemsSource="{Binding FileEntries}"
                              SelectedItems="{Binding SelectedFiles}"
                              SelectionMode="Multiple"
@@ -405,14 +466,36 @@
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).OpenAsCommand}" Header="Open as" IsVisible="{Binding SupportsOpenAs}" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).OpenInNotepadCommand}" Header="Open in Notepad" IsVisible="{Binding !IsDirectory}" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToQuickAccessCommand}" CommandParameter="{Binding}" Header="Add to quick access" />
+
                                             <Separator Classes="ContextMenuSeparator" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToArchiveCommand}" Header="Add to archive" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).ExtractArchiveCommand}" Header="Extract archive" IsVisible="{Binding IsArchived}" />
+
                                             <Separator Classes="ContextMenuSeparator" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CopyPathCommand}" CommandParameter="{Binding}" Header="Copy path" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CutCommand}" Header="Cut" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CopyCommand}" Header="Copy" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CreateShortcutCommand}" CommandParameter="{Binding}" Header="Create shortcut" />
+
+                                            <Separator Classes="ContextMenuSeparator" IsVisible="{Binding VersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem"
+                                                      Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitStageCommand}"
+                                                      CommandParameter="{Binding}"
+                                                      Header="Git stage"
+                                                      IsEnabled="{Binding !Staged}"
+                                                      IsVisible="{Binding VersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem"
+                                                      Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitUnstageCommand}"
+                                                      CommandParameter="{Binding}"
+                                                      Header="Git unstage"
+                                                      IsEnabled="{Binding Staged}"
+                                                      IsVisible="{Binding VersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem"
+                                                      Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitRestoreCommand}"
+                                                      CommandParameter="{Binding}"
+                                                      Header="Git restore"
+                                                      IsVisible="{Binding VersionControlled}" />
+
                                             <Separator Classes="ContextMenuSeparator" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).MoveToTrashCommand}" Header="Move to trash" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).DeleteCommand}" Header="Delete" />
@@ -422,6 +505,7 @@
                                                       Header="Flatten folder"
                                                       IsVisible="{Binding IsDirectory}" />
                                             <MenuItem Classes="ContextMenuItem" Click="OnRenameClicked" Header="Rename" />
+
                                             <Separator Classes="ContextMenuSeparator" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).ShowPropertiesCommand}" CommandParameter="{Binding}" Header="Properties" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).SyncDirCommand}" CommandParameter="{Binding}" Header="Synchronize this directory">
@@ -441,9 +525,20 @@
                                     <Setter.Value>
                                         <ContextMenu Classes="FileContextMenu">
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToQuickAccessCommand}" Header="Add to quick access" />
+
                                             <Separator Classes="ContextMenuSeparator" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CopyPathCommand}" Header="Copy path" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).PasteCommand}" Header="Paste here" />
+
+                                            <Separator Classes="ContextMenuSeparator" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitStageCommand}" Header="Git stage this directory" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitUnstageCommand}" Header="Git unstage this directory" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
+
+                                            <Separator Classes="ContextMenuSeparator" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitStashCommand}" Header="Git stash changes" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitStashPopCommand}" Header="Git stash pop" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).GitRestoreCommand}" Header="Git restore this directory" IsVisible="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).IsVersionControlled}" />
+
                                             <Separator Classes="ContextMenuSeparator" IsVisible="{Binding !#FileDisplay.((vm:MainWindowViewModel)DataContext).IsLocal}" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).SyncDirCommand}" Header="Synchronize this directory" IsVisible="{Binding !#FileDisplay.((vm:MainWindowViewModel)DataContext).IsLocal}" />
                                         </ContextMenu>
@@ -452,11 +547,6 @@
                                 </Setter>
                             </Style>
                         </ListBox.Styles>
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel Loaded="WrapPanelLoaded" Orientation="Vertical" />
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
                     </ListBox>
 
                     <Border x:Name="NewNameBar" Grid.Row="3" Classes="InputBorder">

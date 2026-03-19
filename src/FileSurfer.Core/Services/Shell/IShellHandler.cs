@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FileSurfer.Core.Models;
 
 namespace FileSurfer.Core.Services.Shell;

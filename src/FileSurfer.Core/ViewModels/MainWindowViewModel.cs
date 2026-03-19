@@ -18,10 +18,20 @@ using FileSurfer.Core.Services.FileOperations.Undoable;
 using FileSurfer.Core.Services.Shell;
 using FileSurfer.Core.Services.VersionControl;
 using FileSurfer.Core.Views;
-using FileSurfer.Core.Views.Dialogs;
 using ReactiveUI;
 
 namespace FileSurfer.Core.ViewModels;
+
+/// <summary>
+/// Bundles sorting state data for easier manipulation in the view.
+/// </summary>
+public record struct SortInfo(SortBy SortBy, bool SortReversed);
+
+/// <summary>
+/// Bundles repository state data for easier manipulation in the view.
+/// </summary>
+[SuppressMessage("ReSharper", "NotAccessedPositionalProperty.Global")]
+public record struct RepoStateInfo(string CommitsToPull, string CommitsToPush);
 
 /// <summary>
 /// The MainWindowViewModel is the ViewModel for the main window of the application.
@@ -42,6 +52,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
     private const string EmptyDirMessage = "This directory is empty.";
     private const string EmptySearchMessage = "No items match your query";
+    private const string NoRemoteMark = "-";
 
     private readonly IDialogService _dialogService;
     private readonly SearchManager _searchManager;
@@ -205,7 +216,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             if (_isActionUserInvoked && !string.IsNullOrEmpty(value) && Branches.Contains(value))
             {
                 ShowIfError(CurrentFs.GitIntegration.SwitchBranches(value));
-                Reload();
+                Reload(true);
             }
         }
     }
@@ -220,6 +231,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         set => this.RaiseAndSetIfChanged(ref _isVersionControlled, value);
     }
     private bool _isVersionControlled = false;
+
+    /// <summary>
+    /// Holds the current commit repository state info
+    /// </summary>
+    public RepoStateInfo RepoStateInfo
+    {
+        get => _repoStateInfo;
+        set => this.RaiseAndSetIfChanged(ref _repoStateInfo, value);
+    }
+    private RepoStateInfo _repoStateInfo = new(string.Empty, string.Empty);
 
     /// <summary>
     /// Indicates whether there is an opened directory synchronizer window
@@ -261,8 +282,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> SelectAllCommand { get; }
     public ReactiveCommand<Unit, Unit> SelectNoneCommand { get; }
     public ReactiveCommand<Unit, Unit> InvertSelectionCommand { get; }
-    public ReactiveCommand<Unit, Unit> PullCommand { get; }
-    public ReactiveCommand<Unit, Unit> PushCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitStageCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitUnstageCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitRestoreCommand { get; }
+    public ReactiveCommand<Unit, Unit> GitStashCommand { get; }
+    public ReactiveCommand<Unit, Unit> GitStashPopCommand { get; }
+    public ReactiveCommand<Unit, Unit> GitFetchCommand { get; }
+    public ReactiveCommand<Unit, Unit> GitPullCommand { get; }
+    public ReactiveCommand<Unit, Unit> GitPushCommand { get; }
 
     public bool SelectionNotEmpty => SelectedFiles.Count > 0;
     private bool CanGoBack => _locationHistory.GetPrevious() is not null;
@@ -347,8 +374,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         SelectAllCommand = ReactiveCommand.Create(SelectAll);
         SelectNoneCommand = ReactiveCommand.Create(SelectNone);
         InvertSelectionCommand = ReactiveCommand.Create(InvertSelection);
-        PullCommand = ReactiveCommand.Create(Pull);
-        PushCommand = ReactiveCommand.Create(Push);
+        GitStageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitStage);
+        GitUnstageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitUnstage);
+        GitRestoreCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitRestore);
+        GitStashCommand = ReactiveCommand.Create(GitStash);
+        GitStashPopCommand = ReactiveCommand.Create(GitStashPop);
+        GitFetchCommand = ReactiveCommand.Create(GitFetch);
+        GitPullCommand = ReactiveCommand.Create(GitPull);
+        GitPushCommand = ReactiveCommand.Create(GitPush);
 
         LoadQuickAccess();
         LoadDrives();
@@ -450,18 +483,18 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         _lastRefreshedUtc = DateTime.UtcNow;
     }
 
-    /// <summary>
-    /// Opens a new <see cref="InfoDialogWindow"/> dialog.
-    /// </summary>
     private void ShowError(string? errorMessage)
     {
         if (!string.IsNullOrWhiteSpace(errorMessage))
             _dialogService.InfoDialog("Unexpected error", errorMessage);
     }
 
-    /// <summary>
-    /// Opens a new <see cref="InfoDialogWindow"/> dialog if the result is failed.
-    /// </summary>
+    private void ShowInfo(string? infoMessage)
+    {
+        if (!string.IsNullOrWhiteSpace(infoMessage))
+            _dialogService.InfoDialog("Info dialog", infoMessage);
+    }
+
     private void ShowIfError(IResult result)
     {
         if (!result.IsOk)
@@ -811,17 +844,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             && location.FileSystem.FileInfoProvider.DirectoryExists(location.Path)
             && location.FileSystem.GitIntegration.InitIfGitRepository(location.Path);
 
-        LoadBranches(location);
+        if (IsVersionControlled)
+        {
+            LoadBranches(location);
+            LoadRepoStateInfo();
+        }
     }
 
     private void LoadBranches(Location location)
     {
-        if (!IsVersionControlled)
-        {
-            Branches.Clear();
-            return;
-        }
-
         string currentBranch = location.FileSystem.GitIntegration.GetCurrentBranchName();
         string[] branches = location.FileSystem.GitIntegration.GetBranches();
         if (CurrentBranch == currentBranch && Branches.EqualsUnordered(branches))
@@ -840,6 +871,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         CurrentBranch = currentBranch;
         _isActionUserInvoked = true;
     }
+
+    private void LoadRepoStateInfo() =>
+        RepoStateInfo = CurrentFs.GitIntegration.GetRepositoryState() is RepoDetails info
+            ? new RepoStateInfo(info.CommitsToPull.ToString(), info.CommitsToPush.ToString())
+            : new RepoStateInfo(NoRemoteMark, NoRemoteMark);
 
     private IResult SetLocationNoHistory(Location location)
     {
@@ -1300,6 +1336,18 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         Reload();
     }
 
+    private void StageIfVersionControlled(IEnumerable<FileSystemEntryViewModel> entries)
+    {
+        if (!IsVersionControlled)
+            return;
+
+        Result result = Result.Ok();
+        foreach (FileSystemEntryViewModel entry in entries)
+            result.MergeResult(CurrentFs.GitIntegration.StagePath(entry.PathToEntry));
+
+        ShowIfError(result);
+    }
+
     /// <summary>
     /// Moves the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/> to the system trash using <see cref="CurrentFs"/>.
     /// <para>
@@ -1319,11 +1367,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(operation);
 
+        StageIfVersionControlled(SelectedFiles);
         ShowIfError(result);
         Reload();
     }
 
-    public void FlattenFolder(FileSystemEntryViewModel entry)
+    private void FlattenFolder(FileSystemEntryViewModel entry)
     {
         if (!entry.IsDirectory)
         {
@@ -1344,12 +1393,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         Reload();
     }
 
-    /// <summary>
-    /// Permanently deletes the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/>.
-    /// <para>
-    /// Invokes <see cref="Reload"/>.
-    /// </para>
-    /// </summary>
     public void Delete()
     {
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
@@ -1359,15 +1402,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
                     : CurrentFs.FileIoHandler.DeleteFile(entry.PathToEntry)
             );
 
+        StageIfVersionControlled(SelectedFiles);
         Reload();
     }
 
-    /// <summary>
-    /// Sets <see cref="SortBy"/> to the parameter and determines <see cref="FileSurferSettings.SortReversed"/>.
-    /// <para>
-    /// Invokes <see cref="Reload"/>.
-    /// </para>
-    /// </summary>
     private void SetSortBy(SortBy sortBy)
     {
         FileSurferSettings.SortReversed =
@@ -1377,10 +1415,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         Reload(true);
     }
 
-    /// <summary>
-    /// Invokes <see cref="IUndoableFileOperation.Undo()"/> on the current
-    /// <see cref="IUndoableFileOperation"/> and goes back in <see cref="_undoRedoHistory"/>.
-    /// </summary>
     private void Undo()
     {
         if (_undoRedoHistory.IsTail())
@@ -1407,10 +1441,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    /// <summary>
-    /// Moves forward in <see cref="_undoRedoHistory"/> and invokes
-    /// <see cref="IUndoableFileOperation.Invoke()"/> on the current <see cref="IUndoableFileOperation"/>.
-    /// </summary>
     private void Redo()
     {
         _undoRedoHistory.MoveToNext();
@@ -1430,9 +1460,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    /// <summary>
-    /// Adds all <see cref="FileSystemEntryViewModel"/>s in <see cref="FileEntries"/> to <see cref="SelectedFiles"/>.
-    /// </summary>
     private void SelectAll()
     {
         SelectedFiles.Clear();
@@ -1440,14 +1467,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SelectedFiles.Add(entry);
     }
 
-    /// <summary>
-    /// Clears <see cref="SelectedFiles"/>.
-    /// </summary>
     private void SelectNone() => SelectedFiles.Clear();
 
-    /// <summary>
-    /// Inverts the current selection in <see cref="SelectedFiles"/> compared to <see cref="FileEntries"/>.
-    /// </summary>
     private void InvertSelection()
     {
         HashSet<string> oldSelectionNames = SelectedFiles.Select(entry => entry.Name).ToHashSet();
@@ -1460,55 +1481,100 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    /// <summary>
-    /// Relays the operations to <see cref="IFileIoHandler"/>.
-    /// </summary>
-    public void StageFile(FileSystemEntryViewModel entry)
+    public void GitStage(FileSystemEntryViewModel? entry)
     {
         if (IsVersionControlled)
-            ShowIfError(CurrentFs.GitIntegration.StagePath(entry.PathToEntry));
+            ShowIfError(CurrentFs.GitIntegration.StagePath(entry?.PathToEntry ?? CurrentDir));
     }
 
-    /// <summary>
-    /// Relays the operations to <see cref="IGitIntegration"/>.
-    /// </summary>
-    public void UnstageFile(FileSystemEntryViewModel entry)
+    public void GitUnstage(FileSystemEntryViewModel? entry)
     {
         if (IsVersionControlled)
-            ShowIfError(CurrentFs.GitIntegration.UnstagePath(entry.PathToEntry));
+            ShowIfError(CurrentFs.GitIntegration.UnstagePath(entry?.PathToEntry ?? CurrentDir));
     }
 
-    /// <summary>
-    /// Relays the operations to <see cref="IGitIntegration"/>.
-    /// </summary>
-    private void Pull()
+    private void GitRestore(FileSystemEntryViewModel? entry)
     {
         if (IsVersionControlled)
         {
-            ShowIfError(CurrentFs.GitIntegration.PullChanges());
+            ShowIfError(CurrentFs.GitIntegration.RestorePath(entry?.PathToEntry ?? CurrentDir));
+            Reload(true);
+        }
+    }
+
+    private void GitStash()
+    {
+        if (IsVersionControlled)
+        {
+            ShowIfError(CurrentFs.GitIntegration.StashChanges());
+            Reload(true);
+        }
+    }
+
+    private void GitStashPop()
+    {
+        if (IsVersionControlled)
+        {
+            ShowIfError(CurrentFs.GitIntegration.PopChanges());
+            Reload(true);
+        }
+    }
+
+    private void GitFetch()
+    {
+        if (IsVersionControlled)
+        {
+            ShowIfError(CurrentFs.GitIntegration.FetchChanges());
             Reload();
         }
     }
 
-    /// <summary>
-    /// Relays the operations to <see cref="IGitIntegration"/>.
-    /// </summary>
-    public void Commit(string commitMessage)
+    private void GitPull()
     {
-        if (IsVersionControlled)
-        {
-            ShowIfError(CurrentFs.GitIntegration.CommitChanges(commitMessage));
-            Reload();
-        }
+        if (!IsVersionControlled)
+            return;
+
+        ValueResult<string> result = CurrentFs.GitIntegration.PullChanges();
+        if (result.IsOk)
+            ShowInfo(result.Value);
+        else
+            ShowIfError(result);
+
+        Reload();
     }
 
     /// <summary>
     /// Relays the operations to <see cref="IGitIntegration"/>.
     /// </summary>
-    private void Push()
+    public void GitCommit(string commitMessage)
     {
-        if (IsVersionControlled)
-            ShowIfError(CurrentFs.GitIntegration.PushChanges());
+        if (!IsVersionControlled)
+            return;
+
+        ValueResult<string> result = CurrentFs.GitIntegration.CommitChanges(commitMessage);
+        if (result.IsOk)
+            ShowInfo(result.Value);
+        else
+            ShowIfError(result);
+
+        Reload();
+    }
+
+    /// <summary>
+    /// Relays the operations to <see cref="IGitIntegration"/>.
+    /// </summary>
+    private void GitPush()
+    {
+        if (!IsVersionControlled)
+            return;
+
+        ValueResult<string> result = CurrentFs.GitIntegration.PushChanges();
+        if (result.IsOk)
+            ShowInfo(result.Value);
+        else
+            ShowIfError(result);
+
+        Reload();
     }
 
     /// <summary>

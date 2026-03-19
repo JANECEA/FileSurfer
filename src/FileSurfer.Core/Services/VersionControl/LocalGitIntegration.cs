@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Shell;
 using LibGit2Sharp;
@@ -13,63 +14,139 @@ namespace FileSurfer.Core.Services.VersionControl;
 /// </summary>
 public class LocalGitIntegration : IGitIntegration
 {
-    private const string MissingRepoMessage = "No git repository found";
+    private static readonly ValueResult<string> MissingRepoResult = ValueResult<string>.Error(
+        "No git repository found."
+    );
+    private static readonly StatusOptions StatusOptions = new()
+    {
+        IncludeUntracked = true,
+        RecurseUntrackedDirs = true,
+        DisablePathSpecMatch = true,
+        DetectRenamesInIndex = true,
+        DetectRenamesInWorkDir = true,
+        IncludeIgnored = false,
+        IncludeUnaltered = false,
+        RecurseIgnoredDirs = false,
+    };
+    private static readonly CheckoutOptions CheckoutOpts = new()
+    {
+        CheckoutModifiers = CheckoutModifiers.Force,
+    };
+    private static readonly StashApplyOptions StashApplyOptions = new()
+    {
+        ApplyModifiers = StashApplyModifiers.ReinstateIndex,
+    };
 
     private readonly IShellHandler _shellHandler;
-
     private readonly Dictionary<string, GitStatus> _pathStates = new();
     private Repository? _currentRepo;
 
-    /// <summary>
-    /// Initializes a new <see cref="LocalGitIntegration"/>.
-    /// </summary>
     public LocalGitIntegration(IShellHandler shellHandler) => _shellHandler = shellHandler;
+
+    private ValueResult<string> ExecuteGitCommand(params string[] restOfCommand)
+    {
+        string[] commandStart = ["-C", GetWorkingDir(_currentRepo!)];
+        string[] wholeCommand = new string[commandStart.Length + restOfCommand.Length];
+
+        for (int i = 0; i < commandStart.Length; i++)
+            wholeCommand[i] = commandStart[i];
+
+        for (int i = 0; i < restOfCommand.Length; i++)
+            wholeCommand[i + commandStart.Length] = restOfCommand[i];
+
+        return _shellHandler.ExecuteCommand("git", wholeCommand);
+    }
 
     public bool InitIfGitRepository(string directoryPath)
     {
-        string? repoRootDir = directoryPath;
-        string gitDir = string.Empty;
-        while (repoRootDir is not null)
+        string? repoRoot = Repository.Discover(directoryPath);
+        if (repoRoot is null)
         {
-            gitDir = Path.Combine(repoRootDir, ".git");
-            if (Directory.Exists(gitDir))
-                break;
-
-            repoRootDir = Path.GetDirectoryName(repoRootDir);
+            _currentRepo?.Dispose();
+            _currentRepo = null;
+            return false;
         }
-        if (LocalPathTools.PathsAreEqual(_currentRepo?.Info.Path, gitDir))
+        if (LocalPathTools.PathsAreEqual(_currentRepo?.Info.Path, repoRoot))
         {
             SetFileStates();
             return true;
         }
 
-        _currentRepo?.Dispose();
-        if (repoRootDir is not null && Directory.Exists(repoRootDir))
+        try
         {
-            try
-            {
-                _currentRepo = new Repository(repoRootDir);
-                SetFileStates();
-                return true;
-            }
-            catch
-            {
-                // Not a valid Git repository
-            }
+            _currentRepo?.Dispose();
+            _currentRepo = new Repository(repoRoot);
+            SetFileStates();
+            return true;
         }
-        _currentRepo = null;
-        return false;
+        catch
+        {
+            _currentRepo = null;
+            return false;
+        }
     }
 
-    private string? GetWorkingDir() =>
-        _currentRepo is not null
-            ? LocalPathTools.NormalizePath(_currentRepo.Info.WorkingDirectory)
-            : null;
+    private static string GetWorkingDir(Repository repo) =>
+        LocalPathTools.NormalizePath(repo.Info.WorkingDirectory);
 
-    public IResult PullChanges() =>
-        _currentRepo is null
-            ? SimpleResult.Error(MissingRepoMessage)
-            : _shellHandler.ExecuteCommand("git", "-C", GetWorkingDir()!, "pull");
+    public IResult FetchChanges()
+    {
+        if (_currentRepo is null)
+            return MissingRepoResult;
+
+        try
+        {
+            Remote? remote = _currentRepo.Head.TrackedBranch is Branch branch
+                ? _currentRepo.Network.Remotes[branch.RemoteName]
+                : _currentRepo.Network.Remotes["origin"];
+
+            if (remote is null)
+                return SimpleResult.Error("No tracking information found.");
+
+            Commands.Fetch(
+                _currentRepo,
+                remote.Name,
+                remote.FetchRefSpecs.Select(spec => spec.Specification),
+                null,
+                null
+            );
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public ValueResult<string> PullChanges()
+    {
+        if (_currentRepo is null)
+            return MissingRepoResult;
+
+        Branch branch = _currentRepo.Head;
+        if (branch.TrackedBranch is not null)
+            return ExecuteGitCommand("pull");
+
+        Remote? origin = _currentRepo.Network.Remotes["origin"];
+        if (origin is null)
+            return ValueResult<string>.Error("No remote configured for this repository.");
+
+        return ExecuteGitCommand("pull", "origin", branch.FriendlyName);
+    }
+
+    public RepoDetails? GetRepositoryState()
+    {
+        BranchTrackingDetails? details = _currentRepo?.Head.TrackingDetails;
+        if (details is null)
+            return null;
+
+        int? behind = details.BehindBy;
+        int? ahead = details.AheadBy;
+        if (behind is null || ahead is null)
+            return null;
+
+        return new RepoDetails(behind.Value, ahead.Value);
+    }
 
     public string GetCurrentBranchName() =>
         _currentRepo is null ? string.Empty : _currentRepo.Head.FriendlyName;
@@ -82,11 +159,14 @@ public class LocalGitIntegration : IGitIntegration
     public IResult SwitchBranches(string branchName)
     {
         if (_currentRepo is null)
-            return SimpleResult.Error(MissingRepoMessage);
+            return MissingRepoResult;
 
         try
         {
-            Branch branch = _currentRepo.Branches[branchName];
+            Branch? branch = _currentRepo.Branches[branchName];
+            if (branch is null)
+                return SimpleResult.Error($"Could not find branch \"{branchName}\".");
+
             Commands.Checkout(_currentRepo, branch);
             return SimpleResult.Ok();
         }
@@ -101,19 +181,7 @@ public class LocalGitIntegration : IGitIntegration
         if (_currentRepo is null)
             return;
 
-        RepositoryStatus repoStatus = _currentRepo.RetrieveStatus(
-            new StatusOptions
-            {
-                IncludeUntracked = true,
-                RecurseUntrackedDirs = true,
-                DisablePathSpecMatch = true,
-                DetectRenamesInIndex = true,
-                DetectRenamesInWorkDir = true,
-                IncludeIgnored = false,
-                IncludeUnaltered = false,
-                RecurseIgnoredDirs = false,
-            }
-        );
+        RepositoryStatus repoStatus = _currentRepo.RetrieveStatus(StatusOptions);
 
         _pathStates.Clear();
         foreach (StatusEntry? entry in repoStatus)
@@ -181,10 +249,14 @@ public class LocalGitIntegration : IGitIntegration
 
     public IResult StagePath(string path)
     {
+        if (_currentRepo is null)
+            return MissingRepoResult;
+
+        path = LocalPathTools.NormalizePath(path);
         try
         {
-            if (_currentRepo is null)
-                return SimpleResult.Error(MissingRepoMessage);
+            if (LocalPathTools.PathsAreEqualNormalized(path, GetWorkingDir(_currentRepo)))
+                path = "*";
 
             Commands.Stage(_currentRepo, path);
             return SimpleResult.Ok();
@@ -195,14 +267,18 @@ public class LocalGitIntegration : IGitIntegration
         }
     }
 
-    public IResult UnstagePath(string filePath)
+    public IResult UnstagePath(string path)
     {
+        if (_currentRepo is null)
+            return MissingRepoResult;
+
+        path = LocalPathTools.NormalizePath(path);
         try
         {
-            if (_currentRepo is null)
-                return SimpleResult.Error(MissingRepoMessage);
+            if (LocalPathTools.PathsAreEqualNormalized(path, GetWorkingDir(_currentRepo)))
+                path = "*";
 
-            Commands.Unstage(_currentRepo, filePath);
+            Commands.Unstage(_currentRepo, path);
             return SimpleResult.Ok();
         }
         catch (Exception ex)
@@ -211,22 +287,96 @@ public class LocalGitIntegration : IGitIntegration
         }
     }
 
-    public IResult CommitChanges(string commitMessage)
+    public IResult StashChanges()
     {
         if (_currentRepo is null)
-            return SimpleResult.Error(MissingRepoMessage);
+            return MissingRepoResult;
+
+        try
+        {
+            Signature? signature = _currentRepo.Config.BuildSignature(DateTimeOffset.Now);
+            if (signature is null)
+                return SimpleResult.Error("Configuration not found.");
+
+            Stash? stash = _currentRepo.Stashes.Add(
+                signature,
+                "Stash invoked by: FileSurfer",
+                StashModifiers.IncludeUntracked
+            );
+            return stash is null
+                ? SimpleResult.Error("No local changes to save.")
+                : SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public IResult PopChanges()
+    {
+        if (_currentRepo is null)
+            return MissingRepoResult;
+
+        try
+        {
+            StashApplyStatus status = _currentRepo.Stashes.Pop(0, StashApplyOptions);
+            return status switch
+            {
+                StashApplyStatus.Applied => SimpleResult.Ok(),
+                StashApplyStatus.Conflicts => SimpleResult.Error(
+                    """
+                    Applying the stash would result in conflicts.
+                    Commit or stash your current changes and try again.
+                    """
+                ),
+                StashApplyStatus.NotFound => SimpleResult.Error("No stash entries found."),
+                StashApplyStatus.UncommittedChanges => SimpleResult.Error(
+                    """
+                    Your local changes to the following files would be overwritten by stash pop.
+                    Commit or stash them first.
+                    """
+                ),
+                _ => throw new ArgumentOutOfRangeException(nameof(status)),
+            };
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public IResult RestorePath(string path)
+    {
+        if (_currentRepo is null)
+            return MissingRepoResult;
+
+        path = LocalPathTools.NormalizePath(path);
+        try
+        {
+            if (LocalPathTools.PathsAreEqualNormalized(path, GetWorkingDir(_currentRepo)))
+            {
+                Commands.Checkout(_currentRepo, "HEAD", CheckoutOpts);
+                return ExecuteGitCommand("clean", "-fd");
+            }
+            _currentRepo.CheckoutPaths("HEAD", [path], CheckoutOpts);
+            return ExecuteGitCommand("clean", "-fd", "--", path);
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public ValueResult<string> CommitChanges(string commitMessage)
+    {
+        if (_currentRepo is null)
+            return MissingRepoResult;
 
         if (!ValidateCommitMessage(commitMessage))
-            return SimpleResult.Error($"Commit message: \"{commitMessage}\" is invalid.");
+            return ValueResult<string>.Error($"Commit message: \"{commitMessage}\" is invalid.");
 
-        return _shellHandler.ExecuteCommand(
-            "git",
-            "-C",
-            GetWorkingDir()!,
-            "commit",
-            "-m",
-            commitMessage.Trim()
-        );
+        return ExecuteGitCommand("commit", "-m", commitMessage.Trim());
     }
 
     private static bool ValidateCommitMessage(string commitMessage)
@@ -241,13 +391,30 @@ public class LocalGitIntegration : IGitIntegration
         return true;
     }
 
-    public IResult PushChanges() =>
-        _currentRepo is null
-            ? SimpleResult.Error(MissingRepoMessage)
-            : _shellHandler.ExecuteCommand("git", "-C", GetWorkingDir()!, "push");
+    private ValueResult<string> PushChangesInternal()
+    {
+        if (_currentRepo is null)
+            return MissingRepoResult;
 
-    /// <summary>
-    /// Disposes of <see cref="_currentRepo"/>.
-    /// </summary>
+        Branch currentBranch = _currentRepo.Head;
+        if (currentBranch.TrackedBranch is not null)
+            return ExecuteGitCommand("push");
+
+        Remote? origin = _currentRepo.Network.Remotes["origin"];
+        if (origin is null)
+            return ValueResult<string>.Error("No remote configured for this repository.");
+
+        return ExecuteGitCommand("push", "origin", currentBranch.FriendlyName);
+    }
+
+    public ValueResult<string> PushChanges()
+    {
+        ValueResult<string> result = PushChangesInternal();
+        if (result.IsOk && string.IsNullOrWhiteSpace(result.Value))
+            result = "Changes pushed successfully.".OkResult();
+
+        return result;
+    }
+
     public void Dispose() => _currentRepo?.Dispose();
 }
