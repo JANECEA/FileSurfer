@@ -115,7 +115,12 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
 
         SyncHiddenFiles = FileSurferSettings.SyncHiddenFiles;
 
-        IRemoteFileIoHandler ioHandler = (IRemoteFileIoHandler)remoteDir.FileSystem.FileIoHandler;
+        IRemoteFileIoHandler ioHandler =
+            remoteDir.FileSystem.FileIoHandler as IRemoteFileIoHandler
+            ?? throw new InvalidCastException(
+                $"remote directory file system does not implement {nameof(IRemoteFileIoHandler)}"
+            );
+
         IDirectoryWatcher watcher = new DirectoryWatcher(localDir);
         _synchronizer = new LocalToSftpSynchronizer(remoteDir, localDir, watcher, ioHandler);
         _synchronizer.OnSyncEvent += ShowEvent;

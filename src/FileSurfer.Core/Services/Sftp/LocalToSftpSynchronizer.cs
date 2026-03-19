@@ -17,6 +17,10 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 {
     public delegate Task SyncEvent(FileSystemEvent fsEvent, string remotePath, IResult result);
 
+    private static readonly Task<IResult> InitCancelledResult = Task.FromResult<IResult>(
+        SimpleResult.Error("Initialization was cancelled.")
+    );
+
     private readonly IDirectoryWatcher _watcher;
     private readonly IRemoteFileIoHandler _remoteHandler;
     private readonly Location _localRoot;
@@ -25,7 +29,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
     private readonly string _remoteRootPath;
 
     private CancellationTokenSource? _cts;
-    private Task<IResult>? _watcherTask;
+    private Task<IResult>? _syncTask;
 
     public event SyncEvent? OnSyncEvent;
 
@@ -48,7 +52,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 
     public async Task<IResult> StartAsync(bool initFromRemote)
     {
-        if (_watcherTask is not null)
+        if (_syncTask is not null)
             return SimpleResult.Error("Synchronizer is already running.");
 
         bool syncHidden = FileSurferSettings.SyncHiddenFiles;
@@ -56,18 +60,48 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
             FileSurferSettings.SynchronizerPollingInterval
         );
 
-        IResult result = Initialize(initFromRemote, syncHidden);
-        if (!result.IsOk)
-            return result;
-
         _cts = new CancellationTokenSource();
 
-        _watcherTask = _watcher.StartAsync(pollingInterval, syncHidden, _cts.Token);
-        result = await _watcherTask;
+        _syncTask = InitAndStart(initFromRemote, syncHidden, pollingInterval);
+        IResult result = await _syncTask;
 
         _cts.Dispose();
         _cts = null;
-        _watcherTask = null;
+        _syncTask = null;
+
+        return result;
+    }
+
+    private async Task<IResult> InitAndStart(
+        bool initFromRemote,
+        bool syncHidden,
+        TimeSpan pollingInterval
+    )
+    {
+        CancellationToken ct = _cts!.Token;
+
+        IResult result = await Task.Run(() => Initialize(initFromRemote, syncHidden, ct), ct);
+        if (!result.IsOk)
+            return result;
+
+        return await _watcher.StartAsync(pollingInterval, syncHidden, ct);
+    }
+
+    private async Task<IResult> Initialize(
+        bool initFromRemote,
+        bool syncHidden,
+        CancellationToken ct
+    )
+    {
+        Location from = initFromRemote ? _remoteRoot : _localRoot;
+        Location to = initFromRemote ? _localRoot : _remoteRoot;
+        Func<string, string> mirrorPathF = initFromRemote ? ToLocalPath : ToRemotePath;
+        Func<string, string, IResult> handleFile = initFromRemote ? DownloadFile : UploadFile;
+
+        Result result = Result.Ok();
+        result.MergeResult(await InitializeFrom(from, to, syncHidden, mirrorPathF, handleFile, ct));
+        if (!result.IsOk)
+            result.MergeResult(ResetDir(to, syncHidden));
 
         return result;
     }
@@ -91,19 +125,13 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         return rs;
     }
 
-    private IResult Initialize(bool initFromRemote, bool syncHidden)
-    {
-        return initFromRemote
-            ? InitializeFrom(_remoteRoot, _localRoot, syncHidden, ToLocalPath, DownloadFile)
-            : InitializeFrom(_localRoot, _remoteRoot, syncHidden, ToRemotePath, UploadFile);
-    }
-
-    private static IResult InitializeFrom(
+    private static Task<IResult> InitializeFrom(
         Location rootFrom,
         Location rootTo,
         bool syncHidden,
         Func<string, string> mirrorPath,
-        Func<string, string, IResult> handleFile
+        Func<string, string, IResult> handleFile,
+        CancellationToken ct
     )
     {
         IFileSystem fsFrom = rootFrom.FileSystem;
@@ -112,7 +140,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 
         IResult resetResult = ResetDir(rootTo, syncHidden);
         if (!resetResult.IsOk)
-            return resetResult;
+            return Task.FromResult(resetResult);
 
         Queue<string> queue = new();
         queue.Enqueue(rootFrom.Path);
@@ -120,15 +148,21 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         Result result = Result.Ok();
         while (queue.Count > 0)
         {
+            if (ct.IsCancellationRequested)
+                return InitCancelledResult;
+
             string current = queue.Dequeue();
 
             var dirResult = fsFrom.FileInfoProvider.GetPathDirs(current, syncHidden, false);
             var fileResult = fsFrom.FileInfoProvider.GetPathFiles(current, syncHidden, false);
             if (ResultExtensions.FirstError(dirResult, fileResult) is IResult error)
-                return error;
+                return Task.FromResult(error);
 
             foreach (DirectoryEntryInfo d in dirResult.Value)
             {
+                if (ct.IsCancellationRequested)
+                    return InitCancelledResult;
+
                 queue.Enqueue(d.PathToEntry);
                 string mirroredPath = mirrorPath(d.PathToEntry);
                 result.MergeResult(
@@ -138,11 +172,14 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 
             foreach (FileEntryInfo f in fileResult.Value)
             {
+                if (ct.IsCancellationRequested)
+                    return InitCancelledResult;
+
                 string mirroredPath = mirrorPath(f.PathToEntry);
                 result.MergeResult(handleFile(f.PathToEntry, mirroredPath));
             }
         }
-        return result;
+        return Task.FromResult<IResult>(result);
     }
 
     private IResult UploadFile(string localPath, string remotePath) =>
@@ -188,8 +225,8 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 
         try
         {
-            if (_watcherTask is not null)
-                await _watcherTask;
+            if (_syncTask is not null)
+                await _syncTask;
         }
         catch (OperationCanceledException)
         {
@@ -199,7 +236,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         {
             _cts.Dispose();
             _cts = null;
-            _watcherTask = null;
+            _syncTask = null;
         }
     }
 

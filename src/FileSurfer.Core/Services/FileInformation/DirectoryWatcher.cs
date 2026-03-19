@@ -76,7 +76,7 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
                 if (!comparisonTask.Result.IsOk)
                     return comparisonTask.Result;
 
-                comparisonTask = Task.Run(() => DiffOnce(syncHidden));
+                comparisonTask = Task.Run(() => DiffOnce(syncHidden), token);
             }
         }
         return await comparisonTask;
