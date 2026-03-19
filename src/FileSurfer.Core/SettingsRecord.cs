@@ -55,6 +55,7 @@ public record SettingsRecord
     public bool showUndoRedoErrorDialogs { get; set; } = true;
     public bool automaticRefresh { get; set; } = true;
     public int automaticRefreshInterval { get; set; } = 3000;
+    public int synchronizerPollingInterval { get; set; } = 3000;
     public bool allowImagePastingFromClipboard { get; set; } = true;
     public List<string> quickAccess { get; set; } = new();
     public bool syncHiddenFiles { get; set; } = false;

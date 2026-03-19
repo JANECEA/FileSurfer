@@ -115,6 +115,12 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     public int AutomaticRefreshIntervalUpperBound =>
         FileSurferSettings.AutomaticRefreshIntervalUpperBound;
 
+    public int SynchronizerPollingInterval { get; set; }
+    public int SynchronizerPollingIntervalLowerBound =>
+        FileSurferSettings.SynchronizerPollingIntervalLowerBound;
+    public int SynchronizerPollingIntervalUpperBound =>
+        FileSurferSettings.SynchronizerPollingIntervalUpperBound;
+
     public bool AllowImagePastingFromClipboard { get; set; }
 
     public SettingsWindowViewModel() => SetValues(FileSurferSettings.CurrentSettings);
@@ -143,6 +149,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         ShowUndoRedoErrorDialogs = settings.showUndoRedoErrorDialogs;
         AutomaticRefresh = settings.automaticRefresh;
         AutomaticRefreshInterval = settings.automaticRefreshInterval;
+        SynchronizerPollingInterval = settings.synchronizerPollingInterval;
         AllowImagePastingFromClipboard = settings.allowImagePastingFromClipboard;
     }
 
@@ -175,6 +182,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
                 showUndoRedoErrorDialogs = ShowUndoRedoErrorDialogs,
                 automaticRefresh = AutomaticRefresh,
                 automaticRefreshInterval = AutomaticRefreshInterval,
+                synchronizerPollingInterval = SynchronizerPollingInterval,
                 allowImagePastingFromClipboard = AllowImagePastingFromClipboard,
                 quickAccess = FileSurferSettings.QuickAccess,
             }

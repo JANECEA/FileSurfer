@@ -128,6 +128,7 @@ public static class FileSurferSettings
             showUndoRedoErrorDialogs = ShowUndoRedoErrorDialogs,
             automaticRefresh = AutomaticRefresh,
             automaticRefreshInterval = AutomaticRefreshInterval,
+            synchronizerPollingInterval = SynchronizerPollingInterval,
             allowImagePastingFromClipboard = AllowImagePastingFromClipboard,
             quickAccess = QuickAccess,
             syncHiddenFiles = SyncHiddenFiles,
@@ -250,6 +251,13 @@ public static class FileSurferSettings
     internal const int AutomaticRefreshIntervalUpperBound = 60 * 1000;
 
     /// <summary>
+    /// Defines the polling refresh rate for directory synchronization
+    /// </summary>
+    public static int SynchronizerPollingInterval { get; set; }
+    internal const int SynchronizerPollingIntervalLowerBound = 250;
+    internal const int SynchronizerPollingIntervalUpperBound = 5 * 60 * 1000;
+
+    /// <summary>
     /// Specifies if images stored in the system clipboard can be pasted directly into directories. Defaults to <see langword="true"/>.
     /// </summary>
     public static bool AllowImagePastingFromClipboard { get; set; }
@@ -365,6 +373,11 @@ public static class FileSurferSettings
             settings.automaticRefreshInterval,
             AutomaticRefreshIntervalLowerBound,
             AutomaticRefreshIntervalUpperBound
+        );
+        SynchronizerPollingInterval = ClampValue(
+            settings.synchronizerPollingInterval,
+            SynchronizerPollingIntervalLowerBound,
+            SynchronizerPollingIntervalUpperBound
         );
 
         AllowImagePastingFromClipboard = settings.allowImagePastingFromClipboard;

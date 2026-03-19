@@ -26,33 +26,33 @@ public sealed record FileSystemEvent(
 
 public interface IDirectoryWatcher
 {
-    public bool SyncHiddenFiles { get; set; }
-
     public event Func<object?, FileSystemEvent, Task>? ChangeDetected;
 
-    public Task<IResult> StartAsync(CancellationToken token);
+    public Task<IResult> StartAsync(
+        TimeSpan pollingInterval,
+        bool syncHidden,
+        CancellationToken token
+    );
 }
 
 public sealed class DirectoryWatcher : IDirectoryWatcher
 {
     private sealed record FsEntryMeta(bool IsDirectory, DateTime LastWriteTimeUtc, long Length);
 
-    private readonly TimeSpan _interval;
     private readonly Location _root;
     private Dictionary<string, FsEntryMeta> _snapshot = new();
 
     public bool SyncHiddenFiles { get; set; } = false;
     public event Func<object?, FileSystemEvent, Task>? ChangeDetected;
 
-    public DirectoryWatcher(Location root, TimeSpan interval)
-    {
-        _root = root;
-        _interval = interval;
-    }
+    public DirectoryWatcher(Location root) => _root = root;
 
-    public async Task<IResult> StartAsync(CancellationToken token)
+    public async Task<IResult> StartAsync(
+        TimeSpan pollingInterval,
+        bool syncHidden,
+        CancellationToken token
+    )
     {
-        bool syncHidden = SyncHiddenFiles;
         ValueResult<Dictionary<string, FsEntryMeta>> firstSnapshotResult = TakeSnapshot(syncHidden);
         if (!firstSnapshotResult.IsOk)
             return firstSnapshotResult;
@@ -64,7 +64,7 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
         {
             try
             {
-                await Task.Delay(_interval, token);
+                await Task.Delay(pollingInterval, token);
             }
             catch (TaskCanceledException)
             {

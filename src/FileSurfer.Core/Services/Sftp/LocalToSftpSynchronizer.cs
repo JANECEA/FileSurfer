@@ -51,13 +51,18 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         if (_watcherTask is not null)
             return SimpleResult.Error("Synchronizer is already running.");
 
-        IResult result = Initialize(initFromRemote);
+        bool syncHidden = FileSurferSettings.SyncHiddenFiles;
+        TimeSpan pollingInterval = TimeSpan.FromMilliseconds(
+            FileSurferSettings.SynchronizerPollingInterval
+        );
+
+        IResult result = Initialize(initFromRemote, syncHidden);
         if (!result.IsOk)
             return result;
 
         _cts = new CancellationTokenSource();
 
-        _watcherTask = _watcher.StartAsync(_cts.Token);
+        _watcherTask = _watcher.StartAsync(pollingInterval, syncHidden, _cts.Token);
         result = await _watcherTask;
 
         _cts.Dispose();
@@ -86,14 +91,11 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         return rs;
     }
 
-    private IResult Initialize(bool initFromRemote)
+    private IResult Initialize(bool initFromRemote, bool syncHidden)
     {
-        bool sh = FileSurferSettings.SyncHiddenFiles;
-        _watcher.SyncHiddenFiles = sh;
-
         return initFromRemote
-            ? InitializeFrom(_remoteRoot, _localRoot, sh, ToLocalPath, DownloadFile)
-            : InitializeFrom(_localRoot, _remoteRoot, sh, ToRemotePath, UploadFile);
+            ? InitializeFrom(_remoteRoot, _localRoot, syncHidden, ToLocalPath, DownloadFile)
+            : InitializeFrom(_localRoot, _remoteRoot, syncHidden, ToRemotePath, UploadFile);
     }
 
     private static IResult InitializeFrom(

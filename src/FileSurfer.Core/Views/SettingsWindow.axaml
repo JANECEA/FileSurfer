@@ -131,7 +131,7 @@
                         <StackPanel Margin="0 15 0 0" Spacing="8">
                             <CheckBox Content="Automatic Refresh" IsChecked="{Binding AutomaticRefresh}" />
                             <StackPanel Margin="20 5 0 0" Orientation="Horizontal" Spacing="5">
-                                <TextBlock VerticalAlignment="Center" Text="Refresh Interval:" />
+                                <TextBlock VerticalAlignment="Center" Text="Directory refresh Interval:" />
                                 <NumericUpDown Width="150"
                                                Margin="10 0 5 0"
                                                ClipValueToMinMax="True"
@@ -147,6 +147,17 @@
                 <Border Classes="Borders">
                     <StackPanel Spacing="12">
                         <TextBlock Classes="Section" Text="Advanced" />
+
+                        <StackPanel Margin="0 5 0 5" Orientation="Horizontal" Spacing="5">
+                            <TextBlock VerticalAlignment="Center" Text="Synchronizer polling interval:" />
+                            <NumericUpDown Width="150"
+                                           Margin="10 0 5 0"
+                                           ClipValueToMinMax="True"
+                                           Maximum="{CompiledBinding SynchronizerPollingIntervalUpperBound}"
+                                           Minimum="{CompiledBinding SynchronizerPollingIntervalLowerBound}"
+                                           Value="{Binding SynchronizerPollingInterval}" />
+                            <TextBlock VerticalAlignment="Center" Text="ms" />
+                        </StackPanel>
 
                         <Grid ColumnDefinitions="200 *" RowDefinitions="Auto Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Preferred Terminal:" />

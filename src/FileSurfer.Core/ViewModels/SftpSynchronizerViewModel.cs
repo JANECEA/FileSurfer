@@ -116,7 +116,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         SyncHiddenFiles = FileSurferSettings.SyncHiddenFiles;
 
         IRemoteFileIoHandler ioHandler = (IRemoteFileIoHandler)remoteDir.FileSystem.FileIoHandler;
-        IDirectoryWatcher watcher = new DirectoryWatcher(localDir, Interval);
+        IDirectoryWatcher watcher = new DirectoryWatcher(localDir);
         _synchronizer = new LocalToSftpSynchronizer(remoteDir, localDir, watcher, ioHandler);
         _synchronizer.OnSyncEvent += ShowEvent;
 
