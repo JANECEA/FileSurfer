@@ -2,7 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 
-namespace FileSurfer.Linux.Views;
+namespace FileSurfer.Core.Views;
 
 public partial class PropertiesWindow : Window
 {

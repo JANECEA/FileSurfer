@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
-using FileSurfer.Core.ViewModels;
-using FileSurfer.Linux.Views;
+using FileSurfer.Core.Views;
 
-namespace FileSurfer.Linux.ViewModels;
+namespace FileSurfer.Core.ViewModels;
 
 /// <summary>
 /// Represents an object that can be displayed
@@ -19,6 +19,7 @@ public interface IDisplayable
 /// <summary>
 /// The PropertiesWindowViewModel is the ViewModel for the <see cref="PropertiesWindow"/>.
 /// </summary>
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public sealed class PropertiesWindowViewModel : IDisplayable
 {
     private readonly Window _mainWindow;

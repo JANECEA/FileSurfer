@@ -1,9 +1,9 @@
-<Window x:Class="FileSurfer.Linux.Views.PropertiesWindow"
+<Window x:Class="FileSurfer.Core.Views.PropertiesWindow"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="clr-namespace:FileSurfer.Linux.ViewModels"
+        xmlns:vm="clr-namespace:FileSurfer.Core.ViewModels"
         Title="{Binding EntryVm.Name, StringFormat=Properties for: {0} -- FileSurfer}"
         Width="420"
         Height="465"
@@ -17,9 +17,10 @@
         mc:Ignorable="d">
 
     <Window.Styles>
-        <StyleInclude Source="avares://FileSurfer/Views/PropertiesWindowStyle.axaml" />
+        <StyleInclude Source="avares://FileSurfer.Core/Views/PropertiesWindowStyle.axaml" />
     </Window.Styles>
 
+    <!--  ReSharper disable Xaml.BindingWithoutContextNotResolved  -->
     <DockPanel Margin="16" LastChildFill="False" VerticalSpacing="10">
         <StackPanel Margin="15 5 15 5" DockPanel.Dock="Top" Spacing="10">
             <Grid ColumnDefinitions="Auto *" RowDefinitions="Auto">
