@@ -8,6 +8,7 @@
         d:DesignHeight="230"
         d:DesignWidth="560"
         Classes="DialogWindow"
+        KeyDown="KeyPressed"
         mc:Ignorable="d">
 
     <Window.Styles>
@@ -16,7 +17,9 @@
 
     <Grid Classes="MainGrid" RowDefinitions="* Auto 45">
         <Border Classes="InfoBlockBorder">
-            <TextBlock x:Name="ContextBlock" Classes="InfoBlock" />
+            <ScrollViewer>
+                <TextBlock x:Name="ContextBlock" Classes="InfoBlock" />
+            </ScrollViewer>
         </Border>
 
         <TextBox x:Name="InputBox" Grid.Row="1" Classes="InputBox" />
@@ -25,11 +28,11 @@
         <Grid Grid.Row="2" HorizontalAlignment="Right" ColumnDefinitions="Auto Auto">
             <Button Margin="0 0 -2 0" Classes="BottomButton" Click="CancelClicked" Content="Cancel" />
 
-            <Button Grid.Column="1"
+            <Button x:Name="ContinueButton"
+                    Grid.Column="1"
                     Classes="BottomButton"
                     Click="ContinueClicked"
                     Content="Continue"
-                    HotKey="Enter"
                     IsEnabled="{Binding Text, ElementName=InputBox, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
         </Grid>
     </Grid>

@@ -22,9 +22,9 @@ public partial class SuggestInputDialogWindow : Window
         base.OnOpened(e);
     }
 
-    private void CancelClicked(object? sender, RoutedEventArgs e) => Close(null);
+    private void CancelClicked(object? sender, RoutedEventArgs? e) => Close(null);
 
-    private void ContinueClicked(object? sender, RoutedEventArgs e) => Close(InputBox.Text);
+    private void ContinueClicked(object? sender, RoutedEventArgs? e) => Close(InputBox.Text);
 
     private void SuggestionsTapped(object? sender, TappedEventArgs e)
     {
@@ -32,6 +32,20 @@ public partial class SuggestInputDialogWindow : Window
         {
             InputBox.Text = suggestion;
             listBox.SelectedItems?.Clear();
+        }
+    }
+
+    private void KeyPressed(object sender, KeyEventArgs e)
+    {
+        if (e.Key is Key.Enter && ContinueButton.IsEnabled)
+        {
+            e.Handled = true;
+            ContinueClicked(null, null);
+        }
+        if (e.Key is Key.Escape)
+        {
+            e.Handled = true;
+            CancelClicked(null, null);
         }
     }
 }

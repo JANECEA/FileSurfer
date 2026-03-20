@@ -8,6 +8,7 @@
         d:DesignHeight="230"
         d:DesignWidth="560"
         Classes="DialogWindow"
+        KeyDown="KeyPressed"
         mc:Ignorable="d">
 
     <Window.Styles>
@@ -15,8 +16,10 @@
     </Window.Styles>
 
     <Grid Classes="MainGrid" RowDefinitions="* 45">
-        <Border Grid.Row="0" Classes="InfoBlockBorder">
-            <TextBlock x:Name="QuestionBlock" Classes="InfoBlock" />
+        <Border Classes="InfoBlockBorder">
+            <ScrollViewer>
+                <TextBlock x:Name="QuestionBlock" Classes="InfoBlock" />
+            </ScrollViewer>
         </Border>
 
         <Rectangle Grid.Row="1" Classes="BottomRectangle" />

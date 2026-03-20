@@ -7,7 +7,6 @@
         Height="230"
         d:DesignHeight="230"
         d:DesignWidth="560"
-        CanResize="True"
         Classes="DialogWindow"
         KeyDown="KeyPressed"
         mc:Ignorable="d">
@@ -22,6 +21,7 @@
                 <TextBlock x:Name="InfoBlock" Classes="InfoBlock" />
             </ScrollViewer>
         </Border>
+
         <Rectangle Grid.Row="1" Classes="BottomRectangle" />
         <Button Grid.Row="1" Classes="BottomButton" Click="CloseWindow" Content="Ok" />
     </Grid>

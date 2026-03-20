@@ -2,7 +2,7 @@
 
     <Style Selector="Window.DialogWindow">
         <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
-        <Setter Property="CanResize" Value="False" />
+        <Setter Property="CanResize" Value="True" />
         <Setter Property="Icon" Value="/Assets/FileSurfer-logo.ico" />
         <Setter Property="ShowInTaskbar" Value="False" />
         <Setter Property="WindowStartupLocation" Value="CenterOwner" />
