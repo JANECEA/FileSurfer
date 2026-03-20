@@ -13,7 +13,6 @@
         Closing="OnClosing"
         DataContextChanged="ViewModelLoaded"
         Icon="/Assets/FileSurfer-logo.ico"
-        KeyDown="KeyPressed"
         PointerPressed="MouseButtonPressed"
         WindowStartupLocation="CenterScreen"
         mc:Ignorable="d">
@@ -123,6 +122,12 @@
 
     <DockPanel Background="{DynamicResource PrimaryColor}">
         <DockPanel Height="50" Margin="10 0" DockPanel.Dock="Top">
+            <Button x:Name="FocusSink"
+                    Width="0"
+                    Height="0"
+                    IsHitTestVisible="False"
+                    Opacity="0" />
+
             <Button Classes="StateButton TopLeftButton ArrowButton"
                     Command="{Binding GoBackCommand}"
                     Content="&#xF053;"

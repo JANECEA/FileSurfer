@@ -55,12 +55,16 @@ public partial class MainWindow : Window
             keyBinding.Gesture is { KeyModifiers: KeyModifiers.Control, Key: Key.A }
         );
         _invertSelection = KeyBindings.First(keyBinding => keyBinding.Gesture.Key == Key.Multiply);
+
+        AddHandler(KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
     }
 
     private void ViewModelLoaded(object? sender, EventArgs e)
     {
         if (DataContext is MainWindowViewModel viewModel && _viewModel is null)
             _viewModel = viewModel;
+
+        ClearFocus();
     }
 
     /// <summary>
@@ -171,20 +175,12 @@ public partial class MainWindow : Window
         CommitMessageBar.IsVisible = false;
     }
 
-    private void ClearSidebar()
-    {
-        SpecialsListBox.SelectedItems?.Clear();
-        QuickAccessListBox.SelectedItems?.Clear();
-        DrivesListBox.SelectedItems?.Clear();
-        SftpListBox.SelectedItems?.Clear();
-    }
-
     private void SideBarEntryClicked(object sender, TappedEventArgs e)
     {
         if (sender is ListBox { SelectedItem: SideBarEntryViewModel entry })
             _viewModel?.OpenLocalEntry(entry);
 
-        ClearSidebar();
+        ClearFocus();
     }
 
     private void SftpEntryClicked(object sender, TappedEventArgs e)
@@ -195,7 +191,7 @@ public partial class MainWindow : Window
         )
             _ = _viewModel.OpenSftpConnection(connectionVm);
 
-        ClearSidebar();
+        ClearFocus();
     }
 
     /// <summary>
@@ -361,19 +357,37 @@ public partial class MainWindow : Window
         settingsWindow.ShowDialog(this);
     }
 
-    /// <summary>
-    /// Handles key presses without keybindings.
-    /// </summary>
-    private void KeyPressed(object sender, KeyEventArgs e)
+    private void OnKeyDown(object? sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)
+        {
             OnEnterPressed(e);
-
+            return;
+        }
         if (e.Key == Key.Escape)
+        {
             OnEscapePressed(e);
-
-        if (e is { Key: Key.F, KeyModifiers: KeyModifiers.Control })
+            return;
+        }
+        if (e is { KeyModifiers: KeyModifiers.Control, Key: Key.F })
+        {
             OnCtrlFPressed(e);
+            return;
+        }
+
+        if (
+            e.Key is not (Key.Up or Key.Down or Key.Left or Key.Right)
+            || FileDisplay.IsKeyboardFocusWithin
+            || FocusManager?.GetFocusedElement() is TextBox
+        )
+            return;
+
+        if (FileDisplay.ItemCount > 0)
+        {
+            FileDisplay.SelectedIndex = 0;
+            FileDisplay.ContainerFromIndex(0)?.Focus();
+        }
+        e.Handled = true;
     }
 
     /// <summary>
@@ -390,15 +404,7 @@ public partial class MainWindow : Window
 
     private void ClearFocus()
     {
-        if (FileDisplay.ItemCount > 0)
-        {
-            FileDisplay.SelectedIndex = 0;
-            Control? firstContainer = FileDisplay.ContainerFromIndex(0);
-            firstContainer?.Focus();
-        }
-        else
-            FileDisplay.Focus();
-
+        FocusSink.Focus();
         SpecialsListBox.SelectedItems?.Clear();
         QuickAccessListBox.SelectedItems?.Clear();
         DrivesListBox.SelectedItems?.Clear();
