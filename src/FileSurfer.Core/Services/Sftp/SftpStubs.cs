@@ -3,7 +3,6 @@ using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.FileOperations;
 using FileSurfer.Core.Services.Shell;
 using FileSurfer.Core.Services.VersionControl;
-using FileSurfer.Core.ViewModels;
 
 // Models that might be implemented for Sftp in the future
 
@@ -79,18 +78,4 @@ public class StubBinInteraction : IBinInteraction
     public IResult RestoreFile(string originalFilePath) => SimpleResult.Error(_message);
 
     public IResult RestoreDir(string originalDirPath) => SimpleResult.Error(_message);
-}
-
-public class StubFileProperties : IFileProperties
-{
-    private readonly string _message;
-
-    public StubFileProperties(string message) => _message = message;
-
-    public IResult ShowFileProperties(FileSystemEntryViewModel entry) =>
-        SimpleResult.Error(_message);
-
-    public bool SupportsOpenAs(IFileSystemEntry entry) => false;
-
-    public IResult ShowOpenAsDialog(IFileSystemEntry entry) => SimpleResult.Error(_message);
 }

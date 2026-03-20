@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.IO;
 using Avalonia.Controls;
 using FileSurfer.Core.Views;
 
@@ -22,26 +24,37 @@ public interface IDisplayable
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public sealed class PropertiesWindowViewModel : IDisplayable
 {
-    private readonly Window _mainWindow;
+    public static Window? MainWindow { private get; set; }
 
     public FileSystemEntryViewModel EntryVm { get; }
     public required string Size { get; init; }
-    public required string DateCreated { get; init; }
-    public required string DateAccessed { get; init; }
-    public required string DateModified { get; init; }
+
+    public string? DateCreatedStr { get; private set; } = null;
+    public required DateTime DateCreated
+    {
+        init => DateCreatedStr = GetDateString(value);
+    }
+
+    public string? DateAccessedStr { get; private set; } = null;
+    public required DateTime DateAccessed
+    {
+        init => DateAccessedStr = GetDateString(value);
+    }
+
+    public string? DateModifiedStr { get; private set; } = null;
+    public required DateTime DateModified
+    {
+        init => DateModifiedStr = GetDateString(value);
+    }
+
     public required string Owner { get; init; }
     public string PermissionsOwner { get; }
     public string PermissionsGroup { get; }
     public string PermissionsOther { get; }
 
-    public PropertiesWindowViewModel(
-        FileSystemEntryViewModel entry,
-        Window mainWindow,
-        string permissions
-    )
+    public PropertiesWindowViewModel(FileSystemEntryViewModel entry, string permissions)
     {
         EntryVm = entry;
-        _mainWindow = mainWindow;
 
         ReadOnlySpan<char> perms = permissions.AsSpan();
         if (entry.IsDirectory)
@@ -83,9 +96,28 @@ public sealed class PropertiesWindowViewModel : IDisplayable
             _ => "No permissions",
         };
 
+    private static string GetDateString(DateTime date)
+    {
+        try
+        {
+            CultureInfo cultureInfo = CultureInfo.CurrentCulture;
+            DateTimeFormatInfo formatInfo = cultureInfo.DateTimeFormat;
+            string format = $"{formatInfo.LongDatePattern} {formatInfo.LongTimePattern}";
+
+            return date.ToString(format, cultureInfo);
+        }
+        catch (IOException)
+        {
+            return "Error";
+        }
+    }
+
     public void Show()
     {
         PropertiesWindow window = new() { DataContext = this };
-        window.ShowDialog(_mainWindow);
+        if (MainWindow is null)
+            window.Show();
+        else
+            window.ShowDialog(MainWindow);
     }
 }

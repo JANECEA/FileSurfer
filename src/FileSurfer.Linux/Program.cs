@@ -12,7 +12,6 @@ using FileSurfer.Core.Views;
 using FileSurfer.Linux.Models.FileInformation;
 using FileSurfer.Linux.Services.FileOperations;
 using FileSurfer.Linux.Services.Shell;
-using FileSurfer.Linux.ViewModels;
 using ReactiveUI.Avalonia;
 
 namespace FileSurfer.Linux;
@@ -69,7 +68,7 @@ public class LinuxPlatformBootstrap : IPlatformBootstrap
             ArchiveManager = new LocalArchiveManager(fileInfoProvider),
             FileIoHandler = new LinuxFileIoHandler(),
             BinInteraction = new LinuxBinInteraction(LinuxShellHandler),
-            FileProperties = new LinuxFileProperties(new PropertiesVmFactory(mainWindow)),
+            FileProperties = new LinuxFileProperties(new LinuxPropertiesVmFactory()),
             LocalShellHandler = LinuxShellHandler,
             GitIntegration = new LocalGitIntegration(LinuxShellHandler),
         };

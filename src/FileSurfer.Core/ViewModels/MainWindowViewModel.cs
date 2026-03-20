@@ -357,10 +357,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         CopyPathCommand = ReactiveCommand.Create<FileSystemEntryViewModel?, Task>(CopyPath);
         CreateShortcutCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(CreateShortcut);
         FlattenFolderCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(FlattenFolder);
-        ShowPropertiesCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(
-            ShowProperties,
-            local
-        );
+        ShowPropertiesCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(ShowProperties);
         SyncDirCommand = ReactiveCommand.Create<FileSystemEntryViewModel?, Task>(
             SynchronizeDir,
             notLocalNotSearchingNotSync

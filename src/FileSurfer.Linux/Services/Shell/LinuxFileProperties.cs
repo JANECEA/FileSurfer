@@ -5,7 +5,6 @@ using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Shell;
 using FileSurfer.Core.ViewModels;
-using FileSurfer.Linux.ViewModels;
 using Mono.Unix;
 
 namespace FileSurfer.Linux.Services.Shell;
@@ -102,5 +101,5 @@ public class LinuxFileProperties : IFileProperties
     public bool SupportsOpenAs(IFileSystemEntry entry) => false;
 
     public IResult ShowOpenAsDialog(IFileSystemEntry entry) =>
-        SimpleResult.Error("Unsupported operating system");
+        SimpleResult.Error("Unsupported operating system.");
 }

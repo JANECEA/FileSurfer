@@ -53,6 +53,7 @@ public partial class App : Application
             );
             desktop.MainWindow = mainWindow;
             desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnMainWindowClose;
+            PropertiesWindowViewModel.MainWindow = mainWindow;
         }
         base.OnFrameworkInitializationCompleted();
     }

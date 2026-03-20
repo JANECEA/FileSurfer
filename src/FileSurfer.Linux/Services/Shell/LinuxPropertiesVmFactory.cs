@@ -1,11 +1,8 @@
-using System;
 using System.Globalization;
 using System.IO;
-using System.Security;
-using Avalonia.Controls;
 using FileSurfer.Core.ViewModels;
 
-namespace FileSurfer.Linux.ViewModels;
+namespace FileSurfer.Linux.Services.Shell;
 
 /// <summary>
 /// Factory to create properties window view-model
@@ -27,12 +24,8 @@ public interface IPropertiesVmFactory
     );
 }
 
-public sealed class PropertiesVmFactory : IPropertiesVmFactory
+public sealed class LinuxPropertiesVmFactory : IPropertiesVmFactory
 {
-    private readonly Window _parentWindow;
-
-    public PropertiesVmFactory(Window mainWindow) => _parentWindow = mainWindow;
-
     private static string GetSize(FileSystemEntryViewModel entry, FileSystemInfo fsInfo)
     {
         if (!entry.IsDirectory)
@@ -51,25 +44,9 @@ public sealed class PropertiesVmFactory : IPropertiesVmFactory
             int dirCount = dirInfo.GetDirectories().Length;
             return $"{fileCount} files, {dirCount} sub-directories";
         }
-        catch (Exception ex) when (ex is SecurityException or UnauthorizedAccessException)
+        catch
         {
-            return "Permission error";
-        }
-    }
-
-    private static string GetDateString(Func<DateTime> getDate)
-    {
-        try
-        {
-            CultureInfo cultureInfo = CultureInfo.CurrentCulture;
-            DateTimeFormatInfo formatInfo = cultureInfo.DateTimeFormat;
-            string format = $"{formatInfo.LongDatePattern} {formatInfo.LongTimePattern}";
-
-            return getDate().ToString(format, cultureInfo);
-        }
-        catch (IOException)
-        {
-            return "IO error";
+            return "_";
         }
     }
 
@@ -80,12 +57,12 @@ public sealed class PropertiesVmFactory : IPropertiesVmFactory
         string owner
     )
     {
-        PropertiesWindowViewModel value = new(entry, _parentWindow, permissions)
+        PropertiesWindowViewModel value = new(entry, permissions)
         {
             Size = GetSize(entry, info),
-            DateCreated = GetDateString(() => info.CreationTime),
-            DateAccessed = GetDateString(() => info.LastAccessTime),
-            DateModified = GetDateString(() => info.LastWriteTime),
+            DateCreated = info.CreationTime,
+            DateAccessed = info.LastAccessTime,
+            DateModified = info.LastWriteTime,
             Owner = owner,
         };
         return value;

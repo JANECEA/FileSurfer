@@ -44,13 +44,13 @@
             <TextBlock Grid.Row="1" Grid.Column="1" Classes="value" Text="{Binding Size}" />
 
             <TextBlock Grid.Row="2" Grid.Column="0" Classes="label" Text="Created:" />
-            <TextBlock Grid.Row="2" Grid.Column="1" Classes="value" Text="{Binding DateCreated}" />
+            <TextBlock Grid.Row="2" Grid.Column="1" Classes="value" Text="{Binding DateCreatedStr}" />
 
             <TextBlock Grid.Row="3" Grid.Column="0" Classes="label" Text="Accessed:" />
-            <TextBlock Grid.Row="3" Grid.Column="1" Classes="value" Text="{Binding DateAccessed}" />
+            <TextBlock Grid.Row="3" Grid.Column="1" Classes="value" Text="{Binding DateAccessedStr}" />
 
             <TextBlock Grid.Row="4" Grid.Column="0" Classes="label" Text="Modified:" />
-            <TextBlock Grid.Row="4" Grid.Column="1" Classes="value" Text="{Binding DateModified}" />
+            <TextBlock Grid.Row="4" Grid.Column="1" Classes="value" Text="{Binding DateModifiedStr}" />
         </Grid>
 
         <Border Classes="separator" DockPanel.Dock="Top" />
