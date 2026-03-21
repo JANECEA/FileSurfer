@@ -38,9 +38,6 @@ public partial class MainWindow : Window
     private DataTemplate _previousTemplate;
     private ItemsPanelTemplate _previousPanel;
 
-    /// <summary>
-    /// Initializes a new <see cref="MainWindow"/>.
-    /// </summary>
     public MainWindow()
     {
         InitializeComponent();
@@ -101,12 +98,10 @@ public partial class MainWindow : Window
         {
             FileDisplay.ItemTemplate = _previousTemplate;
             FileDisplay.ItemsPanel = _previousPanel;
+            SearchBox.Text = string.Empty;
         }
     }
 
-    /// <summary>
-    /// Determines if <see cref="SpecialsListBox"/> should be visible after it has been loaded.
-    /// </summary>
     private void OnSpecialFoldersChanged(object sender, AvaloniaPropertyChangedEventArgs e)
     {
         if (_viewModel is null)
@@ -255,10 +250,7 @@ public partial class MainWindow : Window
         KeyBindings.Remove(_invertSelection);
     }
 
-    /// <summary>
-    /// Rebinds interfering keybindings when the user stops typing.
-    /// </summary>
-    private void TextBoxLostFocus()
+    private void TextBoxLostFocus(object? sender = null, RoutedEventArgs? e = null)
     {
         DeleteButton.HotKey = _deleteGesture;
         CutButton.HotKey = _cutGesture;
@@ -266,15 +258,6 @@ public partial class MainWindow : Window
         PasteButton.HotKey = _pasteGesture;
         KeyBindings.Add(_selectAllKb);
         KeyBindings.Add(_invertSelection);
-    }
-
-    /// <summary>
-    /// Clears <see cref="SearchBox"/> when it looses focus.
-    /// </summary>
-    private void SearchBoxLostFocus(object sender, RoutedEventArgs e)
-    {
-        SearchBox.Text = string.Empty;
-        TextBoxLostFocus();
     }
 
     /// <summary>
@@ -381,9 +364,6 @@ public partial class MainWindow : Window
         FileSurferSettings.DisplayMode = DisplayMode.IconView;
     }
 
-    /// <summary>
-    /// Opens the <see cref="SettingsWindow"/> in a dialog mode with <see cref="MainWindow"/> as the owner.
-    /// </summary>
     private void OpenSettings(object sender, RoutedEventArgs e)
     {
         SettingsWindow settingsWindow = new();
@@ -471,22 +451,19 @@ public partial class MainWindow : Window
         if (_viewModel is not null)
         {
             if (SearchBox.IsFocused && !string.IsNullOrWhiteSpace(SearchBox.Text))
+            {
                 _viewModel?.SearchAsync(SearchBox.Text);
+                ClearFocus();
+            }
             else if (_viewModel.SelectedFiles.Count == 1)
                 _viewModel?.OpenEntry(_viewModel.SelectedFiles[0].FileSystemEntry);
         }
     }
 
-    /// <summary>
-    /// Empties selection, cancels searching and clears focus.
-    /// </summary>
     private void OnEscapePressed(KeyEventArgs e)
     {
         e.Handled = true;
         _viewModel?.SelectedFiles.Clear();
-        if (SearchBox.IsFocused)
-            _viewModel?.CancelSearch();
-
         ClearFocus();
     }
 

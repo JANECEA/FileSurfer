@@ -83,6 +83,7 @@
                     <ColumnDefinition Width="30" />
                     <ColumnDefinition Width="350" />
                     <ColumnDefinition Width="*" MinWidth="150" />
+                    <ColumnDefinition Width="30" />
                     <ColumnDefinition Width="170" />
                 </Grid.ColumnDefinitions>
 
@@ -111,7 +112,7 @@
                                TextTrimming="LeadingCharacterEllipsis" />
                 </Canvas>
 
-                <TextBlock Grid.Column="3" Classes="FileInfo" Text="{Binding LastModified}" />
+                <TextBlock Grid.Column="4" Classes="FileInfo" Text="{Binding LastModified}" />
             </Grid>
         </DataTemplate>
 
@@ -204,7 +205,7 @@
                     <TextBox x:Name="SearchBox"
                              Classes="SearchBox TopTextBox"
                              GotFocus="TextBoxGotFocus"
-                             LostFocus="SearchBoxLostFocus"
+                             LostFocus="TextBoxLostFocus"
                              Watermark="{Binding SearchWaterMark}" />
                     <Button Classes="CancelSearchButton"
                             Command="{Binding CancelSearchCommand}"
