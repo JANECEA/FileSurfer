@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using Avalonia;
@@ -20,16 +21,22 @@ namespace FileSurfer.Core.Views;
 public partial class MainWindow : Window
 {
     private MainWindowViewModel? _viewModel;
-    private readonly DataTemplate _iconViewTemplate;
-    private readonly DataTemplate _listViewTemplate;
-    private readonly ItemsPanelTemplate _listViewPanel;
-    private readonly ItemsPanelTemplate _iconViewPanel;
+
     private readonly KeyBinding _selectAllKb;
     private readonly KeyBinding _invertSelection;
     private readonly KeyGesture _deleteGesture = KeyGesture.Parse("Delete");
     private readonly KeyGesture _cutGesture = KeyGesture.Parse("Ctrl+X");
     private readonly KeyGesture _copyGesture = KeyGesture.Parse("Ctrl+C");
     private readonly KeyGesture _pasteGesture = KeyGesture.Parse("Ctrl+V");
+
+    private readonly DataTemplate _iconViewTemplate;
+    private readonly DataTemplate _listViewTemplate;
+    private readonly DataTemplate _searchViewTemplate;
+    private readonly ItemsPanelTemplate _listViewPanel;
+    private readonly ItemsPanelTemplate _iconViewPanel;
+
+    private DataTemplate _previousTemplate;
+    private ItemsPanelTemplate _previousPanel;
 
     /// <summary>
     /// Initializes a new <see cref="MainWindow"/>.
@@ -41,6 +48,7 @@ public partial class MainWindow : Window
         if (
             Resources["ListViewTemplate"] is not DataTemplate listViewTemplate
             || Resources["IconViewTemplate"] is not DataTemplate iconViewTemplate
+            || Resources["SearchViewTemplate"] is not DataTemplate searchViewTemplate
             || Resources["ListViewPanel"] is not ItemsPanelTemplate listViewPanel
             || Resources["IconViewPanel"] is not ItemsPanelTemplate iconViewPanel
         )
@@ -48,8 +56,12 @@ public partial class MainWindow : Window
 
         _listViewTemplate = listViewTemplate;
         _iconViewTemplate = iconViewTemplate;
+        _searchViewTemplate = searchViewTemplate;
         _listViewPanel = listViewPanel;
         _iconViewPanel = iconViewPanel;
+
+        _previousPanel = listViewPanel;
+        _previousTemplate = listViewTemplate;
 
         _selectAllKb = KeyBindings.First(keyBinding =>
             keyBinding.Gesture is { KeyModifiers: KeyModifiers.Control, Key: Key.A }
@@ -67,6 +79,31 @@ public partial class MainWindow : Window
         ClearFocus();
     }
 
+    protected override void OnDataContextChanged(EventArgs e)
+    {
+        base.OnDataContextChanged(e);
+
+        if (DataContext is MainWindowViewModel vm)
+            vm.PropertyChanged += OnViewModelPropertyChanged;
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(MainWindowViewModel.Searching) || _viewModel is null)
+            return;
+
+        if (_viewModel.Searching)
+        {
+            FileDisplay.ItemTemplate = _searchViewTemplate;
+            FileDisplay.ItemsPanel = _listViewPanel;
+        }
+        else
+        {
+            FileDisplay.ItemTemplate = _previousTemplate;
+            FileDisplay.ItemsPanel = _previousPanel;
+        }
+    }
+
     /// <summary>
     /// Determines if <see cref="SpecialsListBox"/> should be visible after it has been loaded.
     /// </summary>
@@ -81,12 +118,10 @@ public partial class MainWindow : Window
         SpecialsLabel.IsVisible = show;
     }
 
-    /// <summary>
-    /// Determines the current view mode based on <see cref="FileSurferSettings.DisplayMode"/>
-    /// after the <see cref="WrapPanel"/> holding current directory contents has been loaded.
-    /// </summary>
-    private void WrapPanelLoaded(object sender, RoutedEventArgs e)
+    protected override void OnLoaded(RoutedEventArgs e)
     {
+        base.OnLoaded(e);
+
         if (FileSurferSettings.DisplayMode is DisplayMode.IconView)
             IconView();
     }
@@ -334,17 +369,15 @@ public partial class MainWindow : Window
 
     private void ListView(object? sender = null, RoutedEventArgs? e = null)
     {
-        LabelsPanel.IsVisible = true;
-        FileDisplay.ItemsPanel = _listViewPanel;
-        FileDisplay.ItemTemplate = _listViewTemplate;
+        FileDisplay.ItemsPanel = _previousPanel = _listViewPanel;
+        FileDisplay.ItemTemplate = _previousTemplate = _listViewTemplate;
         FileSurferSettings.DisplayMode = DisplayMode.ListView;
     }
 
     private void IconView(object? sender = null, RoutedEventArgs? e = null)
     {
-        LabelsPanel.IsVisible = false;
-        FileDisplay.ItemsPanel = _iconViewPanel;
-        FileDisplay.ItemTemplate = _iconViewTemplate;
+        FileDisplay.ItemsPanel = _previousPanel = _iconViewPanel;
+        FileDisplay.ItemTemplate = _previousTemplate = _iconViewTemplate;
         FileSurferSettings.DisplayMode = DisplayMode.IconView;
     }
 
@@ -438,11 +471,8 @@ public partial class MainWindow : Window
         if (_viewModel is not null)
         {
             if (SearchBox.IsFocused && !string.IsNullOrWhiteSpace(SearchBox.Text))
-            {
                 _viewModel?.SearchAsync(SearchBox.Text);
-                return;
-            }
-            if (_viewModel.SelectedFiles.Count == 1)
+            else if (_viewModel.SelectedFiles.Count == 1)
                 _viewModel?.OpenEntry(_viewModel.SelectedFiles[0].FileSystemEntry);
         }
     }

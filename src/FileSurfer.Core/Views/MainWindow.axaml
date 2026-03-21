@@ -34,6 +34,7 @@
 
     <Window.Resources>
         <views:SortArrowConverter x:Key="SortArrowConverter" />
+        <views:SameObjectConverter x:Key="SameObjectConverter" />
 
         <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
             <Grid Height="36">
@@ -76,6 +77,44 @@
             </Grid>
         </DataTemplate>
 
+        <DataTemplate x:Key="SearchViewTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
+            <Grid Height="36">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30" />
+                    <ColumnDefinition Width="350" />
+                    <ColumnDefinition Width="*" MinWidth="150" />
+                    <ColumnDefinition Width="170" />
+                </Grid.ColumnDefinitions>
+
+                <Image Grid.Column="0"
+                       Width="28"
+                       Height="28"
+                       Margin="0 0 13 0"
+                       Opacity="{Binding Opacity}"
+                       Source="{Binding Icon}" />
+
+                <Canvas Grid.Column="1">
+                    <TextBlock Canvas.Top="8"
+                               Width="{Binding $parent[Canvas].Bounds.Width}"
+                               Classes="FileInfo"
+                               FontSize="15"
+                               FontWeight="Regular"
+                               Text="{Binding Name}" />
+                </Canvas>
+
+                <Canvas Grid.Column="2">
+                    <TextBlock Canvas.Top="8"
+                               Width="{Binding $parent[Canvas].Bounds.Width}"
+                               Classes="FileInfo"
+                               Opacity="0.8"
+                               Text="{Binding PathToEntry}"
+                               TextTrimming="LeadingCharacterEllipsis" />
+                </Canvas>
+
+                <TextBlock Grid.Column="3" Classes="FileInfo" Text="{Binding LastModified}" />
+            </Grid>
+        </DataTemplate>
+
         <DataTemplate x:Key="IconViewTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
             <StackPanel Width="80" Spacing="10">
                 <Grid>
@@ -98,10 +137,10 @@
         </DataTemplate>
 
         <ItemsPanelTemplate x:Key="ListViewPanel">
-            <VirtualizingStackPanel Loaded="WrapPanelLoaded" Orientation="Vertical" />
+            <VirtualizingStackPanel Orientation="Vertical" />
         </ItemsPanelTemplate>
 
-        <!--  ReSharper disable Xaml.RedundantResource  -->
+        <!--  ReSharper disable Xaml.RedundantResource - used in code behind  -->
         <ItemsPanelTemplate x:Key="IconViewPanel">
             <WrapPanel Orientation="Horizontal" />
         </ItemsPanelTemplate>
@@ -421,7 +460,11 @@
                 <GridSplitter Grid.Column="1" Classes="GridSplitter" />
 
                 <Grid Grid.Column="2" RowDefinitions="Auto Auto * Auto Auto">
-                    <Grid x:Name="LabelsPanel" Grid.Row="0" Height="30" Margin="55 0 0 0">
+                    <Grid x:Name="ListViewLabelsPanel"
+                          Height="30"
+                          Margin="55 0 0 0"
+                          IsVisible="{Binding ItemTemplate, ElementName=FileDisplay, Converter={StaticResource SameObjectConverter}, ConverterParameter={StaticResource ListViewTemplate}}"
+                          RowDefinitions="*">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" MinWidth="90 " MaxWidth="400" />
                             <ColumnDefinition Width="160" />
@@ -434,7 +477,7 @@
                             <Label Classes="InfoLabel" Content="Name" />
                         </Border>
                         <Border Grid.Column="1" Classes="LabelBorder">
-                            <Label Classes="InfoLabel" Content="Date" />
+                            <Label Classes="InfoLabel" Content="Modified" />
                         </Border>
                         <Border Grid.Column="2" Classes="LabelBorder">
                             <Label Classes="InfoLabel" Content="Type" />
@@ -444,6 +487,28 @@
                         </Border>
                         <Border Grid.Column="4" Classes="LabelBorder" IsVisible="{Binding IsVersionControlled}">
                             <Label Classes="InfoLabel" Content="Staged" />
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="SearchLabelsPanel"
+                          Grid.Row="0"
+                          Height="30"
+                          Margin="55 0 0 0"
+                          IsVisible="{Binding Searching}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="350" />
+                            <ColumnDefinition Width="*" MinWidth="150" />
+                            <ColumnDefinition Width="210" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border BorderThickness="0" Classes="LabelBorder">
+                            <Label Classes="InfoLabel" Content="Name" />
+                        </Border>
+                        <Border Grid.Column="1" Classes="LabelBorder">
+                            <Label Classes="InfoLabel" Content="Path" />
+                        </Border>
+                        <Border Grid.Column="2" Classes="LabelBorder">
+                            <Label Classes="InfoLabel" Content="Modified" />
                         </Border>
                     </Grid>
 
@@ -586,11 +651,13 @@
                             Classes="ViewFormatButton"
                             Click="IconView"
                             Content="&#xF0573;"
+                            IsEnabled="{Binding !Searching}"
                             ToolTip.Tip="Icon view" />
                     <Button Margin="0 0 3 0"
                             Classes="ViewFormatButton"
                             Click="ListView"
                             Content="&#xF0571;"
+                            IsEnabled="{Binding !Searching}"
                             ToolTip.Tip="List view" />
                 </DockPanel>
             </Border>

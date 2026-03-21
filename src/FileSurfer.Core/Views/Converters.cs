@@ -37,3 +37,9 @@ public sealed class SortArrowConverter : OneWayConverter
         return sortInfo.SortReversed ? DownArrow : UpArrow;
     }
 }
+
+public sealed class SameObjectConverter : OneWayConverter
+{
+    protected override object ConvertInternal(object? value, object? parameter) =>
+        ReferenceEquals(value, parameter);
+}
