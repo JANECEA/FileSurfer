@@ -44,6 +44,12 @@ public interface IFileInfoProvider
     );
 
     /// <summary>
+    /// Returns an opened file stream for reading on the specified path.
+    /// </summary>
+    /// <param name="path">Path to the file</param>
+    public ValueResult<Stream> GetFileStream(string path);
+
+    /// <summary>
     /// Gets the size of a file in bytes.
     /// </summary>
     /// <returns>The size of the file in bytes.</returns>

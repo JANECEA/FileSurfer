@@ -85,6 +85,18 @@ public class WindowsFileInfoProvider : ILocalFileInfoProvider
         }
     }
 
+    public ValueResult<Stream> GetFileStream(string path)
+    {
+        try
+        {
+            return new FileStream(path, FileMode.Open, FileAccess.Read).OkResult<Stream>();
+        }
+        catch (Exception ex)
+        {
+            return ValueResult<Stream>.Error(ex.Message);
+        }
+    }
+
     public IEnumerable<string> GetSpecialFolders()
     {
         (Environment.SpecialFolder, string)[] folders =

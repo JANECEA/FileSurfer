@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models.FileInformation;
@@ -91,6 +92,18 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         catch (Exception ex)
         {
             return ValueResult<List<FileEntryInfo>>.Error(ex.Message);
+        }
+    }
+
+    public ValueResult<Stream> GetFileStream(string path)
+    {
+        try
+        {
+            return _client.OpenRead(path).OkResult<Stream>();
+        }
+        catch (Exception ex)
+        {
+            return ValueResult<Stream>.Error(ex.Message);
         }
     }
 
