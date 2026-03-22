@@ -81,6 +81,26 @@ public interface IFileIoHandler
     /// </summary>
     /// <returns>An <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
     public IResult DeleteDir(string dirPath);
+
+    /// <summary>
+    /// Writes the filestream into a file with name specified in <see cref="FileTransferStream.Name"/>.
+    /// </summary>
+    /// <param name="fileStream">The file stream</param>
+    /// <param name="dirPath">Root directory for the new file</param>
+    /// <returns></returns>
+    public IResult WriteFileStream(FileTransferStream fileStream, string dirPath);
+
+    /// <summary>
+    /// Writes the all containing file streams and directories into a file with names specified in
+    /// <br/>
+    /// <see cref="FileTransferStream.Name"/> and
+    /// <br/>
+    /// <see cref="DirTransferStream.Name"/>.
+    /// </summary>
+    /// <param name="dirStream">The directory stream</param>
+    /// <param name="dirPath">Root directory for the new directory</param>
+    /// <returns></returns>
+    public IResult WriteDirStream(DirTransferStream dirStream, string dirPath);
 }
 
 /// <summary>

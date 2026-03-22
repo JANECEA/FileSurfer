@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.Sftp;
@@ -95,6 +96,53 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
     {
         string quotedPath = SshShellHandler.Quote(dirPath);
         return _sshShellHandler.ExecuteSshCommand($"rm -rf {quotedPath}");
+    }
+
+    public IResult WriteFileStream(FileTransferStream fileStream, string dirPath)
+    {
+        try
+        {
+            ValueResult<Stream> streamR = fileStream.FileStream;
+            if (!streamR.IsOk)
+                return streamR;
+
+            _client.DownloadFile(
+                RemoteUnixPathTools.Combine(dirPath, fileStream.Name),
+                streamR.Value
+            );
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public IResult WriteDirStream(DirTransferStream dirStream, string dirPath)
+    {
+        Queue<(DirTransferStream, string)> queue = new();
+        queue.Enqueue((dirStream, dirPath));
+
+        while (queue.Count > 0)
+        {
+            (DirTransferStream dir, string absParentPath) = queue.Dequeue();
+            IResult result = NewDirAt(absParentPath, dir.Name);
+            if (!result.IsOk)
+                return result;
+
+            foreach (FileTransferStream f in dir.Files)
+            {
+                result = WriteFileStream(f, absParentPath);
+                if (!result.IsOk)
+                    return result;
+            }
+
+            string newAbsPrentPath = RemoteUnixPathTools.Combine(absParentPath, dir.Name);
+            foreach (DirTransferStream d in dir.Directories)
+                queue.Enqueue((d, newAbsPrentPath));
+        }
+
+        return SimpleResult.Ok();
     }
 
     private ValueResult<string> Rename(string path, string newName)

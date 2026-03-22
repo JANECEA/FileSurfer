@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FileSurfer.Core.Models;
@@ -42,6 +43,53 @@ public class LinuxFileIoHandler : IFileIoHandler
         {
             return SimpleResult.Error(ex.Message);
         }
+    }
+
+    public IResult WriteFileStream(FileTransferStream fileStream, string dirPath)
+    {
+        try
+        {
+            ValueResult<Stream> readStreamR = fileStream.FileStream;
+            if (!readStreamR.IsOk)
+                return readStreamR;
+
+            using FileStream writeStream = File.OpenWrite(
+                LocalPathTools.Combine(dirPath, fileStream.Name)
+            );
+            readStreamR.Value.CopyTo(writeStream);
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+    }
+
+    public IResult WriteDirStream(DirTransferStream dirStream, string dirPath)
+    {
+        Queue<(DirTransferStream, string)> queue = new();
+        queue.Enqueue((dirStream, dirPath));
+
+        while (queue.Count > 0)
+        {
+            (DirTransferStream dir, string absParentPath) = queue.Dequeue();
+            IResult result = NewDirAt(absParentPath, dir.Name);
+            if (!result.IsOk)
+                return result;
+
+            foreach (FileTransferStream f in dir.Files)
+            {
+                result = WriteFileStream(f, absParentPath);
+                if (!result.IsOk)
+                    return result;
+            }
+
+            string newAbsPrentPath = LocalPathTools.Combine(absParentPath, dir.Name);
+            foreach (DirTransferStream d in dir.Directories)
+                queue.Enqueue((d, newAbsPrentPath));
+        }
+
+        return SimpleResult.Ok();
     }
 
     public IResult NewFileAt(string dirPath, string fileName)
