@@ -23,13 +23,13 @@
 
     <!--  ReSharper disable Xaml.BindingWithoutContextNotResolved - cannot resolve because viewmodel takes constructor parameters  -->
     <Window.KeyBindings>
-        <KeyBinding Command="{Binding DeleteCommand}" Gesture="Shift+Delete" />
-        <KeyBinding Command="{Binding UndoCommand}" Gesture="Ctrl+Z" />
-        <KeyBinding Command="{Binding RedoCommand}" Gesture="Ctrl+Y" />
-        <KeyBinding Command="{Binding SelectAllCommand}" Gesture="Ctrl+A" />
-        <KeyBinding Command="{Binding SelectNoneCommand}" Gesture="Ctrl+Shift+L" />
-        <KeyBinding Command="{Binding InvertSelectionCommand}" Gesture="Multiply" />
-        <KeyBinding Command="{Binding GoUpCommand}" Gesture="Alt+Up" />
+        <KeyBinding Command="{Binding DeleteCommand}" Gesture="{DynamicResource DeleteGesture}" />
+        <KeyBinding Command="{Binding UndoCommand}" Gesture="{DynamicResource UndoGesture}" />
+        <KeyBinding Command="{Binding RedoCommand}" Gesture="{DynamicResource RedoGesture}" />
+        <KeyBinding Command="{Binding SelectAllCommand}" Gesture="{DynamicResource SelectAllGesture}" />
+        <KeyBinding Command="{Binding SelectNoneCommand}" Gesture="{DynamicResource SelectNoneGesture}" />
+        <KeyBinding Command="{Binding InvertSelectionCommand}" Gesture="{DynamicResource InvertSelectionGesture}" />
+        <KeyBinding Command="{Binding GoUpCommand}" Gesture="{DynamicResource GoUpGesture}" />
     </Window.KeyBindings>
 
     <Window.Resources>
@@ -303,12 +303,12 @@
                 <Button Classes="MenuButton" Content="&#x00B7;&#x00B7;&#x00B7;" FontWeight="ExtraBold">
                     <Button.Flyout>
                         <MenuFlyout>
-                            <MenuItem Classes="MenuOption" Command="{Binding UndoCommand}" Header="Undo" />
-                            <MenuItem Classes="MenuOption" Command="{Binding RedoCommand}" Header="Redo" />
+                            <MenuItem Classes="MenuOption" Command="{Binding UndoCommand}" Header="Undo" ToolTip.Tip="{DynamicResource UndoGesture}" />
+                            <MenuItem Classes="MenuOption" Command="{Binding RedoCommand}" Header="Redo" ToolTip.Tip="{DynamicResource RedoGesture}" />
                             <Separator />
-                            <MenuItem Classes="MenuOption" Command="{Binding SelectAllCommand}" Header="Select all" />
-                            <MenuItem Classes="MenuOption" Command="{Binding SelectNoneCommand}" Header="Select none" />
-                            <MenuItem Classes="MenuOption" Command="{Binding InvertSelectionCommand}" Header="Invert selection" />
+                            <MenuItem Classes="MenuOption" Command="{Binding SelectAllCommand}" Header="Select all" ToolTip.Tip="{DynamicResource SelectAllGesture}" />
+                            <MenuItem Classes="MenuOption" Command="{Binding SelectNoneCommand}" Header="Select none" ToolTip.Tip="{DynamicResource SelectNoneGesture}" />
+                            <MenuItem Classes="MenuOption" Command="{Binding InvertSelectionCommand}" Header="Invert selection" ToolTip.Tip="{DynamicResource InvertSelectionGesture}" />
                             <Separator />
                             <MenuItem Classes="MenuOption" Click="OpenSettings" Header="Settings" />
                         </MenuFlyout>

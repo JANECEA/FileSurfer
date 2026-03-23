@@ -116,13 +116,39 @@ public partial class MainWindow : Window
         base.OnLoaded(e);
 
         foreach (Button button in this.GetVisualDescendants().OfType<Button>())
+        {
+            ConstructToolTip(button);
             if (button.HotKey is not null)
                 _buttonHotKeys[button] = button.HotKey;
+        }
 
         _keyBindings.AddRange(KeyBindings);
 
         if (FileSurferSettings.DisplayMode is DisplayMode.IconView)
             IconView();
+    }
+
+    private static void ConstructToolTip(Button button)
+    {
+        KeyGesture? gesture = button.HotKey;
+        if (gesture is null)
+            return;
+
+        object? tooltip = ToolTip.GetTip(button);
+        object? content = button.Content;
+
+        switch (tooltip)
+        {
+            case not null:
+                ToolTip.SetTip(button, $"{tooltip} ({gesture})");
+                break;
+            case null when content is not null:
+                ToolTip.SetTip(button, $"{content} ({gesture})");
+                break;
+            case null:
+                ToolTip.SetTip(button, gesture.ToString());
+                break;
+        }
     }
 
     /// <summary>

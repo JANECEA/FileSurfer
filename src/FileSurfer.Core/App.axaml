@@ -17,6 +17,14 @@
         <ResourceDictionary>
             <FontFamily x:Key="IconFont">avares://FileSurfer.Core/Assets/FiraCodeNerdFont-Regular.ttf#FiraCode Nerd Font</FontFamily>
 
+            <KeyGesture x:Key="DeleteGesture">Shift+Delete</KeyGesture>
+            <KeyGesture x:Key="UndoGesture">Ctrl+Z</KeyGesture>
+            <KeyGesture x:Key="RedoGesture">Ctrl+Y</KeyGesture>
+            <KeyGesture x:Key="SelectAllGesture">Ctrl+A</KeyGesture>
+            <KeyGesture x:Key="SelectNoneGesture">Ctrl+Shift+L</KeyGesture>
+            <KeyGesture x:Key="InvertSelectionGesture">Multiply</KeyGesture>
+            <KeyGesture x:Key="GoUpGesture">Alt+Up</KeyGesture>
+
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
                     <Color x:Key="PrimaryColor">#EEEEEE</Color>
