@@ -43,3 +43,8 @@ public sealed class SameObjectConverter : OneWayConverter
     protected override object ConvertInternal(object? value, object? parameter) =>
         ReferenceEquals(value, parameter);
 }
+
+public sealed class IsNotEmptyConverter : OneWayConverter
+{
+    protected override object ConvertInternal(object? value, object? parameter) => value is not 0;
+}

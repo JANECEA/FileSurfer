@@ -94,17 +94,6 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnSpecialFoldersChanged(object sender, AvaloniaPropertyChangedEventArgs e)
-    {
-        if (_viewModel is null)
-            return;
-
-        bool show = _viewModel.SpecialFolders.Count > 0;
-        SecondSeparator.IsVisible = show;
-        SpecialsListBox.IsVisible = show;
-        SpecialsLabel.IsVisible = show;
-    }
-
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
