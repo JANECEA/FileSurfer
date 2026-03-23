@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -22,12 +23,8 @@ public partial class MainWindow : Window
 {
     private MainWindowViewModel? _viewModel;
 
-    private readonly KeyBinding _selectAllKb;
-    private readonly KeyBinding _invertSelection;
-    private readonly KeyGesture _deleteGesture = KeyGesture.Parse("Delete");
-    private readonly KeyGesture _cutGesture = KeyGesture.Parse("Ctrl+X");
-    private readonly KeyGesture _copyGesture = KeyGesture.Parse("Ctrl+C");
-    private readonly KeyGesture _pasteGesture = KeyGesture.Parse("Ctrl+V");
+    private readonly Dictionary<Button, KeyGesture> _buttonHotKeys = new();
+    private readonly List<KeyBinding> _keyBindings = new();
 
     private readonly DataTemplate _iconViewTemplate;
     private readonly DataTemplate _listViewTemplate;
@@ -60,12 +57,7 @@ public partial class MainWindow : Window
         _previousPanel = listViewPanel;
         _previousTemplate = listViewTemplate;
 
-        _selectAllKb = KeyBindings.First(keyBinding =>
-            keyBinding.Gesture is { KeyModifiers: KeyModifiers.Control, Key: Key.A }
-        );
-        _invertSelection = KeyBindings.First(keyBinding => keyBinding.Gesture.Key == Key.Multiply);
-
-        AddHandler(KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
+        AddHandler(KeyDownEvent, TunnelKeyDown, RoutingStrategies.Tunnel);
     }
 
     private void ViewModelLoaded(object? sender, EventArgs e)
@@ -116,6 +108,12 @@ public partial class MainWindow : Window
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
+
+        foreach (Button button in this.GetVisualDescendants().OfType<Button>())
+            if (button.HotKey is not null)
+                _buttonHotKeys[button] = button.HotKey;
+
+        _keyBindings.AddRange(KeyBindings);
 
         if (FileSurferSettings.DisplayMode is DisplayMode.IconView)
             IconView();
@@ -238,29 +236,6 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Unbinds interfering keybindings when the user starts typing.
-    /// </summary>
-    private void TextBoxGotFocus(object? sender = null, GotFocusEventArgs? e = null)
-    {
-        DeleteButton.HotKey = null;
-        CutButton.HotKey = null;
-        CopyButton.HotKey = null;
-        PasteButton.HotKey = null;
-        KeyBindings.Remove(_selectAllKb);
-        KeyBindings.Remove(_invertSelection);
-    }
-
-    private void TextBoxLostFocus(object? sender = null, RoutedEventArgs? e = null)
-    {
-        DeleteButton.HotKey = _deleteGesture;
-        CutButton.HotKey = _cutGesture;
-        CopyButton.HotKey = _copyGesture;
-        PasteButton.HotKey = _pasteGesture;
-        KeyBindings.Add(_selectAllKb);
-        KeyBindings.Add(_invertSelection);
-    }
-
-    /// <summary>
     /// Shows <see cref="NewNameBar"/> and sets <see cref="NameInputBox"/> properties.
     /// </summary>
     private void OnRenameClicked(object sender, RoutedEventArgs e)
@@ -287,26 +262,22 @@ public partial class MainWindow : Window
     /// <summary>
     /// Hides <see cref="NewNameBar"/> and <see cref="CommitMessageBar"/> when either loose focus.
     /// <para>
-    /// Invokes <see cref="TextBoxLostFocus"/>.
     /// </para>
     /// </summary>
     private void InputBoxLostFocus(object sender, RoutedEventArgs e)
     {
         NewNameBar.IsVisible = false;
         CommitMessageBar.IsVisible = false;
-        TextBoxLostFocus();
     }
 
     /// <summary>
     /// Resets text in <see cref="PathBox"/>.
     /// <para>
-    /// Invokes <see cref="TextBoxLostFocus"/>.
     /// </para>
     /// </summary>
     private void PathBoxLostFocus(object sender, RoutedEventArgs e)
     {
         PathBox.Text = _viewModel?.CurrentDir ?? string.Empty;
-        TextBoxLostFocus();
     }
 
     /// <summary>
@@ -370,22 +341,47 @@ public partial class MainWindow : Window
         settingsWindow.ShowDialog(this);
     }
 
-    private void OnKeyDown(object? sender, KeyEventArgs e)
+    private void SuppressHotKeys()
     {
-        if (e.Key == Key.Enter)
+        KeyBindings.Clear();
+        foreach (Button button in _buttonHotKeys.Keys)
+            button.HotKey = null;
+    }
+
+    protected override void OnGotFocus(GotFocusEventArgs e)
+    {
+        base.OnGotFocus(e);
+        if (e.Source is TextBox)
+            SuppressHotKeys();
+    }
+
+    private void RestoreHotKeys()
+    {
+        KeyBindings.AddRange(_keyBindings);
+        foreach ((Button button, KeyGesture gesture) in _buttonHotKeys)
+            button.HotKey = gesture;
+    }
+
+    protected override void OnLostFocus(RoutedEventArgs e)
+    {
+        base.OnLostFocus(e);
+        if (e.Source is TextBox)
+            RestoreHotKeys();
+    }
+
+    private void TunnelKeyDown(object? sender, KeyEventArgs e)
+    {
+        switch (e)
         {
-            OnEnterPressed(e);
-            return;
-        }
-        if (e.Key == Key.Escape)
-        {
-            OnEscapePressed(e);
-            return;
-        }
-        if (e is { KeyModifiers: KeyModifiers.Control, Key: Key.F })
-        {
-            OnCtrlFPressed(e);
-            return;
+            case { Key: Key.Enter }:
+                OnEnterPressed(e);
+                return;
+            case { Key: Key.Escape }:
+                OnEscapePressed(e);
+                return;
+            case { KeyModifiers: KeyModifiers.Control, Key: Key.F }:
+                OnCtrlFPressed(e);
+                return;
         }
 
         if (

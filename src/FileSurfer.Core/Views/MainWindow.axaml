@@ -197,16 +197,11 @@
                 <TextBox x:Name="PathBox"
                          Grid.Column="2"
                          Classes="PathBox TopTextBox"
-                         GotFocus="TextBoxGotFocus"
                          LostFocus="PathBoxLostFocus"
                          Text="{Binding PathBoxText, Mode=OneWay}" />
 
                 <Grid Grid.Column="3">
-                    <TextBox x:Name="SearchBox"
-                             Classes="SearchBox TopTextBox"
-                             GotFocus="TextBoxGotFocus"
-                             LostFocus="TextBoxLostFocus"
-                             Watermark="{Binding SearchWaterMark}" />
+                    <TextBox x:Name="SearchBox" Classes="SearchBox TopTextBox" Watermark="{Binding SearchWaterMark}" />
                     <Button Classes="CancelSearchButton"
                             Command="{Binding CancelSearchCommand}"
                             Content="&#xF00D;"
@@ -623,22 +618,14 @@
                     <Border x:Name="NewNameBar" Grid.Row="3" Classes="InputBorder">
                         <DockPanel>
                             <Label Classes="InputLabel" Content="New name: " DockPanel.Dock="Left" />
-                            <TextBox x:Name="NameInputBox"
-                                     Classes="InputBox"
-                                     DockPanel.Dock="Left"
-                                     GotFocus="TextBoxGotFocus"
-                                     LostFocus="InputBoxLostFocus" />
+                            <TextBox x:Name="NameInputBox" Classes="InputBox" DockPanel.Dock="Left" LostFocus="InputBoxLostFocus" />
                         </DockPanel>
                     </Border>
 
                     <Border x:Name="CommitMessageBar" Grid.Row="4" Classes="InputBorder">
                         <DockPanel>
                             <Label Classes="InputLabel" Content="Commit message: " DockPanel.Dock="Left" />
-                            <TextBox x:Name="CommitInputBox"
-                                     Classes="InputBox"
-                                     DockPanel.Dock="Left"
-                                     GotFocus="TextBoxGotFocus"
-                                     LostFocus="InputBoxLostFocus" />
+                            <TextBox x:Name="CommitInputBox" Classes="InputBox" DockPanel.Dock="Left" LostFocus="InputBoxLostFocus" />
                         </DockPanel>
                     </Border>
                 </Grid>
