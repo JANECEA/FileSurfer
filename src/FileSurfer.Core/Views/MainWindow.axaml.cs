@@ -26,6 +26,10 @@ public partial class MainWindow : Window
     private readonly Dictionary<Button, KeyGesture> _buttonHotKeys = new();
     private readonly List<KeyBinding> _keyBindings = new();
 
+    private readonly KeyGesture _localDeleteGesture = new(Key.Delete, KeyModifiers.Shift);
+    private readonly KeyGesture _remoteDeleteGesture = new(Key.Delete);
+    private KeyBinding? _deleteKeyBinding;
+
     private readonly DataTemplate _iconViewTemplate;
     private readonly DataTemplate _listViewTemplate;
     private readonly DataTemplate _searchViewTemplate;
@@ -63,8 +67,12 @@ public partial class MainWindow : Window
     private void ViewModelLoaded(object? sender, EventArgs e)
     {
         if (DataContext is MainWindowViewModel viewModel && _viewModel is null)
+        {
             _viewModel = viewModel;
-
+            _deleteKeyBinding = KeyBindings.FirstOrDefault(kb =>
+                kb.Gesture is { KeyModifiers: KeyModifiers.Shift, Key: Key.Delete }
+            );
+        }
         ClearFocus();
     }
 
@@ -78,19 +86,27 @@ public partial class MainWindow : Window
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != nameof(MainWindowViewModel.Searching) || _viewModel is null)
+        if (_viewModel is null)
             return;
 
-        if (_viewModel.Searching)
+        switch (e.PropertyName)
         {
-            FileDisplay.ItemTemplate = _searchViewTemplate;
-            FileDisplay.ItemsPanel = _listViewPanel;
-        }
-        else
-        {
-            FileDisplay.ItemTemplate = _previousTemplate;
-            FileDisplay.ItemsPanel = _previousPanel;
-            SearchBox.Text = string.Empty;
+            case nameof(MainWindowViewModel.Searching) when _viewModel.Searching:
+                FileDisplay.ItemTemplate = _searchViewTemplate;
+                FileDisplay.ItemsPanel = _listViewPanel;
+                break;
+
+            case nameof(MainWindowViewModel.Searching):
+                FileDisplay.ItemTemplate = _previousTemplate;
+                FileDisplay.ItemsPanel = _previousPanel;
+                SearchBox.Text = string.Empty;
+                break;
+
+            case nameof(MainWindowViewModel.IsLocal) when _deleteKeyBinding is not null:
+                _deleteKeyBinding.Gesture = _viewModel.IsLocal
+                    ? _localDeleteGesture
+                    : _remoteDeleteGesture;
+                break;
         }
     }
 
@@ -269,23 +285,16 @@ public partial class MainWindow : Window
         PathBox.Text = _viewModel?.CurrentDir ?? string.Empty;
     }
 
-    /// <summary>
-    /// Relays the new name to <see cref="_viewModel"/> and hides <see cref="NewNameBar"/>.
-    /// </summary>
     private void NameEntered()
     {
         if (NameInputBox.Text is string newName)
         {
             _viewModel?.Rename(newName);
             NewNameBar.IsVisible = false;
+            NameInputBox.Text = string.Empty;
         }
     }
 
-    /// <summary>
-    /// Relays the commit message to <see cref="_viewModel"/>,
-    /// hides <see cref="CommitMessageBar"/>,
-    /// and clears <see cref="CommitInputBox"/> text.
-    /// </summary>
     private void CommitMessageEntered()
     {
         if (CommitInputBox.Text is string commitMessage)
@@ -388,9 +397,6 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
-    /// <summary>
-    /// Toggles focus on <see cref="SearchBox"/>.
-    /// </summary>
     private void OnCtrlFPressed(KeyEventArgs e)
     {
         e.Handled = true;

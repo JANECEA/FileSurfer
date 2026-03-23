@@ -292,10 +292,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> GitPushCommand { get; }
 
     public bool SelectionNotEmpty => SelectedFiles.Count > 0;
-    private bool CanGoBack => _locationHistory.GetPrevious() is not null;
-    private bool CanGoForward => _locationHistory.GetNext() is not null;
-    private bool IsLocal => CurrentFs is LocalFileSystem;
-    private bool NotSearching => !Searching;
+    public bool CanGoBack => _locationHistory.GetPrevious() is not null;
+    public bool CanGoForward => _locationHistory.GetNext() is not null;
+    public bool IsLocal => CurrentFs is LocalFileSystem;
+    public bool NotSearching => !Searching;
 
     /// <summary>
     /// Initializes a new <see cref="MainWindowViewModel"/>.
