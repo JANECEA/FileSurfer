@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:core="clr-namespace:FileSurfer.Core"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:helpers="clr-namespace:FileSurfer.Core.Views.Helpers"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:views="clr-namespace:FileSurfer.Core.Views"
         xmlns:vm="clr-namespace:FileSurfer.Core.ViewModels"
         Title="FileSurfer"
         MinWidth="910"
@@ -18,7 +18,7 @@
         mc:Ignorable="d">
 
     <Window.Styles>
-        <StyleInclude Source="avares://FileSurfer.Core/Views/MainWindowStyle.axaml" />
+        <StyleInclude Source="avares://FileSurfer.Core/Views/Styles/MainWindowStyle.axaml" />
     </Window.Styles>
 
     <!--  ReSharper disable Xaml.BindingWithoutContextNotResolved - cannot resolve because viewmodel takes constructor parameters  -->
@@ -33,9 +33,9 @@
     </Window.KeyBindings>
 
     <Window.Resources>
-        <views:SortArrowConverter x:Key="SortArrowConverter" />
-        <views:SameObjectConverter x:Key="SameObjectConverter" />
-        <views:IsNotEmptyConverter x:Key="IsNotEmptyConverter" />
+        <helpers:SortArrowConverter x:Key="SortArrowConverter" />
+        <helpers:SameObjectConverter x:Key="SameObjectConverter" />
+        <helpers:IsNotEmptyConverter x:Key="IsNotEmptyConverter" />
 
         <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
             <Grid Height="36">

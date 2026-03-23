@@ -17,7 +17,7 @@
         mc:Ignorable="d">
 
     <Window.Styles>
-        <StyleInclude Source="avares://FileSurfer.Core/Views/PropertiesWindowStyle.axaml" />
+        <StyleInclude Source="avares://FileSurfer.Core/Views/Styles/PropertiesWindowStyle.axaml" />
     </Window.Styles>
 
     <!--  ReSharper disable Xaml.BindingWithoutContextNotResolved  -->

@@ -17,7 +17,7 @@
     </Window.DataContext>
 
     <Window.Styles>
-        <StyleInclude Source="avares://FileSurfer.Core/Views/SftpSynchronizerWindowStyle.axaml" />
+        <StyleInclude Source="avares://FileSurfer.Core/Views/Styles/SftpSynchronizerWindowStyle.axaml" />
     </Window.Styles>
 
     <Window.Resources>

@@ -23,7 +23,7 @@
     </Window.DataContext>
 
     <Window.Styles>
-        <StyleInclude Source="avares://FileSurfer.Core/Views/EditSftpWindowStyle.axaml" />
+        <StyleInclude Source="avares://FileSurfer.Core/Views/Styles/EditSftpWindowStyle.axaml" />
     </Window.Styles>
 
     <Grid RowDefinitions="* Auto">

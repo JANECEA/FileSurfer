@@ -20,7 +20,7 @@
         mc:Ignorable="d">
 
     <Window.Styles>
-        <StyleInclude Source="avares://FileSurfer.Core/Views/SettingsWindowStyle.axaml" />
+        <StyleInclude Source="avares://FileSurfer.Core/Views/Styles/SettingsWindowStyle.axaml" />
     </Window.Styles>
 
     <Window.DataContext>

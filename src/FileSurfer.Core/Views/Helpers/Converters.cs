@@ -3,7 +3,7 @@ using System.Globalization;
 using Avalonia.Data.Converters;
 using FileSurfer.Core.ViewModels;
 
-namespace FileSurfer.Core.Views;
+namespace FileSurfer.Core.Views.Helpers;
 
 public abstract class OneWayConverter : IValueConverter
 {

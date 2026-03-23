@@ -10,6 +10,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.VisualTree;
 using FileSurfer.Core.ViewModels;
+using FileSurfer.Core.Views.Helpers;
 
 namespace FileSurfer.Core.Views;
 
