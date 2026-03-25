@@ -36,20 +36,20 @@ public record struct RepoStateInfo(string CommitsToPull, string CommitsToPush);
 /// <summary>
 /// Represents a location displayable in the window.
 /// </summary>
-public record LocationDisplay(string Label, string Path)
+public record LocationDisplay
 {
-    private Location Location { get; set; }
+    private readonly Location _location;
+    public string Label { get; init; }
+    public string Path { get; init; }
 
-    public Location GetLocation() => Location;
-
-    public static LocationDisplay FromLocation(Location location)
+    public LocationDisplay(Location location)
     {
-        LocationDisplay l = new(location.FileSystem.GetLabel(), location.Path)
-        {
-            Location = location,
-        };
-        return l;
+        _location = location;
+        Label = location.FileSystem.GetLabel();
+        Path = location.Path;
     }
+
+    public Location GetLocation() => _location;
 }
 
 /// <summary>
@@ -92,13 +92,13 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Represents locations behind the current one in location history.
     /// </summary>
     public IEnumerable<LocationDisplay> LocationsBack =>
-        _locationHistory.EnumerateFromCurrentBack().Select(LocationDisplay.FromLocation);
+        _locationHistory.EnumerateFromCurrentBack().Select(l => new LocationDisplay(l));
 
     /// <summary>
     /// Represents locations ahead of the current one in location history.
     /// </summary>
     public IEnumerable<LocationDisplay> LocationsForward =>
-        _locationHistory.EnumerateFromCurrentForward().Select(LocationDisplay.FromLocation);
+        _locationHistory.EnumerateFromCurrentForward().Select(l => new LocationDisplay(l));
 
     /// <summary>
     /// Holds <see cref="FileSystemEntryViewModel"/>s displayed in the main window.
