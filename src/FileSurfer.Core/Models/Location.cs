@@ -35,4 +35,6 @@ public sealed class Location
         return FileSystem == other.FileSystem
             && FileSystem.FileInfoProvider.PathTools.PathsAreEqual(Path, other.Path);
     }
+
+    public override string ToString() => $"{FileSystem.GetLabel()}:{Path}";
 }

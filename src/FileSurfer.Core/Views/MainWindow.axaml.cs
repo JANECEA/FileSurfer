@@ -151,6 +151,22 @@ public partial class MainWindow : Window
         }
     }
 
+    private void GoBackTapped(object? sender, SelectionChangedEventArgs e)
+    {
+        GoBackButton.ContextFlyout?.Hide();
+        GoForwardButton.ContextFlyout?.Hide();
+        if (e.AddedItems is [LocationDisplay location])
+            _viewModel?.GoBack(location);
+    }
+
+    private void GoForwardTapped(object? sender, SelectionChangedEventArgs e)
+    {
+        GoBackButton.ContextFlyout?.Hide();
+        GoForwardButton.ContextFlyout?.Hide();
+        if (e.AddedItems is [LocationDisplay location])
+            _viewModel?.GoForward(location);
+    }
+
     /// <summary>
     /// Opens the item that was double tapped or goes to the parent directory of the current directory.
     /// </summary>

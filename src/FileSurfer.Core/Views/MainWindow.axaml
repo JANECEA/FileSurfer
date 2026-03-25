@@ -159,6 +159,34 @@
                 <TextBlock Grid.Column="1" Classes="FileInfo" FontFamily="Arial" Text="{Binding Name}" />
             </Grid>
         </DataTemplate>
+
+        <DataTemplate x:Key="DisplayLocationTemplate" x:DataType="{x:Type vm:LocationDisplay}">
+            <Grid Margin="20 0 20 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="25" />
+                    <ColumnDefinition MaxWidth="500" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock FontFamily="{DynamicResource IconFont}" FontSize="15" Foreground="{DynamicResource IconColor}" Text="&#xEA83;" />
+                <TextBlock Grid.Column="1"
+                           HorizontalAlignment="Right"
+                           Classes="LocationTextBlock"
+                           Opacity="0.8"
+                           Text="{Binding Label}" />
+                <TextBlock Grid.Column="2"
+                           HorizontalAlignment="Center"
+                           Classes="LocationTextBlock"
+                           Opacity="0.8"
+                           Text=" : " />
+                <TextBlock Grid.Column="3"
+                           Classes="LocationTextBlock"
+                           FontWeight="Normal"
+                           Text="{Binding Path}"
+                           TextTrimming="LeadingCharacterEllipsis" />
+            </Grid>
+        </DataTemplate>
     </Window.Resources>
 
     <DockPanel Background="{DynamicResource PrimaryColor}">
@@ -169,16 +197,44 @@
                     IsHitTestVisible="False"
                     Opacity="0" />
 
-            <Button Classes="StateButton TopLeftButton ArrowButton"
+            <Button x:Name="GoBackButton"
+                    Classes="StateButton TopLeftButton ArrowButton"
                     Command="{Binding GoBackCommand}"
                     Content="&#xF053;"
                     HotKey="Alt+Left"
-                    ToolTip.Tip="Go Back" />
-            <Button Classes="StateButton TopLeftButton ArrowButton"
+                    ToolTip.Tip="Go Back">
+
+                <Button.ContextFlyout>
+                    <Flyout>
+                        <ListBox HorizontalAlignment="Stretch" ItemTemplate="{StaticResource DisplayLocationTemplate}" ItemsSource="{Binding LocationsBack}" SelectionChanged="GoBackTapped">
+                            <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Padding" Value="0 5 5 5" />
+                                </Style>
+                            </ListBox.Styles>
+                        </ListBox>
+                    </Flyout>
+                </Button.ContextFlyout>
+            </Button>
+            <Button x:Name="GoForwardButton"
+                    Classes="StateButton TopLeftButton ArrowButton"
                     Command="{Binding GoForwardCommand}"
                     Content="&#xF054;"
                     HotKey="Alt+Right"
-                    ToolTip.Tip="Got Forward" />
+                    ToolTip.Tip="Go Forward">
+
+                <Button.ContextFlyout>
+                    <Flyout>
+                        <ListBox HorizontalAlignment="Stretch" ItemTemplate="{StaticResource DisplayLocationTemplate}" ItemsSource="{Binding LocationsForward}" SelectionChanged="GoForwardTapped">
+                            <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Padding" Value="0 5 5 5" />
+                                </Style>
+                            </ListBox.Styles>
+                        </ListBox>
+                    </Flyout>
+                </Button.ContextFlyout>
+            </Button>
             <Button Classes="StateButton TopLeftButton"
                     Command="{Binding ReloadCommand}"
                     Content="&#xF01E;"
