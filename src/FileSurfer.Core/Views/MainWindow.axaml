@@ -23,6 +23,8 @@
 
     <!--  ReSharper disable Xaml.BindingWithoutContextNotResolved - cannot resolve because viewmodel takes constructor parameters  -->
     <Window.KeyBindings>
+        <!--  backup keybinding - gesture is 'Delete' when not local  -->
+        <KeyBinding Command="{Binding DeleteCommand}" Gesture="{DynamicResource EmptyGesture}" />
         <KeyBinding Command="{Binding DeleteCommand}" Gesture="{DynamicResource DeleteGesture}" />
         <KeyBinding Command="{Binding UndoCommand}" Gesture="{DynamicResource UndoGesture}" />
         <KeyBinding Command="{Binding RedoCommand}" Gesture="{DynamicResource RedoGesture}" />
@@ -200,10 +202,15 @@
             <Button x:Name="GoBackButton"
                     Classes="StateButton TopLeftButton ArrowButton"
                     Command="{Binding GoBackCommand}"
-                    Content="&#xF053;"
                     HotKey="Alt+Left"
                     ToolTip.Tip="Go Back">
 
+                <Button.Content>
+                    <Canvas Width="28" Height="30">
+                        <TextBlock Canvas.Left="8" Canvas.Top="6" Text="&#xF053;" />
+                        <TextBlock Canvas.Right="0" Canvas.Bottom="-3" FontSize="10" Text="&#xEAB4;" />
+                    </Canvas>
+                </Button.Content>
                 <Button.ContextFlyout>
                     <Flyout>
                         <ListBox HorizontalAlignment="Stretch" ItemTemplate="{StaticResource DisplayLocationTemplate}" ItemsSource="{Binding LocationsBack}" SelectionChanged="GoBackTapped">
@@ -219,10 +226,15 @@
             <Button x:Name="GoForwardButton"
                     Classes="StateButton TopLeftButton ArrowButton"
                     Command="{Binding GoForwardCommand}"
-                    Content="&#xF054;"
                     HotKey="Alt+Right"
                     ToolTip.Tip="Go Forward">
 
+                <Button.Content>
+                    <Canvas Width="28" Height="30">
+                        <TextBlock Canvas.Left="8" Canvas.Top="6" Text="&#xF054;" />
+                        <TextBlock Canvas.Right="0" Canvas.Bottom="-3" FontSize="10" Text="&#xEAB4;" />
+                    </Canvas>
+                </Button.Content>
                 <Button.ContextFlyout>
                     <Flyout>
                         <ListBox HorizontalAlignment="Stretch" ItemTemplate="{StaticResource DisplayLocationTemplate}" ItemsSource="{Binding LocationsForward}" SelectionChanged="GoForwardTapped">

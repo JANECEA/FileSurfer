@@ -24,6 +24,7 @@
             <KeyGesture x:Key="SelectNoneGesture">Ctrl+Shift+L</KeyGesture>
             <KeyGesture x:Key="InvertSelectionGesture">Multiply</KeyGesture>
             <KeyGesture x:Key="GoUpGesture">Alt+Up</KeyGesture>
+            <KeyGesture x:Key="EmptyGesture">None</KeyGesture>
 
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">

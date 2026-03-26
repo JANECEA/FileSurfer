@@ -289,8 +289,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> AddToQuickAccessCommand { get; }
     public ReactiveCommand<Unit, Task> AddToArchiveCommand { get; }
     public ReactiveCommand<Unit, Task> ExtractArchiveCommand { get; }
-    public ReactiveCommand<LocationDisplay?, Unit> GoBackCommand { get; }
-    public ReactiveCommand<LocationDisplay?, Unit> GoForwardCommand { get; }
+    public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
+    public ReactiveCommand<Unit, Unit> GoForwardCommand { get; }
     public ReactiveCommand<Unit, Unit> GoUpCommand { get; }
     public ReactiveCommand<Unit, Unit> ReloadCommand { get; }
     public ReactiveCommand<Unit, Unit> OpenPowerShellCommand { get; }
@@ -377,8 +377,8 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         );
         AddToArchiveCommand = ReactiveCommand.Create(AddToArchive, localNotSearching);
         ExtractArchiveCommand = ReactiveCommand.Create(ExtractArchive, localNotSearching);
-        GoBackCommand = ReactiveCommand.Create<LocationDisplay?>(GoBack, canGoBack);
-        GoForwardCommand = ReactiveCommand.Create<LocationDisplay?>(GoForward, canGoForward);
+        GoBackCommand = ReactiveCommand.Create(GoBack, canGoBack);
+        GoForwardCommand = ReactiveCommand.Create(GoForward, canGoForward);
         GoUpCommand = ReactiveCommand.Create(GoUp);
         ReloadCommand = ReactiveCommand.Create(() => Reload(true), notSearching);
         OpenPowerShellCommand = ReactiveCommand.Create(OpenPowerShell, localNotSearching);
@@ -949,28 +949,34 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Removes the directory from <see cref="_locationHistory"/> in case it's invalid.
     /// </para>
     /// </summary>
-    public void GoBack(LocationDisplay? locationDisplay = null)
+    public void GoBack()
     {
         if (Searching)
             CancelSearch();
 
-        Location? location = locationDisplay?.GetLocation() ?? _locationHistory.GetPrevious();
-        if (location is null)
+        while (_locationHistory.GetPrevious() is Location prevLocation)
         {
-            ShowError("No previous location found.");
-            return;
-        }
+            _locationHistory.MoveToPrevious();
 
-        if (!FindBack(location))
-        {
-            ShowError($"Could not find location: \"{location}\" in history.");
-            return;
+            if (prevLocation.Exists())
+            {
+                SetLocationNoHistory(prevLocation);
+                return;
+            }
+            _locationHistory.RemoveCurrent(true);
         }
+    }
 
-        if (location.Exists())
-            SetLocationNoHistory(location);
+    public void GoBack(LocationDisplay location)
+    {
+        if (Searching)
+            CancelSearch();
+
+        bool found = FindBack(location.GetLocation());
+        if (found)
+            SetLocation(location.GetLocation());
         else
-            ShowError($"Location: \"{location}\" does not exist.");
+            ShowError($"Could not find location: \"{location}\" in history.");
     }
 
     private bool FindBack(Location location)
@@ -990,28 +996,34 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Removes the directory from <see cref="_locationHistory"/> in case it's invalid.
     /// </para>
     /// </summary>
-    public void GoForward(LocationDisplay? locationDisplay = null)
+    public void GoForward()
     {
         if (Searching)
             CancelSearch();
 
-        Location? location = locationDisplay?.GetLocation() ?? _locationHistory.GetNext();
-        if (location is null)
+        while (_locationHistory.GetNext() is Location nextLocation)
         {
-            ShowError("No next location found.");
-            return;
-        }
+            _locationHistory.MoveToNext();
 
-        if (!FindForward(location))
-        {
-            ShowError($"Could not find location: \"{location}\" in history.");
-            return;
+            if (nextLocation.Exists())
+            {
+                SetLocationNoHistory(nextLocation);
+                return;
+            }
+            _locationHistory.RemoveCurrent(true);
         }
+    }
 
-        if (location.Exists())
-            SetLocationNoHistory(location);
+    public void GoForward(LocationDisplay location)
+    {
+        if (Searching)
+            CancelSearch();
+
+        bool found = FindForward(location.GetLocation());
+        if (found)
+            SetLocation(location.GetLocation());
         else
-            ShowError($"Location: \"{location}\" does not exist.");
+            ShowError($"Could not find location: \"{location}\" in history.");
     }
 
     private bool FindForward(Location location)
@@ -1055,7 +1067,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         {
             IResult result = SetLocationNoHistory(location);
             if (!result.IsOk)
-                GoBack(null);
+                GoBack();
         }
     }
 

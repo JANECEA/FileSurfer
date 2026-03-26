@@ -26,10 +26,7 @@ public partial class MainWindow : Window
 
     private readonly Dictionary<Button, KeyGesture> _buttonHotKeys = new();
     private readonly List<KeyBinding> _keyBindings = new();
-
-    private readonly KeyGesture _localDeleteGesture = new(Key.Delete, KeyModifiers.Shift);
-    private readonly KeyGesture _remoteDeleteGesture = new(Key.Delete);
-    private KeyBinding? _deleteKeyBinding;
+    private readonly KeyBinding? _backupDeleteKeyBinding;
 
     private readonly DataTemplate _iconViewTemplate;
     private readonly DataTemplate _listViewTemplate;
@@ -62,18 +59,16 @@ public partial class MainWindow : Window
         _previousPanel = listViewPanel;
         _previousTemplate = listViewTemplate;
 
+        _backupDeleteKeyBinding = KeyBindings.FirstOrDefault(kb => kb.Gesture.Key is Key.None);
+
         AddHandler(KeyDownEvent, TunnelKeyDown, RoutingStrategies.Tunnel);
     }
 
     private void ViewModelLoaded(object? sender, EventArgs e)
     {
         if (DataContext is MainWindowViewModel viewModel && _viewModel is null)
-        {
             _viewModel = viewModel;
-            _deleteKeyBinding = KeyBindings.FirstOrDefault(kb =>
-                kb.Gesture is { KeyModifiers: KeyModifiers.Shift, Key: Key.Delete }
-            );
-        }
+
         ClearFocus();
     }
 
@@ -103,10 +98,10 @@ public partial class MainWindow : Window
                 SearchBox.Text = string.Empty;
                 break;
 
-            case nameof(MainWindowViewModel.IsLocal) when _deleteKeyBinding is not null:
-                _deleteKeyBinding.Gesture = _viewModel.IsLocal
-                    ? _localDeleteGesture
-                    : _remoteDeleteGesture;
+            case nameof(MainWindowViewModel.IsLocal) when _backupDeleteKeyBinding is not null:
+                _backupDeleteKeyBinding.Gesture = _viewModel.IsLocal
+                    ? new KeyGesture(Key.None)
+                    : new KeyGesture(Key.Delete);
                 break;
         }
     }
