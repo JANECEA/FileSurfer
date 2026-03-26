@@ -50,6 +50,11 @@ public record LocationDisplay
     }
 
     public Location GetLocation() => _location;
+
+    public virtual bool Equals(LocationDisplay? other) =>
+        ReferenceEquals(_location, other?._location);
+
+    public override int GetHashCode() => HashCode.Combine(Label, Path);
 }
 
 /// <summary>
@@ -352,7 +357,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             this.RaisePropertyChanged(nameof(LocationsBack));
             this.RaisePropertyChanged(nameof(LocationsForward));
         });
-        _locationHistory.AddNewNode(new Location(localFs, localFs.LocalFileInfoProvider.GetRoot()));
 
         IObservable<bool> isSynchronizing = this.WhenAnyValue(x => x.IsSynchronizerOpen);
         IObservable<bool> canGoForward = this.WhenAnyValue(x => x.CanGoForward);
@@ -426,14 +430,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void SetInitialLocation(string localPath)
     {
         Location requestedLocation = new(_localFs, localPath);
-        if (requestedLocation.Exists())
-            SetLocation(requestedLocation);
-        else
+        if (!requestedLocation.Exists())
         {
             Location root = new(_localFs, _localFs.LocalFileInfoProvider.GetRoot());
             SetLocation(root);
-            SetLocation(requestedLocation);
         }
+        SetLocation(requestedLocation);
     }
 
     private void LoadSettings(bool reload)
@@ -967,27 +969,25 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    public void GoBack(LocationDisplay location)
+    public void GoBack(LocationDisplay locationDisplay)
     {
         if (Searching)
             CancelSearch();
 
-        bool found = FindBack(location.GetLocation());
-        if (found)
-            SetLocation(location.GetLocation());
-        else
+        Location location = locationDisplay.GetLocation();
+        if (!LocationsBack.Any(l => l.Equals(locationDisplay)))
+        {
             ShowError($"Could not find location: \"{location}\" in history.");
-    }
+            return;
+        }
 
-    private bool FindBack(Location location)
-    {
-        while (_locationHistory.GetPrevious() is Location prevLocation)
+        while (_locationHistory.GetPrevious() is Location nextLocation)
         {
             _locationHistory.MoveToPrevious();
-            if (location.Equals(prevLocation))
-                return true;
+            if (ReferenceEquals(location, nextLocation))
+                break;
         }
-        return false;
+        SetLocation(location);
     }
 
     /// <summary>
@@ -1014,27 +1014,25 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    public void GoForward(LocationDisplay location)
+    public void GoForward(LocationDisplay locationDisplay)
     {
         if (Searching)
             CancelSearch();
 
-        bool found = FindForward(location.GetLocation());
-        if (found)
-            SetLocation(location.GetLocation());
-        else
+        Location location = locationDisplay.GetLocation();
+        if (!LocationsForward.Any(l => l.Equals(locationDisplay)))
+        {
             ShowError($"Could not find location: \"{location}\" in history.");
-    }
+            return;
+        }
 
-    private bool FindForward(Location location)
-    {
         while (_locationHistory.GetNext() is Location nextLocation)
         {
             _locationHistory.MoveToNext();
-            if (location.Equals(nextLocation))
-                return true;
+            if (ReferenceEquals(location, nextLocation))
+                break;
         }
-        return false;
+        SetLocation(location);
     }
 
     private void OpenPowerShell()
