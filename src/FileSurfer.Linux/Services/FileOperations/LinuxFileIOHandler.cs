@@ -62,33 +62,8 @@ public class LinuxFileIoHandler : IFileIoHandler
         }
     }
 
-    public IResult WriteDirStream(DirTransferStream dirStream, string dirPath)
-    {
-        Queue<(DirTransferStream, string)> queue = new();
-        queue.Enqueue((dirStream, dirPath));
-
-        while (queue.Count > 0)
-        {
-            (DirTransferStream dir, string absParentPath) = queue.Dequeue();
-            string absDirPath = LocalPathTools.Combine(absParentPath, dir.Name);
-
-            IResult result = NewDirAt(absParentPath, dir.Name);
-            if (!result.IsOk)
-                return result;
-
-            foreach (FileTransferStream f in dir.Files)
-            {
-                result = WriteFileStream(f, absDirPath);
-                if (!result.IsOk)
-                    return result;
-            }
-
-            foreach (DirTransferStream d in dir.Directories)
-                queue.Enqueue((d, absDirPath));
-        }
-
-        return SimpleResult.Ok();
-    }
+    public IResult WriteDirStream(DirTransferStream dirStream, string dirPath) =>
+        dirStream.WriteWithIoHandler(this, LocalPathTools.Instance, dirPath);
 
     public IResult NewFileAt(string dirPath, string fileName)
     {
