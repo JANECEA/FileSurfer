@@ -102,14 +102,11 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
     {
         try
         {
-            ValueResult<Stream> streamR = fileStream.FileStream;
-            if (!streamR.IsOk)
-                return streamR;
-
-            _client.DownloadFile(
+            using SftpFileStream stream = _client.Open(
                 RemoteUnixPathTools.Combine(dirPath, fileStream.Name),
-                streamR.Value
+                FileMode.Create
             );
+            fileStream.Stream.CopyTo(stream);
             return SimpleResult.Ok();
         }
         catch (Exception ex)
@@ -126,13 +123,15 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
         while (queue.Count > 0)
         {
             (DirTransferStream dir, string absParentPath) = queue.Dequeue();
+            string absDirPath = LocalPathTools.Combine(dirPath, dir.Name);
+
             IResult result = NewDirAt(absParentPath, dir.Name);
             if (!result.IsOk)
                 return result;
 
             foreach (FileTransferStream f in dir.Files)
             {
-                result = WriteFileStream(f, absParentPath);
+                result = WriteFileStream(f, absDirPath);
                 if (!result.IsOk)
                     return result;
             }

@@ -69,14 +69,10 @@ public class WindowsFileIoHandler : IFileIoHandler
     {
         try
         {
-            ValueResult<Stream> readStreamR = fileStream.FileStream;
-            if (!readStreamR.IsOk)
-                return readStreamR;
-
             using FileStream writeStream = File.OpenWrite(
                 LocalPathTools.Combine(dirPath, fileStream.Name)
             );
-            readStreamR.Value.CopyTo(writeStream);
+            fileStream.Stream.CopyTo(writeStream);
             return SimpleResult.Ok();
         }
         catch (Exception ex)
@@ -93,24 +89,27 @@ public class WindowsFileIoHandler : IFileIoHandler
         while (queue.Count > 0)
         {
             (DirTransferStream dir, string absParentPath) = queue.Dequeue();
+            string absDirPath = LocalPathTools.Combine(dirPath, dir.Name);
+
             IResult result = NewDirAt(absParentPath, dir.Name);
             if (!result.IsOk)
                 return result;
 
             foreach (FileTransferStream f in dir.Files)
             {
-                result = WriteFileStream(f, absParentPath);
+                result = WriteFileStream(f, absDirPath);
                 if (!result.IsOk)
                     return result;
             }
 
-            string newAbsPrentPath = LocalPathTools.Combine(absParentPath, dir.Name);
+            string newAbsPrentPath = RemoteUnixPathTools.Combine(absParentPath, dir.Name);
             foreach (DirTransferStream d in dir.Directories)
                 queue.Enqueue((d, newAbsPrentPath));
         }
 
         return SimpleResult.Ok();
     }
+
 
     public IResult NewFileAt(string dirPath, string fileName)
     {

@@ -2,7 +2,6 @@ using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.FileOperations;
 using FileSurfer.Core.Services.Shell;
 using FileSurfer.Core.Services.VersionControl;
-using FileSurfer.Core.ViewModels;
 
 namespace FileSurfer.Core.Models;
 
@@ -13,7 +12,6 @@ public interface IFileSystem
 {
     public IFileInfoProvider FileInfoProvider { get; }
     public IIconProvider IconProvider { get; }
-    public IClipboardManager ClipboardManager { get; }
     public IArchiveManager ArchiveManager { get; }
     public IFileIoHandler FileIoHandler { get; }
     public IBinInteraction BinInteraction { get; }
@@ -22,6 +20,10 @@ public interface IFileSystem
     public IGitIntegration GitIntegration { get; }
 
     public bool IsReady();
+
+    public bool IsLocal();
+
+    public bool IsSame(IFileSystem? fileSystem) => ReferenceEquals(this, fileSystem);
 
     public string GetLabel();
 }
@@ -34,12 +36,10 @@ public sealed class LocalFileSystem : IFileSystem
     private const string Label = "local";
 
     IFileInfoProvider IFileSystem.FileInfoProvider => LocalFileInfoProvider;
-    IClipboardManager IFileSystem.ClipboardManager => LocalClipboardManager;
     IShellHandler IFileSystem.ShellHandler => LocalShellHandler;
 
     public required ILocalFileInfoProvider LocalFileInfoProvider { get; init; }
     public required IIconProvider IconProvider { get; init; }
-    public required ILocalClipboardManager LocalClipboardManager { get; init; }
     public required IArchiveManager ArchiveManager { get; init; }
     public required IFileIoHandler FileIoHandler { get; init; }
     public required IBinInteraction BinInteraction { get; init; }
@@ -48,6 +48,8 @@ public sealed class LocalFileSystem : IFileSystem
     public required IGitIntegration GitIntegration { get; init; }
 
     public bool IsReady() => true;
+
+    public bool IsLocal() => true;
 
     public string GetLabel() => Label;
 }

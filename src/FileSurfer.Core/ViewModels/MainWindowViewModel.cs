@@ -78,13 +78,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private const string EmptySearchMessage = "No items match your query";
     private const string NoRemoteMark = "-";
 
-    private readonly IDialogService _dialogService;
-    private readonly SearchManager _searchManager;
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
     private readonly UndoRedoHandler<Location> _locationHistory;
-    private readonly Action<bool> _setDarkMode;
+    private readonly SearchManager _searchManager;
     private readonly LocalFileSystem _localFs;
-    private readonly SftpFileSystemFactory _sftpFileSystemFactory;
+    private readonly IDialogService _dialogService;
+    private readonly Action<bool> _setDarkMode;
+
+    public required SftpFileSystemFactory SftpFsFactory { private get; init; }
+    public required IClipboardManager ClipboardManager { private get; init; }
 
     private bool _isActionUserInvoked = true;
     private DateTime _lastRefreshedUtc;
@@ -343,11 +345,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         Action<bool> setDarkMode
     )
     {
-        _localFs = localFs;
         CurrentFs = localFs;
+        _localFs = localFs;
         _dialogService = dialogService;
-        _sftpFileSystemFactory = new SftpFileSystemFactory(dialogService);
         _setDarkMode = setDarkMode;
+
         _searchManager = new SearchManager(s => PathBoxText = s, entry => FileEntries.Add(entry));
         _undoRedoHistory = new UndoRedoHandler<IUndoableFileOperation>();
         _locationHistory = new UndoRedoHandler<Location>(() =>
@@ -619,9 +621,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SetLocation(new Location(connectionVm.FileSystem, initialDir));
             return;
         }
-        ValueResult<SftpFileSystem> result = await _sftpFileSystemFactory.TryConnectAsync(
-            connection
-        );
+        ValueResult<SftpFileSystem> result = await SftpFsFactory.TryConnectAsync(connection);
         ShowIfError(result);
         if (!result.IsOk)
             return;
@@ -935,7 +935,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         IResult result = SetLocationNoHistory(location);
 
         ShowIfError(result);
-        if (result.IsOk && !location.Equals(_locationHistory.Current))
+        if (result.IsOk && !location.IsSame(_locationHistory.Current))
             _locationHistory.AddNewNode(location);
     }
 
@@ -1177,111 +1177,48 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         Reload();
     }
 
-    /// <summary>
-    /// Copies the path to the selected <see cref="FileSystemEntryViewModel"/> to the system clipboard.
-    /// </summary>
-    public async Task CopyPath(FileSystemEntryViewModel? entry) =>
+    private async Task CopyPath(FileSystemEntryViewModel? entry) =>
         ShowIfError(
-            await _localFs.LocalClipboardManager.CopyPathToFileAsync(
+            await ClipboardManager.CopyPathToFileAsync(
                 entry is null ? CurrentDir : entry.PathToEntry
             )
         );
 
-    /// <summary>
-    /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="IClipboardManager"/>.
-    /// </summary>
-    public async Task Cut()
+    private async Task Cut()
     {
-        if (SelectedFiles.Count > 0)
-            ShowIfError(
-                await CurrentFs.ClipboardManager.CutAsync(
-                    SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
-                    CurrentDir
-                )
-            );
-    }
-
-    /// <summary>
-    /// Relays the current selection in <see cref="SelectedFiles"/> to <see cref="IClipboardManager"/>.
-    /// </summary>
-    public async Task Copy()
-    {
-        if (SelectedFiles.Count > 0)
-            ShowIfError(
-                await CurrentFs.ClipboardManager.CopyAsync(
-                    SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
-                    CurrentDir
-                )
-            );
-    }
-
-    /// <summary>
-    /// Determines the type of paste operation and executes it using <see cref="IClipboardManager"/>.
-    /// <para>
-    /// Adds the appropriate <see cref="IUndoableFileOperation"/> to <see cref="_locationHistory"/> if the operation was a success.
-    /// </para>
-    /// Invokes <see cref="Reload"/>.
-    /// </summary>
-    private async Task Paste()
-    {
-        if (
-            FileSurferSettings.AllowImagePastingFromClipboard
-            && CurrentFs is LocalFileSystem fileSystem
-            && (await fileSystem.LocalClipboardManager.PasteImageAsync(CurrentDir)).IsOk
-        )
+        if (SelectedFiles.Count <= 0)
             return;
 
-        PasteType pasteType = await CurrentFs.ClipboardManager.GetOperationType(CurrentDir);
+        IResult result = await ClipboardManager.CutAsync(
+            SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
+            CurrentLocation
+        );
+        ShowIfError(result);
+    }
 
-        ValueResult<IUndoableFileOperation> result =
-            pasteType == PasteType.Duplicate ? await DuplicateFiles() : await PasteFiles(pasteType);
+    private async Task Copy()
+    {
+        if (SelectedFiles.Count <= 0)
+            return;
 
-        if (result.IsOk)
-            _undoRedoHistory.AddNewNode(result.Value);
+        IResult result = await ClipboardManager.CopyAsync(
+            SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
+            CurrentLocation
+        );
+        ShowIfError(result);
+    }
+
+    private async Task Paste()
+    {
+        ValueResult<IUndoableFileOperation?> result = await ClipboardManager.PasteAsync(
+            CurrentLocation
+        );
 
         ShowIfError(result);
-        Reload();
-    }
+        if (result is { IsOk: true, Value: IUndoableFileOperation operation })
+            _undoRedoHistory.AddNewNode(operation);
 
-    private async Task<ValueResult<IUndoableFileOperation>> PasteFiles(PasteType pasteType)
-    {
-        ValueResult<IFileSystemEntry[]> pastedResult = await CurrentFs.ClipboardManager.PasteAsync(
-            CurrentDir,
-            pasteType
-        );
-        if (!pastedResult.IsOk)
-            return ValueResult<IUndoableFileOperation>.Error(pastedResult);
-
-        return ValueResult<IUndoableFileOperation>.Ok(
-            pasteType is PasteType.Cut
-                ? new MoveFilesTo(
-                    PathTools,
-                    CurrentFs.FileIoHandler,
-                    pastedResult.Value,
-                    CurrentDir
-                )
-                : new CopyFilesTo(
-                    PathTools,
-                    CurrentFs.FileIoHandler,
-                    pastedResult.Value,
-                    CurrentDir
-                )
-        );
-    }
-
-    private async Task<ValueResult<IUndoableFileOperation>> DuplicateFiles()
-    {
-        IFileSystemEntry[] clipboard = CurrentFs.ClipboardManager.GetClipboard();
-
-        ValueResult<string[]> copyNamesResult = await CurrentFs.ClipboardManager.DuplicateAsync(
-            CurrentDir
-        );
-        if (!copyNamesResult.IsOk)
-            return ValueResult<IUndoableFileOperation>.Error(copyNamesResult);
-
-        return ValueResult<IUndoableFileOperation>.Ok(
-            new DuplicateFiles(PathTools, CurrentFs.FileIoHandler, clipboard, copyNamesResult.Value)
-        );
+        Reload(true);
     }
 
     /// <summary>

@@ -80,7 +80,9 @@ public static class FileNameGenerator
         GetAvailableName(
             fileInfoProvider,
             directory,
-            $"{entry.NameWoExtension} - Copy{entry.Extension}"
+            string.IsNullOrEmpty(entry.NameWoExtension)
+                ? $"{entry.Name} - Copy"
+                : $"{entry.NameWoExtension} - Copy{entry.Extension}"
         );
 
     /// <summary>

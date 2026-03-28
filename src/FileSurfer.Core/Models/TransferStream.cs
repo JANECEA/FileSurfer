@@ -8,28 +8,31 @@ namespace FileSurfer.Core.Models;
 
 public class FileTransferStream : IDisposable
 {
-    private readonly Func<ValueResult<Stream>> _getStream;
-
-    private Lazy<ValueResult<Stream>> _fileStream;
-    public ValueResult<Stream> FileStream => _fileStream.Value;
-
+    public Stream Stream { get; }
     public string Name { get; }
 
-    public FileTransferStream(string name, Func<ValueResult<Stream>> getStream)
+    public FileTransferStream(string name, Stream stream)
     {
-        _getStream = getStream;
-        _fileStream = new Lazy<ValueResult<Stream>>(getStream);
+        Stream = stream;
         Name = name;
     }
 
-    public void Dispose()
+    public static ValueResult<FileTransferStream> FromInfoProvider(
+        IFileInfoProvider fileInfoProvider,
+        string path
+    )
     {
-        if (_fileStream.IsValueCreated)
-        {
-            _fileStream.Value.Value.Dispose();
-            _fileStream = new Lazy<ValueResult<Stream>>(_getStream);
-        }
+        ValueResult<Stream> streamR = fileInfoProvider.GetFileStream(path);
+        if (!streamR.IsOk)
+            return ValueResult<FileTransferStream>.Error(streamR);
+
+        return new FileTransferStream(
+            fileInfoProvider.PathTools.GetFileName(path),
+            streamR.Value
+        ).OkResult();
     }
+
+    public void Dispose() => Stream.Dispose();
 }
 
 public class DirTransferStream : IDisposable
@@ -39,17 +42,6 @@ public class DirTransferStream : IDisposable
     public List<FileTransferStream> Files { get; }
 
     public string Name { get; }
-
-    public DirTransferStream(
-        string name,
-        List<DirTransferStream> directories,
-        List<FileTransferStream> files
-    )
-    {
-        Directories = directories;
-        Files = files;
-        Name = name;
-    }
 
     private DirTransferStream(string name)
     {
@@ -97,12 +89,13 @@ public class DirTransferStream : IDisposable
                 return ValueResult<DirTransferStream>.Error(currentResult);
 
             foreach (FileEntryInfo file in fileR.Value)
-                currentStream.Files.Add(
-                    new FileTransferStream(
-                        file.Name,
-                        () => fileInfoProvider.GetFileStream(file.PathToEntry)
-                    )
-                );
+            {
+                ValueResult<Stream> streamR = fileInfoProvider.GetFileStream(file.PathToEntry);
+                if (!streamR.IsOk)
+                    return ValueResult<DirTransferStream>.Error(streamR);
+
+                currentStream.Files.Add(new FileTransferStream(file.Name, streamR.Value));
+            }
 
             foreach (DirectoryEntryInfo dir in dirR.Value)
             {
@@ -111,7 +104,6 @@ public class DirTransferStream : IDisposable
                 currentStream.Directories.Add(stream);
             }
         }
-
         return root.OkResult();
     }
 }

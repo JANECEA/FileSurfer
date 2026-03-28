@@ -49,14 +49,11 @@ public class LinuxFileIoHandler : IFileIoHandler
     {
         try
         {
-            ValueResult<Stream> readStreamR = fileStream.FileStream;
-            if (!readStreamR.IsOk)
-                return readStreamR;
-
-            using FileStream writeStream = File.OpenWrite(
-                LocalPathTools.Combine(dirPath, fileStream.Name)
+            using FileStream writeStream = File.Open(
+                LocalPathTools.Combine(dirPath, fileStream.Name),
+                FileMode.Create
             );
-            readStreamR.Value.CopyTo(writeStream);
+            fileStream.Stream.CopyTo(writeStream);
             return SimpleResult.Ok();
         }
         catch (Exception ex)
@@ -73,13 +70,15 @@ public class LinuxFileIoHandler : IFileIoHandler
         while (queue.Count > 0)
         {
             (DirTransferStream dir, string absParentPath) = queue.Dequeue();
+            string absDirPath = LocalPathTools.Combine(dirPath, dir.Name);
+
             IResult result = NewDirAt(absParentPath, dir.Name);
             if (!result.IsOk)
                 return result;
 
             foreach (FileTransferStream f in dir.Files)
             {
-                result = WriteFileStream(f, absParentPath);
+                result = WriteFileStream(f, absDirPath);
                 if (!result.IsOk)
                     return result;
             }

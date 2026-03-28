@@ -38,7 +38,6 @@ public sealed class MoveFilesTo : UndoableOperation
 {
     private readonly IPathTools _pathTools;
     private readonly string _destinationDir;
-    private readonly string _originalDir;
 
     public MoveFilesTo(
         IPathTools pathTools,
@@ -50,8 +49,6 @@ public sealed class MoveFilesTo : UndoableOperation
     {
         _pathTools = pathTools;
         _destinationDir = destinationDir;
-        _originalDir =
-            entries.Length > 0 ? pathTools.GetParentDir(entries[0].PathToEntry) : string.Empty;
     }
 
     protected override IResult InvokeAction(IFileSystemEntry entry, int index) =>
@@ -62,9 +59,10 @@ public sealed class MoveFilesTo : UndoableOperation
     protected override IResult UndoAction(IFileSystemEntry entry, int index)
     {
         string newPath = _pathTools.Combine(_destinationDir, entry.Name);
+        string oldParentDir = _pathTools.GetParentDir(entry.PathToEntry);
         return entry is DirectoryEntry
-            ? FileIoHandler.MoveDirTo(newPath, _originalDir)
-            : FileIoHandler.MoveFileTo(newPath, _originalDir);
+            ? FileIoHandler.MoveDirTo(newPath, oldParentDir)
+            : FileIoHandler.MoveFileTo(newPath, oldParentDir);
     }
 }
 
