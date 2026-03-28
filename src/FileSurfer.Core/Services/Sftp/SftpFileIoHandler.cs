@@ -123,7 +123,7 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
         while (queue.Count > 0)
         {
             (DirTransferStream dir, string absParentPath) = queue.Dequeue();
-            string absDirPath = LocalPathTools.Combine(dirPath, dir.Name);
+            string absDirPath = RemoteUnixPathTools.Combine(absParentPath, dir.Name);
 
             IResult result = NewDirAt(absParentPath, dir.Name);
             if (!result.IsOk)
@@ -136,9 +136,8 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
                     return result;
             }
 
-            string newAbsPrentPath = RemoteUnixPathTools.Combine(absParentPath, dir.Name);
             foreach (DirTransferStream d in dir.Directories)
-                queue.Enqueue((d, newAbsPrentPath));
+                queue.Enqueue((d, absDirPath));
         }
 
         return SimpleResult.Ok();

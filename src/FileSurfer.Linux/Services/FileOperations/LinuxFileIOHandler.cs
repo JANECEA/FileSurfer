@@ -70,7 +70,7 @@ public class LinuxFileIoHandler : IFileIoHandler
         while (queue.Count > 0)
         {
             (DirTransferStream dir, string absParentPath) = queue.Dequeue();
-            string absDirPath = LocalPathTools.Combine(dirPath, dir.Name);
+            string absDirPath = LocalPathTools.Combine(absParentPath, dir.Name);
 
             IResult result = NewDirAt(absParentPath, dir.Name);
             if (!result.IsOk)
@@ -83,9 +83,8 @@ public class LinuxFileIoHandler : IFileIoHandler
                     return result;
             }
 
-            string newAbsPrentPath = LocalPathTools.Combine(absParentPath, dir.Name);
             foreach (DirTransferStream d in dir.Directories)
-                queue.Enqueue((d, newAbsPrentPath));
+                queue.Enqueue((d, absDirPath));
         }
 
         return SimpleResult.Ok();
