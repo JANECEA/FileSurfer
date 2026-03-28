@@ -10,7 +10,7 @@ namespace FileSurfer.Windows.Models.FileInformation;
 
 public class WindowsFileInfoProvider : LocalFileInfoProvider
 {
-    public override DriveEntry[] GetDrives() =>
+    public override DriveEntryInfo[] GetDrives() =>
         DriveInfo
             .GetDrives()
             .Where(static drive =>
@@ -27,7 +27,7 @@ public class WindowsFileInfoProvider : LocalFileInfoProvider
                     return false;
                 }
             })
-            .Select(driveInfo => new DriveEntry(driveInfo))
+            .Select(driveInfo => new DriveEntryInfo(driveInfo))
             .ToArray();
 
     public override IEnumerable<string> GetSpecialFolders()

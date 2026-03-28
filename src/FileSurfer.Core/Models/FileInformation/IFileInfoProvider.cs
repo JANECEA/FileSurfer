@@ -102,7 +102,7 @@ public interface ILocalFileInfoProvider : IFileInfoProvider
     /// <summary>
     /// Gets an array of drives on the system.
     /// </summary>
-    public DriveEntry[] GetDrives();
+    public DriveEntryInfo[] GetDrives();
 
     /// <summary>
     /// Retrieves special folder paths.

@@ -592,7 +592,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void OpenEntry(IFileSystemEntry entry)
     {
-        if (entry is DirectoryEntry or DriveEntry)
+        if (entry is DirectoryEntry)
             SetNewLocation(entry.PathToEntry);
         else if (CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
             SetNewLocation(dir);
@@ -602,7 +602,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     public void OpenLocalEntry(SideBarEntryViewModel entry)
     {
-        if (entry.FileSystemEntry is DirectoryEntry or DriveEntry)
+        if (entry.IsDirectory)
             SetLocation(_localFs.GetLocation(entry.PathToEntry));
         else if (CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
             SetLocation(_localFs.GetLocation(dir));
@@ -722,7 +722,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void LoadDrives()
     {
         Drives.Clear();
-        foreach (DriveEntry driveEntry in _localFs.LocalFileInfoProvider.GetDrives())
+        foreach (DriveEntryInfo driveEntry in _localFs.LocalFileInfoProvider.GetDrives())
             Drives.Add(new SideBarEntryViewModel(_localFs, driveEntry));
     }
 

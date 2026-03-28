@@ -11,7 +11,7 @@ using ReactiveUI;
 namespace FileSurfer.Core.ViewModels;
 
 /// <summary>
-/// Represents a displayable file system entry (file, directory, or drive) in the FileSurfer application.
+/// Represents a displayable file system entry (file, or directory) in the FileSurfer application.
 /// Manages properties associated with files and directories, such as
 /// their name, size, type, last modification time, and icon. Also includes data about special conditions
 /// like hidden files, or version control status.
@@ -43,7 +43,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// <summary>
     /// Specifies if this <see cref="FileSystemEntryViewModel"/> is a directory.
     /// </summary>
-    public bool IsDirectory => FileSystemEntry is DirectoryEntry or DriveEntry;
+    public bool IsDirectory => FileSystemEntry is DirectoryEntry;
 
     /// <summary>
     /// Holds a <see cref="Bitmap"/> representing the file.
@@ -187,7 +187,6 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         {
             FileEntry => await iconProvider.GetFileIcon(entry.PathToEntry),
             DirectoryEntry => await iconProvider.GetDirectoryIcon(entry.PathToEntry),
-            DriveEntry driveEntry => await iconProvider.GetDriveIcon(driveEntry),
             _ => throw new NotSupportedException(),
         };
 

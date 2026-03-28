@@ -23,7 +23,7 @@ public class SideBarEntryViewModel : ReactiveObject
     /// <summary>
     /// Path to the file, directory, or drive represented by this <see cref="SideBarEntryViewModel"/>.
     /// </summary>
-    public string PathToEntry => FileSystemEntry.PathToEntry;
+    public string PathToEntry { get; }
 
     /// <summary>
     /// Holds a <see cref="Bitmap"/> representing the file.
@@ -38,37 +38,46 @@ public class SideBarEntryViewModel : ReactiveObject
     /// <summary>=
     /// Holds the name of file, directory, or drive represented by this <see cref="SideBarEntryViewModel"/>.
     /// </summary>
-    public string Name => FileSystemEntry.Name;
+    public string Name { get; }
 
     /// <summary>
     /// Holds this <see cref="SideBarEntryViewModel"/>'s displayed opacity
     /// </summary>
-    public double Opacity { get; }
+    public double Opacity { get; } = 1;
 
     /// <summary>
-    /// Holds the underlying <see cref="IFileSystemEntry"/>.
+    /// Specifies if this <see cref="SideBarEntryViewModel"/> should be treated as a directory.
     /// </summary>
-    public IFileSystemEntry FileSystemEntry { get; }
+    public bool IsDirectory { get; }
 
     public SideBarEntryViewModel(IFileSystem fileSystem, IFileSystemEntry fileSystemEntry)
     {
-        FileSystemEntry = fileSystemEntry;
-        Opacity = fileSystem.FileInfoProvider.IsHidden(
-            fileSystemEntry.PathToEntry,
-            FileSystemEntry is DirectoryEntry or DriveEntry
-        )
-            ? HiddenOpacity
-            : 1;
+        Name = fileSystemEntry.Name;
+        PathToEntry = fileSystemEntry.PathToEntry;
+        IsDirectory = fileSystemEntry is DirectoryEntry;
 
-        _ = LoadIconAsync(fileSystemEntry, fileSystem.IconProvider);
+        if (fileSystem.FileInfoProvider.IsHidden(fileSystemEntry.PathToEntry, IsDirectory))
+            Opacity = HiddenOpacity;
+
+        _ = Task.Run(async () =>
+            Icon = await LoadIconAsync(fileSystemEntry, fileSystem.IconProvider)
+        );
     }
 
-    private async Task LoadIconAsync(IFileSystemEntry entry, IIconProvider iconProvider) =>
-        Icon = entry switch
+    private static Task<Bitmap> LoadIconAsync(IFileSystemEntry entry, IIconProvider iconProvider) =>
+        entry switch
         {
-            FileEntry => await iconProvider.GetFileIcon(entry.PathToEntry),
-            DirectoryEntry => await iconProvider.GetDirectoryIcon(entry.PathToEntry),
-            DriveEntry driveEntry => await iconProvider.GetDriveIcon(driveEntry),
+            FileEntry => iconProvider.GetFileIcon(entry.PathToEntry),
+            DirectoryEntry => iconProvider.GetDirectoryIcon(entry.PathToEntry),
             _ => throw new NotSupportedException(),
         };
+
+    public SideBarEntryViewModel(IFileSystem fileSystem, DriveEntryInfo driveEntryInfo)
+    {
+        Name = driveEntryInfo.Name;
+        PathToEntry = driveEntryInfo.PathToEntry;
+        IsDirectory = true;
+
+        _ = Task.Run(async () => Icon = await fileSystem.IconProvider.GetDriveIcon(driveEntryInfo));
+    }
 }

@@ -143,7 +143,7 @@ public abstract class LocalFileInfoProvider : ILocalFileInfoProvider
 
     public bool PathExists(string path) => Path.Exists(path);
 
-    public abstract DriveEntry[] GetDrives();
+    public abstract DriveEntryInfo[] GetDrives();
 
     public abstract IEnumerable<string> GetSpecialFolders();
 }

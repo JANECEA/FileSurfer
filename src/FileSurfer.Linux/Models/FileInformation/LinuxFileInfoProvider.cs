@@ -29,18 +29,18 @@ public class LinuxFileInfoProvider : LocalFileInfoProvider
 
     private sealed record LsblkOutput(List<LsblkEntry> BlockDevices);
 
-    public override DriveEntry[] GetDrives()
+    public override DriveEntryInfo[] GetDrives()
     {
-        DriveEntry[] defaultList = [new(RootDir, "Root")];
+        DriveEntryInfo[] defaultList = [new(RootDir, "Root")];
         ValueResult<string> result = _shellHandler.ExecuteCommand(
             "lsblk",
             "-Jnbpo",
             "LABEL,MOUNTPOINT,SIZE,TYPE"
         );
         if (!result.IsOk || string.IsNullOrEmpty(result.Value))
-            return Array.Empty<DriveEntry>();
+            return Array.Empty<DriveEntryInfo>();
 
-        List<DriveEntry> drives = new();
+        List<DriveEntryInfo> drives = new();
         LsblkOutput entries;
         try
         {
@@ -54,7 +54,7 @@ public class LinuxFileInfoProvider : LocalFileInfoProvider
         }
         foreach (LsblkEntry entry in entries.BlockDevices)
             if (entry is { Type: "part", Label: not null, MountPoint: not null, Size: > 0 })
-                drives.Add(new DriveEntry(entry.MountPoint, entry.Label));
+                drives.Add(new DriveEntryInfo(entry.MountPoint, entry.Label));
 
         return drives.Count > 0 ? drives.ToArray() : defaultList;
     }
