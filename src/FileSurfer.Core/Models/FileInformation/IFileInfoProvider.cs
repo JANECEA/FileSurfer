@@ -81,17 +81,17 @@ public interface IFileInfoProvider
     /// <summary>
     /// Determines if the file exists within the containing file system.
     /// </summary>
-    public virtual bool FileExists(string path) => File.Exists(path);
+    public bool FileExists(string path);
 
     /// <summary>
     /// Determines if the directory exists within the containing file system.
     /// </summary>
-    public virtual bool DirectoryExists(string path) => Directory.Exists(path);
+    public bool DirectoryExists(string path);
 
     /// <summary>
     /// Determines if the file or directory exists  within the containing file system.
     /// </summary>
-    public virtual bool PathExists(string path) => Path.Exists(path);
+    public bool PathExists(string path);
 }
 
 /// <summary>
