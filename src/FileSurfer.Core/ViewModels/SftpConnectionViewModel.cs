@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.Sftp;
-using FileSurfer.Core.Services.Sftp;
 using ReactiveUI;
 
 namespace FileSurfer.Core.ViewModels;
@@ -53,23 +52,17 @@ public sealed class SftpConnectionViewModel : ReactiveObject
     public string KeyPath
     {
         get => _keyPath;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _keyPath, value);
-            if (string.IsNullOrWhiteSpace(value))
-                NeedsPassphrase = false;
-        }
+        set { this.RaiseAndSetIfChanged(ref _keyPath, value); }
     }
 
-    private bool _needsPassphrase = false;
-    public bool NeedsPassphrase
+    private bool? _needsPassphrase = false;
+    public bool? NeedsPassphrase
     {
         get => _needsPassphrase;
         set => this.RaiseAndSetIfChanged(ref _needsPassphrase, value);
     }
 
     private string? _initialDirectory = null;
-
     public string? InitialDirectory
     {
         get => _initialDirectory;
@@ -113,13 +106,17 @@ public sealed class SftpConnectionViewModel : ReactiveObject
         Port = saveFrom.Port;
         Username = saveFrom.Username;
         KeyPath = LocalPathTools.NormalizePath(saveFrom.KeyPath.Trim());
+        NeedsPassphrase = saveFrom.NeedsPassphrase;
+        if (string.IsNullOrWhiteSpace(KeyPath))
+            NeedsPassphrase = false;
+
         InitialDirectory = saveFrom.InitialDirectory?.Trim();
 
         SftpConnection.HostnameOrIpAddress = HostnameOrIpAddress;
         SftpConnection.Port = Port;
         SftpConnection.Username = Username;
         SftpConnection.KeyPath = KeyPath;
-        SftpConnection.NeedsPassphrase = NeedsPassphrase;
+        SftpConnection.NeedsPassphrase = NeedsPassphrase ?? false;
         SftpConnection.InitialDirectory = InitialDirectory;
 
         if (CreateOnSave)
