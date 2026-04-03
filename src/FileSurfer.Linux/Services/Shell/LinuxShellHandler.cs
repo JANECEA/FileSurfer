@@ -186,19 +186,18 @@ public class LinuxShellHandler : IShellCommandHandler
         {
             process.Start();
             string stdOut = process.StandardOutput.ReadToEnd();
-            string errorMessage = process.StandardError.ReadToEnd();
+            string stdErr = process.StandardError.ReadToEnd();
             process.WaitForExit();
 
-            bool success = process.ExitCode == 0;
-            if (success)
-                return stdOut.Trim().OkResult();
+            if (string.IsNullOrWhiteSpace(stdOut))
+                stdOut = stdErr;
 
-            if (string.IsNullOrWhiteSpace(errorMessage))
-                errorMessage = stdOut;
+            if (string.IsNullOrWhiteSpace(stdErr))
+                stdErr = stdOut;
 
-            return string.IsNullOrWhiteSpace(errorMessage)
-                ? ValueResult<string>.Error()
-                : ValueResult<string>.Error(errorMessage);
+            return process.ExitCode == 0
+                ? ValueResult<string>.Ok(stdOut)
+                : ValueResult<string>.Error(stdErr);
         }
         catch (Exception ex)
         {

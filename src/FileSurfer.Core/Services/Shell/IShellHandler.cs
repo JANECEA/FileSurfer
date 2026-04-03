@@ -21,11 +21,13 @@ public interface IShellHandler
     public IResult CreateDirectoryLink(string dirPath);
 
     /// <summary>
-    /// Executes a command in the command prompt.
+    /// Executes a command in the command prompt and returns <c>stdout</c>.
+    /// <br/>
+    /// If <c>stdout</c> is empty, <c>stderr</c> is returned instead.
     /// </summary>
     /// <param name="programName">Program to execute</param>
     /// <param name="args">Arguments for the command's $variables</param>
-    /// <returns>A <see cref="ValueResult{string}"/> representing the result stdout of the operation and potential errors.</returns>
+    /// <returns>A <see cref="ValueResult{string}"/> representing the result of the operation and potential errors.</returns>
     public ValueResult<string> ExecuteCommand(string programName, params string[] args);
 }
 
