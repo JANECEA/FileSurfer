@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.FileOperations;
 using FileSurfer.Core.Services.Shell;
@@ -16,14 +18,18 @@ public class StubArchiveManager : IArchiveManager
 
     public bool IsZipped(string filePath) => false;
 
-    public IResult ZipFiles(
-        IEnumerable<IFileSystemEntry> entries,
+    public Task<IResult> ZipFiles(
+        IList<IFileSystemEntry> entries,
         string destinationDir,
-        string archiveName
-    ) => SimpleResult.Error(_message);
+        string archiveName,
+        CancellationToken ct
+    ) => Task.FromResult<IResult>(SimpleResult.Error(_message));
 
-    public IResult UnzipArchive(string archivePath, string destinationPath) =>
-        SimpleResult.Error(_message);
+    public Task<IResult> UnzipArchive(
+        string archivePath,
+        string destinationPath,
+        CancellationToken ct
+    ) => Task.FromResult<IResult>(SimpleResult.Error(_message));
 }
 
 public class StubGitIntegration : IGitIntegration

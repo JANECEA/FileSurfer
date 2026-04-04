@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using FileSurfer.Core.Extensions;
@@ -1125,38 +1126,24 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         ShowIfError(result);
     }
 
-    /// <summary>
-    /// Creates an archive from the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/>.
-    /// </summary>
-    public async Task AddToArchive()
+    private async Task AddToArchive()
     {
         if (!CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
             return;
 
-        string archiveName =
-            SelectedFiles[^1].FileSystemEntry.NameWoExtension
-            + LocalArchiveManager.ArchiveTypeExtension;
+        string archiveName = SelectedFiles[^1].FileSystemEntry.NameWoExtension;
 
-        ShowIfError(
-            await Task.Run(() =>
-                CurrentFs.ArchiveManager.ZipFiles(
-                    SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
-                    CurrentDir,
-                    FileNameGenerator.GetAvailableName(
-                        CurrentFs.FileInfoProvider,
-                        CurrentDir,
-                        archiveName
-                    )
-                )
-            )
+        IResult result = await CurrentFs.ArchiveManager.ZipFiles(
+            SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
+            CurrentDir,
+            archiveName,
+            CancellationToken.None
         );
+        ShowIfError(result);
         Reload();
     }
 
-    /// <summary>
-    /// Extracts the archives selected in <see cref="SelectedFiles"/>.
-    /// </summary>
-    public async Task ExtractArchive()
+    private async Task ExtractArchive()
     {
         if (!CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
             return;
@@ -1168,12 +1155,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
                 return;
             }
 
-        string[] archivePaths = SelectedFiles.ConvertToArray(e => e.PathToEntry);
-        await Task.Run(() =>
-        {
-            foreach (string path in archivePaths)
-                ShowIfError(CurrentFs.ArchiveManager.UnzipArchive(path, CurrentDir));
-        });
+        foreach (string path in SelectedFiles.ConvertToArray(e => e.PathToEntry))
+            ShowIfError(
+                await CurrentFs.ArchiveManager.UnzipArchive(
+                    path,
+                    CurrentDir,
+                    CancellationToken.None
+                )
+            );
         Reload();
     }
 

@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Models;
 
 namespace FileSurfer.Core.Services.FileOperations;
@@ -16,15 +18,16 @@ public interface IArchiveManager
     /// Compresses specified file paths into a new archive.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    IResult ZipFiles(
-        IEnumerable<IFileSystemEntry> entries,
+    Task<IResult> ZipFiles(
+        IList<IFileSystemEntry> entries,
         string destinationDir,
-        string archiveName
+        string archiveName,
+        CancellationToken ct
     );
 
     /// <summary>
-    /// Extracts an archive, overwriting the already existing files.
+    /// Extracts the archive, overwriting already existing files.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    IResult UnzipArchive(string archivePath, string destinationPath);
+    Task<IResult> UnzipArchive(string archivePath, string destinationPath, CancellationToken ct);
 }
