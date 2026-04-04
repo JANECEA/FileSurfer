@@ -34,6 +34,7 @@ public record SettingsRecord
     private static IDefaultSettingsProvider? DefaultSettingsProvider;
 
     public string newImageName { get; set; } = "New Image";
+    public string newTextFileName { get; set; } = "New Text File";
     public string newFileName { get; set; } = "New File";
     public string newDirectoryName { get; set; } = "New Folder";
     public string notepadApp { get; set; } = string.Empty;

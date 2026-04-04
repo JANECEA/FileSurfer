@@ -37,6 +37,17 @@ public sealed class SettingsWindowViewModel : ReactiveObject
             );
     }
 
+    private string _newTextFileName;
+    public string NewTextFileName
+    {
+        get => _newTextFileName;
+        set =>
+            this.RaiseAndSetIfChanged(
+                ref _newTextFileName,
+                SanitizeInput(value, InvalidFileNameChars)
+            );
+    }
+
     private string _newFileName;
     public string NewFileName
     {
@@ -128,6 +139,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     private void SetValues(SettingsRecord settings)
     {
         NewImageName = settings.newImageName;
+        NewTextFileName = settings.newTextFileName;
         NewFileName = settings.newFileName;
         NewDirectoryName = settings.newDirectoryName;
         NotepadApp = settings.notepadApp;
@@ -161,6 +173,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
             new SettingsRecord
             {
                 newImageName = NewImageName.Trim(),
+                newTextFileName = NewTextFileName.Trim(),
                 newFileName = NewFileName.Trim(),
                 newDirectoryName = NewDirectoryName.Trim(),
                 notepadApp = NotepadApp.Trim(),
