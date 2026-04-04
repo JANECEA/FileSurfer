@@ -128,7 +128,6 @@
                         <StackPanel Spacing="8">
                             <CheckBox Content="Git Integration" IsChecked="{Binding GitIntegration}" />
                             <CheckBox Content="Show Undo/Redo Error Dialogs" IsChecked="{Binding ShowUndoRedoErrorDialogs}" />
-                            <CheckBox Content="Allow Image Pasting from Clipboard" IsChecked="{Binding AllowImagePastingFromClipboard}" />
                         </StackPanel>
 
                         <StackPanel Margin="0 15 0 0" Spacing="8">

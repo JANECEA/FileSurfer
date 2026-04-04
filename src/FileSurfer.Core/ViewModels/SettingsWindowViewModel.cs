@@ -132,8 +132,6 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     public int SynchronizerPollingIntervalUpperBound =>
         FileSurferSettings.SynchronizerPollingIntervalUpperBound;
 
-    public bool AllowImagePastingFromClipboard { get; set; }
-
     public SettingsWindowViewModel() => SetValues(FileSurferSettings.CurrentSettings);
 
     private void SetValues(SettingsRecord settings)
@@ -162,7 +160,6 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         AutomaticRefresh = settings.automaticRefresh;
         AutomaticRefreshInterval = settings.automaticRefreshInterval;
         SynchronizerPollingInterval = settings.synchronizerPollingInterval;
-        AllowImagePastingFromClipboard = settings.allowImagePastingFromClipboard;
     }
 
     /// <summary>
@@ -196,7 +193,6 @@ public sealed class SettingsWindowViewModel : ReactiveObject
                 automaticRefresh = AutomaticRefresh,
                 automaticRefreshInterval = AutomaticRefreshInterval,
                 synchronizerPollingInterval = SynchronizerPollingInterval,
-                allowImagePastingFromClipboard = AllowImagePastingFromClipboard,
                 quickAccess = FileSurferSettings.QuickAccess,
             }
         );

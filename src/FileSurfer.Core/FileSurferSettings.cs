@@ -130,7 +130,6 @@ public static class FileSurferSettings
             automaticRefresh = AutomaticRefresh,
             automaticRefreshInterval = AutomaticRefreshInterval,
             synchronizerPollingInterval = SynchronizerPollingInterval,
-            allowImagePastingFromClipboard = AllowImagePastingFromClipboard,
             quickAccess = QuickAccess,
             syncHiddenFiles = SyncHiddenFiles,
         };
@@ -264,11 +263,6 @@ public static class FileSurferSettings
     internal const int SynchronizerPollingIntervalUpperBound = 5 * 60 * 1000;
 
     /// <summary>
-    /// Specifies if images stored in the system clipboard can be pasted directly into directories.
-    /// </summary>
-    public static bool AllowImagePastingFromClipboard { get; set; }
-
-    /// <summary>
     /// List of directories and files added by the user for quick access.
     /// </summary>
     public static List<string> QuickAccess { get; set; }
@@ -391,7 +385,6 @@ public static class FileSurferSettings
             SynchronizerPollingIntervalUpperBound
         );
 
-        AllowImagePastingFromClipboard = settings.allowImagePastingFromClipboard;
         QuickAccess = settings.quickAccess ?? new List<string>();
         SyncHiddenFiles = settings.syncHiddenFiles;
 
