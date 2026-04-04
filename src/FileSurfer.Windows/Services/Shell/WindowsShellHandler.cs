@@ -88,7 +88,7 @@ public class WindowsShellHandler : ILocalShellHandler
         }
     }
 
-    public IResult OpenCmdAt(string dirPath)
+    public IResult OpenTerminalAt(string dirPath)
     {
         if (string.IsNullOrWhiteSpace(FileSurferSettings.Terminal))
             return SimpleResult.Error("Set terminal in settings.");

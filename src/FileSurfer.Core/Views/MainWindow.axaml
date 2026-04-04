@@ -253,9 +253,9 @@
                     HotKey="F5"
                     ToolTip.Tip="Reload" />
             <Button Classes="StateButton TopLeftButton"
-                    Command="{Binding OpenPowerShellCommand}"
+                    Command="{Binding OpenTerminalCommand}"
                     Content="&#xEBC7;"
-                    HotKey="F12"
+                    HotKey="Shift+F12"
                     ToolTip.Tip="Open terminal here" />
 
             <Grid ColumnDefinitions="Auto 20 * 250">

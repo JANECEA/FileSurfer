@@ -37,10 +37,10 @@ public interface IShellHandler
 public interface ILocalShellHandler : IShellHandler
 {
     /// <summary>
-    /// Opens a command prompt at the specified directory path.
+    /// Opens terminal at the specified directory path.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult OpenCmdAt(string dirPath);
+    public IResult OpenTerminalAt(string dirPath);
 
     /// <summary>
     /// Opens a file at the specified path in the application preferred by the OS.

@@ -300,7 +300,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> GoForwardCommand { get; }
     public ReactiveCommand<Unit, Unit> GoUpCommand { get; }
     public ReactiveCommand<Unit, Unit> ReloadCommand { get; }
-    public ReactiveCommand<Unit, Unit> OpenPowerShellCommand { get; }
+    public ReactiveCommand<Unit, Unit> OpenTerminalCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
     public ReactiveCommand<Unit, Unit> NewFileCommand { get; }
     public ReactiveCommand<Unit, Unit> NewDirCommand { get; }
@@ -387,7 +387,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         GoForwardCommand = ReactiveCommand.Create(GoForward, canGoForward);
         GoUpCommand = ReactiveCommand.Create(GoUp);
         ReloadCommand = ReactiveCommand.Create(() => Reload(true), notSearching);
-        OpenPowerShellCommand = ReactiveCommand.Create(OpenPowerShell, localNotSearching);
+        OpenTerminalCommand = ReactiveCommand.Create(OpenTerminal, localNotSearching);
         CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
         NewFileCommand = ReactiveCommand.Create(NewFile, notSearching);
         NewDirCommand = ReactiveCommand.Create(NewDir, notSearching);
@@ -1035,10 +1035,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         SetLocation(location);
     }
 
-    private void OpenPowerShell()
+    private void OpenTerminal()
     {
         if (CurrentFs is LocalFileSystem fs && fs.LocalFileInfoProvider.DirectoryExists(CurrentDir))
-            ShowIfError(fs.LocalShellHandler.OpenCmdAt(CurrentDir));
+            ShowIfError(fs.LocalShellHandler.OpenTerminalAt(CurrentDir));
     }
 
     public async Task SearchAsync(string searchQuery)
