@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Input.Platform;
 using Avalonia.Media.Imaging;
@@ -28,6 +29,7 @@ public class ClipboardManager : IClipboardManager
     }
 
     private const string ImageExtension = ".png";
+    private const string TextExtension = ".txt";
     private static readonly OpResult CutSameDirectoryResult = OpResult.Error(
         "Cannot move files to the same directory."
     );
@@ -122,6 +124,29 @@ public class ClipboardManager : IClipboardManager
         }
     }
 
+    private static OpResult SaveTextToPath(Location destination, string text)
+    {
+        string imgName = FileNameGenerator.GetAvailableName(
+            destination.FileSystem.FileInfoProvider,
+            destination.Path,
+            FileSurferSettings.NewTextFileName + TextExtension
+        );
+        try
+        {
+            MemoryStream stream = new(Encoding.UTF8.GetBytes(text));
+            using FileTransferStream fileStream = new(imgName, stream);
+            IResult result = destination.FileSystem.FileIoHandler.WriteFileStream(
+                fileStream,
+                destination.Path
+            );
+            return result.IsOk ? OpResult.Ok(null) : OpResult.Error(result);
+        }
+        catch (Exception ex)
+        {
+            return OpResult.Error(ex.Message);
+        }
+    }
+
     private Location DetermineBaseLocation()
     {
         if (_programClipboard.Count == 0)
@@ -170,6 +195,9 @@ public class ClipboardManager : IClipboardManager
     {
         if (await _osClipboard.Clipboard.TryGetBitmapAsync() is Bitmap bitmap)
             return SaveImageToPath(destination, bitmap);
+
+        if (await _osClipboard.Clipboard.TryGetTextAsync() is string text)
+            return SaveTextToPath(destination, text);
 
         if (
             await _osClipboard.Clipboard.TryGetFilesAsync() is IStorageItem[] items
