@@ -1133,10 +1133,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         string archiveName = SelectedFiles[^1].FileSystemEntry.NameWoExtension;
 
-        IResult result = await CurrentFs.ArchiveManager.ZipFiles(
+        IResult result = await CurrentFs.ArchiveManager.ArchiveEntries(
             SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
             CurrentDir,
             archiveName,
+            new ProgressReporter(),
             CancellationToken.None
         );
         ShowIfError(result);
@@ -1149,7 +1150,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
 
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
-            if (!CurrentFs.ArchiveManager.IsZipped(entry.PathToEntry))
+            if (!CurrentFs.ArchiveManager.IsArchived(entry.PathToEntry))
             {
                 ShowError($"Entry \"{entry.Name}\" is not an archive.");
                 return;
@@ -1157,9 +1158,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         foreach (string path in SelectedFiles.ConvertToArray(e => e.PathToEntry))
             ShowIfError(
-                await CurrentFs.ArchiveManager.UnzipArchive(
+                await CurrentFs.ArchiveManager.ExtractArchive(
                     path,
                     CurrentDir,
+                    new ProgressReporter(),
                     CancellationToken.None
                 )
             );

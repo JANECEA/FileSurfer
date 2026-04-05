@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
+using FileSurfer.Core.Services.Dialogs;
 using SharpCompress.Archives;
 using SharpCompress.Archives.SevenZip;
 using SharpCompress.Archives.Zip;
@@ -44,9 +46,9 @@ public class LocalArchiveManager : IArchiveManager
     public LocalArchiveManager(IFileInfoProvider fileInfoProvider) =>
         _fileInfoProvider = fileInfoProvider;
 
-    public bool IsZipped(string filePath) => GetZipExtension(filePath) is not null;
+    public bool IsArchived(string filePath) => GetArchiveExtension(filePath) is not null;
 
-    private static ArchiveType? GetZipExtension(string filePath)
+    private static ArchiveType? GetArchiveExtension(string filePath)
     {
         filePath = LocalPathTools.NormalizePath(filePath);
         foreach (ArchiveType type in SupportedFormats)
@@ -56,39 +58,52 @@ public class LocalArchiveManager : IArchiveManager
         return null;
     }
 
-    private static async Task<IResult> ZipFilesInternal(
+    [
+        SuppressMessage(
+            "Reliability",
+            "CA2016:Forward the \'CancellationToken\' parameter to methods"
+        ),
+        SuppressMessage("ReSharper", "MethodSupportsCancellation"),
+    ]
+    private static async Task<IResult> ArchiveInternal(
         IList<IFileSystemEntry> entries,
-        string destinationDir,
-        string archiveName,
+        string archivePath,
         List<FileStream> fileStreams,
         CancellationToken ct
     )
     {
         using ZipArchive archive = ZipArchive.Create();
-        FileStream zipStream = File.OpenWrite(Path.Combine(destinationDir, archiveName));
+        FileStream zipStream = File.OpenWrite(archivePath);
 
-        foreach (IFileSystemEntry entry in entries.Where(e => e is FileEntry))
+        await Task.Run(() =>
         {
-            ct.ThrowIfCancellationRequested();
-            FileStream fileStream = File.OpenRead(entry.PathToEntry);
-            archive.AddEntry(entry.Name, fileStream);
-            fileStreams.Add(fileStream);
-        }
+            foreach (IFileSystemEntry entry in entries.Where(e => e is FileEntry))
+            {
+                ct.ThrowIfCancellationRequested();
+                FileStream fileStream = File.OpenRead(entry.PathToEntry);
+                archive.AddEntry(entry.Name, fileStream);
+                fileStreams.Add(fileStream);
+            }
 
-        foreach (IFileSystemEntry entry in entries.Where(e => e is DirectoryEntry))
+            foreach (IFileSystemEntry entry in entries.Where(e => e is DirectoryEntry))
+            {
+                ct.ThrowIfCancellationRequested();
+                archive.AddAllFromDirectory(entry.PathToEntry);
+            }
+        });
+
+        await Task.Run(async () =>
         {
-            ct.ThrowIfCancellationRequested();
-            archive.AddAllFromDirectory(entry.PathToEntry);
-        }
-
-        await archive.SaveToAsync(zipStream, new WriterOptions(CompressionType.Deflate), ct);
+            await archive.SaveToAsync(zipStream, new WriterOptions(CompressionType.Deflate), ct);
+        });
         return SimpleResult.Ok();
     }
 
-    public async Task<IResult> ZipFiles(
+    public async Task<IResult> ArchiveEntries(
         IList<IFileSystemEntry> entries,
         string destinationDir,
         string archiveName,
+        ProgressReporter reporter,
         CancellationToken ct
     )
     {
@@ -97,13 +112,15 @@ public class LocalArchiveManager : IArchiveManager
             destinationDir,
             archiveName + ArchiveTypeExtension
         );
+        string archivePath = LocalPathTools.Combine(destinationDir, name);
+
+        IndeterminateReporter r = new(reporter);
+        r.ReportItem(archivePath);
         List<FileStream> fileStreams = new();
+
         try
         {
-            return await Task.Run(
-                async () => await ZipFilesInternal(entries, destinationDir, name, fileStreams, ct),
-                ct
-            );
+            return await ArchiveInternal(entries, archivePath, fileStreams, ct);
         }
         catch (OperationCanceledException)
         {
@@ -120,13 +137,15 @@ public class LocalArchiveManager : IArchiveManager
         }
     }
 
-    private async Task<IResult> UnzipArchiveInternal(
+    private async Task<IResult> ExtractInternal(
         string archivePath,
         string destinationPath,
         ArchiveType archiveType,
+        ProgressReporter reporter,
         CancellationToken ct
     )
     {
+        IndeterminateReporter r = new(reporter);
         string extractName = FileNameGenerator.GetAvailableName(
             _fileInfoProvider,
             destinationPath,
@@ -138,22 +157,29 @@ public class LocalArchiveManager : IArchiveManager
         await using Stream stream = File.OpenRead(archivePath);
         using IReader reader = GetReader(stream, archiveType);
 
-        await reader.WriteAllToDirectoryAsync(extractTo, ExtractionOptions, ct);
+        while (await reader.MoveToNextEntryAsync(ct))
+        {
+            r.ReportItem(reader.Entry.Key);
+            await reader
+                .WriteEntryToDirectoryAsync(extractTo, ExtractionOptions, ct)
+                .ConfigureAwait(false);
+        }
         return SimpleResult.Ok();
     }
 
-    public async Task<IResult> UnzipArchive(
+    public async Task<IResult> ExtractArchive(
         string archivePath,
         string destinationPath,
+        ProgressReporter reporter,
         CancellationToken ct
     )
     {
-        if (GetZipExtension(archivePath) is not ArchiveType archiveType)
+        if (GetArchiveExtension(archivePath) is not ArchiveType archiveType)
             return SimpleResult.Error($"\"{archivePath}\" is not an archive.");
 
         try
         {
-            return await UnzipArchiveInternal(archivePath, destinationPath, archiveType, ct);
+            return await ExtractInternal(archivePath, destinationPath, archiveType, reporter, ct);
         }
         catch (OperationCanceledException)
         {

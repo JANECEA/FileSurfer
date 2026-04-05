@@ -153,7 +153,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
             ? HiddenOpacity
             : 1;
         UpdateGitStatus(status);
-        IsArchived = fileSystem.ArchiveManager.IsZipped(entry.PathToEntry);
+        IsArchived = fileSystem.ArchiveManager.IsArchived(entry.PathToEntry);
         SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
 
         _ = LoadIconAsync(entry, fileSystem.IconProvider);
@@ -176,7 +176,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
             ? HiddenOpacity
             : 1;
         UpdateGitStatus(status);
-        IsArchived = fileSystem.ArchiveManager.IsZipped(entry.PathToEntry);
+        IsArchived = fileSystem.ArchiveManager.IsArchived(entry.PathToEntry);
         SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
 
         _ = LoadIconAsync(entry, fileSystem.IconProvider);
