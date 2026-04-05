@@ -46,14 +46,13 @@ public sealed class AvaloniaDialogService : IDialogService
         await Dispatcher.UIThread.InvokeAsync(dialog.Show);
         try
         {
-            T result = await opTask;
-            return result;
+            return await opTask;
         }
         finally
         {
-            cts.Dispose();
             if (!dialogClosedByUser)
                 await Dispatcher.UIThread.InvokeAsync(dialog.Close);
+            cts.Dispose();
         }
     }
 

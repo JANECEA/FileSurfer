@@ -18,8 +18,14 @@ public partial class ProgressDialogWindow : Window
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);
-        OnCancelClicked();
+        Cancel();
     }
 
-    private void OnCancelClicked(object? sender = null, RoutedEventArgs? e = null) => Cts.Cancel();
+    private void Cancel()
+    {
+        if (!Cts.IsCancellationRequested)
+            OnCancelClicked();
+    }
+
+    private void OnCancelClicked(object? sender = null, RoutedEventArgs? e = null) => Cancel();
 }

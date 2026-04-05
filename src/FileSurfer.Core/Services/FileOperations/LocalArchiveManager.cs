@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -74,7 +73,7 @@ public class LocalArchiveManager : IArchiveManager
     )
     {
         using ZipArchive archive = ZipArchive.Create();
-        FileStream zipStream = File.OpenWrite(archivePath);
+        await using FileStream zipStream = File.OpenWrite(archivePath);
 
         await Task.Run(() =>
         {
@@ -107,6 +106,7 @@ public class LocalArchiveManager : IArchiveManager
 
         await Task.Run(async () =>
         {
+            await using CancellationTokenRegistration cr = ct.Register(zipStream.Close);
             await archive.SaveToAsync(zipStream, new WriterOptions(CompressionType.Deflate), ct);
         });
         return SimpleResult.Ok();
@@ -135,9 +135,9 @@ public class LocalArchiveManager : IArchiveManager
         {
             return await ArchiveInternal(entries, destinationDir, archivePath, fileStreams, ct);
         }
-        catch (OperationCanceledException)
+        catch (Exception ex) when (ex is OperationCanceledException or ObjectDisposedException)
         {
-            return SimpleResult.Error("Compression has been cancelled.");
+            return SimpleResult.Error("Archivation has been cancelled.");
         }
         catch (Exception ex)
         {
@@ -174,7 +174,7 @@ public class LocalArchiveManager : IArchiveManager
         {
             ct.ThrowIfCancellationRequested();
             if (reader.Entry.Key is string key)
-                rep.ReportItem(LocalPathTools.GetFileName(key));
+                rep.ReportItem($"Extracting: \"{LocalPathTools.GetFileName(key)}\"");
 
             await reader
                 .WriteEntryToDirectoryAsync(extractTo, ExtractionOptions, ct)
