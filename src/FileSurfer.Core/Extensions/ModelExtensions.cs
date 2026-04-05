@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Threading;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileOperations;
 
 namespace FileSurfer.Core.Extensions;
@@ -36,7 +38,9 @@ public static class TransferStreamExtensions
         this DirTransferStream dirTransferStream,
         IFileIoHandler ioHandler,
         IPathTools pathTools,
-        string dirPath
+        string dirPath,
+        ProgressReporter reporter,
+        CancellationToken ct
     )
     {
         Queue<(DirTransferStream, string)> queue = new();
@@ -53,7 +57,7 @@ public static class TransferStreamExtensions
 
             foreach (FileTransferStream f in dir.Files)
             {
-                result = ioHandler.WriteFileStream(f, absDirPath);
+                result = ioHandler.WriteFileStream(f, absDirPath, reporter, ct);
                 if (!result.IsOk)
                     return result;
             }

@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.Sftp;
+using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileOperations;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
@@ -99,7 +101,12 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
         return _sshShellHandler.ExecuteSshCommand($"rm -rf {quotedPath}");
     }
 
-    public IResult WriteFileStream(FileTransferStream fileStream, string dirPath)
+    public IResult WriteFileStream(
+        FileTransferStream fileStream,
+        string dirPath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
     {
         try
         {
@@ -116,8 +123,12 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
         }
     }
 
-    public IResult WriteDirStream(DirTransferStream dirStream, string dirPath) =>
-        dirStream.WriteWithIoHandler(this, RemoteUnixPathTools.Instance, dirPath);
+    public IResult WriteDirStream(
+        DirTransferStream dirStream,
+        string dirPath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    ) => dirStream.WriteWithIoHandler(this, RemoteUnixPathTools.Instance, dirPath, reporter, ct);
 
     private ValueResult<string> Rename(string path, string newName)
     {

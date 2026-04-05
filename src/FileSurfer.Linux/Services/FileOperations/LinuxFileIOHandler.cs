@@ -1,8 +1,10 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileOperations;
 using Microsoft.VisualBasic.FileIO;
 
@@ -45,7 +47,12 @@ public class LinuxFileIoHandler : IFileIoHandler
         }
     }
 
-    public IResult WriteFileStream(FileTransferStream fileStream, string dirPath)
+    public IResult WriteFileStream(
+        FileTransferStream fileStream,
+        string dirPath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
     {
         try
         {
@@ -62,8 +69,12 @@ public class LinuxFileIoHandler : IFileIoHandler
         }
     }
 
-    public IResult WriteDirStream(DirTransferStream dirStream, string dirPath) =>
-        dirStream.WriteWithIoHandler(this, LocalPathTools.Instance, dirPath);
+    public IResult WriteDirStream(
+        DirTransferStream dirStream,
+        string dirPath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    ) => dirStream.WriteWithIoHandler(this, LocalPathTools.Instance, dirPath, reporter, ct);
 
     public IResult NewFileAt(string dirPath, string fileName)
     {

@@ -1,4 +1,6 @@
+using System.Threading;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.Dialogs;
 
 namespace FileSurfer.Core.Services.FileOperations;
 
@@ -87,8 +89,15 @@ public interface IFileIoHandler
     /// </summary>
     /// <param name="fileStream">The file stream</param>
     /// <param name="dirPath">Root directory for the new file</param>
-    /// <returns></returns>
-    public IResult WriteFileStream(FileTransferStream fileStream, string dirPath);
+    /// <param name="reporter">Reports the current state of the operation</param>
+    /// <param name="ct">Token for cancellation</param>
+    /// <returns>An <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult WriteFileStream(
+        FileTransferStream fileStream,
+        string dirPath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    );
 
     /// <summary>
     /// Writes the all containing file streams and directories into a file with names specified in
@@ -99,8 +108,15 @@ public interface IFileIoHandler
     /// </summary>
     /// <param name="dirStream">The directory stream</param>
     /// <param name="dirPath">Root directory for the new directory</param>
-    /// <returns></returns>
-    public IResult WriteDirStream(DirTransferStream dirStream, string dirPath);
+    /// <param name="reporter">Reports the current state of the operation</param>
+    /// <param name="ct">Token for cancellation</param>
+    /// <returns>An <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public IResult WriteDirStream(
+        DirTransferStream dirStream,
+        string dirPath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    );
 }
 
 /// <summary>

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Input.Platform;
 using Avalonia.Media.Imaging;
@@ -11,6 +12,7 @@ using Avalonia.Platform.Storage;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
+using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileOperations.Undoable;
 
 namespace FileSurfer.Core.Services.FileOperations;
@@ -110,7 +112,9 @@ public class ClipboardManager : IClipboardManager
             using FileTransferStream fileStream = new(imgName, stream);
             IResult result = destination.FileSystem.FileIoHandler.WriteFileStream(
                 fileStream,
-                destination.Path
+                destination.Path,
+                new ProgressReporter(),
+                CancellationToken.None
             );
             return result.IsOk ? OpResult.Ok(null) : OpResult.Error(result);
         }
@@ -126,7 +130,7 @@ public class ClipboardManager : IClipboardManager
 
     private static OpResult SaveTextToPath(Location destination, string text)
     {
-        string imgName = FileNameGenerator.GetAvailableName(
+        string textName = FileNameGenerator.GetAvailableName(
             destination.FileSystem.FileInfoProvider,
             destination.Path,
             FileSurferSettings.NewTextFileName + TextExtension
@@ -134,10 +138,12 @@ public class ClipboardManager : IClipboardManager
         try
         {
             MemoryStream stream = new(Encoding.UTF8.GetBytes(text));
-            using FileTransferStream fileStream = new(imgName, stream);
+            using FileTransferStream fileStream = new(textName, stream);
             IResult result = destination.FileSystem.FileIoHandler.WriteFileStream(
                 fileStream,
-                destination.Path
+                destination.Path,
+                new ProgressReporter(),
+                CancellationToken.None
             );
             return result.IsOk ? OpResult.Ok(null) : OpResult.Error(result);
         }
@@ -335,13 +341,23 @@ public class ClipboardManager : IClipboardManager
 
         foreach (FileTransferStream file in files)
         {
-            IResult r = f.WriteFileStream(file, destination.Path);
+            IResult r = f.WriteFileStream(
+                file,
+                destination.Path,
+                new ProgressReporter(),
+                CancellationToken.None
+            );
             if (!r.IsOk)
                 return r;
         }
         foreach (DirTransferStream dir in dirs)
         {
-            IResult r = f.WriteDirStream(dir, destination.Path);
+            IResult r = f.WriteDirStream(
+                dir,
+                destination.Path,
+                new ProgressReporter(),
+                CancellationToken.None
+            );
             if (!r.IsOk)
                 return r;
         }
