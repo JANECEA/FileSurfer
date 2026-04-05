@@ -4,6 +4,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.ViewModels;
 using FileSurfer.Core.Views;
 
@@ -53,7 +54,7 @@ public partial class App : Application
             );
             desktop.MainWindow = mainWindow;
             desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnMainWindowClose;
-            PropertiesWindowViewModel.MainWindow = mainWindow;
+            AvaloniaDialogService.MainWindow = mainWindow;
         }
         base.OnFrameworkInitializationCompleted();
     }

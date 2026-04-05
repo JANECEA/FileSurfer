@@ -59,7 +59,6 @@ public class SyncEventVmFactory
 public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
 {
     private const string SyncErrorTitle = "Synchronization Error";
-    private static readonly TimeSpan Interval = TimeSpan.FromSeconds(3);
 
     private readonly LocalToSftpSynchronizer _synchronizer;
     private readonly IDialogService _dialogService;
@@ -148,7 +147,17 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         SyncEvents.Clear();
 
         Synchronizing = true;
-        IResult result = await _synchronizer.StartAsync(InitFromRemote);
+
+        IResult result = await _dialogService.ProgressDialog(
+            "Initial synchronization",
+            async (r, ct) => await _synchronizer.Initialize(InitFromRemote, r, ct)
+        );
+        ShowIfError(result);
+        if (!result.IsOk)
+            return;
+
+        result = await _synchronizer.StartAsync();
+
         Synchronizing = false;
 
         ShowIfError(result);

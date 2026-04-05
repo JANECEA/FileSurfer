@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using Avalonia.Controls;
+using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Views;
 
 namespace FileSurfer.Core.ViewModels;
@@ -24,8 +25,6 @@ public interface IDisplayable
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public sealed class PropertiesWindowViewModel : IDisplayable
 {
-    public static Window? MainWindow { private get; set; }
-
     public FileSystemEntryViewModel EntryVm { get; }
     public required string Size { get; init; }
 
@@ -115,9 +114,9 @@ public sealed class PropertiesWindowViewModel : IDisplayable
     public void Show()
     {
         PropertiesWindow window = new() { DataContext = this };
-        if (MainWindow is null)
+        if (AvaloniaDialogService.MainWindow is null)
             window.Show();
         else
-            window.ShowDialog(MainWindow);
+            window.ShowDialog(AvaloniaDialogService.MainWindow);
     }
 }

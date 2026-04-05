@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileInformation;
 using FileSurfer.Core.Services.FileOperations;
 
@@ -50,7 +51,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         _watcher.ChangeDetected += OnFsEvent;
     }
 
-    public async Task<IResult> StartAsync(bool initFromRemote)
+    public async Task<IResult> StartAsync()
     {
         if (_syncTask is not null)
             return SimpleResult.Error("Synchronizer is already running.");
@@ -62,7 +63,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 
         _cts = new CancellationTokenSource();
 
-        _syncTask = InitAndStart(initFromRemote, syncHidden, pollingInterval);
+        _syncTask = _watcher.StartAsync(pollingInterval, syncHidden, _cts.Token);
         IResult result = await _syncTask;
 
         _cts.Dispose();
@@ -72,24 +73,19 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         return result;
     }
 
-    private async Task<IResult> InitAndStart(
+    public async Task<IResult> Initialize(
+        bool initFromRemote,
+        ProgressReporter reporter,
+        CancellationToken ct
+    ) =>
+        await Task.Run(async () =>
+            await InitInternal(initFromRemote, FileSurferSettings.SyncHiddenFiles, reporter, ct)
+        );
+
+    private async Task<IResult> InitInternal(
         bool initFromRemote,
         bool syncHidden,
-        TimeSpan pollingInterval
-    )
-    {
-        CancellationToken ct = _cts!.Token;
-
-        IResult result = await Task.Run(() => Initialize(initFromRemote, syncHidden, ct), ct);
-        if (!result.IsOk)
-            return result;
-
-        return await _watcher.StartAsync(pollingInterval, syncHidden, ct);
-    }
-
-    private async Task<IResult> Initialize(
-        bool initFromRemote,
-        bool syncHidden,
+        ProgressReporter reporter,
         CancellationToken ct
     )
     {
@@ -99,7 +95,17 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         Func<string, string, IResult> handleFile = initFromRemote ? DownloadFile : UploadFile;
 
         Result result = Result.Ok();
-        result.MergeResult(await InitializeFrom(from, to, syncHidden, mirrorPathF, handleFile, ct));
+        try
+        {
+            result.MergeResult(
+                await InitializeFrom(from, to, syncHidden, mirrorPathF, handleFile, reporter, ct)
+            );
+        }
+        catch (OperationCanceledException)
+        {
+            result.MergeResult(InitCancelledResult.Result);
+        }
+
         if (!result.IsOk)
             result.MergeResult(ResetDir(to, syncHidden));
 
@@ -131,6 +137,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         bool syncHidden,
         Func<string, string> mirrorPath,
         Func<string, string, IResult> handleFile,
+        ProgressReporter reporter,
         CancellationToken ct
     )
     {
@@ -148,9 +155,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         Result result = Result.Ok();
         while (queue.Count > 0)
         {
-            if (ct.IsCancellationRequested)
-                return InitCancelledResult;
-
+            ct.ThrowIfCancellationRequested();
             string current = queue.Dequeue();
 
             var dirResult = fsFrom.FileInfoProvider.GetPathDirs(current, syncHidden, false);
@@ -160,9 +165,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 
             foreach (DirectoryEntryInfo d in dirResult.Value)
             {
-                if (ct.IsCancellationRequested)
-                    return InitCancelledResult;
-
+                ct.ThrowIfCancellationRequested();
                 queue.Enqueue(d.PathToEntry);
                 string mirroredPath = mirrorPath(d.PathToEntry);
                 result.MergeResult(
@@ -172,9 +175,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 
             foreach (FileEntryInfo f in fileResult.Value)
             {
-                if (ct.IsCancellationRequested)
-                    return InitCancelledResult;
-
+                ct.ThrowIfCancellationRequested();
                 string mirroredPath = mirrorPath(f.PathToEntry);
                 result.MergeResult(handleFile(f.PathToEntry, mirroredPath));
             }
