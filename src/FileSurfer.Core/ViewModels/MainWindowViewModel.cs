@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using FileSurfer.Core.Extensions;
@@ -1128,44 +1127,51 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private async Task AddToArchive()
     {
-        if (!CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
+        string cwd = CurrentDir;
+        if (!CurrentFs.FileInfoProvider.DirectoryExists(cwd))
             return;
 
-        string archiveName = SelectedFiles[^1].FileSystemEntry.NameWoExtension;
+        string archName = SelectedFiles[^1].FileSystemEntry.NameWoExtension;
+        IFileSystemEntry[] selected = SelectedFiles.ConvertToArray(e => e.FileSystemEntry);
 
-        IResult result = await CurrentFs.ArchiveManager.ArchiveEntries(
-            SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry),
-            CurrentDir,
-            archiveName,
-            new ProgressReporter(),
-            CancellationToken.None
+        IResult result = await _dialogService.ProgressDialog<IResult>(
+            "Archiving files",
+            async (r, ct) =>
+                await CurrentFs.ArchiveManager.ArchiveEntries(selected, cwd, archName, r, ct)
         );
+
         ShowIfError(result);
-        Reload();
+        Reload(true);
     }
 
     private async Task ExtractArchive()
     {
-        if (!CurrentFs.FileInfoProvider.DirectoryExists(CurrentDir))
+        string cwd = CurrentDir;
+        if (!CurrentFs.FileInfoProvider.DirectoryExists(cwd))
             return;
 
-        foreach (FileSystemEntryViewModel entry in SelectedFiles)
+        IFileSystemEntry[] selected = SelectedFiles.ConvertToArray(e => e.FileSystemEntry);
+        foreach (IFileSystemEntry entry in selected)
             if (!CurrentFs.ArchiveManager.IsArchived(entry.PathToEntry))
             {
                 ShowError($"Entry \"{entry.Name}\" is not an archive.");
                 return;
             }
 
-        foreach (string path in SelectedFiles.ConvertToArray(e => e.PathToEntry))
-            ShowIfError(
-                await CurrentFs.ArchiveManager.ExtractArchive(
-                    path,
-                    CurrentDir,
-                    new ProgressReporter(),
-                    CancellationToken.None
-                )
-            );
-        Reload();
+        List<Task> tasks = selected
+            .Select(async e =>
+            {
+                IResult result = await _dialogService.ProgressDialog<IResult>(
+                    "Archiving files",
+                    async (r, ct) =>
+                        await CurrentFs.ArchiveManager.ExtractArchive(e.PathToEntry, cwd, r, ct)
+                );
+                ShowIfError(result);
+            })
+            .ToList();
+
+        await Task.WhenAll(tasks);
+        Reload(true);
     }
 
     private async Task CopyPath(FileSystemEntryViewModel? entry) =>

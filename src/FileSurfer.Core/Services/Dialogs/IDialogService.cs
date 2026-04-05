@@ -1,11 +1,19 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FileSurfer.Core.Services.Dialogs;
 
+public delegate Task<T> ReportingOperation<T>(ProgressReporter reporter, CancellationToken ct);
+public delegate Task<T> CancellableOperation<T>(CancellationToken ct);
+
 public interface IDialogService
 {
     public void InfoDialog(string title, string info);
+
+    public Task<T> ProgressDialog<T>(string title, ReportingOperation<T> operation);
+
+    public Task<T> ProgressDialog<T>(string title, CancellableOperation<T> operation);
 
     public Task<bool> ConfirmationDialog(string title, string question);
 

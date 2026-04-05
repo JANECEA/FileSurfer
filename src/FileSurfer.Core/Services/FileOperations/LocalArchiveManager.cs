@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -8,7 +9,6 @@ using System.Threading.Tasks;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.Dialogs;
-using SharpCompress.Archives;
 using SharpCompress.Archives.SevenZip;
 using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
@@ -67,6 +67,7 @@ public class LocalArchiveManager : IArchiveManager
     ]
     private static async Task<IResult> ArchiveInternal(
         IList<IFileSystemEntry> entries,
+        string destinationDir,
         string archivePath,
         List<FileStream> fileStreams,
         CancellationToken ct
@@ -88,7 +89,19 @@ public class LocalArchiveManager : IArchiveManager
             foreach (IFileSystemEntry entry in entries.Where(e => e is DirectoryEntry))
             {
                 ct.ThrowIfCancellationRequested();
-                archive.AddAllFromDirectory(entry.PathToEntry);
+                string[] allFiles = Directory.GetFiles(
+                    entry.PathToEntry,
+                    "*.*",
+                    SearchOption.AllDirectories
+                );
+                foreach (string filePath in allFiles)
+                {
+                    string relativePath = Path.GetRelativePath(destinationDir, filePath);
+                    ct.ThrowIfCancellationRequested();
+                    FileStream fileStream = File.OpenRead(filePath);
+                    archive.AddEntry(relativePath, fileStream);
+                    fileStreams.Add(fileStream);
+                }
             }
         });
 
@@ -115,12 +128,12 @@ public class LocalArchiveManager : IArchiveManager
         string archivePath = LocalPathTools.Combine(destinationDir, name);
 
         IndeterminateReporter r = new(reporter);
-        r.ReportItem(archivePath);
+        r.ReportItem($"Archiving \"{name}\".");
         List<FileStream> fileStreams = new();
 
         try
         {
-            return await ArchiveInternal(entries, archivePath, fileStreams, ct);
+            return await ArchiveInternal(entries, destinationDir, archivePath, fileStreams, ct);
         }
         catch (OperationCanceledException)
         {
@@ -145,7 +158,7 @@ public class LocalArchiveManager : IArchiveManager
         CancellationToken ct
     )
     {
-        IndeterminateReporter r = new(reporter);
+        IndeterminateReporter rep = new(reporter);
         string extractName = FileNameGenerator.GetAvailableName(
             _fileInfoProvider,
             destinationPath,
@@ -159,7 +172,10 @@ public class LocalArchiveManager : IArchiveManager
 
         while (await reader.MoveToNextEntryAsync(ct))
         {
-            r.ReportItem(reader.Entry.Key);
+            ct.ThrowIfCancellationRequested();
+            if (reader.Entry.Key is string key)
+                rep.ReportItem(LocalPathTools.GetFileName(key));
+
             await reader
                 .WriteEntryToDirectoryAsync(extractTo, ExtractionOptions, ct)
                 .ConfigureAwait(false);
