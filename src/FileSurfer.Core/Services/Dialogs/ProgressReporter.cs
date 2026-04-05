@@ -58,9 +58,9 @@ public sealed class CountingReporter
 {
     private readonly ProgressReporter _progressReporter;
     private readonly double _totalCount;
-    private int _finishedCount = 0;
+    private long _finishedCount = 0;
 
-    public CountingReporter(ProgressReporter progressReporter, int totalCount)
+    public CountingReporter(ProgressReporter progressReporter, long totalCount)
     {
         _progressReporter = progressReporter;
         _totalCount = totalCount;

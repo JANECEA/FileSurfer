@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using FileSurfer.Core.Models;
@@ -35,8 +37,33 @@ public static class ResultExtensions
 
 public static class TransferStreamExtensions
 {
+    public static async Task<IResult> WriteToStream(
+        this FileTransferStream fileStream,
+        Stream writeStream,
+        string filePath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
+    {
+        IndeterminateReporter rep = new(reporter);
+        rep.ReportItem($"Transferring: \"{fileStream.Name}\"");
+
+        try
+        {
+            ct.ThrowIfCancellationRequested();
+            await fileStream.Stream.CopyToAsync(writeStream, ct);
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return ex is OperationCanceledException
+                ? SimpleResult.Error("File transfer has been canceled.")
+                : SimpleResult.Error(ex.Message);
+        }
+    }
+
     public static async Task<IResult> WriteWithIoHandler(
-        this DirTransferStream dirTransferStream,
+        this DirTransferStream dirStream,
         IFileIoHandler ioHandler,
         IPathTools pathTools,
         string dirPath,
@@ -44,8 +71,9 @@ public static class TransferStreamExtensions
         CancellationToken ct
     )
     {
+        List<(FileTransferStream, string)> files = new();
         Queue<(DirTransferStream, string)> queue = new();
-        queue.Enqueue((dirTransferStream, dirPath));
+        queue.Enqueue((dirStream, dirPath));
 
         while (queue.Count > 0)
         {
@@ -57,14 +85,20 @@ public static class TransferStreamExtensions
                 return result;
 
             foreach (FileTransferStream f in dir.Files)
-            {
-                result = await ioHandler.WriteFileStream(f, absDirPath, reporter, ct);
-                if (!result.IsOk)
-                    return result;
-            }
+                files.Add((f, absDirPath));
 
             foreach (DirTransferStream d in dir.Directories)
                 queue.Enqueue((d, absDirPath));
+        }
+
+        ProgressReporter dummyRep = new();
+        CountingReporter rep = new(reporter, files.Count);
+        foreach ((FileTransferStream stream, string parentPath) in files)
+        {
+            rep.ReportItem($"Uploading: \"{stream.Name}\"");
+            IResult result = await ioHandler.WriteFileStream(stream, parentPath, dummyRep, ct);
+            if (!result.IsOk)
+                return result;
         }
 
         return SimpleResult.Ok();

@@ -55,19 +55,21 @@ public class LinuxFileIoHandler : IFileIoHandler
         CancellationToken ct
     )
     {
+        string filePath = LocalPathTools.Combine(dirPath, fileStream.Name);
+        IResult result;
         try
         {
-            await using FileStream writeStream = File.Open(
-                LocalPathTools.Combine(dirPath, fileStream.Name),
-                FileMode.Create
-            );
-            await fileStream.Stream.CopyToAsync(writeStream, ct);
-            return SimpleResult.Ok();
+            await using FileStream writeStream = File.Open(filePath, FileMode.Create);
+            result = await fileStream.WriteToStream(writeStream, filePath, reporter, ct);
         }
         catch (Exception ex)
         {
-            return SimpleResult.Error(ex.Message);
+            result = SimpleResult.Error(ex.Message);
         }
+        if (!result.IsOk)
+            _ = DeleteFile(filePath);
+
+        return result;
     }
 
     public Task<IResult> WriteDirStream(

@@ -107,19 +107,21 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
         CancellationToken ct
     )
     {
+        string filePath = RemoteUnixPathTools.Combine(dirPath, fileStream.Name);
+        IResult result;
         try
         {
-            await using SftpFileStream stream = _client.Open(
-                RemoteUnixPathTools.Combine(dirPath, fileStream.Name),
-                FileMode.Create
-            );
-            await fileStream.Stream.CopyToAsync(stream, ct);
-            return SimpleResult.Ok();
+            await using SftpFileStream writeStream = _client.Open(filePath, FileMode.Create);
+            result = await fileStream.WriteToStream(writeStream, filePath, reporter, ct);
         }
         catch (Exception ex)
         {
-            return SimpleResult.Error(ex.Message);
+            result = SimpleResult.Error(ex.Message);
         }
+        if (!result.IsOk)
+            _ = DeleteFile(filePath);
+
+        return result;
     }
 
     public Task<IResult> WriteDirStream(
