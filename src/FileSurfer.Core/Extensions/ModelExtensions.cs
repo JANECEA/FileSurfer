@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.FileOperations;
 
 namespace FileSurfer.Core.Extensions;
 
@@ -25,5 +27,41 @@ public static class ResultExtensions
                 return result;
 
         return null;
+    }
+}
+
+public static class TransferStreamExtensions
+{
+    public static IResult WriteWithIoHandler(
+        this DirTransferStream dirTransferStream,
+        IFileIoHandler ioHandler,
+        IPathTools pathTools,
+        string dirPath
+    )
+    {
+        Queue<(DirTransferStream, string)> queue = new();
+        queue.Enqueue((dirTransferStream, dirPath));
+
+        while (queue.Count > 0)
+        {
+            (DirTransferStream dir, string absParentPath) = queue.Dequeue();
+            string absDirPath = pathTools.Combine(absParentPath, dir.Name);
+
+            IResult result = ioHandler.NewDirAt(absParentPath, dir.Name);
+            if (!result.IsOk)
+                return result;
+
+            foreach (FileTransferStream f in dir.Files)
+            {
+                result = ioHandler.WriteFileStream(f, absDirPath);
+                if (!result.IsOk)
+                    return result;
+            }
+
+            foreach (DirTransferStream d in dir.Directories)
+                queue.Enqueue((d, absDirPath));
+        }
+
+        return SimpleResult.Ok();
     }
 }

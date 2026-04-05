@@ -113,36 +113,4 @@ public class DirTransferStream : IDisposable
         }
         return root.OkResult();
     }
-
-    public IResult WriteWithIoHandler(
-        IFileIoHandler ioHandler,
-        IPathTools pathTools,
-        string dirPath
-    )
-    {
-        Queue<(DirTransferStream, string)> queue = new();
-        queue.Enqueue((this, dirPath));
-
-        while (queue.Count > 0)
-        {
-            (DirTransferStream dir, string absParentPath) = queue.Dequeue();
-            string absDirPath = pathTools.Combine(absParentPath, dir.Name);
-
-            IResult result = ioHandler.NewDirAt(absParentPath, dir.Name);
-            if (!result.IsOk)
-                return result;
-
-            foreach (FileTransferStream f in dir.Files)
-            {
-                result = ioHandler.WriteFileStream(f, absDirPath);
-                if (!result.IsOk)
-                    return result;
-            }
-
-            foreach (DirTransferStream d in dir.Directories)
-                queue.Enqueue((d, absDirPath));
-        }
-
-        return SimpleResult.Ok();
-    }
 }
