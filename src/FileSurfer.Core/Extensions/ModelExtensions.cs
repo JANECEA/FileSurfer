@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileOperations;
@@ -34,7 +35,7 @@ public static class ResultExtensions
 
 public static class TransferStreamExtensions
 {
-    public static IResult WriteWithIoHandler(
+    public static async Task<IResult> WriteWithIoHandler(
         this DirTransferStream dirTransferStream,
         IFileIoHandler ioHandler,
         IPathTools pathTools,
@@ -57,7 +58,7 @@ public static class TransferStreamExtensions
 
             foreach (FileTransferStream f in dir.Files)
             {
-                result = ioHandler.WriteFileStream(f, absDirPath, reporter, ct);
+                result = await ioHandler.WriteFileStream(f, absDirPath, reporter, ct);
                 if (!result.IsOk)
                     return result;
             }

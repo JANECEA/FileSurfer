@@ -96,7 +96,7 @@ public class ClipboardManager : IClipboardManager
         Location currentLocation
     ) => await SetClipboardInternal(selectedFiles, currentLocation, PasteType.Copy);
 
-    private static OpResult SaveImageToPath(Location destination, Bitmap bitmap)
+    private static async Task<OpResult> SaveImageToPath(Location destination, Bitmap bitmap)
     {
         string imgName = FileNameGenerator.GetAvailableName(
             destination.FileSystem.FileInfoProvider,
@@ -110,7 +110,7 @@ public class ClipboardManager : IClipboardManager
             stream.Position = 0;
 
             using FileTransferStream fileStream = new(imgName, stream);
-            IResult result = destination.FileSystem.FileIoHandler.WriteFileStream(
+            IResult result = await destination.FileSystem.FileIoHandler.WriteFileStream(
                 fileStream,
                 destination.Path,
                 new ProgressReporter(),
@@ -128,7 +128,7 @@ public class ClipboardManager : IClipboardManager
         }
     }
 
-    private static OpResult SaveTextToPath(Location destination, string text)
+    private static async Task<OpResult> SaveTextToPath(Location destination, string text)
     {
         string textName = FileNameGenerator.GetAvailableName(
             destination.FileSystem.FileInfoProvider,
@@ -139,7 +139,7 @@ public class ClipboardManager : IClipboardManager
         {
             MemoryStream stream = new(Encoding.UTF8.GetBytes(text));
             using FileTransferStream fileStream = new(textName, stream);
-            IResult result = destination.FileSystem.FileIoHandler.WriteFileStream(
+            IResult result = await destination.FileSystem.FileIoHandler.WriteFileStream(
                 fileStream,
                 destination.Path,
                 new ProgressReporter(),
@@ -200,10 +200,10 @@ public class ClipboardManager : IClipboardManager
     public async Task<OpResult> PasteAsync(Location destination)
     {
         if (await _osClipboard.Clipboard.TryGetBitmapAsync() is Bitmap bitmap)
-            return SaveImageToPath(destination, bitmap);
+            return await SaveImageToPath(destination, bitmap);
 
         if (await _osClipboard.Clipboard.TryGetTextAsync() is string text)
-            return SaveTextToPath(destination, text);
+            return await SaveTextToPath(destination, text);
 
         if (
             await _osClipboard.Clipboard.TryGetFilesAsync() is IStorageItem[] items
@@ -230,10 +230,10 @@ public class ClipboardManager : IClipboardManager
         {
             PasteType.Copy when destIsSame => DuplicateSameFs(destination),
             PasteType.Copy when fsIsSame => CopySameFs(destination),
-            PasteType.Copy => UploadFiles(destination),
+            PasteType.Copy => await UploadFiles(destination),
             PasteType.Cut when destIsSame => CutSameDirectoryResult,
             PasteType.Cut when fsIsSame => MoveSameFs(destination),
-            PasteType.Cut => UploadAndDelete(destination),
+            PasteType.Cut => await UploadAndDelete(destination),
             _ => throw new UnreachableException(),
         };
 
@@ -299,9 +299,9 @@ public class ClipboardManager : IClipboardManager
         ).OkResult();
     }
 
-    private OpResult UploadAndDelete(Location destination)
+    private async Task<OpResult> UploadAndDelete(Location destination)
     {
-        OpResult result = UploadFiles(destination);
+        OpResult result = await UploadFiles(destination);
         if (!result.IsOk)
             return result;
 
@@ -316,7 +316,7 @@ public class ClipboardManager : IClipboardManager
         return OpResult.Ok(null);
     }
 
-    private OpResult UploadFiles(Location destination)
+    private async Task<OpResult> UploadFiles(Location destination)
     {
         var streamsR = GetStreams();
         if (!streamsR.IsOk)
@@ -324,14 +324,14 @@ public class ClipboardManager : IClipboardManager
 
         (FileTransferStream[] files, DirTransferStream[] dirs) = streamsR.Value;
 
-        IResult result = UploadAll(files, dirs, destination);
+        IResult result = await UploadAll(files, dirs, destination);
         foreach (IDisposable disposable in files.Cast<IDisposable>().Concat(dirs))
             disposable.Dispose();
 
         return result.IsOk ? OpResult.Ok(null) : OpResult.Error(result);
     }
 
-    private static IResult UploadAll(
+    private static async Task<IResult> UploadAll(
         FileTransferStream[] files,
         DirTransferStream[] dirs,
         Location destination
@@ -341,7 +341,7 @@ public class ClipboardManager : IClipboardManager
 
         foreach (FileTransferStream file in files)
         {
-            IResult r = f.WriteFileStream(
+            IResult r = await f.WriteFileStream(
                 file,
                 destination.Path,
                 new ProgressReporter(),
@@ -352,7 +352,7 @@ public class ClipboardManager : IClipboardManager
         }
         foreach (DirTransferStream dir in dirs)
         {
-            IResult r = f.WriteDirStream(
+            IResult r = await f.WriteDirStream(
                 dir,
                 destination.Path,
                 new ProgressReporter(),

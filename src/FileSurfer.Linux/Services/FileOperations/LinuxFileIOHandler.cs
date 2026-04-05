@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Dialogs;
@@ -47,7 +48,7 @@ public class LinuxFileIoHandler : IFileIoHandler
         }
     }
 
-    public IResult WriteFileStream(
+    public async Task<IResult> WriteFileStream(
         FileTransferStream fileStream,
         string dirPath,
         ProgressReporter reporter,
@@ -56,11 +57,11 @@ public class LinuxFileIoHandler : IFileIoHandler
     {
         try
         {
-            using FileStream writeStream = File.Open(
+            await using FileStream writeStream = File.Open(
                 LocalPathTools.Combine(dirPath, fileStream.Name),
                 FileMode.Create
             );
-            fileStream.Stream.CopyTo(writeStream);
+            await fileStream.Stream.CopyToAsync(writeStream, ct);
             return SimpleResult.Ok();
         }
         catch (Exception ex)
@@ -69,7 +70,7 @@ public class LinuxFileIoHandler : IFileIoHandler
         }
     }
 
-    public IResult WriteDirStream(
+    public Task<IResult> WriteDirStream(
         DirTransferStream dirStream,
         string dirPath,
         ProgressReporter reporter,

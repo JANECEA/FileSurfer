@@ -1,4 +1,5 @@
 using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Dialogs;
 
@@ -92,7 +93,7 @@ public interface IFileIoHandler
     /// <param name="reporter">Reports the current state of the operation</param>
     /// <param name="ct">Token for cancellation</param>
     /// <returns>An <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult WriteFileStream(
+    public Task<IResult> WriteFileStream(
         FileTransferStream fileStream,
         string dirPath,
         ProgressReporter reporter,
@@ -111,7 +112,7 @@ public interface IFileIoHandler
     /// <param name="reporter">Reports the current state of the operation</param>
     /// <param name="ct">Token for cancellation</param>
     /// <returns>An <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult WriteDirStream(
+    public Task<IResult> WriteDirStream(
         DirTransferStream dirStream,
         string dirPath,
         ProgressReporter reporter,

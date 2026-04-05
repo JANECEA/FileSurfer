@@ -67,7 +67,7 @@ public class WindowsFileIoHandler : IFileIoHandler
         }
     }
 
-    public IResult WriteFileStream(
+    public async Task<IResult> WriteFileStream(
         FileTransferStream fileStream,
         string dirPath,
         ProgressReporter reporter,
@@ -88,7 +88,7 @@ public class WindowsFileIoHandler : IFileIoHandler
         }
     }
 
-    public IResult WriteDirStream(
+    public async Task<IResult> WriteDirStream(
         DirTransferStream dirStream,
         string dirPath,
         ProgressReporter reporter,

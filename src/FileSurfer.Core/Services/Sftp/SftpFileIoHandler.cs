@@ -1,10 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileOperations;
 using Renci.SshNet;
@@ -101,7 +100,7 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
         return _sshShellHandler.ExecuteSshCommand($"rm -rf {quotedPath}");
     }
 
-    public IResult WriteFileStream(
+    public async Task<IResult> WriteFileStream(
         FileTransferStream fileStream,
         string dirPath,
         ProgressReporter reporter,
@@ -110,11 +109,11 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
     {
         try
         {
-            using SftpFileStream stream = _client.Open(
+            await using SftpFileStream stream = _client.Open(
                 RemoteUnixPathTools.Combine(dirPath, fileStream.Name),
                 FileMode.Create
             );
-            fileStream.Stream.CopyTo(stream);
+            await fileStream.Stream.CopyToAsync(stream, ct);
             return SimpleResult.Ok();
         }
         catch (Exception ex)
@@ -123,7 +122,7 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
         }
     }
 
-    public IResult WriteDirStream(
+    public Task<IResult> WriteDirStream(
         DirTransferStream dirStream,
         string dirPath,
         ProgressReporter reporter,
