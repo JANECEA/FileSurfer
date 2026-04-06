@@ -302,21 +302,21 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> ReloadCommand { get; }
     public ReactiveCommand<Unit, Unit> OpenTerminalCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
-    public ReactiveCommand<Unit, Unit> NewFileCommand { get; }
-    public ReactiveCommand<Unit, Unit> NewDirCommand { get; }
+    public ReactiveCommand<Unit, Task> NewFileCommand { get; }
+    public ReactiveCommand<Unit, Task> NewDirCommand { get; }
     public ReactiveCommand<Unit, Task> CutCommand { get; }
     public ReactiveCommand<Unit, Task> CopyCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel?, Task> CopyPathCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel, Unit> CreateShortcutCommand { get; }
-    public ReactiveCommand<FileSystemEntryViewModel, Unit> FlattenFolderCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel, Task> FlattenFolderCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel, Unit> ShowPropertiesCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel?, Task> SyncDirCommand { get; }
     public ReactiveCommand<Unit, Task> PasteCommand { get; }
-    public ReactiveCommand<Unit, Unit> MoveToTrashCommand { get; }
+    public ReactiveCommand<Unit, Task> MoveToTrashCommand { get; }
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
     public ReactiveCommand<SortBy, Unit> SetSortByCommand { get; }
-    public ReactiveCommand<Unit, Unit> UndoCommand { get; }
-    public ReactiveCommand<Unit, Unit> RedoCommand { get; }
+    public ReactiveCommand<Unit, Task> UndoCommand { get; }
+    public ReactiveCommand<Unit, Task> RedoCommand { get; }
     public ReactiveCommand<Unit, Unit> SelectAllCommand { get; }
     public ReactiveCommand<Unit, Unit> SelectNoneCommand { get; }
     public ReactiveCommand<Unit, Unit> InvertSelectionCommand { get; }
@@ -395,7 +395,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         CopyCommand = ReactiveCommand.Create(Copy, selection);
         CopyPathCommand = ReactiveCommand.Create<FileSystemEntryViewModel?, Task>(CopyPath);
         CreateShortcutCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(CreateShortcut);
-        FlattenFolderCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(FlattenFolder);
+        FlattenFolderCommand = ReactiveCommand.Create<FileSystemEntryViewModel, Task>(
+            FlattenFolder
+        );
         ShowPropertiesCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(ShowProperties);
         SyncDirCommand = ReactiveCommand.Create<FileSystemEntryViewModel?, Task>(
             SynchronizeDir,
@@ -1077,7 +1079,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// to <see cref="_undoRedoHistory"/> if it was a success.
     /// </para>
     /// </summary>
-    private void NewFile()
+    private async Task NewFile()
     {
         string newFileName = FileNameGenerator.GetAvailableName(
             CurrentFs.FileInfoProvider,
@@ -1085,12 +1087,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             FileSurferSettings.NewFileName
         );
 
-        NewFileAt operation = new(PathTools, CurrentFs.FileIoHandler, CurrentDir, newFileName);
-        IResult result = operation.Invoke();
+        NewFileAt op = new(PathTools, CurrentFs.FileIoHandler, CurrentDir, newFileName);
+        IResult result = await _dialogService.ProgressDialog("Creating new file", op.Invoke);
         if (result.IsOk)
         {
             Reload();
-            _undoRedoHistory.AddNewNode(operation);
+            _undoRedoHistory.AddNewNode(op);
             if (FileEntries.FirstOrDefault(e => e.Name == newFileName) is { } entry)
                 SelectedFiles.Add(entry);
         }
@@ -1105,7 +1107,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// to <see cref="_undoRedoHistory"/> if it was a success.
     /// </para>
     /// </summary>
-    private void NewDir()
+    private async Task NewDir()
     {
         string newDirName = FileNameGenerator.GetAvailableName(
             CurrentFs.FileInfoProvider,
@@ -1113,12 +1115,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             FileSurferSettings.NewDirectoryName
         );
 
-        NewDirAt operation = new(PathTools, CurrentFs.FileIoHandler, CurrentDir, newDirName);
-        IResult result = operation.Invoke();
+        NewDirAt op = new(PathTools, CurrentFs.FileIoHandler, CurrentDir, newDirName);
+        IResult result = await _dialogService.ProgressDialog("Creating new directory", op.Invoke);
         if (result.IsOk)
         {
             Reload();
-            _undoRedoHistory.AddNewNode(operation);
+            _undoRedoHistory.AddNewNode(op);
             if (FileEntries.FirstOrDefault(e => e.Name == newDirName) is { } entry)
                 SelectedFiles.Add(entry);
         }
@@ -1277,31 +1279,27 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Relays the operation to <see cref="RenameOne(string)"/> or <see cref="RenameMultiple(string)"/>.
     /// </summary>
-    public void Rename(string newName)
+    public async Task Rename(string newName)
     {
         newName = newName.Trim();
 
         if (SelectedFiles.Count == 1)
-            RenameOne(newName);
+            await RenameOne(newName);
         else if (SelectedFiles.Count > 1)
-            RenameMultiple(newName);
+            await RenameMultiple(newName);
     }
 
-    private void RenameOne(string newName)
+    private async Task RenameOne(string newName)
     {
         FileSystemEntryViewModel entry = SelectedFiles[0];
 
-        RenameOne operation = new(
-            PathTools,
-            CurrentFs.FileIoHandler,
-            entry.FileSystemEntry,
-            newName
-        );
-        IResult result = operation.Invoke();
+        RenameOne op = new(PathTools, CurrentFs.FileIoHandler, entry.FileSystemEntry, newName);
+
+        IResult result = await _dialogService.ProgressDialog($"Renaming {entry.Name}", op.Invoke);
         if (result.IsOk)
         {
-            _undoRedoHistory.AddNewNode(operation);
-            Reload();
+            _undoRedoHistory.AddNewNode(op);
+            Reload(true);
 
             FileSystemEntryViewModel? newEntry = FileEntries.FirstOrDefault(e =>
                 CurrentFs.FileInfoProvider.PathTools.NamesAreEqual(e.Name, newName)
@@ -1312,7 +1310,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         ShowIfError(result);
     }
 
-    private void RenameMultiple(string namingPattern)
+    private async Task RenameMultiple(string namingPattern)
     {
         IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry);
         if (
@@ -1326,18 +1324,18 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
         }
 
-        RenameMultiple operation = new(
-            PathTools,
-            CurrentFs.FileIoHandler,
+        string[] availableNames = FileNameGenerator.GetAvailableNames(
+            CurrentFs.FileInfoProvider,
             entries,
-            FileNameGenerator.GetAvailableNames(CurrentFs.FileInfoProvider, entries, namingPattern)
+            namingPattern
         );
-        IResult result = operation.Invoke();
+        RenameMultiple op = new(PathTools, CurrentFs.FileIoHandler, entries, availableNames);
+        IResult result = await _dialogService.ProgressDialog("Renaming files", op.Invoke);
         if (result.IsOk)
-            _undoRedoHistory.AddNewNode(operation);
+            _undoRedoHistory.AddNewNode(op);
 
         ShowIfError(result);
-        Reload();
+        Reload(true);
     }
 
     private void StageIfVersionControlled(IEnumerable<FileSystemEntryViewModel> entries)
@@ -1359,24 +1357,24 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </para>
     /// Invokes <see cref="Reload"/>.
     /// </summary>
-    public void MoveToTrash()
+    public async Task MoveToTrash()
     {
-        MoveFilesToTrash operation = new(
+        MoveFilesToTrash op = new(
             CurrentFs.BinInteraction,
             CurrentFs.FileIoHandler,
             SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry)
         );
 
-        IResult result = operation.Invoke();
+        IResult result = await _dialogService.ProgressDialog("Moving to Trash", op.Invoke);
         if (result.IsOk)
-            _undoRedoHistory.AddNewNode(operation);
+            _undoRedoHistory.AddNewNode(op);
 
         StageIfVersionControlled(SelectedFiles);
         ShowIfError(result);
-        Reload();
+        Reload(true);
     }
 
-    private void FlattenFolder(FileSystemEntryViewModel entry)
+    private async Task FlattenFolder(FileSystemEntryViewModel entry)
     {
         if (!entry.IsDirectory)
         {
@@ -1384,17 +1382,17 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
         }
 
-        FlattenFolder action = new(
+        FlattenFolder op = new(
             CurrentFs.FileIoHandler,
             CurrentFs.FileInfoProvider,
             entry.PathToEntry
         );
-        IResult result = action.Invoke();
+        IResult result = await _dialogService.ProgressDialog("Flattening Folder", op.Invoke);
         if (result.IsOk)
-            _undoRedoHistory.AddNewNode(action);
+            _undoRedoHistory.AddNewNode(op);
 
         ShowIfError(result);
-        Reload();
+        Reload(true);
     }
 
     public void Delete()
@@ -1407,7 +1405,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             );
 
         StageIfVersionControlled(SelectedFiles);
-        Reload();
+        Reload(true);
     }
 
     private void SetSortBy(SortBy sortBy)
@@ -1419,7 +1417,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         Reload(true);
     }
 
-    private void Undo()
+    private async Task Undo()
     {
         if (_undoRedoHistory.IsTail())
             _undoRedoHistory.MoveToPrevious();
@@ -1427,14 +1425,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (_undoRedoHistory.IsHead())
             return;
 
-        IUndoableFileOperation operation =
+        IUndoableFileOperation op =
             _undoRedoHistory.Current ?? throw new InvalidOperationException();
 
-        IResult result = operation.Undo();
+        IResult result = await _dialogService.ProgressDialog("Undoing Operation", op.Undo);
         if (result.IsOk)
         {
             _undoRedoHistory.MoveToPrevious();
-            Reload();
+            Reload(true);
         }
         else
         {
@@ -1445,16 +1443,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    private void Redo()
+    private async Task Redo()
     {
         _undoRedoHistory.MoveToNext();
         if (_undoRedoHistory.Current is null)
             return;
 
-        IUndoableFileOperation operation = _undoRedoHistory.Current;
-        IResult result = operation.Invoke();
+        IUndoableFileOperation op = _undoRedoHistory.Current;
+        IResult result = await _dialogService.ProgressDialog("Redoing Operation", op.Invoke);
         if (result.IsOk)
-            Reload();
+            Reload(true);
         else
         {
             if (FileSurferSettings.ShowUndoRedoErrorDialogs)
@@ -1544,7 +1542,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         else
             ShowIfError(result);
 
-        Reload();
+        Reload(true);
     }
 
     /// <summary>
@@ -1561,7 +1559,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         else
             ShowIfError(result);
 
-        Reload();
+        Reload(true);
     }
 
     /// <summary>

@@ -1,4 +1,8 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.Dialogs;
 
 namespace FileSurfer.Core.Services.FileOperations.Undoable;
 
@@ -7,26 +11,39 @@ public abstract class UndoableOperation : IUndoableFileOperation
     protected IFileIoHandler FileIoHandler { get; }
     protected IFileSystemEntry[] Entries { get; }
 
+    protected abstract string InvokeOpName { get; }
+    protected abstract string UndoOpName { get; }
+
     protected UndoableOperation(IFileIoHandler fileIoHandler, IFileSystemEntry[] entries)
     {
         FileIoHandler = fileIoHandler;
         Entries = entries;
     }
 
-    public IResult Invoke()
+    public async Task<IResult> Invoke(ProgressReporter reporter, CancellationToken ct) =>
+        await InvokeInternal(InvokeAction, InvokeOpName, reporter, ct);
+
+    public async Task<IResult> Undo(ProgressReporter reporter, CancellationToken ct) =>
+        await InvokeInternal(UndoAction, UndoOpName, reporter, ct);
+
+    private async Task<IResult> InvokeInternal(
+        Func<IFileSystemEntry, int, IResult> action,
+        string opName,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
     {
+        CountingReporter rep = new(reporter, Entries.Length);
+
         Result result = Result.Ok();
         for (int i = 0; i < Entries.Length; i++)
-            result.MergeResult(InvokeAction(Entries[i], i));
+        {
+            if (ct.IsCancellationRequested)
+                return SimpleResult.Error("Operation was cancelled.");
 
-        return result;
-    }
-
-    public IResult Undo()
-    {
-        Result result = Result.Ok();
-        for (int i = 0; i < Entries.Length; i++)
-            result.MergeResult(UndoAction(Entries[i], i));
+            rep.ReportItem($"{opName}: \"{Entries[i].Name}\"");
+            result.MergeResult(await Task.Run(() => action(Entries[i], i), ct));
+        }
 
         return result;
     }

@@ -236,11 +236,11 @@ public class ClipboardManager : IClipboardManager
 
         OpResult result = _pasteType switch
         {
-            PasteType.Copy when destIsSame => DuplicateSameFs(destination, reporter, ct),
-            PasteType.Copy when fsIsSame => CopySameFs(destination, reporter, ct),
+            PasteType.Copy when destIsSame => await DuplicateSameFs(destination, reporter, ct),
+            PasteType.Copy when fsIsSame => await CopySameFs(destination, reporter, ct),
             PasteType.Copy => await UploadFiles(destination, reporter, ct),
             PasteType.Cut when destIsSame => CutSameDirectoryResult,
-            PasteType.Cut when fsIsSame => MoveSameFs(destination, reporter, ct),
+            PasteType.Cut when fsIsSame => await MoveSameFs(destination, reporter, ct),
             PasteType.Cut => await UploadAndDelete(destination, reporter, ct),
             _ => throw new UnreachableException(),
         };
@@ -360,14 +360,14 @@ public class ClipboardManager : IClipboardManager
 
         foreach (FileTransferStream file in files)
         {
-            rep.ReportItem($"Uploading: \"{file.Name}\"");
+            rep.ReportItem($"Transferring file: \"{file.Name}\"");
             IResult r = await f.WriteFileStream(file, destination.Path, ProgressReporter.None, ct);
             if (!r.IsOk)
                 return r;
         }
         foreach (DirTransferStream dir in dirs)
         {
-            rep.ReportItem($"Writing: \"{dir.Name}\"");
+            rep.ReportItem($"Writing directory: \"{dir.Name}\"");
             IResult r = await f.WriteDirStream(dir, destination.Path, reporter, ct);
             if (!r.IsOk)
                 return r;
@@ -376,7 +376,7 @@ public class ClipboardManager : IClipboardManager
         return SimpleResult.Ok();
     }
 
-    private OpResult CopySameFs(
+    private async Task<OpResult> CopySameFs(
         Location destination,
         ProgressReporter reporter,
         CancellationToken ct
@@ -389,11 +389,11 @@ public class ClipboardManager : IClipboardManager
             destination.Path
         );
 
-        IResult result = op.Invoke();
+        IResult result = await op.Invoke(reporter, ct);
         return result.IsOk ? OpResult.Ok(op) : OpResult.Error(result);
     }
 
-    private OpResult MoveSameFs(
+    private async Task<OpResult> MoveSameFs(
         Location destination,
         ProgressReporter reporter,
         CancellationToken ct
@@ -406,11 +406,11 @@ public class ClipboardManager : IClipboardManager
             destination.Path
         );
 
-        IResult result = op.Invoke();
+        IResult result = await op.Invoke(reporter, ct);
         return result.IsOk ? OpResult.Ok(op) : OpResult.Error(result);
     }
 
-    private OpResult DuplicateSameFs(
+    private async Task<OpResult> DuplicateSameFs(
         Location currentLocation,
         ProgressReporter reporter,
         CancellationToken ct
@@ -429,7 +429,7 @@ public class ClipboardManager : IClipboardManager
             copyNames
         );
 
-        IResult result = op.Invoke();
+        IResult result = await op.Invoke(reporter, ct);
         return result.IsOk ? OpResult.Ok(op) : OpResult.Error(result);
     }
 }
