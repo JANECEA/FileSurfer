@@ -217,7 +217,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         return await _remoteRoot.FileSystem.FileIoHandler.WriteFileStream(
             fileStreamR.Value,
             remoteParent,
-            new ProgressReporter(),
+            ProgressReporter.None,
             _cts!.Token
         );
     }

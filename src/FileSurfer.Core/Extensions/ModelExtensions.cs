@@ -91,12 +91,16 @@ public static class TransferStreamExtensions
                 queue.Enqueue((d, absDirPath));
         }
 
-        ProgressReporter dummyRep = new();
         CountingReporter rep = new(reporter, files.Count);
         foreach ((FileTransferStream stream, string parentPath) in files)
         {
             rep.ReportItem($"Transferring: \"{stream.Name}\"");
-            IResult result = await ioHandler.WriteFileStream(stream, parentPath, dummyRep, ct);
+            IResult result = await ioHandler.WriteFileStream(
+                stream,
+                parentPath,
+                ProgressReporter.None,
+                ct
+            );
             if (!result.IsOk)
                 return result;
         }

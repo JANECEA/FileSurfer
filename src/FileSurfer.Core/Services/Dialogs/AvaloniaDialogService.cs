@@ -70,11 +70,9 @@ public sealed class AvaloniaDialogService : IDialogService
 
     public async Task<T> ProgressDialog<T>(string title, CancellableOperation<T> operation)
     {
-        ProgressReporter reporter = new();
-        _ = new IndeterminateReporter(reporter);
         CancellationTokenSource cts = new();
         Task<T> opTask = Task.Run(() => operation(cts.Token));
-        return await ProgressDialogInternal(title, opTask, reporter, cts);
+        return await ProgressDialogInternal(title, opTask, ProgressReporter.None, cts);
     }
 
     public async Task<bool> ConfirmationDialog(string title, string question)

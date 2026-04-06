@@ -113,7 +113,7 @@ public class ClipboardManager : IClipboardManager
             IResult result = await destination.FileSystem.FileIoHandler.WriteFileStream(
                 fileStream,
                 destination.Path,
-                new ProgressReporter(),
+                ProgressReporter.None,
                 CancellationToken.None
             );
             return result.IsOk ? OpResult.Ok(null) : OpResult.Error(result);
@@ -142,7 +142,7 @@ public class ClipboardManager : IClipboardManager
             IResult result = await destination.FileSystem.FileIoHandler.WriteFileStream(
                 fileStream,
                 destination.Path,
-                new ProgressReporter(),
+                ProgressReporter.None,
                 CancellationToken.None
             );
             return result.IsOk ? OpResult.Ok(null) : OpResult.Error(result);
@@ -222,22 +222,26 @@ public class ClipboardManager : IClipboardManager
         if (_origin is null || _programClipboard.Count == 0)
             return OpResult.Error("Clipboard is empty.");
 
-        return await PasteInternal(destination);
+        return await PasteInternal(destination, reporter, ct);
     }
 
-    private async Task<OpResult> PasteInternal(Location destination)
+    private async Task<OpResult> PasteInternal(
+        Location destination,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
     {
         bool destIsSame = destination.IsSame(_origin);
         bool fsIsSame = destination.FileSystem.IsSame(_origin?.FileSystem);
 
         OpResult result = _pasteType switch
         {
-            PasteType.Copy when destIsSame => DuplicateSameFs(destination),
-            PasteType.Copy when fsIsSame => CopySameFs(destination),
-            PasteType.Copy => await UploadFiles(destination),
+            PasteType.Copy when destIsSame => DuplicateSameFs(destination, reporter, ct),
+            PasteType.Copy when fsIsSame => CopySameFs(destination, reporter, ct),
+            PasteType.Copy => await UploadFiles(destination, reporter, ct),
             PasteType.Cut when destIsSame => CutSameDirectoryResult,
-            PasteType.Cut when fsIsSame => MoveSameFs(destination),
-            PasteType.Cut => await UploadAndDelete(destination),
+            PasteType.Cut when fsIsSame => MoveSameFs(destination, reporter, ct),
+            PasteType.Cut => await UploadAndDelete(destination, reporter, ct),
             _ => throw new UnreachableException(),
         };
 
@@ -303,9 +307,13 @@ public class ClipboardManager : IClipboardManager
         ).OkResult();
     }
 
-    private async Task<OpResult> UploadAndDelete(Location destination)
+    private async Task<OpResult> UploadAndDelete(
+        Location destination,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
     {
-        OpResult result = await UploadFiles(destination);
+        OpResult result = await UploadFiles(destination, reporter, ct);
         if (!result.IsOk)
             return result;
 
@@ -320,7 +328,11 @@ public class ClipboardManager : IClipboardManager
         return OpResult.Ok(null);
     }
 
-    private async Task<OpResult> UploadFiles(Location destination)
+    private async Task<OpResult> UploadFiles(
+        Location destination,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
     {
         var streamsR = GetStreams();
         if (!streamsR.IsOk)
@@ -328,7 +340,7 @@ public class ClipboardManager : IClipboardManager
 
         (FileTransferStream[] files, DirTransferStream[] dirs) = streamsR.Value;
 
-        IResult result = await UploadAll(files, dirs, destination);
+        IResult result = await UploadAll(files, dirs, destination, reporter, ct);
         foreach (IDisposable disposable in files.Cast<IDisposable>().Concat(dirs))
             disposable.Dispose();
 
@@ -338,30 +350,25 @@ public class ClipboardManager : IClipboardManager
     private static async Task<IResult> UploadAll(
         FileTransferStream[] files,
         DirTransferStream[] dirs,
-        Location destination
+        Location destination,
+        ProgressReporter reporter,
+        CancellationToken ct
     )
     {
+        CountingReporter rep = new(reporter, files.Length + dirs.Length);
         IFileIoHandler f = destination.FileSystem.FileIoHandler;
 
         foreach (FileTransferStream file in files)
         {
-            IResult r = await f.WriteFileStream(
-                file,
-                destination.Path,
-                new ProgressReporter(),
-                CancellationToken.None
-            );
+            rep.ReportItem($"Uploading: \"{file.Name}\"");
+            IResult r = await f.WriteFileStream(file, destination.Path, ProgressReporter.None, ct);
             if (!r.IsOk)
                 return r;
         }
         foreach (DirTransferStream dir in dirs)
         {
-            IResult r = await f.WriteDirStream(
-                dir,
-                destination.Path,
-                new ProgressReporter(),
-                CancellationToken.None
-            );
+            rep.ReportItem($"Writing: \"{dir.Name}\"");
+            IResult r = await f.WriteDirStream(dir, destination.Path, reporter, ct);
             if (!r.IsOk)
                 return r;
         }
@@ -369,7 +376,11 @@ public class ClipboardManager : IClipboardManager
         return SimpleResult.Ok();
     }
 
-    private OpResult CopySameFs(Location destination)
+    private OpResult CopySameFs(
+        Location destination,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
     {
         CopyFilesTo op = new(
             destination.FileSystem.FileInfoProvider.PathTools,
@@ -382,7 +393,11 @@ public class ClipboardManager : IClipboardManager
         return result.IsOk ? OpResult.Ok(op) : OpResult.Error(result);
     }
 
-    private OpResult MoveSameFs(Location destination)
+    private OpResult MoveSameFs(
+        Location destination,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
     {
         MoveFilesTo op = new(
             destination.FileSystem.FileInfoProvider.PathTools,
@@ -395,7 +410,11 @@ public class ClipboardManager : IClipboardManager
         return result.IsOk ? OpResult.Ok(op) : OpResult.Error(result);
     }
 
-    private OpResult DuplicateSameFs(Location currentLocation)
+    private OpResult DuplicateSameFs(
+        Location currentLocation,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
     {
         IFileInfoProvider f = currentLocation.FileSystem.FileInfoProvider;
 
