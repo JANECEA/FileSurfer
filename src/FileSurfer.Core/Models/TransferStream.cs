@@ -83,6 +83,21 @@ public class DirTransferStream : IDisposable
     )
     {
         DirTransferStream root = new(fileInfoProvider.PathTools.GetFileName(rootPath));
+        var result = FromInfoInternal(fileInfoProvider, rootPath, includeHidden, includeOs, root);
+        if (!result.IsOk)
+            root.Dispose();
+
+        return result;
+    }
+
+    private static ValueResult<DirTransferStream> FromInfoInternal(
+        IFileInfoProvider fileInfoProvider,
+        string rootPath,
+        bool includeHidden,
+        bool includeOs,
+        DirTransferStream root
+    )
+    {
         Queue<(DirectoryEntry, DirTransferStream)> queue = new();
         queue.Enqueue((new DirectoryEntry(rootPath, fileInfoProvider.PathTools), root));
 

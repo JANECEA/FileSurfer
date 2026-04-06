@@ -105,23 +105,20 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         Location remoteDir
     )
     {
+        _syncEventVmFactory = new SyncEventVmFactory(localDir.Path, remoteDir.Path);
+        _dialogService = dialogService;
         LocalDir = localDir;
         LocalDirLabel = localDir.FileSystem.GetLabel();
         RemoteDir = remoteDir;
         RemoteDirLabel = remoteDir.FileSystem.GetLabel();
-        _syncEventVmFactory = new SyncEventVmFactory(localDir.Path, remoteDir.Path);
-        _dialogService = dialogService;
 
         SyncHiddenFiles = FileSurferSettings.SyncHiddenFiles;
 
-        IRemoteFileIoHandler ioHandler =
-            remoteDir.FileSystem.FileIoHandler as IRemoteFileIoHandler
-            ?? throw new InvalidCastException(
-                $"remote directory file system does not implement {nameof(IRemoteFileIoHandler)}"
-            );
-
-        IDirectoryWatcher watcher = new DirectoryWatcher(localDir);
-        _synchronizer = new LocalToSftpSynchronizer(remoteDir, localDir, watcher, ioHandler);
+        _synchronizer = new LocalToSftpSynchronizer(
+            localDir,
+            remoteDir,
+            new DirectoryWatcher(localDir)
+        );
         _synchronizer.OnSyncEvent += ShowEvent;
 
         StartSyncCommand = ReactiveCommand.Create(StartSynchronization);
@@ -152,11 +149,8 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
             "Initial synchronization",
             async (r, ct) => await _synchronizer.Initialize(InitFromRemote, r, ct)
         );
-        ShowIfError(result);
-        if (!result.IsOk)
-            return;
-
-        result = await _synchronizer.StartAsync();
+        if (result.IsOk)
+            result = await _synchronizer.StartAsync();
 
         Synchronizing = false;
 

@@ -24,7 +24,7 @@ public partial class ProgressDialogWindow : Window
     private void Cancel()
     {
         if (!Cts.IsCancellationRequested)
-            OnCancelClicked();
+            Cts.Cancel();
     }
 
     private void OnCancelClicked(object? sender = null, RoutedEventArgs? e = null) => Cancel();

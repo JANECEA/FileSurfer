@@ -95,7 +95,7 @@ public static class TransferStreamExtensions
         CountingReporter rep = new(reporter, files.Count);
         foreach ((FileTransferStream stream, string parentPath) in files)
         {
-            rep.ReportItem($"Uploading: \"{stream.Name}\"");
+            rep.ReportItem($"Transferring: \"{stream.Name}\"");
             IResult result = await ioHandler.WriteFileStream(stream, parentPath, dummyRep, ct);
             if (!result.IsOk)
                 return result;
