@@ -85,13 +85,23 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private readonly IDialogService _dialogService;
     private readonly Action<bool> _setDarkMode;
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     public required SftpFileSystemFactory SftpFsFactory { private get; init; }
+
+    /// <summary>
+    /// TODO
+    /// </summary>
     public required IClipboardManager ClipboardManager { private get; init; }
 
     private bool _isActionUserInvoked = true;
     private DateTime _lastRefreshedUtc;
     private DispatcherTimer? _refreshTimer;
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     public SortInfo SortInfo =>
         new(FileSurferSettings.SortingMode, FileSurferSettings.SortReversed);
 
@@ -195,6 +205,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private IPathTools PathTools => CurrentFs.FileInfoProvider.PathTools;
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     public string? CurrentInfoMessage
     {
         get => _currentInfoMessage;
@@ -234,7 +247,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             this.RaisePropertyChanged(nameof(NotSearching));
         }
     }
-
     private bool _searching;
 
     /// <summary>
@@ -329,15 +341,38 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> GitPullCommand { get; }
     public ReactiveCommand<Unit, Unit> GitPushCommand { get; }
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     public bool SelectionNotEmpty => SelectedFiles.Count > 0;
+
+    /// <summary>
+    /// TODO
+    /// </summary>
     public bool CanGoBack => _locationHistory.GetPrevious() is not null;
+
+    /// <summary>
+    /// TODO
+    /// </summary>
     public bool CanGoForward => _locationHistory.GetNext() is not null;
+
+    /// <summary>
+    /// TODO
+    /// </summary>
     public bool IsLocal => CurrentFs is LocalFileSystem;
+
+    /// <summary>
+    /// TODO
+    /// </summary>
     public bool NotSearching => !Searching;
 
     /// <summary>
-    /// Initializes a new <see cref="MainWindowViewModel"/>.
+    /// TODO
     /// </summary>
+    /// <param name="initialDir"></param>
+    /// <param name="localFs"></param>
+    /// <param name="dialogService"></param>
+    /// <param name="setDarkMode"></param>
     public MainWindowViewModel(
         string initialDir,
         LocalFileSystem localFs,
@@ -589,7 +624,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ShowIfError(fs.LocalShellHandler.OpenFile(entry.PathToEntry));
     }
 
-    public void OpenLocalEntry(SideBarEntryViewModel entry)
+    /// <summary>
+    /// TODO
+    /// </summary>
+    public void OpenSideBarEntry(SideBarEntryViewModel entry)
     {
         if (entry.IsDirectory)
             SetLocation(_localFs.GetLocation(entry.PathToEntry));
@@ -599,6 +637,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ShowIfError(_localFs.LocalShellHandler.OpenFile(entry.PathToEntry));
     }
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     public async Task OpenSftpConnection(SftpConnectionViewModel connectionVm)
     {
         SftpConnection connection = connectionVm.SftpConnection;
@@ -627,6 +668,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SetLocation(new Location(fileSystem, fileSystem.FileInfoProvider.GetRoot()));
     }
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     public void CloseSftpConnection(SftpConnectionViewModel connectionVm)
     {
         if (connectionVm.FileSystem is null)
@@ -641,10 +685,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SetLocation(new Location(_localFs, _localFs.LocalFileInfoProvider.GetRoot()));
     }
 
-    /// <summary>
-    /// Shows the "Open file with" dialog.
-    /// </summary>
-    public void OpenAs(FileSystemEntryViewModel entry)
+    private void OpenAs(FileSystemEntryViewModel entry)
     {
         if (!entry.IsDirectory)
             ShowIfError(CurrentFs.FileProperties.ShowOpenAsDialog(entry.FileSystemEntry));
@@ -669,10 +710,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             OpenEntry(entry.FileSystemEntry);
     }
 
-    /// <summary>
-    /// Opens the selected files in the notepad app specified in <see cref="FileSurferSettings.NotepadApp"/>
-    /// </summary>
-    public void OpenInNotepad()
+    private void OpenInNotepad()
     {
         if (CurrentFs is not LocalFileSystem fs)
             return;
@@ -730,7 +768,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    public void AddToQuickAccess(FileSystemEntryViewModel? entry) =>
+    private void AddToQuickAccess(FileSystemEntryViewModel? entry) =>
         QuickAccess.Add(
             entry is not null
                 ? new SideBarEntryViewModel(_localFs, entry.FileSystemEntry)
@@ -919,7 +957,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         return SimpleResult.Ok();
     }
 
-    public void SetLocation(Location location)
+    private void SetLocation(Location location)
     {
         IResult result = SetLocationNoHistory(location);
 
@@ -928,6 +966,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             _locationHistory.AddNewNode(location);
     }
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     public void SetNewLocation(string path)
     {
         Location location = CurrentFs.GetLocation(path);
@@ -958,6 +999,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     public void GoBack(LocationDisplay locationDisplay)
     {
         if (Searching)
@@ -1003,6 +1047,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     public void GoForward(LocationDisplay locationDisplay)
     {
         if (Searching)
@@ -1030,6 +1077,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ShowIfError(fs.LocalShellHandler.OpenTerminalAt(CurrentDir));
     }
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     public async Task SearchAsync(string searchQuery)
     {
         if (Searching)
@@ -1045,7 +1095,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             CurrentInfoMessage = EmptySearchMessage;
     }
 
-    public void CancelSearch()
+    private void CancelSearch()
     {
         Searching = false;
         _searchManager.CancelSearch();
@@ -1206,10 +1256,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         UserReload();
     }
 
-    /// <summary>
-    /// Relays the operation to <see cref="IShellHandler"/> and invokes <see cref="Reload"/>.
-    /// </summary>
-    public void CreateShortcut(FileSystemEntryViewModel entry)
+    private void CreateShortcut(FileSystemEntryViewModel entry)
     {
         IResult result = entry.IsDirectory
             ? CurrentFs.ShellHandler.CreateDirectoryLink(entry.PathToEntry)
@@ -1222,7 +1269,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Relays the operation to <see cref="IFileProperties"/>.
     /// </summary>
-    public void ShowProperties(FileSystemEntryViewModel entry) =>
+    private void ShowProperties(FileSystemEntryViewModel entry) =>
         ShowIfError(CurrentFs.FileProperties.ShowFileProperties(entry));
 
     private async Task SynchronizeDir(FileSystemEntryViewModel? entry)
@@ -1337,14 +1384,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         ShowIfError(result);
     }
 
-    /// <summary>
-    /// Moves the <see cref="FileSystemEntryViewModel"/>s in <see cref="SelectedFiles"/> to the system trash using <see cref="CurrentFs"/>.
-    /// <para>
-    /// Adds the operation to <see cref="_undoRedoHistory"/> if the operation was successful.
-    /// </para>
-    /// Invokes <see cref="Reload"/>.
-    /// </summary>
-    public async Task MoveToTrash()
+    private async Task MoveToTrash()
     {
         MoveFilesToTrash op = new(
             CurrentFs.BinInteraction,
@@ -1382,7 +1422,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         UserReload();
     }
 
-    public void Delete()
+    private void Delete()
     {
         foreach (FileSystemEntryViewModel entry in SelectedFiles)
             ShowIfError(
@@ -1470,12 +1510,18 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     public void GitStage(FileSystemEntryViewModel? entry)
     {
         if (IsVersionControlled)
             ShowIfError(CurrentFs.GitIntegration.StagePath(entry?.PathToEntry ?? CurrentDir));
     }
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     public void GitUnstage(FileSystemEntryViewModel? entry)
     {
         if (IsVersionControlled)
@@ -1577,6 +1623,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             .ToList();
     }
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     public void Dispose()
     {
         CurrentFs.GitIntegration.Dispose();

@@ -250,7 +250,7 @@ public partial class MainWindow : Window
     private void SideBarEntryClicked(object sender, TappedEventArgs e)
     {
         if (sender is ListBox { SelectedItem: SideBarEntryViewModel entry })
-            _viewModel?.OpenLocalEntry(entry);
+            _viewModel?.OpenSideBarEntry(entry);
 
         ClearFocus();
     }
@@ -493,7 +493,9 @@ public partial class MainWindow : Window
                 ClearFocus();
             }
             else if (_viewModel.SelectedFiles.Count == 1)
-                _viewModel?.OpenEntry(_viewModel.SelectedFiles[0].FileSystemEntry);
+                _viewModel.OpenEntry(_viewModel.SelectedFiles[0].FileSystemEntry);
+            else if (_viewModel.SelectedFiles.Count > 1)
+                _viewModel.OpenEntries();
         }
     }
 
