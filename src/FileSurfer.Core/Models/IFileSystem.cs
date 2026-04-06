@@ -1,3 +1,4 @@
+using System;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.FileOperations;
 using FileSurfer.Core.Services.Shell;
@@ -8,7 +9,7 @@ namespace FileSurfer.Core.Models;
 /// <summary>
 /// Represents a generic file system and provides its functionality
 /// </summary>
-public interface IFileSystem
+public interface IFileSystem : IDisposable
 {
     public IFileInfoProvider FileInfoProvider { get; }
     public IIconProvider IconProvider { get; }
@@ -52,4 +53,11 @@ public sealed class LocalFileSystem : IFileSystem
     public bool IsLocal() => true;
 
     public string GetLabel() => Label;
+
+    public void Dispose()
+    {
+        IconProvider.Dispose();
+        BinInteraction.Dispose();
+        GitIntegration.Dispose();
+    }
 }

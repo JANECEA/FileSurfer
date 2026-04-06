@@ -64,4 +64,6 @@ public class LinuxBinInteraction : IBinInteraction
 
     private ValueResult<string> MoveEntryToTrash(string path) =>
         _shellHandler.ExecuteCommand("trash-put", path);
+
+    public void Dispose() { }
 }

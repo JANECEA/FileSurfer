@@ -4,12 +4,12 @@ using System.Threading;
 
 namespace FileSurfer.Windows.Services.Shell;
 
-public sealed class StaWorker : IDisposable
+public sealed class StaWorkerSync : IDisposable
 {
     private readonly BlockingCollection<Action> _queue = new();
     private readonly Thread _thread;
 
-    public StaWorker(string name)
+    public StaWorkerSync(string name)
     {
         _thread = new Thread(ThreadLoop) { IsBackground = true, Name = name };
 
@@ -41,11 +41,12 @@ public sealed class StaWorker : IDisposable
             }
             finally
             {
+                // ReSharper disable once AccessToDisposedClosure  - will run before disposal
                 done.Set();
             }
         });
 
-        done.Wait(); // blocks caller thread
+        done.Wait();
 
         done.Dispose();
         if (exception != null)

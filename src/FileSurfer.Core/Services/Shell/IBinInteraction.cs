@@ -1,8 +1,9 @@
-﻿using FileSurfer.Core.Models;
+﻿using System;
+using FileSurfer.Core.Models;
 
 namespace FileSurfer.Core.Services.Shell;
 
-public interface IBinInteraction
+public interface IBinInteraction : IDisposable
 {
     /// <summary>
     /// Moves a file to the trash.

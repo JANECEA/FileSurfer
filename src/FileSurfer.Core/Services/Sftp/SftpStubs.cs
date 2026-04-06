@@ -87,4 +87,6 @@ public class StubBinInteraction : IBinInteraction
     public IResult RestoreFile(string originalFilePath) => SimpleResult.Error(_message);
 
     public IResult RestoreDir(string originalDirPath) => SimpleResult.Error(_message);
+
+    public void Dispose() { }
 }

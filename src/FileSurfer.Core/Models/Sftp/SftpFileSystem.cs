@@ -10,7 +10,7 @@ using Renci.SshNet;
 namespace FileSurfer.Core.Models.Sftp;
 
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-public sealed class SftpFileSystem : IFileSystem, IDisposable
+public sealed class SftpFileSystem : IFileSystem
 {
     private const string EnvironmentNotSupported = "The SFTP environment is not supported.";
     private readonly SftpClient _sftpClient;

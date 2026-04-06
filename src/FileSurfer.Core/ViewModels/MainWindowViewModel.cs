@@ -1635,5 +1635,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         foreach (SftpConnectionViewModel connection in SftpConnectionsVms)
             connection.FileSystem?.Dispose();
+
+        _localFs.Dispose();
     }
 }
