@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.Sftp;
 using ReactiveUI;
@@ -9,10 +8,6 @@ namespace FileSurfer.Core.ViewModels;
 /// <summary>
 /// The <see cref="SftpConnectionViewModel"/> is the ViewModel for the <see cref="Views.EditSftpWindow"/>.
 /// </summary>
-[
-    SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
-    SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global"),
-]
 public sealed class SftpConnectionViewModel : ReactiveObject
 {
     private Action<SftpConnectionViewModel>? _addSelf = null;

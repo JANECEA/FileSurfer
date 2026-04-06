@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
-using FileSurfer.Core.Views;
 using FileSurfer.Core.Views.Dialogs;
 
 namespace FileSurfer.Core.Services.Dialogs;
@@ -13,8 +12,6 @@ namespace FileSurfer.Core.Services.Dialogs;
 public sealed class AvaloniaDialogService : IDialogService
 {
     private const int ShowOpDialogDelayMs = 1000;
-
-    public static MainWindow? MainWindow { get; set; } = null;
 
     private readonly Window _parentWindow;
 

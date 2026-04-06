@@ -7,18 +7,15 @@ using System.Text;
 using FileSurfer.Core.Models;
 using ReactiveUI;
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor.
+#pragma warning disable CA1822 // Members can be made static.
+
 namespace FileSurfer.Core.ViewModels;
 
 /// <summary>
 /// The SettingsWindowViewModel is the ViewModel for the <see cref="Views.SettingsWindow"/>.
 /// </summary>
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-[ // Properties are used by the window, cannot be static have to global
-    SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
-    SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-    SuppressMessage("ReSharper", "UnusedMember.Global"),
-    SuppressMessage("Performance", "CA1822:Mark members as static"),
-]
+[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
 public sealed class SettingsWindowViewModel : ReactiveObject
 {
     private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
@@ -214,4 +211,3 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         return LocalPathTools.TrimEndDirectorySeparator(sb.ToString());
     }
 }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.

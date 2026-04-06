@@ -398,9 +398,7 @@ public static class FileSurferSettings
             : default;
 
     private static string SanitizeName(string? fileName, char[] invalidChars, string defaultName) =>
-        fileName is not null
-        && fileName.Length > 0
-        && fileName.All(ch => !invalidChars.Contains(ch))
+        !string.IsNullOrEmpty(fileName) && fileName.All(ch => !invalidChars.Contains(ch))
             ? fileName
             : defaultName;
 

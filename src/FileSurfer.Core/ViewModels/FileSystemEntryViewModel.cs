@@ -19,7 +19,7 @@ namespace FileSurfer.Core.ViewModels;
 [SuppressMessage(
     "ReSharper",
     "UnusedAutoPropertyAccessor.Global",
-    Justification = "Properties are used by the window"
+    Justification = "Properties are used by the window."
 )]
 public sealed class FileSystemEntryViewModel : ReactiveObject
 {

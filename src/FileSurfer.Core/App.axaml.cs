@@ -4,11 +4,24 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.ViewModels;
 using FileSurfer.Core.Views;
 
 namespace FileSurfer.Core;
+
+/// <summary>
+/// Used to initialize the app with platform specific settings
+/// </summary>
+public interface IPlatformBootstrap
+{
+    public MainWindowViewModel GetViewModel(
+        string initialDir,
+        MainWindow mainWindow,
+        Action<bool> setDarkMode
+    );
+
+    public IDefaultSettingsProvider GetDefaultSettingsProvider();
+}
 
 /// <summary>
 /// The App class serves as the entry point for the FileSurfer application, handling application-wide initialization and setup.
@@ -54,7 +67,6 @@ public partial class App : Application
             );
             desktop.MainWindow = mainWindow;
             desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnMainWindowClose;
-            AvaloniaDialogService.MainWindow = mainWindow;
         }
         base.OnFrameworkInitializationCompleted();
     }
@@ -74,18 +86,4 @@ public partial class App : Application
 
         return SimpleResult.Ok();
     }
-}
-
-/// <summary>
-/// Used to initialize the app with platform specific settings
-/// </summary>
-public interface IPlatformBootstrap
-{
-    public MainWindowViewModel GetViewModel(
-        string initialDir,
-        MainWindow mainWindow,
-        Action<bool> setDarkMode
-    );
-
-    public IDefaultSettingsProvider GetDefaultSettingsProvider();
 }

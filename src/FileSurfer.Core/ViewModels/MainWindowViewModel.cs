@@ -57,6 +57,11 @@ public record LocationDisplay
     public override int GetHashCode() => HashCode.Combine(Label, Path);
 }
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global - Used by MainWindow
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable CollectionNeverQueried.Global
+// ReSharper disable UnusedMember.Global
+
 /// <summary>
 /// The MainWindowViewModel is the ViewModel for the main window of the application.
 /// <para>
@@ -65,13 +70,6 @@ public record LocationDisplay
 /// </para>
 /// Handles data directly bound to the View.
 /// </summary>
-[ // Properties are used by the window, cannot be static, have to be public
-    SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global"),
-    SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
-    SuppressMessage("ReSharper", "UnusedMember.Global"),
-    SuppressMessage("ReSharper", "CollectionNeverQueried.Global"),
-    SuppressMessage("Performance", "CA1822:Mark members as static"),
-]
 public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 {
     private const string EmptyDirMessage = "This directory is empty.";

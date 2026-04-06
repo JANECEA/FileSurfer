@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using FileSurfer.Core;
-using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Shell;
 

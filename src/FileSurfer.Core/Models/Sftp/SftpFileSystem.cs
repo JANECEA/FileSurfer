@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.FileOperations;

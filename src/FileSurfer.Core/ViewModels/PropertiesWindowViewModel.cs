@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
-using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Views;
 
 namespace FileSurfer.Core.ViewModels;
@@ -113,9 +112,6 @@ public sealed class PropertiesWindowViewModel : IDisplayable
     public void Show()
     {
         PropertiesWindow window = new() { DataContext = this };
-        if (AvaloniaDialogService.MainWindow is null)
-            window.Show();
-        else
-            window.ShowDialog(AvaloniaDialogService.MainWindow);
+        window.Show();
     }
 }
