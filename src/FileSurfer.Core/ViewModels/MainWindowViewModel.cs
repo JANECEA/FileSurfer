@@ -1136,8 +1136,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         IResult result = await _dialogService.ProgressDialog<IResult>(
             "Archiving files",
-            async (r, ct) =>
-                await CurrentFs.ArchiveManager.ArchiveEntries(selected, cwd, archName, r, ct)
+            (r, ct) => CurrentFs.ArchiveManager.ArchiveEntries(selected, cwd, archName, r, ct)
         );
 
         ShowIfError(result);
@@ -1163,8 +1162,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             {
                 IResult result = await _dialogService.ProgressDialog<IResult>(
                     "Archiving files",
-                    async (r, ct) =>
-                        await CurrentFs.ArchiveManager.ExtractArchive(e.PathToEntry, cwd, r, ct)
+                    (r, ct) => CurrentFs.ArchiveManager.ExtractArchive(e.PathToEntry, cwd, r, ct)
                 );
                 ShowIfError(result);
             })
@@ -1207,12 +1205,13 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private async Task Paste()
     {
-        ValueResult<IUndoableFileOperation?> result = await ClipboardManager.PasteAsync(
-            CurrentLocation
+        ValueResult<IUndoableFileOperation?> r = await _dialogService.ProgressDialog(
+            "Pasting...",
+            (r, ct) => ClipboardManager.PasteAsync(CurrentLocation, r, ct)
         );
 
-        ShowIfError(result);
-        if (result is { IsOk: true, Value: IUndoableFileOperation operation })
+        ShowIfError(r);
+        if (r is { IsOk: true, Value: IUndoableFileOperation operation })
             _undoRedoHistory.AddNewNode(operation);
 
         Reload(true);

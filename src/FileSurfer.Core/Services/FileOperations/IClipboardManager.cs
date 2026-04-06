@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileOperations.Undoable;
 
 namespace FileSurfer.Core.Services.FileOperations;
@@ -23,7 +25,11 @@ public interface IClipboardManager
     /// Pastes the contents of the system clipboard into <paramref name="destination"/>.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public Task<ValueResult<IUndoableFileOperation?>> PasteAsync(Location destination);
+    public Task<ValueResult<IUndoableFileOperation?>> PasteAsync(
+        Location destination,
+        ProgressReporter reporter,
+        CancellationToken ct
+    );
 
     /// <summary>
     /// Copies the <paramref name="filePath"/> to the system's clipboard.

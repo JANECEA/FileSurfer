@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
-using Avalonia.Controls;
 using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Views;
 

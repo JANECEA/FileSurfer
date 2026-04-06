@@ -197,7 +197,11 @@ public class ClipboardManager : IClipboardManager
                 );
     }
 
-    public async Task<OpResult> PasteAsync(Location destination)
+    public async Task<OpResult> PasteAsync(
+        Location destination,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
     {
         if (await _osClipboard.Clipboard.TryGetBitmapAsync() is Bitmap bitmap)
             return await SaveImageToPath(destination, bitmap);

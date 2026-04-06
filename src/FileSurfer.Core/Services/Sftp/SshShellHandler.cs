@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Text;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.Services.Shell;
 using Renci.SshNet;
 

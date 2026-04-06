@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models.FileInformation;
-using FileSurfer.Core.Services.FileOperations;
 
 namespace FileSurfer.Core.Models;
 

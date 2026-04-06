@@ -9,7 +9,6 @@ using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileInformation;
-using FileSurfer.Core.Services.FileOperations;
 using FileSurfer.Core.Services.Sftp;
 using ReactiveUI;
 
@@ -147,7 +146,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
 
         IResult result = await _dialogService.ProgressDialog(
             "Initial synchronization",
-            async (r, ct) => await _synchronizer.Initialize(InitFromRemote, r, ct)
+            (r, ct) => _synchronizer.Initialize(InitFromRemote, r, ct)
         );
         if (result.IsOk)
             result = await _synchronizer.StartAsync();
