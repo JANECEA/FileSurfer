@@ -73,8 +73,8 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         ProgressReporter reporter,
         CancellationToken ct
     ) =>
-        await Task.Run(async () =>
-            await InitInternal(initFromRemote, FileSurferSettings.SyncHiddenFiles, reporter, ct)
+        await Task.Run(() =>
+            InitInternal(initFromRemote, FileSurferSettings.SyncHiddenFiles, reporter, ct)
         );
 
     private async Task<IResult> InitInternal(

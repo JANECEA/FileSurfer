@@ -40,11 +40,14 @@ public sealed class ProgressReporter : ReactiveObject
 
     public void Report(double fraction, string? item = null)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            Fraction = fraction;
-            CurrentItem = item;
-        });
+        Dispatcher.UIThread.Post(
+            () =>
+            {
+                Fraction = fraction;
+                CurrentItem = item;
+            },
+            DispatcherPriority.Background
+        );
     }
 
     public void ReportIndeterminate(string? item = null) => Report(double.NaN, item);

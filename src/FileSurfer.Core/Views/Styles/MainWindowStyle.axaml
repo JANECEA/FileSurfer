@@ -313,6 +313,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource PrimaryColor}" />
         <Setter Property="Background" Value="{DynamicResource SecondaryColor}" />
         <Setter Property="MinWidth" Value="5" />
+        <Setter Property="Padding" Value="5 0 0 0" />
         <Setter Property="ResizeDirection" Value="Columns" />
         <Setter Property="ResizeBehavior" Value="PreviousAndNext" />
     </Style>
@@ -332,7 +333,7 @@
     <Style Selector="ListBox.FileDisplay">
         <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
         <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
-        <Setter Property="Margin" Value="15 10 15 15" />
+        <Setter Property="Padding" Value="15 10 15 15" />
     </Style>
 
     <Style Selector="ContextMenu.FileContextMenu">

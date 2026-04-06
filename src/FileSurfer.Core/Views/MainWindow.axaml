@@ -526,7 +526,7 @@
                 <Grid Grid.Column="2" RowDefinitions="Auto Auto * Auto Auto">
                     <Grid x:Name="ListViewLabelsPanel"
                           Height="30"
-                          Margin="55 0 0 0"
+                          Margin="65 0 0 0"
                           IsVisible="{Binding ItemTemplate, ElementName=FileDisplay, Converter={StaticResource SameObjectConverter}, ConverterParameter={StaticResource ListViewTemplate}}"
                           RowDefinitions="*">
                         <Grid.ColumnDefinitions>
@@ -557,7 +557,7 @@
                     <Grid x:Name="SearchLabelsPanel"
                           Grid.Row="0"
                           Height="30"
-                          Margin="55 0 0 0"
+                          Margin="65 0 0 0"
                           IsVisible="{Binding Searching}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="350" />
@@ -580,6 +580,7 @@
 
                     <ListBox x:Name="FileDisplay"
                              Grid.Row="2"
+                             AutoScrollToSelectedItem="False"
                              Classes="FileDisplay"
                              DoubleTapped="FilesDoubleTapped"
                              ItemTemplate="{StaticResource ListViewTemplate}"
@@ -590,8 +591,8 @@
                              Tapped="FilesTapped">
                         <ListBox.Styles>
                             <Style Selector="ListBoxItem">
-                                <Setter Property="Padding" Value="10 0 10 0" />
-                                <Setter Property="Margin" Value="0 0 4 0" />
+                                <Setter Property="Padding" Value="10 0 0 0" />
+                                <Setter Property="Margin" Value="8 0 14 0" />
                                 <Setter Property="ContextMenu">
                                     <Setter.Value>
                                         <!--  ReSharper disable Xaml.PossibleNullReferenceException  -->
