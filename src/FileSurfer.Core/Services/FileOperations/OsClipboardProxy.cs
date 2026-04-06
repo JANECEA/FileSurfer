@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using FileSurfer.Core.Models;
 
 namespace FileSurfer.Core.Services.FileOperations;
@@ -11,17 +12,23 @@ namespace FileSurfer.Core.Services.FileOperations;
 /// <summary>
 /// Provides useful methods for <see cref="ClipboardManager"/>.
 /// </summary>
-internal class OsClipboardFacade
+internal class OsClipboardProxy
 {
     private readonly IStorageProvider _storageProvider;
 
-    internal IClipboard Clipboard { get; }
+    private IClipboard Clipboard { get; }
 
-    public OsClipboardFacade(IClipboard clipboard, IStorageProvider storageProvider)
+    internal OsClipboardProxy(IClipboard clipboard, IStorageProvider storageProvider)
     {
         Clipboard = clipboard;
         _storageProvider = storageProvider;
     }
+
+    internal async Task<T> ExecuteAsync<T>(Func<IClipboard, Task<T>> operation) =>
+        await Dispatcher.UIThread.InvokeAsync(() => operation(Clipboard));
+
+    internal async Task ExecuteAsync(Func<IClipboard, Task> operation) =>
+        await Dispatcher.UIThread.InvokeAsync(() => operation(Clipboard));
 
     internal static bool CompareClipboards(
         IStorageItem[] osItems,
@@ -52,7 +59,10 @@ internal class OsClipboardFacade
         return true;
     }
 
-    internal async Task<IResult> CopyToOsClipboardAsync(IFileSystemEntry[] entries)
+    internal async Task<IResult> CopyToOsClipboardAsync(IFileSystemEntry[] entries) =>
+        await Dispatcher.UIThread.InvokeAsync(() => CopyToOsClipboardInternal(entries));
+
+    private async Task<IResult> CopyToOsClipboardInternal(IFileSystemEntry[] entries)
     {
         try
         {

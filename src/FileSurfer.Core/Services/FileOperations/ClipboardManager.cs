@@ -36,7 +36,7 @@ public class ClipboardManager : IClipboardManager
         "Cannot move files to the same directory."
     );
 
-    private readonly OsClipboardFacade _osClipboard;
+    private readonly OsClipboardProxy _osClipboard;
     private readonly LocalFileSystem _localFs;
 
     private Location? _origin;
@@ -49,13 +49,13 @@ public class ClipboardManager : IClipboardManager
         LocalFileSystem localFs
     )
     {
-        _osClipboard = new OsClipboardFacade(clipboard, storageProvider);
+        _osClipboard = new OsClipboardProxy(clipboard, storageProvider);
         _localFs = localFs;
     }
 
     public async Task<IResult> CopyPathToFileAsync(string filePath)
     {
-        await _osClipboard.Clipboard.SetTextAsync(filePath);
+        await _osClipboard.ExecuteAsync(c => c.SetTextAsync(filePath));
         return SimpleResult.Ok();
     }
 
@@ -76,7 +76,7 @@ public class ClipboardManager : IClipboardManager
             }
         }
         else
-            await _osClipboard.Clipboard.ClearAsync();
+            await _osClipboard.ExecuteAsync(c => c.ClearAsync());
 
         _pasteType = pasteType;
         _origin = location;
@@ -203,15 +203,15 @@ public class ClipboardManager : IClipboardManager
         CancellationToken ct
     )
     {
-        if (await _osClipboard.Clipboard.TryGetBitmapAsync() is Bitmap bitmap)
+        if (await _osClipboard.ExecuteAsync(c => c.TryGetBitmapAsync()) is Bitmap bitmap)
             return await SaveImageToPath(destination, bitmap);
 
-        if (await _osClipboard.Clipboard.TryGetTextAsync() is string text)
+        if (await _osClipboard.ExecuteAsync(c => c.TryGetTextAsync()) is string text)
             return await SaveTextToPath(destination, text);
 
         if (
-            await _osClipboard.Clipboard.TryGetFilesAsync() is IStorageItem[] items
-            && !OsClipboardFacade.CompareClipboards(items, _programClipboard)
+            await _osClipboard.ExecuteAsync(c => c.TryGetFilesAsync()) is IStorageItem[] items
+            && !OsClipboardProxy.CompareClipboards(items, _programClipboard)
         )
         {
             _pasteType = PasteType.Copy;
@@ -247,7 +247,7 @@ public class ClipboardManager : IClipboardManager
 
         if (result.IsOk && _pasteType is PasteType.Cut)
         {
-            await _osClipboard.Clipboard.ClearAsync();
+            await _osClipboard.ExecuteAsync(c => c.ClearAsync());
             _programClipboard.Clear();
             _origin = null;
         }

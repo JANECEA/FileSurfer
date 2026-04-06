@@ -1,7 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
@@ -96,7 +97,7 @@ public class WindowsFileIoHandler : IFileIoHandler
         string dirPath,
         ProgressReporter reporter,
         CancellationToken ct
-    ) => dirStream.WriteWithIoHandler(this, LocalPathTools.Instance, dirPath, reporter, ct);
+    ) => await dirStream.WriteWithIoHandler(this, LocalPathTools.Instance, dirPath, reporter, ct);
 
     public IResult NewFileAt(string dirPath, string fileName)
     {
