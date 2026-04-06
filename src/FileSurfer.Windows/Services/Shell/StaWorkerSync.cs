@@ -1,0 +1,63 @@
+﻿using System;
+using System.Collections.Concurrent;
+using System.Threading;
+
+namespace FileSurfer.Windows.Services.Shell;
+
+public sealed class StaWorker : IDisposable
+{
+    private readonly BlockingCollection<Action> _queue = new();
+    private readonly Thread _thread;
+
+    public StaWorker(string name)
+    {
+        _thread = new Thread(ThreadLoop) { IsBackground = true, Name = name };
+
+        _thread.SetApartmentState(ApartmentState.STA);
+        _thread.Start();
+    }
+
+    private void ThreadLoop()
+    {
+        foreach (Action work in _queue.GetConsumingEnumerable())
+            work();
+    }
+
+    public T Invoke<T>(Func<T> func)
+    {
+        T result = default!;
+        Exception? exception = null;
+        ManualResetEventSlim done = new(false);
+
+        _queue.Add(() =>
+        {
+            try
+            {
+                result = func();
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+            finally
+            {
+                done.Set();
+            }
+        });
+
+        done.Wait(); // blocks caller thread
+
+        done.Dispose();
+        if (exception != null)
+            throw exception;
+
+        return result;
+    }
+
+    public void Dispose()
+    {
+        _queue.CompleteAdding();
+        _thread.Join();
+        _queue.Dispose();
+    }
+}
