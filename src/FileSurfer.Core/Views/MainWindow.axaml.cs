@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -283,14 +284,21 @@ public partial class MainWindow : Window
     /// </summary>
     private void OnRenameClicked(object sender, RoutedEventArgs e)
     {
-        if (_viewModel is null || _viewModel.SelectedFiles.Count == 0)
+        if (
+            _viewModel is null
+            || _viewModel.SelectedFiles.Count == 0
+            || FileDisplay.SelectedItems is not IList list
+            || list.Count == 0
+            || list[^1] is not FileSystemEntryViewModel entry
+        )
             return;
 
         NewNameBar.IsVisible = true;
         NameInputBox.Focus();
-        NameInputBox.Text = _viewModel.SelectedFiles[^1].Name;
+        NameInputBox.Text = entry.Name;
+
         NameInputBox.SelectionStart = 0;
-        NameInputBox.SelectionEnd = _viewModel.GetNameEndIndex(_viewModel.SelectedFiles[^1]);
+        NameInputBox.SelectionEnd = entry.FileSystemEntry.NameWoExtension.Length;
     }
 
     /// <summary>
@@ -320,7 +328,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void PathBoxLostFocus(object sender, RoutedEventArgs e)
     {
-        PathBox.Text = _viewModel?.CurrentDir ?? string.Empty;
+        PathBox.Text = _viewModel?.PathBoxText ?? string.Empty;
     }
 
     private void NameEntered()

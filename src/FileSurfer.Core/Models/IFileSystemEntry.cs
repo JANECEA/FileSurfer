@@ -48,7 +48,7 @@ public class FileEntry : IFileSystemEntry
         Name = pathTools.GetFileName(pathToFile);
         Extension = pathTools.GetExtension(pathToFile);
 
-        NameWoExtension = string.IsNullOrEmpty(Extension) ? Name : pathToFile[..^Extension.Length];
+        NameWoExtension = string.IsNullOrEmpty(Extension) ? Name : Name[..^Extension.Length];
     }
 
     private protected FileEntry(string pathToFile, string name, string extension)
@@ -57,7 +57,7 @@ public class FileEntry : IFileSystemEntry
         Name = name;
         Extension = extension;
 
-        NameWoExtension = string.IsNullOrEmpty(Extension) ? Name : pathToFile[..^Extension.Length];
+        NameWoExtension = string.IsNullOrEmpty(Extension) ? name : name[..^Extension.Length];
     }
 }
 

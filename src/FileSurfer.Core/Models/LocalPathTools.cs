@@ -47,8 +47,8 @@ public interface IPathTools
     public string GetFileName(string path);
 
     /// <summary>
-    /// Returns extension part of the given path.
-    /// Trailing separators are ignored
+    /// Returns extension part of the given path including the dot '.'
+    /// Trailing separators are ignored.
     /// </summary>
     public string GetExtension(string path);
 

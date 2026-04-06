@@ -160,7 +160,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Holds the path to the current directory displayed in FileSurfer.
     /// </summary>
-    public string CurrentDir
+    private string CurrentDir
     {
         get => _currentDir;
         set
@@ -172,7 +172,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
     private string _currentDir = string.Empty;
 
-    public Location CurrentLocation
+    private Location CurrentLocation
     {
         get =>
             _currentLocation
@@ -531,13 +531,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             foreach (string errorMessage in result.Errors)
                 ShowError(errorMessage);
     }
-
-    /// <summary>
-    /// Used for setting the text selection when renaming files.
-    /// </summary>
-    /// <returns>The length of the file name without extension.</returns>
-    public int GetNameEndIndex(FileSystemEntryViewModel entry) =>
-        SelectedFiles.Count > 0 ? entry.FileSystemEntry.NameWoExtension.Length : 0;
 
     private void SetSearchWaterMark(string dirPath)
     {
