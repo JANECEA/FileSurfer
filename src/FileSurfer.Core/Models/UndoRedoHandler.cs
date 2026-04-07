@@ -150,6 +150,40 @@ internal sealed class UndoRedoHandler<T>
     }
 
     /// <summary>
+    /// Enumerates items from the current position forward.
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<T> EnumerateFromCurrentForward()
+    {
+        UndoRedoNode? current = _current.Next;
+
+        while (current is not null)
+        {
+            if (current.Data is not null)
+                yield return current.Data;
+
+            current = current.Next;
+        }
+    }
+
+    /// <summary>
+    /// Enumerates items from the current position back.
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<T> EnumerateFromCurrentBack()
+    {
+        UndoRedoNode? current = _current.Previous;
+
+        while (current is not null)
+        {
+            if (current.Data is not null)
+                yield return current.Data;
+
+            current = current.Previous;
+        }
+    }
+
+    /// <summary>
     /// Removes the current <see cref="UndoRedoNode"/> from the <see cref="UndoRedoHandler{T}"/> chain.
     /// <para>
     /// Throws <see cref="InvalidOperationException"/> if <see cref="_current"/> is either <see cref="_head"/> or <see cref="_tail"/>.
@@ -157,7 +191,7 @@ internal sealed class UndoRedoHandler<T>
     /// </summary>
     /// <param name="goToPrevious"></param>
     /// <exception cref="InvalidOperationException">Throws exception if <see cref="_current"/> is either <see cref="_head"/> or <see cref="_tail"/>.</exception>
-    public void RemoveNode(bool goToPrevious)
+    public void RemoveCurrent(bool goToPrevious)
     {
         if (
             _current.Previous is null

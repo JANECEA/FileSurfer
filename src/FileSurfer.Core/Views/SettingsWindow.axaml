@@ -20,7 +20,7 @@
         mc:Ignorable="d">
 
     <Window.Styles>
-        <StyleInclude Source="avares://FileSurfer.Core/Views/SettingsWindowStyle.axaml" />
+        <StyleInclude Source="avares://FileSurfer.Core/Views/Styles/SettingsWindowStyle.axaml" />
     </Window.Styles>
 
     <Window.DataContext>
@@ -35,15 +35,18 @@
                     <StackPanel Spacing="12">
                         <TextBlock Classes="Section" Text="General" />
 
-                        <Grid ColumnDefinitions="200 *" RowDefinitions="Auto Auto Auto">
+                        <Grid ColumnDefinitions="200 *" RowDefinitions="Auto Auto Auto Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="New Image Name:" />
                             <TextBox Grid.Row="0" Grid.Column="1" Margin="5 0 0 5" Text="{Binding NewImageName}" />
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="New File Name:" />
-                            <TextBox Grid.Row="1" Grid.Column="1" Margin="5 0 0 5" Text="{Binding NewFileName}" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="New Text File Name:" />
+                            <TextBox Grid.Row="1" Grid.Column="1" Margin="5 0 0 5" Text="{Binding NewTextFileName}" />
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="New Directory Name:" />
-                            <TextBox Grid.Row="2" Grid.Column="1" Margin="5 0 0 5" Text="{Binding NewDirectoryName}" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="New File Name:" />
+                            <TextBox Grid.Row="2" Grid.Column="1" Margin="5 0 0 5" Text="{Binding NewFileName}" />
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Text="New Directory Name:" />
+                            <TextBox Grid.Row="3" Grid.Column="1" Margin="5 0 0 5" Text="{Binding NewDirectoryName}" />
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -125,7 +128,6 @@
                         <StackPanel Spacing="8">
                             <CheckBox Content="Git Integration" IsChecked="{Binding GitIntegration}" />
                             <CheckBox Content="Show Undo/Redo Error Dialogs" IsChecked="{Binding ShowUndoRedoErrorDialogs}" />
-                            <CheckBox Content="Allow Image Pasting from Clipboard" IsChecked="{Binding AllowImagePastingFromClipboard}" />
                         </StackPanel>
 
                         <StackPanel Margin="0 15 0 0" Spacing="8">

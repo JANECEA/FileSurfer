@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
+// ReSharper disable UnusedMember.Global
+
 namespace FileSurfer.Core.Models.FileInformation;
 
 /// <summary>
 /// Defines methods for retrieving file and directory information.
 /// </summary>
-[
-    SuppressMessage("ReSharper", "RedundantVirtualModifier"),
-    SuppressMessage("ReSharper", "UnusedMember.Global"),
-]
 public interface IFileInfoProvider
 {
     /// <summary>
@@ -42,6 +40,12 @@ public interface IFileInfoProvider
         bool includeHidden,
         bool includeOs
     );
+
+    /// <summary>
+    /// Returns an opened file stream for reading on the specified path.
+    /// </summary>
+    /// <param name="path">Path to the file</param>
+    public ValueResult<Stream> GetFileStream(string path);
 
     /// <summary>
     /// Gets the size of a file in bytes.
@@ -75,17 +79,17 @@ public interface IFileInfoProvider
     /// <summary>
     /// Determines if the file exists within the containing file system.
     /// </summary>
-    public virtual bool FileExists(string path) => File.Exists(path);
+    public bool FileExists(string path);
 
     /// <summary>
     /// Determines if the directory exists within the containing file system.
     /// </summary>
-    public virtual bool DirectoryExists(string path) => Directory.Exists(path);
+    public bool DirectoryExists(string path);
 
     /// <summary>
     /// Determines if the file or directory exists  within the containing file system.
     /// </summary>
-    public virtual bool PathExists(string path) => Path.Exists(path);
+    public bool PathExists(string path);
 }
 
 /// <summary>
@@ -96,7 +100,7 @@ public interface ILocalFileInfoProvider : IFileInfoProvider
     /// <summary>
     /// Gets an array of drives on the system.
     /// </summary>
-    public DriveEntry[] GetDrives();
+    public DriveEntryInfo[] GetDrives();
 
     /// <summary>
     /// Retrieves special folder paths.

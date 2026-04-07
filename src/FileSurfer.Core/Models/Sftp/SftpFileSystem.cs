@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.FileOperations;
@@ -10,7 +9,7 @@ using Renci.SshNet;
 namespace FileSurfer.Core.Models.Sftp;
 
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-public sealed class SftpFileSystem : IFileSystem, IDisposable
+public sealed class SftpFileSystem : IFileSystem
 {
     private const string EnvironmentNotSupported = "The SFTP environment is not supported.";
     private readonly SftpClient _sftpClient;
@@ -20,7 +19,6 @@ public sealed class SftpFileSystem : IFileSystem, IDisposable
 
     IFileInfoProvider IFileSystem.FileInfoProvider => FileInfoProvider;
     IIconProvider IFileSystem.IconProvider => IconProvider;
-    IClipboardManager IFileSystem.ClipboardManager => ClipboardManager;
     IArchiveManager IFileSystem.ArchiveManager => ArchiveManager;
     IFileIoHandler IFileSystem.FileIoHandler => FileIoHandler;
     IBinInteraction IFileSystem.BinInteraction => BinInteraction;
@@ -30,7 +28,6 @@ public sealed class SftpFileSystem : IFileSystem, IDisposable
 
     public SftpFileInfoProvider FileInfoProvider { get; }
     public BaseIconProvider IconProvider { get; } = new();
-    public BasicClipboardManager ClipboardManager { get; }
     public StubArchiveManager ArchiveManager { get; } = new(EnvironmentNotSupported);
     public SftpFileIoHandler FileIoHandler { get; }
     public StubBinInteraction BinInteraction { get; } = new(EnvironmentNotSupported);
@@ -47,11 +44,12 @@ public sealed class SftpFileSystem : IFileSystem, IDisposable
         ShellHandler = new SshShellHandler(_sshClient, _sftpClient);
         FileInfoProvider = new SftpFileInfoProvider(_sftpClient, ShellHandler);
         FileIoHandler = new SftpFileIoHandler(_sftpClient, ShellHandler);
-        ClipboardManager = new BasicClipboardManager(FileInfoProvider, FileIoHandler);
         FileProperties = new SftpFileProperties(sftpClient, ShellHandler);
     }
 
     public bool IsReady() => !_disposed;
+
+    public bool IsLocal() => false;
 
     public string GetLabel() => _label;
 

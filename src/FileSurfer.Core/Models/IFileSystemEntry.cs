@@ -30,31 +30,6 @@ public interface IFileSystemEntry
 }
 
 /// <summary>
-/// Implementation of <see cref="IFileSystemEntry"/> for a drive.
-/// </summary>
-public sealed class DriveEntry : IFileSystemEntry
-{
-    public string PathToEntry { get; }
-    public string Name { get; }
-    string IFileSystemEntry.Extension => string.Empty;
-    string IFileSystemEntry.NameWoExtension => Name;
-
-    public DriveEntry(string pathToEntry, string name)
-    {
-        PathToEntry = pathToEntry;
-        Name = name;
-    }
-
-    public DriveEntry(DriveInfo driveInfo)
-    {
-        PathToEntry = driveInfo.Name;
-        Name = !string.IsNullOrEmpty(driveInfo.VolumeLabel)
-            ? $"{driveInfo.VolumeLabel} ({driveInfo.Name.TrimEnd(Path.DirectorySeparatorChar)})"
-            : driveInfo.Name.TrimEnd(Path.DirectorySeparatorChar);
-    }
-}
-
-/// <summary>
 /// Implementation of <see cref="IFileSystemEntry"/> for a file.
 /// </summary>
 public class FileEntry : IFileSystemEntry
@@ -73,7 +48,7 @@ public class FileEntry : IFileSystemEntry
         Name = pathTools.GetFileName(pathToFile);
         Extension = pathTools.GetExtension(pathToFile);
 
-        NameWoExtension = string.IsNullOrEmpty(Extension) ? Name : pathToFile[..^Extension.Length];
+        NameWoExtension = string.IsNullOrEmpty(Extension) ? Name : Name[..^Extension.Length];
     }
 
     private protected FileEntry(string pathToFile, string name, string extension)
@@ -82,7 +57,7 @@ public class FileEntry : IFileSystemEntry
         Name = name;
         Extension = extension;
 
-        NameWoExtension = string.IsNullOrEmpty(Extension) ? Name : pathToFile[..^Extension.Length];
+        NameWoExtension = string.IsNullOrEmpty(Extension) ? name : name[..^Extension.Length];
     }
 }
 
@@ -112,7 +87,7 @@ public class DirectoryEntry : IFileSystemEntry
 }
 
 /// <summary>
-/// Represents a universal file info object
+/// Represents a universal file info object.
 /// </summary>
 public class FileEntryInfo : FileEntry
 {
@@ -145,7 +120,7 @@ public class FileEntryInfo : FileEntry
 }
 
 /// <summary>
-/// Represents a universal Directory info object
+/// Represents a universal directory info object.
 /// </summary>
 public class DirectoryEntryInfo : DirectoryEntry
 {
@@ -169,5 +144,28 @@ public class DirectoryEntryInfo : DirectoryEntry
     {
         LastModified = dirInfo.LastWriteTime;
         LastModifiedUtc = dirInfo.LastWriteTimeUtc;
+    }
+}
+
+/// <summary>
+/// Represents a universal drive info object.
+/// </summary>
+public sealed class DriveEntryInfo
+{
+    public string PathToEntry { get; }
+    public string Name { get; }
+
+    public DriveEntryInfo(string pathToEntry, string name)
+    {
+        PathToEntry = pathToEntry;
+        Name = name;
+    }
+
+    public DriveEntryInfo(DriveInfo driveInfo)
+    {
+        PathToEntry = driveInfo.Name;
+        Name = !string.IsNullOrEmpty(driveInfo.VolumeLabel)
+            ? $"{driveInfo.VolumeLabel} ({driveInfo.Name.TrimEnd(Path.DirectorySeparatorChar)})"
+            : driveInfo.Name;
     }
 }

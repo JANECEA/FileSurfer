@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:core="clr-namespace:FileSurfer.Core"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:helpers="clr-namespace:FileSurfer.Core.Views.Helpers"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:views="clr-namespace:FileSurfer.Core.Views"
         xmlns:vm="clr-namespace:FileSurfer.Core.ViewModels"
         Title="FileSurfer"
         MinWidth="910"
@@ -18,23 +18,26 @@
         mc:Ignorable="d">
 
     <Window.Styles>
-        <StyleInclude Source="avares://FileSurfer.Core/Views/MainWindowStyle.axaml" />
+        <StyleInclude Source="avares://FileSurfer.Core/Views/Styles/MainWindowStyle.axaml" />
     </Window.Styles>
 
     <!--  ReSharper disable Xaml.BindingWithoutContextNotResolved - cannot resolve because viewmodel takes constructor parameters  -->
     <Window.KeyBindings>
-        <KeyBinding Command="{Binding DeleteCommand}" Gesture="Shift+Delete" />
-        <KeyBinding Command="{Binding UndoCommand}" Gesture="Ctrl+Z" />
-        <KeyBinding Command="{Binding RedoCommand}" Gesture="Ctrl+Y" />
-        <KeyBinding Command="{Binding SelectAllCommand}" Gesture="Ctrl+A" />
-        <KeyBinding Command="{Binding SelectNoneCommand}" Gesture="Ctrl+Shift+L" />
-        <KeyBinding Command="{Binding InvertSelectionCommand}" Gesture="Multiply" />
-        <KeyBinding Command="{Binding GoUpCommand}" Gesture="Alt+Up" />
+        <!--  backup keybinding - gesture is 'Delete' when not local  -->
+        <KeyBinding Command="{Binding DeleteCommand}" Gesture="{DynamicResource EmptyGesture}" />
+        <KeyBinding Command="{Binding DeleteCommand}" Gesture="{DynamicResource DeleteGesture}" />
+        <KeyBinding Command="{Binding UndoCommand}" Gesture="{DynamicResource UndoGesture}" />
+        <KeyBinding Command="{Binding RedoCommand}" Gesture="{DynamicResource RedoGesture}" />
+        <KeyBinding Command="{Binding SelectAllCommand}" Gesture="{DynamicResource SelectAllGesture}" />
+        <KeyBinding Command="{Binding SelectNoneCommand}" Gesture="{DynamicResource SelectNoneGesture}" />
+        <KeyBinding Command="{Binding InvertSelectionCommand}" Gesture="{DynamicResource InvertSelectionGesture}" />
+        <KeyBinding Command="{Binding GoUpCommand}" Gesture="{DynamicResource GoUpGesture}" />
     </Window.KeyBindings>
 
     <Window.Resources>
-        <views:SortArrowConverter x:Key="SortArrowConverter" />
-        <views:SameObjectConverter x:Key="SameObjectConverter" />
+        <helpers:SortArrowConverter x:Key="SortArrowConverter" />
+        <helpers:SameObjectConverter x:Key="SameObjectConverter" />
+        <helpers:IsNotEmptyConverter x:Key="IsNotEmptyConverter" />
 
         <DataTemplate x:Key="ListViewTemplate" x:DataType="{x:Type vm:FileSystemEntryViewModel}">
             <Grid Height="36">
@@ -158,6 +161,34 @@
                 <TextBlock Grid.Column="1" Classes="FileInfo" FontFamily="Arial" Text="{Binding Name}" />
             </Grid>
         </DataTemplate>
+
+        <DataTemplate x:Key="DisplayLocationTemplate" x:DataType="{x:Type vm:LocationDisplay}">
+            <Grid Margin="20 0 20 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="25" />
+                    <ColumnDefinition MaxWidth="500" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock FontFamily="{DynamicResource IconFont}" FontSize="15" Foreground="{DynamicResource IconColor}" Text="&#xEA83;" />
+                <TextBlock Grid.Column="1"
+                           HorizontalAlignment="Right"
+                           Classes="LocationTextBlock"
+                           Opacity="0.8"
+                           Text="{Binding Label}" />
+                <TextBlock Grid.Column="2"
+                           HorizontalAlignment="Center"
+                           Classes="LocationTextBlock"
+                           Opacity="0.8"
+                           Text=" : " />
+                <TextBlock Grid.Column="3"
+                           Classes="LocationTextBlock"
+                           FontWeight="Normal"
+                           Text="{Binding Path}"
+                           TextTrimming="LeadingCharacterEllipsis" />
+            </Grid>
+        </DataTemplate>
     </Window.Resources>
 
     <DockPanel Background="{DynamicResource PrimaryColor}">
@@ -168,25 +199,63 @@
                     IsHitTestVisible="False"
                     Opacity="0" />
 
-            <Button Classes="StateButton TopLeftButton ArrowButton"
+            <Button x:Name="GoBackButton"
+                    Classes="StateButton TopLeftButton ArrowButton"
                     Command="{Binding GoBackCommand}"
-                    Content="&#xF053;"
                     HotKey="Alt+Left"
-                    ToolTip.Tip="Go Back" />
-            <Button Classes="StateButton TopLeftButton ArrowButton"
+                    ToolTip.Tip="Go Back">
+
+                <Button.Content>
+                    <Canvas Width="28" Height="30">
+                        <TextBlock Canvas.Left="8" Canvas.Top="6" Text="&#xF053;" />
+                        <TextBlock Canvas.Right="0" Canvas.Bottom="-3" FontSize="10" Text="&#xEAB4;" />
+                    </Canvas>
+                </Button.Content>
+                <Button.ContextFlyout>
+                    <Flyout>
+                        <ListBox HorizontalAlignment="Stretch" ItemTemplate="{StaticResource DisplayLocationTemplate}" ItemsSource="{Binding LocationsBack}" SelectionChanged="GoBackTapped">
+                            <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Padding" Value="0 5 5 5" />
+                                </Style>
+                            </ListBox.Styles>
+                        </ListBox>
+                    </Flyout>
+                </Button.ContextFlyout>
+            </Button>
+            <Button x:Name="GoForwardButton"
+                    Classes="StateButton TopLeftButton ArrowButton"
                     Command="{Binding GoForwardCommand}"
-                    Content="&#xF054;"
                     HotKey="Alt+Right"
-                    ToolTip.Tip="Got Forward" />
+                    ToolTip.Tip="Go Forward">
+
+                <Button.Content>
+                    <Canvas Width="28" Height="30">
+                        <TextBlock Canvas.Left="8" Canvas.Top="6" Text="&#xF054;" />
+                        <TextBlock Canvas.Right="0" Canvas.Bottom="-3" FontSize="10" Text="&#xEAB4;" />
+                    </Canvas>
+                </Button.Content>
+                <Button.ContextFlyout>
+                    <Flyout>
+                        <ListBox HorizontalAlignment="Stretch" ItemTemplate="{StaticResource DisplayLocationTemplate}" ItemsSource="{Binding LocationsForward}" SelectionChanged="GoForwardTapped">
+                            <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Padding" Value="0 5 5 5" />
+                                </Style>
+                            </ListBox.Styles>
+                        </ListBox>
+                    </Flyout>
+                </Button.ContextFlyout>
+            </Button>
             <Button Classes="StateButton TopLeftButton"
                     Command="{Binding ReloadCommand}"
                     Content="&#xF01E;"
                     HotKey="F5"
                     ToolTip.Tip="Reload" />
             <Button Classes="StateButton TopLeftButton"
-                    Command="{Binding OpenPowerShellCommand}"
+                    Command="{Binding OpenTerminalCommand}"
                     Content="&#xEBC7;"
-                    HotKey="F12"
+                    HotKey="Shift+F12"
                     ToolTip.Tip="Open terminal here" />
 
             <Grid ColumnDefinitions="Auto 20 * 250">
@@ -197,16 +266,11 @@
                 <TextBox x:Name="PathBox"
                          Grid.Column="2"
                          Classes="PathBox TopTextBox"
-                         GotFocus="TextBoxGotFocus"
                          LostFocus="PathBoxLostFocus"
                          Text="{Binding PathBoxText, Mode=OneWay}" />
 
                 <Grid Grid.Column="3">
-                    <TextBox x:Name="SearchBox"
-                             Classes="SearchBox TopTextBox"
-                             GotFocus="TextBoxGotFocus"
-                             LostFocus="TextBoxLostFocus"
-                             Watermark="{Binding SearchWaterMark}" />
+                    <TextBox x:Name="SearchBox" Classes="SearchBox TopTextBox" Watermark="{Binding SearchWaterMark}" />
                     <Button Classes="CancelSearchButton"
                             Command="{Binding CancelSearchCommand}"
                             Content="&#xF00D;"
@@ -307,12 +371,12 @@
                 <Button Classes="MenuButton" Content="&#x00B7;&#x00B7;&#x00B7;" FontWeight="ExtraBold">
                     <Button.Flyout>
                         <MenuFlyout>
-                            <MenuItem Classes="MenuOption" Command="{Binding UndoCommand}" Header="Undo" />
-                            <MenuItem Classes="MenuOption" Command="{Binding RedoCommand}" Header="Redo" />
+                            <MenuItem Classes="MenuOption" Command="{Binding UndoCommand}" Header="Undo" ToolTip.Tip="{DynamicResource UndoGesture}" />
+                            <MenuItem Classes="MenuOption" Command="{Binding RedoCommand}" Header="Redo" ToolTip.Tip="{DynamicResource RedoGesture}" />
                             <Separator />
-                            <MenuItem Classes="MenuOption" Command="{Binding SelectAllCommand}" Header="Select all" />
-                            <MenuItem Classes="MenuOption" Command="{Binding SelectNoneCommand}" Header="Select none" />
-                            <MenuItem Classes="MenuOption" Command="{Binding InvertSelectionCommand}" Header="Invert selection" />
+                            <MenuItem Classes="MenuOption" Command="{Binding SelectAllCommand}" Header="Select all" ToolTip.Tip="{DynamicResource SelectAllGesture}" />
+                            <MenuItem Classes="MenuOption" Command="{Binding SelectNoneCommand}" Header="Select none" ToolTip.Tip="{DynamicResource SelectNoneGesture}" />
+                            <MenuItem Classes="MenuOption" Command="{Binding InvertSelectionCommand}" Header="Invert selection" ToolTip.Tip="{DynamicResource InvertSelectionGesture}" />
                             <Separator />
                             <MenuItem Classes="MenuOption" Click="OpenSettings" Header="Settings" />
                         </MenuFlyout>
@@ -381,22 +445,21 @@
                         </ListBox>
                         <Separator Background="{DynamicResource SecondaryColor}" />
 
-                        <TextBlock x:Name="SpecialsLabel" Classes="SidebarLabel" IsVisible="False" Text="Special Folders" />
-                        <ListBox x:Name="SpecialsListBox"
-                                 Background="{DynamicResource PrimaryColor}"
-                                 Classes="SideBarListBox"
-                                 IsVisible="False"
-                                 ItemTemplate="{StaticResource SideBarTemplate}"
-                                 ItemsSource="{Binding SpecialFolders}"
-                                 PropertyChanged="OnSpecialFoldersChanged"
-                                 Tapped="SideBarEntryClicked">
-                            <ListBox.Styles>
-                                <Style Selector="ListBoxItem">
-                                    <Setter Property="Padding" Value="10 3 10 3" />
-                                </Style>
-                            </ListBox.Styles>
-                        </ListBox>
-                        <Separator x:Name="SecondSeparator" Background="{DynamicResource SecondaryColor}" IsVisible="False" />
+                        <StackPanel IsVisible="{Binding ItemCount, ElementName=SpecialsListBox, Converter={StaticResource IsNotEmptyConverter}}">
+                            <TextBlock x:Name="SpecialsLabel" Classes="SidebarLabel" Text="Special Folders" />
+                            <ListBox x:Name="SpecialsListBox"
+                                     Classes="SideBarListBox"
+                                     ItemTemplate="{StaticResource SideBarTemplate}"
+                                     ItemsSource="{Binding SpecialFolders}"
+                                     Tapped="SideBarEntryClicked">
+                                <ListBox.Styles>
+                                    <Style Selector="ListBoxItem">
+                                        <Setter Property="Padding" Value="10 3 10 3" />
+                                    </Style>
+                                </ListBox.Styles>
+                            </ListBox>
+                            <Separator x:Name="SecondSeparator" Background="{DynamicResource SecondaryColor}" IsVisible="False" />
+                        </StackPanel>
 
                         <TextBlock Classes="SidebarLabel" Text="System Drives" />
                         <ListBox x:Name="DrivesListBox"
@@ -463,7 +526,7 @@
                 <Grid Grid.Column="2" RowDefinitions="Auto Auto * Auto Auto">
                     <Grid x:Name="ListViewLabelsPanel"
                           Height="30"
-                          Margin="55 0 0 0"
+                          Margin="65 0 0 0"
                           IsVisible="{Binding ItemTemplate, ElementName=FileDisplay, Converter={StaticResource SameObjectConverter}, ConverterParameter={StaticResource ListViewTemplate}}"
                           RowDefinitions="*">
                         <Grid.ColumnDefinitions>
@@ -494,7 +557,7 @@
                     <Grid x:Name="SearchLabelsPanel"
                           Grid.Row="0"
                           Height="30"
-                          Margin="55 0 0 0"
+                          Margin="65 0 0 0"
                           IsVisible="{Binding Searching}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="350" />
@@ -517,6 +580,7 @@
 
                     <ListBox x:Name="FileDisplay"
                              Grid.Row="2"
+                             AutoScrollToSelectedItem="False"
                              Classes="FileDisplay"
                              DoubleTapped="FilesDoubleTapped"
                              ItemTemplate="{StaticResource ListViewTemplate}"
@@ -527,8 +591,8 @@
                              Tapped="FilesTapped">
                         <ListBox.Styles>
                             <Style Selector="ListBoxItem">
-                                <Setter Property="Padding" Value="10 0 10 0" />
-                                <Setter Property="Margin" Value="0 0 4 0" />
+                                <Setter Property="Padding" Value="10 0 0 0" />
+                                <Setter Property="Margin" Value="8 0 14 0" />
                                 <Setter Property="ContextMenu">
                                     <Setter.Value>
                                         <!--  ReSharper disable Xaml.PossibleNullReferenceException  -->
@@ -539,7 +603,7 @@
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToQuickAccessCommand}" CommandParameter="{Binding}" Header="Add to quick access" />
 
                                             <Separator Classes="ContextMenuSeparator" />
-                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToArchiveCommand}" Header="Add to archive" />
+                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToArchiveCommand}" Header="Archive" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).ExtractArchiveCommand}" Header="Extract archive" IsVisible="{Binding IsArchived}" />
 
                                             <Separator Classes="ContextMenuSeparator" />
@@ -623,22 +687,14 @@
                     <Border x:Name="NewNameBar" Grid.Row="3" Classes="InputBorder">
                         <DockPanel>
                             <Label Classes="InputLabel" Content="New name: " DockPanel.Dock="Left" />
-                            <TextBox x:Name="NameInputBox"
-                                     Classes="InputBox"
-                                     DockPanel.Dock="Left"
-                                     GotFocus="TextBoxGotFocus"
-                                     LostFocus="InputBoxLostFocus" />
+                            <TextBox x:Name="NameInputBox" Classes="InputBox" DockPanel.Dock="Left" LostFocus="InputBoxLostFocus" />
                         </DockPanel>
                     </Border>
 
                     <Border x:Name="CommitMessageBar" Grid.Row="4" Classes="InputBorder">
                         <DockPanel>
                             <Label Classes="InputLabel" Content="Commit message: " DockPanel.Dock="Left" />
-                            <TextBox x:Name="CommitInputBox"
-                                     Classes="InputBox"
-                                     DockPanel.Dock="Left"
-                                     GotFocus="TextBoxGotFocus"
-                                     LostFocus="InputBoxLostFocus" />
+                            <TextBox x:Name="CommitInputBox" Classes="InputBox" DockPanel.Dock="Left" LostFocus="InputBoxLostFocus" />
                         </DockPanel>
                     </Border>
                 </Grid>

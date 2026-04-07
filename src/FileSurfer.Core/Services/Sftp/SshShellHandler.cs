@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Text;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.Services.Shell;
 using Renci.SshNet;
 
@@ -62,11 +61,17 @@ public sealed class SshShellHandler : IShellHandler
         try
         {
             SshCommand cmd = _sshClient.CreateCommand(command);
-            string result = cmd.Execute();
+            string stdOut = cmd.Execute();
+            string stdErr = cmd.Error;
+            if (string.IsNullOrWhiteSpace(stdOut))
+                stdOut = stdErr;
+
+            if (string.IsNullOrWhiteSpace(stdErr))
+                stdErr = stdOut;
 
             return cmd.ExitStatus == 0
-                ? ValueResult<string>.Ok(result)
-                : ValueResult<string>.Error(cmd.Error);
+                ? ValueResult<string>.Ok(stdOut)
+                : ValueResult<string>.Error(stdErr);
         }
         catch (Exception ex)
         {

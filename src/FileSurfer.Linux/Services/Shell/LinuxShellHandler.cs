@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using FileSurfer.Core;
-using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Shell;
 
@@ -108,7 +107,7 @@ public class LinuxShellHandler : IShellCommandHandler
         }
     }
 
-    public IResult OpenCmdAt(string dirPath)
+    public IResult OpenTerminalAt(string dirPath)
     {
         if (string.IsNullOrWhiteSpace(FileSurferSettings.Terminal))
             return SimpleResult.Error("Set terminal in settings.");
@@ -186,19 +185,18 @@ public class LinuxShellHandler : IShellCommandHandler
         {
             process.Start();
             string stdOut = process.StandardOutput.ReadToEnd();
-            string errorMessage = process.StandardError.ReadToEnd();
+            string stdErr = process.StandardError.ReadToEnd();
             process.WaitForExit();
 
-            bool success = process.ExitCode == 0;
-            if (success)
-                return stdOut.Trim().OkResult();
+            if (string.IsNullOrWhiteSpace(stdOut))
+                stdOut = stdErr;
 
-            if (string.IsNullOrWhiteSpace(errorMessage))
-                errorMessage = stdOut;
+            if (string.IsNullOrWhiteSpace(stdErr))
+                stdErr = stdOut;
 
-            return string.IsNullOrWhiteSpace(errorMessage)
-                ? ValueResult<string>.Error()
-                : ValueResult<string>.Error(errorMessage);
+            return process.ExitCode == 0
+                ? ValueResult<string>.Ok(stdOut)
+                : ValueResult<string>.Error(stdErr);
         }
         catch (Exception ex)
         {

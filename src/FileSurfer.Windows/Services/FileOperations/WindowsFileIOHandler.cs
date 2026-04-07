@@ -1,8 +1,12 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
+using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileOperations;
 using Microsoft.VisualBasic.FileIO;
 
@@ -63,6 +67,37 @@ public class WindowsFileIoHandler : IFileIoHandler
             return SimpleResult.Error(ex.Message);
         }
     }
+
+    public async Task<IResult> WriteFileStream(
+        FileTransferStream fileStream,
+        string dirPath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
+    {
+        string filePath = LocalPathTools.Combine(dirPath, fileStream.Name);
+        IResult result;
+        try
+        {
+            await using FileStream writeStream = File.Open(filePath, FileMode.Create);
+            result = await fileStream.WriteToStream(writeStream, filePath, reporter, ct);
+        }
+        catch (Exception ex)
+        {
+            result = SimpleResult.Error(ex.Message);
+        }
+        if (!result.IsOk)
+            _ = DeleteFile(filePath);
+
+        return result;
+    }
+
+    public async Task<IResult> WriteDirStream(
+        DirTransferStream dirStream,
+        string dirPath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    ) => await dirStream.WriteWithIoHandler(this, LocalPathTools.Instance, dirPath, reporter, ct);
 
     public IResult NewFileAt(string dirPath, string fileName)
     {

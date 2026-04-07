@@ -1,14 +1,17 @@
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.Sftp;
+using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileOperations;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
 
 namespace FileSurfer.Core.Services.Sftp;
 
-public sealed class SftpFileIoHandler : IRemoteFileIoHandler
+public sealed class SftpFileIoHandler : IFileIoHandler
 {
     private readonly SshShellHandler _sshShellHandler;
     private readonly SftpClient _client;
@@ -97,6 +100,37 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
         return _sshShellHandler.ExecuteSshCommand($"rm -rf {quotedPath}");
     }
 
+    public async Task<IResult> WriteFileStream(
+        FileTransferStream fileStream,
+        string dirPath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
+    {
+        string filePath = RemoteUnixPathTools.Combine(dirPath, fileStream.Name);
+        IResult result;
+        try
+        {
+            await using SftpFileStream writeStream = _client.Open(filePath, FileMode.Create);
+            result = await fileStream.WriteToStream(writeStream, filePath, reporter, ct);
+        }
+        catch (Exception ex)
+        {
+            result = SimpleResult.Error(ex.Message);
+        }
+        if (!result.IsOk)
+            _ = DeleteFile(filePath);
+
+        return result;
+    }
+
+    public Task<IResult> WriteDirStream(
+        DirTransferStream dirStream,
+        string dirPath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    ) => dirStream.WriteWithIoHandler(this, RemoteUnixPathTools.Instance, dirPath, reporter, ct);
+
     private ValueResult<string> Rename(string path, string newName)
     {
         string parent = RemoteUnixPathTools.GetParentDir(path);
@@ -116,33 +150,5 @@ public sealed class SftpFileIoHandler : IRemoteFileIoHandler
         string quotedPathA = SshShellHandler.Quote(pathA);
         string quotedPathB = SshShellHandler.Quote(pathB);
         return _sshShellHandler.ExecuteSshCommand($"{command} {quotedPathA} {quotedPathB}");
-    }
-
-    public IResult UploadFile(string localPath, string remotePath)
-    {
-        try
-        {
-            using FileStream localStream = new(localPath, FileMode.Open, FileAccess.Read);
-            _client.UploadFile(localStream, remotePath, true);
-            return SimpleResult.Ok();
-        }
-        catch (Exception ex)
-        {
-            return SimpleResult.Error(ex.Message);
-        }
-    }
-
-    public IResult DownloadFile(string remotePath, string localPath)
-    {
-        try
-        {
-            using FileStream localStream = new(localPath, FileMode.OpenOrCreate, FileAccess.Write);
-            _client.DownloadFile(remotePath, localStream);
-            return SimpleResult.Ok();
-        }
-        catch (Exception ex)
-        {
-            return SimpleResult.Error(ex.Message);
-        }
     }
 }

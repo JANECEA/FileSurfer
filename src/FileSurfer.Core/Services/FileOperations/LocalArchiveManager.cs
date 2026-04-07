@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
+using FileSurfer.Core.Services.Dialogs;
 using SharpCompress.Archives.SevenZip;
 using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
@@ -16,15 +20,14 @@ namespace FileSurfer.Core.Services.FileOperations;
 /// </summary>
 public class LocalArchiveManager : IArchiveManager
 {
-    public const string ArchiveTypeExtension = ".zip";
-
-    private readonly IFileInfoProvider _fileInfoProvider;
-
-    public LocalArchiveManager(IFileInfoProvider fileInfoProvider) =>
-        _fileInfoProvider = fileInfoProvider;
-
     private sealed record ArchiveType(string Extension, Func<Stream, IReader>? FactoryFn);
 
+    public const string ArchiveTypeExtension = ".zip";
+    private static readonly ExtractionOptions ExtractionOptions = new()
+    {
+        ExtractFullPath = true,
+        Overwrite = true,
+    };
     private static readonly IReadOnlyList<ArchiveType> SupportedFormats =
     [
         new(".zip", null),
@@ -36,9 +39,14 @@ public class LocalArchiveManager : IArchiveManager
         new(".gz", null),
     ];
 
-    public bool IsZipped(string filePath) => GetZipExtension(filePath) is not null;
+    private readonly IFileInfoProvider _fileInfoProvider;
 
-    private static ArchiveType? GetZipExtension(string filePath)
+    public LocalArchiveManager(IFileInfoProvider fileInfoProvider) =>
+        _fileInfoProvider = fileInfoProvider;
+
+    public bool IsArchived(string filePath) => GetArchiveExtension(filePath) is not null;
+
+    private static ArchiveType? GetArchiveExtension(string filePath)
     {
         filePath = LocalPathTools.NormalizePath(filePath);
         foreach (ArchiveType type in SupportedFormats)
@@ -48,43 +56,80 @@ public class LocalArchiveManager : IArchiveManager
         return null;
     }
 
-    public IResult ZipFiles(
-        IEnumerable<IFileSystemEntry> entries,
+    private static async Task<IResult> ArchiveInternal(
+        IList<IFileSystemEntry> entries,
         string destinationDir,
-        string archiveName
+        string archivePath,
+        List<FileStream> fileStreams,
+        CancellationToken ct
     )
     {
-        FileStream zipStream = File.OpenWrite(Path.Combine(destinationDir, archiveName));
-        List<FileStream> fileStreams = new() { zipStream };
-        try
-        {
-            using ZipArchive archive = ZipArchive.Create();
+        using ZipArchive archive = ZipArchive.Create();
+        await using FileStream zipStream = File.OpenWrite(archivePath);
 
-            foreach (IFileSystemEntry entry in entries)
-                if (entry is DirectoryEntry)
+        await Task.Run(() =>
+        {
+            foreach (IFileSystemEntry entry in entries.Where(e => e is FileEntry))
+            {
+                ct.ThrowIfCancellationRequested();
+                FileStream fileStream = File.OpenRead(entry.PathToEntry);
+                archive.AddEntry(entry.Name, fileStream);
+                fileStreams.Add(fileStream);
+            }
+
+            foreach (IFileSystemEntry entry in entries.Where(e => e is DirectoryEntry))
+            {
+                ct.ThrowIfCancellationRequested();
+                string[] allFiles = Directory.GetFiles(
+                    entry.PathToEntry,
+                    "*.*",
+                    SearchOption.AllDirectories
+                );
+                foreach (string filePath in allFiles)
                 {
-                    string[] allFiles = Directory.GetFiles(
-                        entry.PathToEntry,
-                        "*.*",
-                        SearchOption.AllDirectories
-                    );
-                    foreach (string filePath in allFiles)
-                    {
-                        string relativePath = Path.GetRelativePath(destinationDir, filePath);
-                        FileStream fileStream = File.OpenRead(filePath);
-                        archive.AddEntry(relativePath, fileStream);
-                        fileStreams.Add(fileStream);
-                    }
-                }
-                else
-                {
-                    FileStream fileStream = File.OpenRead(entry.PathToEntry);
-                    archive.AddEntry(entry.Name, fileStream);
+                    string relativePath = Path.GetRelativePath(destinationDir, filePath);
+                    ct.ThrowIfCancellationRequested();
+                    FileStream fileStream = File.OpenRead(filePath);
+                    archive.AddEntry(relativePath, fileStream);
                     fileStreams.Add(fileStream);
                 }
+            }
+        });
 
-            archive.SaveTo(zipStream, new WriterOptions(CompressionType.Deflate));
-            return SimpleResult.Ok();
+        await Task.Run(async () =>
+        {
+            await using CancellationTokenRegistration cr = ct.Register(zipStream.Close);
+            await archive.SaveToAsync(zipStream, new WriterOptions(CompressionType.Deflate), ct);
+        });
+        return SimpleResult.Ok();
+    }
+
+    public async Task<IResult> ArchiveEntries(
+        IList<IFileSystemEntry> entries,
+        string destinationDir,
+        string archiveName,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
+    {
+        string name = FileNameGenerator.GetAvailableName(
+            _fileInfoProvider,
+            destinationDir,
+            archiveName + ArchiveTypeExtension
+        );
+        string archivePath = LocalPathTools.Combine(destinationDir, name);
+
+        IndeterminateReporter r = new(reporter);
+        r.ReportItem($"Archiving \"{name}\".");
+        List<FileStream> fileStreams = new();
+
+        try
+        {
+            return await ArchiveInternal(entries, destinationDir, archivePath, fileStreams, ct);
+        }
+        catch (Exception ex) when (ex is OperationCanceledException or ObjectDisposedException)
+        {
+            return SimpleResult.Error("Archivation has been cancelled.");
         }
         catch (Exception ex)
         {
@@ -97,29 +142,56 @@ public class LocalArchiveManager : IArchiveManager
         }
     }
 
-    public IResult UnzipArchive(string archivePath, string destinationPath)
+    private async Task<IResult> ExtractInternal(
+        string archivePath,
+        string destinationPath,
+        ArchiveType archiveType,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
     {
-        if (GetZipExtension(archivePath) is not ArchiveType archiveType)
+        IndeterminateReporter rep = new(reporter);
+        string extractName = FileNameGenerator.GetAvailableName(
+            _fileInfoProvider,
+            destinationPath,
+            archivePath[..^archiveType.Extension.Length]
+        );
+        string extractTo = Path.Combine(destinationPath, extractName);
+
+        Directory.CreateDirectory(extractTo);
+        await using Stream stream = File.OpenRead(archivePath);
+        using IReader reader = GetReader(stream, archiveType);
+
+        while (await reader.MoveToNextEntryAsync(ct))
+        {
+            ct.ThrowIfCancellationRequested();
+            if (reader.Entry.Key is string key)
+                rep.ReportItem($"Extracting: \"{LocalPathTools.GetFileName(key)}\"");
+
+            await reader
+                .WriteEntryToDirectoryAsync(extractTo, ExtractionOptions, ct)
+                .ConfigureAwait(false);
+        }
+        return SimpleResult.Ok();
+    }
+
+    public async Task<IResult> ExtractArchive(
+        string archivePath,
+        string destinationPath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
+    {
+        if (GetArchiveExtension(archivePath) is not ArchiveType archiveType)
             return SimpleResult.Error($"\"{archivePath}\" is not an archive.");
 
         try
         {
-            string extractName = FileNameGenerator.GetAvailableName(
-                _fileInfoProvider,
-                destinationPath,
-                archivePath[..^archiveType.Extension.Length]
-            );
-            string extractTo = Path.Combine(destinationPath, extractName);
-
-            Directory.CreateDirectory(extractTo);
-            using Stream stream = File.OpenRead(archivePath);
-            using IReader reader = GetReader(stream, archiveType);
-
-            reader.WriteAllToDirectory(
-                extractTo,
-                new ExtractionOptions { ExtractFullPath = true, Overwrite = true }
-            );
-            return SimpleResult.Ok();
+            return await ExtractInternal(archivePath, destinationPath, archiveType, reporter, ct);
+        }
+        catch (OperationCanceledException)
+        {
+            return SimpleResult.Error("Extraction has been canceled.");
         }
         catch (Exception ex)
         {

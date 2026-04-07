@@ -9,7 +9,6 @@ using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileInformation;
-using FileSurfer.Core.Services.FileOperations;
 using FileSurfer.Core.Services.Sftp;
 using ReactiveUI;
 
@@ -59,7 +58,6 @@ public class SyncEventVmFactory
 public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
 {
     private const string SyncErrorTitle = "Synchronization Error";
-    private static readonly TimeSpan Interval = TimeSpan.FromSeconds(3);
 
     private readonly LocalToSftpSynchronizer _synchronizer;
     private readonly IDialogService _dialogService;
@@ -106,23 +104,20 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         Location remoteDir
     )
     {
+        _syncEventVmFactory = new SyncEventVmFactory(localDir.Path, remoteDir.Path);
+        _dialogService = dialogService;
         LocalDir = localDir;
         LocalDirLabel = localDir.FileSystem.GetLabel();
         RemoteDir = remoteDir;
         RemoteDirLabel = remoteDir.FileSystem.GetLabel();
-        _syncEventVmFactory = new SyncEventVmFactory(localDir.Path, remoteDir.Path);
-        _dialogService = dialogService;
 
         SyncHiddenFiles = FileSurferSettings.SyncHiddenFiles;
 
-        IRemoteFileIoHandler ioHandler =
-            remoteDir.FileSystem.FileIoHandler as IRemoteFileIoHandler
-            ?? throw new InvalidCastException(
-                $"remote directory file system does not implement {nameof(IRemoteFileIoHandler)}"
-            );
-
-        IDirectoryWatcher watcher = new DirectoryWatcher(localDir);
-        _synchronizer = new LocalToSftpSynchronizer(remoteDir, localDir, watcher, ioHandler);
+        _synchronizer = new LocalToSftpSynchronizer(
+            localDir,
+            remoteDir,
+            new DirectoryWatcher(localDir)
+        );
         _synchronizer.OnSyncEvent += ShowEvent;
 
         StartSyncCommand = ReactiveCommand.Create(StartSynchronization);
@@ -148,7 +143,14 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         SyncEvents.Clear();
 
         Synchronizing = true;
-        IResult result = await _synchronizer.StartAsync(InitFromRemote);
+
+        IResult result = await _dialogService.ProgressDialog(
+            "Initial synchronization",
+            (r, ct) => _synchronizer.Initialize(InitFromRemote, r, ct)
+        );
+        if (result.IsOk)
+            result = await _synchronizer.StartAsync();
+
         Synchronizing = false;
 
         ShowIfError(result);
@@ -204,10 +206,9 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         }
     }
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor
     /// <summary>
     /// Do not use, only for design preview to work properly
     /// </summary>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor.
     public SftpSynchronizerViewModel() { }
-#pragma warning restore CS8618
 }

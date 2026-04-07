@@ -3,7 +3,7 @@ using System.Globalization;
 using Avalonia.Data.Converters;
 using FileSurfer.Core.ViewModels;
 
-namespace FileSurfer.Core.Views;
+namespace FileSurfer.Core.Views.Helpers;
 
 public abstract class OneWayConverter : IValueConverter
 {
@@ -42,4 +42,9 @@ public sealed class SameObjectConverter : OneWayConverter
 {
     protected override object ConvertInternal(object? value, object? parameter) =>
         ReferenceEquals(value, parameter);
+}
+
+public sealed class IsNotEmptyConverter : OneWayConverter
+{
+    protected override object ConvertInternal(object? value, object? parameter) => value is not 0;
 }

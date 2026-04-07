@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -9,6 +11,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.VisualTree;
 using FileSurfer.Core.ViewModels;
+using FileSurfer.Core.Views.Helpers;
 
 namespace FileSurfer.Core.Views;
 
@@ -22,12 +25,9 @@ public partial class MainWindow : Window
 {
     private MainWindowViewModel? _viewModel;
 
-    private readonly KeyBinding _selectAllKb;
-    private readonly KeyBinding _invertSelection;
-    private readonly KeyGesture _deleteGesture = KeyGesture.Parse("Delete");
-    private readonly KeyGesture _cutGesture = KeyGesture.Parse("Ctrl+X");
-    private readonly KeyGesture _copyGesture = KeyGesture.Parse("Ctrl+C");
-    private readonly KeyGesture _pasteGesture = KeyGesture.Parse("Ctrl+V");
+    private readonly Dictionary<Button, KeyGesture> _buttonHotKeys = new();
+    private readonly List<KeyBinding> _keyBindings = new();
+    private readonly KeyBinding? _backupDeleteKeyBinding;
 
     private readonly DataTemplate _iconViewTemplate;
     private readonly DataTemplate _listViewTemplate;
@@ -60,12 +60,9 @@ public partial class MainWindow : Window
         _previousPanel = listViewPanel;
         _previousTemplate = listViewTemplate;
 
-        _selectAllKb = KeyBindings.First(keyBinding =>
-            keyBinding.Gesture is { KeyModifiers: KeyModifiers.Control, Key: Key.A }
-        );
-        _invertSelection = KeyBindings.First(keyBinding => keyBinding.Gesture.Key == Key.Multiply);
+        _backupDeleteKeyBinding = KeyBindings.FirstOrDefault(kb => kb.Gesture.Key is Key.None);
 
-        AddHandler(KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
+        AddHandler(KeyDownEvent, TunnelKeyDown, RoutingStrategies.Tunnel);
     }
 
     private void ViewModelLoaded(object? sender, EventArgs e)
@@ -86,39 +83,84 @@ public partial class MainWindow : Window
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != nameof(MainWindowViewModel.Searching) || _viewModel is null)
-            return;
-
-        if (_viewModel.Searching)
-        {
-            FileDisplay.ItemTemplate = _searchViewTemplate;
-            FileDisplay.ItemsPanel = _listViewPanel;
-        }
-        else
-        {
-            FileDisplay.ItemTemplate = _previousTemplate;
-            FileDisplay.ItemsPanel = _previousPanel;
-            SearchBox.Text = string.Empty;
-        }
-    }
-
-    private void OnSpecialFoldersChanged(object sender, AvaloniaPropertyChangedEventArgs e)
-    {
         if (_viewModel is null)
             return;
 
-        bool show = _viewModel.SpecialFolders.Count > 0;
-        SecondSeparator.IsVisible = show;
-        SpecialsListBox.IsVisible = show;
-        SpecialsLabel.IsVisible = show;
+        switch (e.PropertyName)
+        {
+            case nameof(MainWindowViewModel.Searching) when _viewModel.Searching:
+                FileDisplay.ItemTemplate = _searchViewTemplate;
+                FileDisplay.ItemsPanel = _listViewPanel;
+                break;
+
+            case nameof(MainWindowViewModel.Searching):
+                FileDisplay.ItemTemplate = _previousTemplate;
+                FileDisplay.ItemsPanel = _previousPanel;
+                SearchBox.Text = string.Empty;
+                break;
+
+            case nameof(MainWindowViewModel.IsLocal) when _backupDeleteKeyBinding is not null:
+                _backupDeleteKeyBinding.Gesture = _viewModel.IsLocal
+                    ? new KeyGesture(Key.None)
+                    : new KeyGesture(Key.Delete);
+                break;
+        }
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
 
+        foreach (Button button in this.GetVisualDescendants().OfType<Button>())
+        {
+            ConstructToolTip(button);
+            if (button.HotKey is not null)
+                _buttonHotKeys[button] = button.HotKey;
+        }
+
+        _keyBindings.AddRange(KeyBindings);
+
         if (FileSurferSettings.DisplayMode is DisplayMode.IconView)
             IconView();
+    }
+
+    private static void ConstructToolTip(Button button)
+    {
+        KeyGesture? gesture = button.HotKey;
+        if (gesture is null)
+            return;
+
+        object? tooltip = ToolTip.GetTip(button);
+        object? content = button.Content;
+
+        switch (tooltip)
+        {
+            case not null:
+                ToolTip.SetTip(button, $"{tooltip} ({gesture})");
+                break;
+            case null when content is not null:
+                ToolTip.SetTip(button, $"{content} ({gesture})");
+                break;
+            case null:
+                ToolTip.SetTip(button, gesture.ToString());
+                break;
+        }
+    }
+
+    private void GoBackTapped(object? sender, SelectionChangedEventArgs e)
+    {
+        GoBackButton.ContextFlyout?.Hide();
+        GoForwardButton.ContextFlyout?.Hide();
+        if (e.AddedItems is [LocationDisplay location])
+            _viewModel?.GoBack(location);
+    }
+
+    private void GoForwardTapped(object? sender, SelectionChangedEventArgs e)
+    {
+        GoBackButton.ContextFlyout?.Hide();
+        GoForwardButton.ContextFlyout?.Hide();
+        if (e.AddedItems is [LocationDisplay location])
+            _viewModel?.GoForward(location);
     }
 
     /// <summary>
@@ -208,7 +250,7 @@ public partial class MainWindow : Window
     private void SideBarEntryClicked(object sender, TappedEventArgs e)
     {
         if (sender is ListBox { SelectedItem: SideBarEntryViewModel entry })
-            _viewModel?.OpenLocalEntry(entry);
+            _viewModel?.OpenSideBarEntry(entry);
 
         ClearFocus();
     }
@@ -238,41 +280,25 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Unbinds interfering keybindings when the user starts typing.
-    /// </summary>
-    private void TextBoxGotFocus(object? sender = null, GotFocusEventArgs? e = null)
-    {
-        DeleteButton.HotKey = null;
-        CutButton.HotKey = null;
-        CopyButton.HotKey = null;
-        PasteButton.HotKey = null;
-        KeyBindings.Remove(_selectAllKb);
-        KeyBindings.Remove(_invertSelection);
-    }
-
-    private void TextBoxLostFocus(object? sender = null, RoutedEventArgs? e = null)
-    {
-        DeleteButton.HotKey = _deleteGesture;
-        CutButton.HotKey = _cutGesture;
-        CopyButton.HotKey = _copyGesture;
-        PasteButton.HotKey = _pasteGesture;
-        KeyBindings.Add(_selectAllKb);
-        KeyBindings.Add(_invertSelection);
-    }
-
-    /// <summary>
     /// Shows <see cref="NewNameBar"/> and sets <see cref="NameInputBox"/> properties.
     /// </summary>
     private void OnRenameClicked(object sender, RoutedEventArgs e)
     {
-        if (_viewModel is null || _viewModel.SelectedFiles.Count == 0)
+        if (
+            _viewModel is null
+            || _viewModel.SelectedFiles.Count == 0
+            || FileDisplay.SelectedItems is not IList list
+            || list.Count == 0
+            || list[^1] is not FileSystemEntryViewModel entry
+        )
             return;
 
         NewNameBar.IsVisible = true;
         NameInputBox.Focus();
-        NameInputBox.Text = _viewModel.SelectedFiles[^1].Name;
+        NameInputBox.Text = entry.Name;
+
         NameInputBox.SelectionStart = 0;
-        NameInputBox.SelectionEnd = _viewModel.GetNameEndIndex(_viewModel.SelectedFiles[^1]);
+        NameInputBox.SelectionEnd = entry.FileSystemEntry.NameWoExtension.Length;
     }
 
     /// <summary>
@@ -287,45 +313,34 @@ public partial class MainWindow : Window
     /// <summary>
     /// Hides <see cref="NewNameBar"/> and <see cref="CommitMessageBar"/> when either loose focus.
     /// <para>
-    /// Invokes <see cref="TextBoxLostFocus"/>.
     /// </para>
     /// </summary>
     private void InputBoxLostFocus(object sender, RoutedEventArgs e)
     {
         NewNameBar.IsVisible = false;
         CommitMessageBar.IsVisible = false;
-        TextBoxLostFocus();
     }
 
     /// <summary>
     /// Resets text in <see cref="PathBox"/>.
     /// <para>
-    /// Invokes <see cref="TextBoxLostFocus"/>.
     /// </para>
     /// </summary>
     private void PathBoxLostFocus(object sender, RoutedEventArgs e)
     {
-        PathBox.Text = _viewModel?.CurrentDir ?? string.Empty;
-        TextBoxLostFocus();
+        PathBox.Text = _viewModel?.PathBoxText ?? string.Empty;
     }
 
-    /// <summary>
-    /// Relays the new name to <see cref="_viewModel"/> and hides <see cref="NewNameBar"/>.
-    /// </summary>
     private void NameEntered()
     {
         if (NameInputBox.Text is string newName)
         {
             _viewModel?.Rename(newName);
             NewNameBar.IsVisible = false;
+            NameInputBox.Text = string.Empty;
         }
     }
 
-    /// <summary>
-    /// Relays the commit message to <see cref="_viewModel"/>,
-    /// hides <see cref="CommitMessageBar"/>,
-    /// and clears <see cref="CommitInputBox"/> text.
-    /// </summary>
     private void CommitMessageEntered()
     {
         if (CommitInputBox.Text is string commitMessage)
@@ -370,22 +385,47 @@ public partial class MainWindow : Window
         settingsWindow.ShowDialog(this);
     }
 
-    private void OnKeyDown(object? sender, KeyEventArgs e)
+    private void SuppressHotKeys()
     {
-        if (e.Key == Key.Enter)
+        KeyBindings.Clear();
+        foreach (Button button in _buttonHotKeys.Keys)
+            button.HotKey = null;
+    }
+
+    protected override void OnGotFocus(GotFocusEventArgs e)
+    {
+        base.OnGotFocus(e);
+        if (e.Source is TextBox)
+            SuppressHotKeys();
+    }
+
+    private void RestoreHotKeys()
+    {
+        KeyBindings.AddRange(_keyBindings);
+        foreach ((Button button, KeyGesture gesture) in _buttonHotKeys)
+            button.HotKey = gesture;
+    }
+
+    protected override void OnLostFocus(RoutedEventArgs e)
+    {
+        base.OnLostFocus(e);
+        if (e.Source is TextBox)
+            RestoreHotKeys();
+    }
+
+    private void TunnelKeyDown(object? sender, KeyEventArgs e)
+    {
+        switch (e)
         {
-            OnEnterPressed(e);
-            return;
-        }
-        if (e.Key == Key.Escape)
-        {
-            OnEscapePressed(e);
-            return;
-        }
-        if (e is { KeyModifiers: KeyModifiers.Control, Key: Key.F })
-        {
-            OnCtrlFPressed(e);
-            return;
+            case { Key: Key.Enter }:
+                OnEnterPressed(e);
+                return;
+            case { Key: Key.Escape }:
+                OnEscapePressed(e);
+                return;
+            case { KeyModifiers: KeyModifiers.Control, Key: Key.F }:
+                OnCtrlFPressed(e);
+                return;
         }
 
         if (
@@ -403,9 +443,6 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
-    /// <summary>
-    /// Toggles focus on <see cref="SearchBox"/>.
-    /// </summary>
     private void OnCtrlFPressed(KeyEventArgs e)
     {
         e.Handled = true;
@@ -456,7 +493,9 @@ public partial class MainWindow : Window
                 ClearFocus();
             }
             else if (_viewModel.SelectedFiles.Count == 1)
-                _viewModel?.OpenEntry(_viewModel.SelectedFiles[0].FileSystemEntry);
+                _viewModel.OpenEntry(_viewModel.SelectedFiles[0].FileSystemEntry);
+            else if (_viewModel.SelectedFiles.Count > 1)
+                _viewModel.OpenEntries();
         }
     }
 

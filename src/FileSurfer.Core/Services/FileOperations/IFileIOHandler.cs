@@ -1,4 +1,7 @@
+using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.Dialogs;
 
 namespace FileSurfer.Core.Services.FileOperations;
 
@@ -81,26 +84,38 @@ public interface IFileIoHandler
     /// </summary>
     /// <returns>An <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
     public IResult DeleteDir(string dirPath);
-}
-
-/// <summary>
-/// Extends <see cref="IFileIoHandler"/> for remote filesystems
-/// </summary>
-public interface IRemoteFileIoHandler : IFileIoHandler
-{
-    /// <summary>
-    /// Uploads file from localPath to remotePath
-    /// </summary>
-    /// <param name="localPath">local path to the file</param>
-    /// <param name="remotePath">resulting remote path</param>
-    /// <returns>An <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult UploadFile(string localPath, string remotePath);
 
     /// <summary>
-    /// Downloads file from remotePath to localPath
+    /// Writes the filestream into a file with name specified in <see cref="FileTransferStream.Name"/>.
     /// </summary>
-    /// <param name="remotePath">resulting local path</param>
-    /// <param name="localPath">remote path to the file</param>
+    /// <param name="fileStream">The file stream</param>
+    /// <param name="dirPath">Root directory for the new file</param>
+    /// <param name="reporter">Reports the current state of the operation</param>
+    /// <param name="ct">Token for cancellation</param>
     /// <returns>An <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult DownloadFile(string remotePath, string localPath);
+    public Task<IResult> WriteFileStream(
+        FileTransferStream fileStream,
+        string dirPath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    );
+
+    /// <summary>
+    /// Writes the all containing file streams and directories into a file with names specified in
+    /// <br/>
+    /// <see cref="FileTransferStream.Name"/> and
+    /// <br/>
+    /// <see cref="DirTransferStream.Name"/>.
+    /// </summary>
+    /// <param name="dirStream">The directory stream</param>
+    /// <param name="dirPath">Root directory for the new directory</param>
+    /// <param name="reporter">Reports the current state of the operation</param>
+    /// <param name="ct">Token for cancellation</param>
+    /// <returns>An <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public Task<IResult> WriteDirStream(
+        DirTransferStream dirStream,
+        string dirPath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    );
 }

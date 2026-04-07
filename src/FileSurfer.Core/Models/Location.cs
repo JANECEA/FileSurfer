@@ -24,7 +24,7 @@ public sealed class Location
     public bool Exists() =>
         FileSystem.IsReady() && FileSystem.FileInfoProvider.DirectoryExists(Path);
 
-    public bool Equals(Location? other)
+    public bool IsSame(Location? other)
     {
         if (other is null)
             return false;
@@ -35,4 +35,6 @@ public sealed class Location
         return FileSystem == other.FileSystem
             && FileSystem.FileInfoProvider.PathTools.PathsAreEqual(Path, other.Path);
     }
+
+    public override string ToString() => $"{FileSystem.GetLabel()}:{Path}";
 }

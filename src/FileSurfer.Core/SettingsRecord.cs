@@ -7,6 +7,17 @@ using System.Text.Json.Serialization;
 namespace FileSurfer.Core;
 
 /// <summary>
+/// Manages platform dependent default settings for FileSurfer.
+/// </summary>
+public interface IDefaultSettingsProvider
+{
+    /// <summary>
+    /// Populates a <see cref="SettingsRecord"/> instance with the default settings
+    /// </summary>
+    public void PopulateDefaults(SettingsRecord settingsRecord);
+}
+
+/// <summary>
 /// Used to (de)serialize the settings.json file.
 /// </summary>
 [
@@ -15,10 +26,9 @@ namespace FileSurfer.Core;
     SuppressMessage(
         "ReSharper",
         "PropertyCanBeMadeInitOnly.Global",
-        Justification = "Values need to be modifiable"
+        Justification = $"Values are set in {nameof(IDefaultSettingsProvider)}."
     ),
 ]
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 public record SettingsRecord
 {
     private static readonly string RootDir;
@@ -34,6 +44,7 @@ public record SettingsRecord
     private static IDefaultSettingsProvider? DefaultSettingsProvider;
 
     public string newImageName { get; set; } = "New Image";
+    public string newTextFileName { get; set; } = "New Text File";
     public string newFileName { get; set; } = "New File";
     public string newDirectoryName { get; set; } = "New Folder";
     public string notepadApp { get; set; } = string.Empty;
@@ -56,7 +67,6 @@ public record SettingsRecord
     public bool automaticRefresh { get; set; } = true;
     public int automaticRefreshInterval { get; set; } = 3000;
     public int synchronizerPollingInterval { get; set; } = 3000;
-    public bool allowImagePastingFromClipboard { get; set; } = true;
     public List<string> quickAccess { get; set; } = new();
     public bool syncHiddenFiles { get; set; } = false;
 
@@ -84,4 +94,3 @@ public record SettingsRecord
     public static void Initialize(IDefaultSettingsProvider defaultSettingsProvider) =>
         DefaultSettingsProvider = defaultSettingsProvider;
 }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.

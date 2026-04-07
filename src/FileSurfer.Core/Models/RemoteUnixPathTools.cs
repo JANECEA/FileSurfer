@@ -1,10 +1,10 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
+
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace FileSurfer.Core.Models;
 
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 internal class RemoteUnixPathTools : IPathTools
 {
     public static readonly RemoteUnixPathTools Instance = new();

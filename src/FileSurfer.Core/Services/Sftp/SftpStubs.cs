@@ -1,10 +1,13 @@
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileOperations;
 using FileSurfer.Core.Services.Shell;
 using FileSurfer.Core.Services.VersionControl;
 
-// Models that might be implemented for Sftp in the future
+// Services that might be implemented for Sftp in the future
 
 namespace FileSurfer.Core.Services.Sftp;
 
@@ -14,16 +17,22 @@ public class StubArchiveManager : IArchiveManager
 
     public StubArchiveManager(string message) => _message = message;
 
-    public bool IsZipped(string filePath) => false;
+    public bool IsArchived(string filePath) => false;
 
-    public IResult ZipFiles(
-        IEnumerable<IFileSystemEntry> entries,
+    public Task<IResult> ArchiveEntries(
+        IList<IFileSystemEntry> entries,
         string destinationDir,
-        string archiveName
-    ) => SimpleResult.Error(_message);
+        string archiveName,
+        ProgressReporter reporter,
+        CancellationToken ct
+    ) => Task.FromResult<IResult>(SimpleResult.Error(_message));
 
-    public IResult UnzipArchive(string archivePath, string destinationPath) =>
-        SimpleResult.Error(_message);
+    public Task<IResult> ExtractArchive(
+        string archivePath,
+        string destinationPath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    ) => Task.FromResult<IResult>(SimpleResult.Error(_message));
 }
 
 public class StubGitIntegration : IGitIntegration
@@ -78,4 +87,6 @@ public class StubBinInteraction : IBinInteraction
     public IResult RestoreFile(string originalFilePath) => SimpleResult.Error(_message);
 
     public IResult RestoreDir(string originalDirPath) => SimpleResult.Error(_message);
+
+    public void Dispose() { }
 }

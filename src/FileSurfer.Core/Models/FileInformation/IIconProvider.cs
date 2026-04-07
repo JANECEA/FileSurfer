@@ -25,7 +25,7 @@ public interface IIconProvider : IDisposable
     /// <summary>
     /// Retrieves the icon associated with drives.
     /// </summary>
-    public Task<Bitmap> GetDriveIcon(DriveEntry driveEntry);
+    public Task<Bitmap> GetDriveIcon(DriveEntryInfo driveEntryInfo);
 }
 
 public class BaseIconProvider : IIconProvider
@@ -44,7 +44,8 @@ public class BaseIconProvider : IIconProvider
 
     public virtual Task<Bitmap> GetDirectoryIcon(string dirPath) => Task.FromResult(DirectoryIcon);
 
-    public virtual Task<Bitmap> GetDriveIcon(DriveEntry driveEntry) => Task.FromResult(DriveIcon);
+    public virtual Task<Bitmap> GetDriveIcon(DriveEntryInfo driveEntryInfo) =>
+        Task.FromResult(DriveIcon);
 
     public virtual void Dispose() { }
 }

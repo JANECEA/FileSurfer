@@ -7,18 +7,15 @@ using System.Text;
 using FileSurfer.Core.Models;
 using ReactiveUI;
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor.
+#pragma warning disable CA1822 // Members can be made static.
+
 namespace FileSurfer.Core.ViewModels;
 
 /// <summary>
 /// The SettingsWindowViewModel is the ViewModel for the <see cref="Views.SettingsWindow"/>.
 /// </summary>
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-[ // Properties are used by the window, cannot be static have to global
-    SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
-    SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-    SuppressMessage("ReSharper", "UnusedMember.Global"),
-    SuppressMessage("Performance", "CA1822:Mark members as static"),
-]
+[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
 public sealed class SettingsWindowViewModel : ReactiveObject
 {
     private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
@@ -33,6 +30,17 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         set =>
             this.RaiseAndSetIfChanged(
                 ref _newImageName,
+                SanitizeInput(value, InvalidFileNameChars)
+            );
+    }
+
+    private string _newTextFileName;
+    public string NewTextFileName
+    {
+        get => _newTextFileName;
+        set =>
+            this.RaiseAndSetIfChanged(
+                ref _newTextFileName,
                 SanitizeInput(value, InvalidFileNameChars)
             );
     }
@@ -121,13 +129,12 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     public int SynchronizerPollingIntervalUpperBound =>
         FileSurferSettings.SynchronizerPollingIntervalUpperBound;
 
-    public bool AllowImagePastingFromClipboard { get; set; }
-
     public SettingsWindowViewModel() => SetValues(FileSurferSettings.CurrentSettings);
 
     private void SetValues(SettingsRecord settings)
     {
         NewImageName = settings.newImageName;
+        NewTextFileName = settings.newTextFileName;
         NewFileName = settings.newFileName;
         NewDirectoryName = settings.newDirectoryName;
         NotepadApp = settings.notepadApp;
@@ -150,7 +157,6 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         AutomaticRefresh = settings.automaticRefresh;
         AutomaticRefreshInterval = settings.automaticRefreshInterval;
         SynchronizerPollingInterval = settings.synchronizerPollingInterval;
-        AllowImagePastingFromClipboard = settings.allowImagePastingFromClipboard;
     }
 
     /// <summary>
@@ -161,6 +167,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
             new SettingsRecord
             {
                 newImageName = NewImageName.Trim(),
+                newTextFileName = NewTextFileName.Trim(),
                 newFileName = NewFileName.Trim(),
                 newDirectoryName = NewDirectoryName.Trim(),
                 notepadApp = NotepadApp.Trim(),
@@ -183,7 +190,6 @@ public sealed class SettingsWindowViewModel : ReactiveObject
                 automaticRefresh = AutomaticRefresh,
                 automaticRefreshInterval = AutomaticRefreshInterval,
                 synchronizerPollingInterval = SynchronizerPollingInterval,
-                allowImagePastingFromClipboard = AllowImagePastingFromClipboard,
                 quickAccess = FileSurferSettings.QuickAccess,
             }
         );
@@ -205,4 +211,3 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         return LocalPathTools.TrimEndDirectorySeparator(sb.ToString());
     }
 }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.

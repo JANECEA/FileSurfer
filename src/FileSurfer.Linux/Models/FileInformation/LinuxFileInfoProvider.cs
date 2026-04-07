@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
-using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.Shell;
@@ -13,7 +12,7 @@ namespace FileSurfer.Linux.Models.FileInformation;
 /// <summary>
 /// Optimizes icon delivery on Linux using the mime-type.
 /// </summary>
-public class LinuxFileInfoProvider : ILocalFileInfoProvider
+public class LinuxFileInfoProvider : LocalFileInfoProvider
 {
     private const string RootDir = "/";
     private readonly IShellHandler _shellHandler;
@@ -23,8 +22,6 @@ public class LinuxFileInfoProvider : ILocalFileInfoProvider
         PropertyNameCaseInsensitive = true,
     };
 
-    public IPathTools PathTools => LocalPathTools.Instance;
-
     public LinuxFileInfoProvider(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
@@ -32,18 +29,18 @@ public class LinuxFileInfoProvider : ILocalFileInfoProvider
 
     private sealed record LsblkOutput(List<LsblkEntry> BlockDevices);
 
-    public DriveEntry[] GetDrives()
+    public override DriveEntryInfo[] GetDrives()
     {
-        DriveEntry[] defaultList = [new(RootDir, "Root")];
+        DriveEntryInfo[] defaultList = [new(RootDir, "Root")];
         ValueResult<string> result = _shellHandler.ExecuteCommand(
             "lsblk",
             "-Jnbpo",
             "LABEL,MOUNTPOINT,SIZE,TYPE"
         );
         if (!result.IsOk || string.IsNullOrEmpty(result.Value))
-            return Array.Empty<DriveEntry>();
+            return Array.Empty<DriveEntryInfo>();
 
-        List<DriveEntry> drives = new();
+        List<DriveEntryInfo> drives = new();
         LsblkOutput entries;
         try
         {
@@ -57,64 +54,12 @@ public class LinuxFileInfoProvider : ILocalFileInfoProvider
         }
         foreach (LsblkEntry entry in entries.BlockDevices)
             if (entry is { Type: "part", Label: not null, MountPoint: not null, Size: > 0 })
-                drives.Add(new DriveEntry(entry.MountPoint, entry.Label));
+                drives.Add(new DriveEntryInfo(entry.MountPoint, entry.Label));
 
         return drives.Count > 0 ? drives.ToArray() : defaultList;
     }
 
-    public ValueResult<List<FileEntryInfo>> GetPathFiles(
-        string path,
-        bool includeHidden,
-        bool includeOs
-    )
-    {
-        try
-        {
-            FileInfo[] files = new DirectoryInfo(path).GetFiles();
-            List<FileEntryInfo> fileList = new(files.Length);
-
-            foreach (FileInfo f in files)
-                if (
-                    (includeHidden || !IsHidden(f.FullName, false))
-                    && (includeOs || !IsOsProtected(f.FullName, false))
-                )
-                    fileList.Add(new FileEntryInfo(f));
-
-            return fileList.OkResult();
-        }
-        catch (Exception ex)
-        {
-            return ValueResult<List<FileEntryInfo>>.Error(ex.Message);
-        }
-    }
-
-    public ValueResult<List<DirectoryEntryInfo>> GetPathDirs(
-        string path,
-        bool includeHidden,
-        bool includeOs
-    )
-    {
-        try
-        {
-            DirectoryInfo[] dirs = new DirectoryInfo(path).GetDirectories();
-            List<DirectoryEntryInfo> dirsList = new(dirs.Length);
-
-            foreach (DirectoryInfo d in dirs)
-                if (
-                    (includeHidden || !IsHidden(d.FullName, true))
-                    && (includeOs || !IsOsProtected(d.FullName, true))
-                )
-                    dirsList.Add(new DirectoryEntryInfo(d));
-
-            return dirsList.OkResult();
-        }
-        catch (Exception ex)
-        {
-            return ValueResult<List<DirectoryEntryInfo>>.Error(ex.Message);
-        }
-    }
-
-    public IEnumerable<string> GetSpecialFolders()
+    public override IEnumerable<string> GetSpecialFolders()
     {
         (Environment.SpecialFolder, string)[] folders =
         [
@@ -143,43 +88,7 @@ public class LinuxFileInfoProvider : ILocalFileInfoProvider
         }
     }
 
-    public long GetFileSizeB(string path)
-    {
-        try
-        {
-            return new FileInfo(path).Length;
-        }
-        catch
-        {
-            return 0;
-        }
-    }
-
-    public DateTime? GetFileLastModifiedUtc(string filePath)
-    {
-        try
-        {
-            return new FileInfo(filePath).LastWriteTimeUtc;
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    public DateTime? GetDirLastModifiedUtc(string dirPath)
-    {
-        try
-        {
-            return new DirectoryInfo(dirPath).LastWriteTimeUtc;
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    public bool IsHidden(string path, bool isDirectory)
+    public override bool IsHidden(string path, bool isDirectory)
     {
         if (string.IsNullOrEmpty(path))
             return false;
@@ -195,23 +104,9 @@ public class LinuxFileInfoProvider : ILocalFileInfoProvider
         return path[i + 1] == '.';
     }
 
-    public string GetRoot() => RootDir;
+    public override string GetRoot() => RootDir;
 
-    private static bool IsOsProtected(string path, bool isDirectory)
-    {
-        try
-        {
-            return isDirectory
-                ? new DirectoryInfo(path).Attributes.HasFlag(FileAttributes.System)
-                : new FileInfo(path).Attributes.HasFlag(FileAttributes.System);
-        }
-        catch
-        {
-            return true;
-        }
-    }
-
-    public bool IsLinkedToDirectory(string linkPath, out string directory)
+    public override bool IsLinkedToDirectory(string linkPath, out string directory)
     {
         directory = null!;
         FileInfo fileInfo = new(linkPath);

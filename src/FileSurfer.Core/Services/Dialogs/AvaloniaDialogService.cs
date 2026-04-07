@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
@@ -8,6 +9,8 @@ namespace FileSurfer.Core.Services.Dialogs;
 
 public sealed class AvaloniaDialogService : IDialogService
 {
+    private const int ShowOpDialogDelayMs = 1000;
+
     private readonly Window _parentWindow;
 
     public AvaloniaDialogService(Window parentWindow) => _parentWindow = parentWindow;
@@ -17,6 +20,55 @@ public sealed class AvaloniaDialogService : IDialogService
         {
             new InfoDialogWindow { Title = title, Message = info }.ShowDialog(_parentWindow);
         });
+
+    private static async Task<T> ProgressDialogInternal<T>(
+        string title,
+        Task<T> opTask,
+        ProgressReporter reporter,
+        CancellationTokenSource cts
+    )
+    {
+        Task waitTask = Task.Delay(ShowOpDialogDelayMs);
+        await Task.WhenAny(opTask, waitTask);
+        if (opTask.IsCompleted)
+            return await opTask;
+
+        bool dialogClosedByUser = false;
+        ProgressDialogWindow dialog = new()
+        {
+            Title = title,
+            Reporter = reporter,
+            Cts = cts,
+        };
+        dialog.Closed += (_, _) => dialogClosedByUser = true;
+
+        await Dispatcher.UIThread.InvokeAsync(dialog.Show);
+        try
+        {
+            return await opTask;
+        }
+        finally
+        {
+            if (!dialogClosedByUser)
+                await Dispatcher.UIThread.InvokeAsync(dialog.Close);
+            cts.Dispose();
+        }
+    }
+
+    public async Task<T> ProgressDialog<T>(string title, ReportingOperation<T> operation)
+    {
+        ProgressReporter reporter = new();
+        CancellationTokenSource cts = new();
+        Task<T> opTask = operation(reporter, cts.Token);
+        return await ProgressDialogInternal(title, opTask, reporter, cts);
+    }
+
+    public async Task<T> ProgressDialog<T>(string title, CancellableOperation<T> operation)
+    {
+        CancellationTokenSource cts = new();
+        Task<T> opTask = operation(cts.Token);
+        return await ProgressDialogInternal(title, opTask, ProgressReporter.None, cts);
+    }
 
     public async Task<bool> ConfirmationDialog(string title, string question)
     {

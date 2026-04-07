@@ -1,11 +1,20 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Services.Dialogs;
 
 namespace FileSurfer.Core.Services.FileOperations.Undoable;
 
 public abstract class UndoableOperation : IUndoableFileOperation
 {
+    private const int WaitBetweenMs = 5;
+
     protected IFileIoHandler FileIoHandler { get; }
     protected IFileSystemEntry[] Entries { get; }
+
+    protected abstract string InvokeOpName { get; }
+    protected abstract string UndoOpName { get; }
 
     protected UndoableOperation(IFileIoHandler fileIoHandler, IFileSystemEntry[] entries)
     {
@@ -13,21 +22,41 @@ public abstract class UndoableOperation : IUndoableFileOperation
         Entries = entries;
     }
 
-    public IResult Invoke()
+    public async Task<IResult> Invoke(ProgressReporter reporter, CancellationToken ct) =>
+        await Task.Run(() => InvokeInternal(InvokeAction, InvokeOpName, reporter, ct), ct)
+            .ConfigureAwait(false);
+
+    public async Task<IResult> Undo(ProgressReporter reporter, CancellationToken ct) =>
+        await Task.Run(() => InvokeInternal(UndoAction, UndoOpName, reporter, ct), ct)
+            .ConfigureAwait(false);
+
+    private async Task<IResult> InvokeInternal(
+        Func<IFileSystemEntry, int, IResult> action,
+        string opName,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
     {
+        CountingReporter rep = new(reporter, Entries.Length);
+
         Result result = Result.Ok();
         for (int i = 0; i < Entries.Length; i++)
-            result.MergeResult(InvokeAction(Entries[i], i));
+        {
+            rep.ReportItem($"{opName}: \"{Entries[i].Name}\"");
+            result.MergeResult(action(Entries[i], i));
+            if (i == Entries.Length - 1)
+                return result;
 
-        return result;
-    }
-
-    public IResult Undo()
-    {
-        Result result = Result.Ok();
-        for (int i = 0; i < Entries.Length; i++)
-            result.MergeResult(UndoAction(Entries[i], i));
-
+            try
+            {
+                await Task.Delay(WaitBetweenMs, ct).ConfigureAwait(false);
+                ct.ThrowIfCancellationRequested();
+            }
+            catch
+            {
+                return SimpleResult.Error("Operation was cancelled.");
+            }
+        }
         return result;
     }
 

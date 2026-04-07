@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Input.Platform;
 using FileSurfer.Core;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileOperations;
 using FileSurfer.Core.Services.VersionControl;
@@ -52,25 +53,15 @@ public class WindowsPlatformBootstrap : IPlatformBootstrap
             FileSurferSettings.ShowDialogLimitB
         );
         WindowsShellHandler shellHandler = new();
-        IClipboard clipboard = mainWindow.Clipboard ?? throw new InvalidDataException();
-        LocalClipboardManager clipboardManager = new(
-            clipboard,
-            mainWindow.StorageProvider,
-            fileIoHandler,
-            fileInfoProvider
-        );
         WindowsBinInteraction binInteraction = new(
             FileSurferSettings.ShowDialogLimitB,
             fileInfoProvider
         );
 
-        AvaloniaDialogService dialogService = new(mainWindow);
-
         LocalFileSystem localFileSystem = new()
         {
             LocalFileInfoProvider = fileInfoProvider,
             IconProvider = new WindowsIconProvider(),
-            LocalClipboardManager = clipboardManager,
             ArchiveManager = new LocalArchiveManager(fileInfoProvider),
             FileIoHandler = fileIoHandler,
             BinInteraction = binInteraction,
@@ -78,7 +69,20 @@ public class WindowsPlatformBootstrap : IPlatformBootstrap
             LocalShellHandler = shellHandler,
             GitIntegration = new LocalGitIntegration(shellHandler),
         };
-        return new MainWindowViewModel(initialDir, localFileSystem, dialogService, setDarkMode);
+
+        AvaloniaDialogService dialogService = new(mainWindow);
+        IClipboard clipboard = mainWindow.Clipboard ?? throw new InvalidDataException();
+        ClipboardManager clipboardManager = new(
+            clipboard,
+            mainWindow.StorageProvider,
+            localFileSystem
+        );
+
+        return new MainWindowViewModel(initialDir, localFileSystem, dialogService, setDarkMode)
+        {
+            SftpFsFactory = new SftpFileSystemFactory(dialogService),
+            ClipboardManager = clipboardManager,
+        };
     }
 
     public IDefaultSettingsProvider GetDefaultSettingsProvider() =>

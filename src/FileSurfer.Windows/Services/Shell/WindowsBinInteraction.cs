@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Runtime.InteropServices;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
@@ -22,6 +21,7 @@ public class WindowsBinInteraction : IBinInteraction
     private const string RestoreVerb = "ESTORE";
 
     private readonly long _showDialogLimit;
+    private readonly StaWorkerSync _workerSync = new("Bin worker thread");
     private readonly IFileInfoProvider _fileInfoProvider;
 
     public WindowsBinInteraction(long showDialogLimit, IFileInfoProvider fileInfoProvider)
@@ -30,11 +30,13 @@ public class WindowsBinInteraction : IBinInteraction
         _showDialogLimit = showDialogLimit;
     }
 
-    public IResult RestoreFile(string originalFilePath) => RestoreEntry(originalFilePath);
+    public IResult RestoreFile(string originalFilePath) =>
+        _workerSync.Invoke(() => RestoreInternal(originalFilePath));
 
-    public IResult RestoreDir(string originalDirPath) => RestoreEntry(originalDirPath);
+    public IResult RestoreDir(string originalDirPath) =>
+        _workerSync.Invoke(() => RestoreInternal(originalDirPath));
 
-    private static SimpleResult RestoreEntry(string originalPath)
+    private static SimpleResult RestoreInternal(string originalPath)
     {
         Shell32.Shell shell = new();
         Shell32.Folder bin = shell.NameSpace(BinFolderId);
@@ -46,7 +48,8 @@ public class WindowsBinInteraction : IBinInteraction
                 string itemName = bin.GetDetailsOf(item, NameColumn);
                 string itemPath = bin.GetDetailsOf(item, PathColumn);
 
-                if (Path.Combine(itemPath, itemName) == originalPath)
+                string combined = LocalPathTools.Combine(itemPath, itemName);
+                if (LocalPathTools.PathsAreEqual(combined, originalPath))
                 {
                     DoVerb(item, RestoreVerb);
                     result = SimpleResult.Ok();
@@ -111,4 +114,6 @@ public class WindowsBinInteraction : IBinInteraction
             return SimpleResult.Error(ex.Message);
         }
     }
+
+    public void Dispose() => _workerSync.Dispose();
 }

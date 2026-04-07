@@ -107,6 +107,7 @@ public static class FileSurferSettings
         new()
         {
             newImageName = NewImageName,
+            newTextFileName = NewTextFileName,
             newFileName = NewFileName,
             newDirectoryName = NewDirectoryName,
             notepadApp = NotepadApp,
@@ -129,7 +130,6 @@ public static class FileSurferSettings
             automaticRefresh = AutomaticRefresh,
             automaticRefreshInterval = AutomaticRefreshInterval,
             synchronizerPollingInterval = SynchronizerPollingInterval,
-            allowImagePastingFromClipboard = AllowImagePastingFromClipboard,
             quickAccess = QuickAccess,
             syncHiddenFiles = SyncHiddenFiles,
         };
@@ -137,17 +137,22 @@ public static class FileSurferSettings
     private static string _previousSettingsJson = string.Empty;
 
     /// <summary>
-    /// Default name for the pasted image files. Defaults to <c>"New Image"</c>.
+    /// Default name for the pasted image files.
     /// </summary>
     public static string NewImageName { get; set; }
 
     /// <summary>
-    /// Default name for newly created files. Defaults to <c>"New File"</c>.
+    /// Default name for the pasted text files.
+    /// </summary>
+    public static string NewTextFileName { get; set; }
+
+    /// <summary>
+    /// Default name for newly created files.
     /// </summary>
     public static string NewFileName { get; set; }
 
     /// <summary>
-    /// Default name for newly created directories. Defaults to <c>"New Folder"</c>.
+    /// Default name for newly created directories
     /// </summary>
     public static string NewDirectoryName { get; set; }
 
@@ -172,79 +177,79 @@ public static class FileSurferSettings
     public static string TerminalArgs { get; set; }
 
     /// <summary>
-    /// Specifies if the app should reopen files or folders in their last accessed location. Defaults to <see langword="true"/>.
+    /// Specifies if the app should reopen files or folders in their last accessed location.
     /// </summary>
     public static bool OpenInLastLocation { get; set; }
 
     /// <summary>
-    /// Specifies the default location where FileSurfer opens. Defaults to the <see cref="string.Empty"/>.
+    /// Specifies the default location where FileSurfer opens.
     /// </summary>
     public static string OpenIn { get; set; }
 
     /// <summary>
-    /// Indicates whether the application uses a dark theme. Defaults to <see langword="true"/>.
+    /// Indicates whether the application uses a dark theme.
     /// </summary>
     public static bool UseDarkMode { get; set; }
 
     /// <summary>
-    /// Defines the view mode for displaying files and folders. Defaults to <see cref="DisplayMode.ListView"/>.
+    /// Defines the view mode for displaying files and folders.
     /// </summary>
     public static DisplayMode DisplayMode { get; set; }
 
     /// <summary>
-    /// Specifies the default sorting method for files and folders. Defaults to sorting by <see cref="SortBy.Name"/>.
+    /// Specifies the default sorting method for files and folders.
     /// </summary>
     public static SortBy SortingMode { get; set; }
 
     /// <summary>
-    /// Numerical limit before FileSurfer uses the next byte unit. Defaults to <c>4096</c>.
+    /// Numerical limit before FileSurfer uses the next byte unit.
     /// </summary>
     public static int FileSizeUnitLimit { get; set; }
     internal const int FileSizeUnitLimitLowerBound = 512;
     internal const int FileSizeUnitLimitUpperBound = 9999;
 
     /// <summary>
-    /// Indicates whether file and folder sorting should be reversed. Defaults to <see langword="false"/>.
+    /// Indicates whether file and folder sorting should be reversed.
     /// </summary>
     public static bool SortReversed { get; set; }
 
     /// <summary>
-    /// Determines if special folders (like "Documents" or "Downloads") should be displayed in the sidebar. Defaults to <see langword="true"/>.
+    /// Determines if special folders (like "Documents" or "Downloads") should be displayed in the sidebar.
     /// </summary>
     public static bool ShowSpecialFolders { get; set; }
 
     /// <summary>
-    /// Controls whether files with protection settings are shown in directory contents and searching. Defaults to <see langword="false"/>.
+    /// Controls whether files with protection settings are shown in directory contents and searching.
     /// </summary>
     public static bool ShowProtectedFiles { get; set; }
 
     /// <summary>
-    /// Specifies if hidden files are shown in directory contents and searching. Defaults to <see langword="true"/>.
+    /// Specifies if hidden files are shown in directory contents and searching.
     /// </summary>
     public static bool ShowHiddenFiles { get; set; }
 
     /// <summary>
-    /// Decides if files starting with a dot '.' are considered hidden. Defaults to <see langword="true"/>.
+    /// Decides if files starting with a dot '.' are considered hidden.
     /// </summary>
     public static bool TreatDotFilesAsHidden { get; set; }
 
     /// <summary>
-    /// Enables or disables Git integration features within the application. Defaults to <see langword="true"/>.
+    /// Enables or disables Git integration features within the application.
     /// </summary>
     public static bool GitIntegration { get; set; }
 
     /// <summary>
-    /// Determines if error dialogs should be shown for undo/redo operations. Defaults to <see langword="true"/>.
+    /// Determines if error dialogs should be shown for undo/redo operations.
     /// </summary>
     public static bool ShowUndoRedoErrorDialogs { get; set; }
 
     /// <summary>
-    /// Indicates whether the file explorer should automatically refresh at intervals. Defaults to <see langword="true"/>.
+    /// Indicates whether the file explorer should automatically refresh at intervals.
     /// </summary>
     public static bool AutomaticRefresh { get; set; }
 
     /// <summary>
-    /// Sets the interval (in milliseconds) for automatic refreshing of the file explorer. Defaults to <c>3000</c> ms (3 seconds).
+    /// Sets the interval (in milliseconds) for automatic refreshing of the file explorer.
     /// </summary>
     public static int AutomaticRefreshInterval { get; set; }
     internal const int AutomaticRefreshIntervalLowerBound = 100;
@@ -258,12 +263,7 @@ public static class FileSurferSettings
     internal const int SynchronizerPollingIntervalUpperBound = 5 * 60 * 1000;
 
     /// <summary>
-    /// Specifies if images stored in the system clipboard can be pasted directly into directories. Defaults to <see langword="true"/>.
-    /// </summary>
-    public static bool AllowImagePastingFromClipboard { get; set; }
-
-    /// <summary>
-    /// List of directories and files added by the user for quick access. Defaults to an empty list.
+    /// List of directories and files added by the user for quick access.
     /// </summary>
     public static List<string> QuickAccess { get; set; }
 
@@ -273,7 +273,7 @@ public static class FileSurferSettings
     public static bool SyncHiddenFiles { get; set; }
 
     /// <summary>
-    /// List of SFTP connections defined by the user. Defaults to an empty list.
+    /// List of SFTP connections defined by the user.
     /// </summary>
     public static List<SftpConnection> SftpConnections { get; set; }
 
@@ -329,6 +329,11 @@ public static class FileSurferSettings
             InvalidFileNameChars,
             defaultSettings.newImageName
         );
+        NewTextFileName = SanitizeName(
+            settings.newTextFileName,
+            InvalidFileNameChars,
+            defaultSettings.newTextFileName
+        );
         NewFileName = SanitizeName(
             settings.newFileName,
             InvalidFileNameChars,
@@ -380,7 +385,6 @@ public static class FileSurferSettings
             SynchronizerPollingIntervalUpperBound
         );
 
-        AllowImagePastingFromClipboard = settings.allowImagePastingFromClipboard;
         QuickAccess = settings.quickAccess ?? new List<string>();
         SyncHiddenFiles = settings.syncHiddenFiles;
 
@@ -394,9 +398,7 @@ public static class FileSurferSettings
             : default;
 
     private static string SanitizeName(string? fileName, char[] invalidChars, string defaultName) =>
-        fileName is not null
-        && fileName.Length > 0
-        && fileName.All(ch => !invalidChars.Contains(ch))
+        !string.IsNullOrEmpty(fileName) && fileName.All(ch => !invalidChars.Contains(ch))
             ? fileName
             : defaultName;
 
