@@ -11,6 +11,7 @@
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96"
    sodipodi:docname="GenericFileIcon.svg"
+   inkscape:version="1.4.3 (0d15f75042, 2025-12-25)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -27,7 +28,16 @@
      inkscape:deskcolor="#505050"
      inkscape:document-units="mm"
      inkscape:lockguides="true"
-     showgrid="false">
+     showgrid="false"
+     inkscape:zoom="0.7757803"
+     inkscape:cx="418.28853"
+     inkscape:cy="522.69953"
+     inkscape:window-width="1920"
+     inkscape:window-height="1020"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1">
     <inkscape:grid
        id="grid5"
        units="mm"
@@ -74,33 +84,35 @@
        x2="-80"
        y2="-94.906448"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(20.499848,153.59062)" />
+       gradientTransform="translate(282.49999,242.26335)" />
   </defs>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(5.7291568,-0.45071926)">
-    <path
-       d="m 202.5,83.766122 h -59.00002 c -6.094,0 -10.99985,-4.912686 -10.99985,-11.014831 V 13.687196 H 18.500373 c -6.094,0 -11.0003596,4.906362 -11.0003596,11.000362 V 252.81679 c 0,6.094 4.9063596,10.99984 11.0003596,10.99984 H 191.50016 c 6.094,0 10.99984,-4.90584 10.99984,-10.99984 z"
-       style="fill:#eeedea;stroke-width:1.87615"
-       id="path8"
-       sodipodi:nodetypes="csscssssssc"
-       inkscape:export-filename="GenericFileIcon.svg"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
     <g
-       id="g11"
-       transform="translate(262.00014,88.672725)">
+       id="g2">
       <path
-         id="path9"
-         style="fill:#8c8b82;stroke-width:0.26476"
-         d="m -59.500156,-4.9066026 h -59.000004 c -6.094,0 -11,-4.91256 -11,-11.0147004 v -59.07884"
-         sodipodi:nodetypes="cssc" />
-      <path
-         id="path10"
-         style="fill:url(#linearGradient11);fill-opacity:1;stroke-width:0.26476"
-         d="M -125.66367,-7.5674967 -59.500251,58.684273 V -4.9066772 Z" />
+         d="m 202.5,83.766122 h -59.00002 c -6.094,0 -10.99985,-4.912686 -10.99985,-11.014831 V 13.687196 H 18.500373 c -6.094,0 -11.0003596,4.906362 -11.0003596,11.000362 V 252.81679 c 0,6.094 4.9063596,10.99984 11.0003596,10.99984 H 191.50016 c 6.094,0 10.99984,-4.90584 10.99984,-10.99984 z"
+         style="fill:#e4e2dd;stroke-width:1.87615;fill-opacity:1"
+         id="path8"
+         sodipodi:nodetypes="csscssssssc"
+         inkscape:export-filename="GenericFileIcon.svg"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96" />
+      <g
+         id="g1">
+        <path
+           id="path10"
+           style="fill:url(#linearGradient11);fill-opacity:1;stroke-width:0.26476"
+           d="M 136.33647,81.105228 202.49989,147.357 V 83.766048 Z" />
+        <path
+           id="path9"
+           style="fill:#919088;stroke-width:0.26476;fill-opacity:1"
+           d="m 202.49998,83.766122 h -59 c -6.094,0 -11,-4.91256 -11,-11.0147 v -59.07884"
+           sodipodi:nodetypes="cssc" />
+      </g>
     </g>
   </g>
 </svg>

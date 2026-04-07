@@ -265,7 +265,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             if (_isActionUserInvoked && !string.IsNullOrEmpty(value) && Branches.Contains(value))
             {
                 ShowIfError(CurrentFs.GitIntegration.SwitchBranches(value));
-                UserReload();
+                HardReload();
             }
         }
     }
@@ -420,7 +420,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         GoBackCommand = ReactiveCommand.Create(GoBack, canGoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward, canGoForward);
         GoUpCommand = ReactiveCommand.Create(GoUp);
-        ReloadCommand = ReactiveCommand.Create(UserReload, notSearching);
+        ReloadCommand = ReactiveCommand.Create(HardReload, notSearching);
         OpenTerminalCommand = ReactiveCommand.Create(OpenTerminal, localNotSearching);
         CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
         NewFileCommand = ReactiveCommand.Create(NewFile, notSearching);
@@ -502,7 +502,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         _setDarkMode(FileSurferSettings.UseDarkMode);
         if (reload)
-            UserReload();
+            HardReload();
     }
 
     private void CheckForUpdates(object? sender, EventArgs e)
@@ -510,7 +510,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (CurrentLocation.Exists())
         {
             if (CompareSetLastWriteTime())
-                UserReload();
+                HardReload();
             else if (IsVersionControlled)
                 SoftReload();
         }
@@ -529,7 +529,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private void SoftReload() => Reload(false);
 
-    private void UserReload() => Reload(true);
+    private void HardReload() => Reload(true);
 
     private void Reload(bool forceHardReload)
     {
@@ -1107,14 +1107,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    /// <summary>
-    /// Creates a new file using <see cref="CurrentFs"/> in <see cref="CurrentDir"/>
-    /// with the name specified in <see cref="FileSurferSettings.NewFileName"/>.
-    /// <para>
-    /// Invokes <see cref="Reload"/> and adds a new <see cref="NewFileAt"/> operation
-    /// to <see cref="_undoRedoHistory"/> if it was a success.
-    /// </para>
-    /// </summary>
     private async Task NewFile()
     {
         string newFileName = FileNameGenerator.GetAvailableName(
@@ -1127,7 +1119,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         IResult result = await _dialogService.ProgressDialog("Creating new file", op.Invoke);
         if (result.IsOk)
         {
-            UserReload();
+            SoftReload();
             _undoRedoHistory.AddNewNode(op);
             if (FileEntries.FirstOrDefault(e => e.Name == newFileName) is { } entry)
                 SelectedFiles.Add(entry);
@@ -1135,14 +1127,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         ShowIfError(result);
     }
 
-    /// <summary>
-    /// Creates a new directory using <see cref="CurrentFs"/> in <see cref="CurrentDir"/>
-    /// with the name specified in <see cref="FileSurferSettings.NewDirectoryName"/>.
-    /// <para>
-    /// Invokes <see cref="Reload"/> and adds a new <see cref="NewDirAt"/> operation
-    /// to <see cref="_undoRedoHistory"/> if it was a success.
-    /// </para>
-    /// </summary>
     private async Task NewDir()
     {
         string newDirName = FileNameGenerator.GetAvailableName(
@@ -1155,7 +1139,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         IResult result = await _dialogService.ProgressDialog("Creating new directory", op.Invoke);
         if (result.IsOk)
         {
-            UserReload();
+            SoftReload();
             _undoRedoHistory.AddNewNode(op);
             if (FileEntries.FirstOrDefault(e => e.Name == newDirName) is { } entry)
                 SelectedFiles.Add(entry);
@@ -1178,7 +1162,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         );
 
         ShowIfError(result);
-        UserReload();
+        HardReload();
     }
 
     private async Task ExtractArchive()
@@ -1207,7 +1191,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             .ToList();
 
         await Task.WhenAll(tasks);
-        UserReload();
+        HardReload();
     }
 
     private async Task CopyPath(FileSystemEntryViewModel? entry) =>
@@ -1252,7 +1236,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (r is { IsOk: true, Value: IUndoableFileOperation operation })
             _undoRedoHistory.AddNewNode(operation);
 
-        UserReload();
+        HardReload();
     }
 
     private void CreateShortcut(FileSystemEntryViewModel entry)
@@ -1262,7 +1246,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             : CurrentFs.ShellHandler.CreateFileLink(entry.PathToEntry);
 
         ShowIfError(result);
-        UserReload();
+        HardReload();
     }
 
     /// <summary>
@@ -1332,7 +1316,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (result.IsOk)
         {
             _undoRedoHistory.AddNewNode(op);
-            UserReload();
+            HardReload();
 
             FileSystemEntryViewModel? newEntry = FileEntries.FirstOrDefault(e =>
                 CurrentFs.FileInfoProvider.PathTools.NamesAreEqual(e.Name, newName)
@@ -1368,7 +1352,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             _undoRedoHistory.AddNewNode(op);
 
         ShowIfError(result);
-        UserReload();
+        HardReload();
     }
 
     private void StageIfVersionControlled(IEnumerable<FileSystemEntryViewModel> entries)
@@ -1397,7 +1381,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         StageIfVersionControlled(SelectedFiles);
         ShowIfError(result);
-        UserReload();
+        HardReload();
     }
 
     private async Task FlattenFolder(FileSystemEntryViewModel entry)
@@ -1421,7 +1405,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             _undoRedoHistory.AddNewNode(op);
 
         ShowIfError(result);
-        UserReload();
+        HardReload();
     }
 
     private void Delete()
@@ -1434,7 +1418,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             );
 
         StageIfVersionControlled(SelectedFiles);
-        UserReload();
+        HardReload();
     }
 
     private void SetSortBy(SortBy sortBy)
@@ -1443,7 +1427,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             FileSurferSettings.SortingMode == sortBy && !FileSurferSettings.SortReversed;
 
         FileSurferSettings.SortingMode = sortBy;
-        UserReload();
+        HardReload();
     }
 
     private async Task Undo()
@@ -1461,7 +1445,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (result.IsOk)
         {
             _undoRedoHistory.MoveToPrevious();
-            UserReload();
+            HardReload();
         }
         else
         {
@@ -1481,7 +1465,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         IUndoableFileOperation op = _undoRedoHistory.Current;
         IResult result = await _dialogService.ProgressDialog("Redoing Operation", op.Invoke);
         if (result.IsOk)
-            UserReload();
+            HardReload();
         else
         {
             if (FileSurferSettings.ShowUndoRedoErrorDialogs)
@@ -1535,7 +1519,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (IsVersionControlled)
         {
             ShowIfError(CurrentFs.GitIntegration.RestorePath(entry?.PathToEntry ?? CurrentDir));
-            UserReload();
+            HardReload();
         }
     }
 
@@ -1544,7 +1528,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (IsVersionControlled)
         {
             ShowIfError(CurrentFs.GitIntegration.StashChanges());
-            UserReload();
+            HardReload();
         }
     }
 
@@ -1553,7 +1537,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         if (IsVersionControlled)
         {
             ShowIfError(CurrentFs.GitIntegration.PopChanges());
-            UserReload();
+            HardReload();
         }
     }
 
@@ -1577,7 +1561,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         else
             ShowIfError(result);
 
-        UserReload();
+        HardReload();
     }
 
     /// <summary>
@@ -1594,7 +1578,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         else
             ShowIfError(result);
 
-        UserReload();
+        HardReload();
     }
 
     /// <summary>
