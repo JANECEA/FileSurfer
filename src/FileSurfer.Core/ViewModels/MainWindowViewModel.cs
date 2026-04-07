@@ -1199,7 +1199,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             .Select(async e =>
             {
                 IResult result = await _dialogService.ProgressDialog<IResult>(
-                    "Archiving files",
+                    "Extracting archive",
                     (r, ct) => CurrentFs.ArchiveManager.ExtractArchive(e.PathToEntry, cwd, r, ct)
                 );
                 ShowIfError(result);
@@ -1363,7 +1363,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             namingPattern
         );
         RenameMultiple op = new(PathTools, CurrentFs.FileIoHandler, entries, availableNames);
-        IResult result = await _dialogService.ProgressDialog("Renaming files", op.Invoke);
+        IResult result = await _dialogService.ProgressDialog("Renaming multiple files", op.Invoke);
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(op);
 
@@ -1413,7 +1413,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             CurrentFs.FileInfoProvider,
             entry.PathToEntry
         );
-        IResult result = await _dialogService.ProgressDialog("Flattening Folder", op.Invoke);
+        IResult result = await _dialogService.ProgressDialog(
+            $"Flattening \"{entry.Name}\"",
+            op.Invoke
+        );
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(op);
 

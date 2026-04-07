@@ -179,7 +179,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         IsArchived = fileSystem.ArchiveManager.IsArchived(entry.PathToEntry);
         SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
 
-        _ = LoadIconAsync(entry, fileSystem.IconProvider);
+        _ = Task.Run(() => LoadIconAsync(entry, fileSystem.IconProvider));
     }
 
     private async Task LoadIconAsync(IFileSystemEntry entry, IIconProvider iconProvider) =>

@@ -68,12 +68,12 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         return result;
     }
 
-    public async Task<IResult> Initialize(
+    public Task<IResult> Initialize(
         bool initFromRemote,
         ProgressReporter reporter,
         CancellationToken ct
     ) =>
-        await Task.Run(() =>
+        Task.Run(() =>
             InitInternal(initFromRemote, FileSurferSettings.SyncHiddenFiles, reporter, ct)
         );
 

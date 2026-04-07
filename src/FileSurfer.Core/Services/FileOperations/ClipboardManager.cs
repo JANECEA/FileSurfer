@@ -334,15 +334,15 @@ public class ClipboardManager : IClipboardManager
         CancellationToken ct
     )
     {
-        var streamsR = GetStreams();
+        var streamsR = await Task.Run(GetStreams);
         if (!streamsR.IsOk)
             return OpResult.Error(streamsR);
 
         (FileTransferStream[] files, DirTransferStream[] dirs) = streamsR.Value;
 
         IResult result = await UploadAll(files, dirs, destination, reporter, ct);
-        foreach (IDisposable disposable in files.Cast<IDisposable>().Concat(dirs))
-            disposable.Dispose();
+        foreach (IDisposable d in files.Cast<IDisposable>().Concat(dirs))
+            d.Dispose();
 
         return result.IsOk ? OpResult.Ok(null) : OpResult.Error(result);
     }
