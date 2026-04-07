@@ -93,6 +93,13 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
     }
     private bool _synchronizing = false;
 
+    public bool Initializing
+    {
+        get => _initializing;
+        set => this.RaiseAndSetIfChanged(ref _initializing, value);
+    }
+    private bool _initializing = false;
+
     public ObservableCollection<SyncEventViewModel> SyncEvents { get; } = [];
 
     public ReactiveCommand<Unit, Task> StartSyncCommand { get; }
@@ -143,11 +150,15 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         SyncEvents.Clear();
 
         Synchronizing = true;
+        Initializing = true;
 
         IResult result = await _dialogService.ProgressDialog(
             "Initial synchronization",
             (r, ct) => _synchronizer.Initialize(InitFromRemote, r, ct)
         );
+
+        Initializing = false;
+
         if (result.IsOk)
             result = await _synchronizer.StartAsync();
 

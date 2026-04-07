@@ -48,7 +48,13 @@
     <Grid RowDefinitions="Auto * Auto">
         <Grid>
             <Rectangle />
-            <Grid Margin="15" ColumnDefinitions="Auto * Auto">
+            <Grid Margin="15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" MaxWidth="50" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
                 <Grid ColumnDefinitions="Auto Auto *">
                     <TextBox Classes="TopTextBox" Text="{Binding LocalDirLabel}" />
                     <TextBlock Grid.Column="1" Classes="TopColon" Text=":" />
@@ -57,7 +63,7 @@
 
                 <TextBlock Grid.Column="1" Classes="TopArrow" Text="&#xF061;" />
 
-                <Grid Grid.Column="2" HorizontalAlignment="Right" ColumnDefinitions="Auto Auto *">
+                <Grid Grid.Column="2" HorizontalAlignment="Right" ColumnDefinitions="* Auto *">
                     <TextBox Classes="TopTextBox" Text="{Binding RemoteDirLabel}" />
                     <TextBlock Grid.Column="1" Classes="TopColon" Text=":" />
                     <TextBox Grid.Column="2" Classes="TopTextBox" Text="{Binding RemoteDir.Path}" />
@@ -79,7 +85,7 @@
             <Grid Margin="15" ColumnDefinitions="* Auto">
                 <StackPanel Orientation="Horizontal">
                     <CheckBox Classes="SyncCheckBox" Content="Sync hidden files" IsChecked="{Binding SyncHiddenFiles}" IsEnabled="{Binding !Synchronizing}" />
-                    <CheckBox Classes="SyncCheckBox" Content="InitInternal local directory from remote" IsChecked="{Binding InitFromRemote}" IsEnabled="{Binding !Synchronizing}" />
+                    <CheckBox Classes="SyncCheckBox" Content="Initialize local directory from remote" IsChecked="{Binding InitFromRemote}" IsEnabled="{Binding !Synchronizing}" />
                 </StackPanel>
 
                 <Grid Grid.Column="1">
@@ -87,8 +93,13 @@
                             Command="{Binding StartSyncCommand}"
                             Content="Start sync"
                             Foreground="{DynamicResource AcceptColor}"
+                            IsEnabled="{Binding !Initializing}"
                             IsVisible="{Binding !Synchronizing}" />
-                    <Button Classes="SyncButton" Command="{Binding StopSyncCommand}" Content="Stop sync" IsVisible="{Binding Synchronizing}" />
+                    <Button Classes="SyncButton"
+                            Command="{Binding StopSyncCommand}"
+                            Content="Stop sync"
+                            IsEnabled="{Binding !Initializing}"
+                            IsVisible="{Binding Synchronizing}" />
                 </Grid>
             </Grid>
         </Grid>

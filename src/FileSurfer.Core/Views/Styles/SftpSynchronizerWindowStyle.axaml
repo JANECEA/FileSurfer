@@ -32,6 +32,8 @@
         <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}" />
         <Setter Property="BorderThickness" Value="2" />
         <Setter Property="MinWidth" Value="1" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="FlowDirection" Value="RightToLeft" />
     </Style>
 
     <Style Selector="TextBlock.TopColon">
