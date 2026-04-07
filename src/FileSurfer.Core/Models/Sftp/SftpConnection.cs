@@ -17,6 +17,11 @@ public sealed class FingerPrint(string algorithm, string hash)
         && string.Equals(Hash, other.Hash, StringComparison.OrdinalIgnoreCase);
 }
 
+[SuppressMessage(
+    "ReSharper",
+    "AutoPropertyCanBeMadeGetOnly.Global",
+    Justification = $"{nameof(JsonSerializer)} requires properties with setters."
+)]
 public sealed record SftpConnection
 {
     public static readonly JsonSerializerOptions SerializerOptions = new()
@@ -33,5 +38,5 @@ public sealed record SftpConnection
     public string KeyPath { get; set; } = string.Empty;
     public bool NeedsPassphrase { get; set; } = false;
     public string? InitialDirectory { get; set; } = null;
-    public List<FingerPrint> FingerPrints { get; } = [];
+    public List<FingerPrint> FingerPrints { get; set; } = [];
 }
