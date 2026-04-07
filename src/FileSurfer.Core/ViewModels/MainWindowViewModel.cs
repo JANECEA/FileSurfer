@@ -61,6 +61,7 @@ public record LocationDisplay
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable CollectionNeverQueried.Global
 // ReSharper disable UnusedMember.Global
+#pragma warning disable CA1822 // Member can be marked as static.
 
 /// <summary>
 /// The MainWindowViewModel is the ViewModel for the main window of the application.

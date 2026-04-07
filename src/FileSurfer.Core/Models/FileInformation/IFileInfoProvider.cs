@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
+// ReSharper disable UnusedMember.Global
+
 namespace FileSurfer.Core.Models.FileInformation;
 
 /// <summary>

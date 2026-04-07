@@ -29,7 +29,7 @@ public interface IPlatformBootstrap
 /// It configures global resources, themes, and the main window, ensuring that the application's settings and appearance are properly applied.
 /// </para>
 /// </summary>
-public partial class App : Application
+public class App : Application
 {
     public static IPlatformBootstrap? Bootstrap { get; set; }
 

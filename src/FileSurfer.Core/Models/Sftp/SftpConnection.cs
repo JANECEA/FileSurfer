@@ -33,5 +33,5 @@ public sealed record SftpConnection
     public string KeyPath { get; set; } = string.Empty;
     public bool NeedsPassphrase { get; set; } = false;
     public string? InitialDirectory { get; set; } = null;
-    public List<FingerPrint> FingerPrints { get; set; } = [];
+    public List<FingerPrint> FingerPrints { get; } = [];
 }
