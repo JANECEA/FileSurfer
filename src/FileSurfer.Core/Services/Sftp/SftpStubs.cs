@@ -7,7 +7,7 @@ using FileSurfer.Core.Services.FileOperations;
 using FileSurfer.Core.Services.Shell;
 using FileSurfer.Core.Services.VersionControl;
 
-// Models that might be implemented for Sftp in the future
+// Services that might be implemented for Sftp in the future
 
 namespace FileSurfer.Core.Services.Sftp;
 

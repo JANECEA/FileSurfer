@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -57,13 +56,6 @@ public class LocalArchiveManager : IArchiveManager
         return null;
     }
 
-    [
-        SuppressMessage(
-            "Reliability",
-            "CA2016:Forward the \'CancellationToken\' parameter to methods"
-        ),
-        SuppressMessage("ReSharper", "MethodSupportsCancellation"),
-    ]
     private static async Task<IResult> ArchiveInternal(
         IList<IFileSystemEntry> entries,
         string destinationDir,

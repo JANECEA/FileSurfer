@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -8,7 +7,6 @@ using FileSurfer.Core.Views.Dialogs;
 
 namespace FileSurfer.Core.Services.Dialogs;
 
-[SuppressMessage("ReSharper", "MethodSupportsCancellation")]
 public sealed class AvaloniaDialogService : IDialogService
 {
     private const int ShowOpDialogDelayMs = 1000;

@@ -4,6 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using FileSurfer.Core.Extensions;
 
+// ReSharper disable VirtualMemberNeverOverridden.Global
+
 namespace FileSurfer.Core.Models.FileInformation;
 
 /// <summary>

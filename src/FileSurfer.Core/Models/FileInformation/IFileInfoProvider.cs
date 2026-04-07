@@ -8,10 +8,6 @@ namespace FileSurfer.Core.Models.FileInformation;
 /// <summary>
 /// Defines methods for retrieving file and directory information.
 /// </summary>
-[
-    SuppressMessage("ReSharper", "RedundantVirtualModifier"),
-    SuppressMessage("ReSharper", "UnusedMember.Global"),
-]
 public interface IFileInfoProvider
 {
     /// <summary>

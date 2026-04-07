@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+// ReSharper disable UnusedMethodReturnValue.Global
 // ReSharper disable UnusedMember.Global
 
 namespace FileSurfer.Core.Models;
