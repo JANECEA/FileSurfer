@@ -37,7 +37,7 @@ public static class ResultExtensions
 
 public static class TransferStreamExtensions
 {
-    public static async Task<IResult> WriteToStream(
+    public static async Task<IResult> WriteToStreamAsync(
         this FileTransferStream fileStream,
         Stream writeStream,
         string filePath,
@@ -62,7 +62,7 @@ public static class TransferStreamExtensions
         }
     }
 
-    public static async Task<IResult> WriteWithIoHandler(
+    public static async Task<IResult> WriteWithIoHandlerAsync(
         this DirTransferStream dirStream,
         IFileIoHandler ioHandler,
         IPathTools pathTools,
@@ -95,7 +95,7 @@ public static class TransferStreamExtensions
         foreach ((FileTransferStream stream, string parentPath) in files)
         {
             rep.ReportItem($"Transferring: \"{stream.Name}\"");
-            IResult result = await ioHandler.WriteFileStream(
+            IResult result = await ioHandler.WriteFileStreamAsync(
                 stream,
                 parentPath,
                 ProgressReporter.None,

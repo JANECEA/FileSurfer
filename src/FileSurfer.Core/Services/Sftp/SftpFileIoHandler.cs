@@ -100,7 +100,7 @@ public sealed class SftpFileIoHandler : IFileIoHandler
         return _sshShellHandler.ExecuteSshCommand($"rm -rf {quotedPath}");
     }
 
-    public async Task<IResult> WriteFileStream(
+    public async Task<IResult> WriteFileStreamAsync(
         FileTransferStream fileStream,
         string dirPath,
         ProgressReporter reporter,
@@ -112,7 +112,7 @@ public sealed class SftpFileIoHandler : IFileIoHandler
         try
         {
             await using SftpFileStream writeStream = _client.Open(filePath, FileMode.Create);
-            result = await fileStream.WriteToStream(writeStream, filePath, reporter, ct);
+            result = await fileStream.WriteToStreamAsync(writeStream, filePath, reporter, ct);
         }
         catch (Exception ex)
         {
@@ -124,12 +124,19 @@ public sealed class SftpFileIoHandler : IFileIoHandler
         return result;
     }
 
-    public Task<IResult> WriteDirStream(
+    public Task<IResult> WriteDirStreamAsync(
         DirTransferStream dirStream,
         string dirPath,
         ProgressReporter reporter,
         CancellationToken ct
-    ) => dirStream.WriteWithIoHandler(this, RemoteUnixPathTools.Instance, dirPath, reporter, ct);
+    ) =>
+        dirStream.WriteWithIoHandlerAsync(
+            this,
+            RemoteUnixPathTools.Instance,
+            dirPath,
+            reporter,
+            ct
+        );
 
     private ValueResult<string> Rename(string path, string newName)
     {

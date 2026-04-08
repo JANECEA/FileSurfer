@@ -15,12 +15,12 @@ public interface IUndoableFileOperation
     /// Implementations of this method should apply the effects of the operation.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public Task<IResult> Invoke(ProgressReporter reporter, CancellationToken ct);
+    public Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct);
 
     /// <summary>
     /// Undoes the file operation.
     /// Implementations of this method should reverse the effects of the original operation.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public Task<IResult> Undo(ProgressReporter reporter, CancellationToken ct);
+    public Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct);
 }

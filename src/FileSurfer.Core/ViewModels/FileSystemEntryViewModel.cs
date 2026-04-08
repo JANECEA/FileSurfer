@@ -185,8 +185,8 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     private async Task LoadIconAsync(IFileSystemEntry entry, IIconProvider iconProvider) =>
         Icon = entry switch
         {
-            FileEntry => await iconProvider.GetFileIcon(entry.PathToEntry),
-            DirectoryEntry => await iconProvider.GetDirectoryIcon(entry.PathToEntry),
+            FileEntry => await iconProvider.GetFileIconAsync(entry.PathToEntry),
+            DirectoryEntry => await iconProvider.GetDirectoryIconAsync(entry.PathToEntry),
             _ => throw new NotSupportedException(),
         };
 

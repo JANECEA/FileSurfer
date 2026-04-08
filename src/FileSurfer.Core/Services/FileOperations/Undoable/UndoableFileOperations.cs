@@ -217,7 +217,7 @@ public sealed class FlattenFolder : IUndoableFileOperation
         _parentDir = _pathTools.GetParentDir(dirPath);
     }
 
-    public async Task<IResult> Invoke(ProgressReporter reporter, CancellationToken ct)
+    public async Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct)
     {
         if (string.IsNullOrEmpty(_parentDir))
             return SimpleResult.Error($"Cannot flatten top level directory: \"{_dirPath}\"");
@@ -241,7 +241,7 @@ public sealed class FlattenFolder : IUndoableFileOperation
             _fileIoHandler,
             oldEntries,
             _parentDir
-        ).Invoke(reporter, ct);
+        ).InvokeAsync(reporter, ct);
         _movedEntries = GetNewEntries(oldEntries);
 
         return result.IsOk ? _fileIoHandler.DeleteDir(newDirPath) : result;
@@ -275,7 +275,7 @@ public sealed class FlattenFolder : IUndoableFileOperation
         return dirs.Cast<IFileSystemEntry>().Concat(files).ToArray();
     }
 
-    public async Task<IResult> Undo(ProgressReporter reporter, CancellationToken ct)
+    public async Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct)
     {
         if (string.IsNullOrEmpty(_parentDir))
             return SimpleResult.Error("This operation is invalid.");
@@ -294,7 +294,7 @@ public sealed class FlattenFolder : IUndoableFileOperation
             _fileIoHandler,
             _movedEntries,
             newDirPath
-        ).Invoke(reporter, ct);
+        ).InvokeAsync(reporter, ct);
 
         if (!result.IsOk)
             return result;
@@ -342,14 +342,14 @@ public sealed class RenameOne : IUndoableFileOperation
         _newPath = pathTools.Combine(dirName, newName);
     }
 
-    public Task<IResult> Invoke(ProgressReporter reporter, CancellationToken ct) =>
+    public Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct) =>
         Task.FromResult(
             _entry is DirectoryEntry
                 ? _fileIoHandler.RenameDirAt(_entry.PathToEntry, _newName)
                 : _fileIoHandler.RenameFileAt(_entry.PathToEntry, _newName)
         );
 
-    public Task<IResult> Undo(ProgressReporter reporter, CancellationToken ct) =>
+    public Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct) =>
         Task.FromResult(
             _entry is DirectoryEntry
                 ? _fileIoHandler.RenameDirAt(_newPath, _entry.Name)
@@ -375,10 +375,10 @@ public sealed class NewFileAt : IUndoableFileOperation
         _filePath = pathTools.Combine(path, fileName);
     }
 
-    public Task<IResult> Invoke(ProgressReporter reporter, CancellationToken ct) =>
+    public Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct) =>
         Task.FromResult(_fileIoHandler.NewFileAt(_path, _fileName));
 
-    public Task<IResult> Undo(ProgressReporter reporter, CancellationToken ct) =>
+    public Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct) =>
         Task.FromResult(_fileIoHandler.DeleteFile(_filePath));
 }
 
@@ -400,9 +400,9 @@ public sealed class NewDirAt : IUndoableFileOperation
         _dirPath = pathTools.Combine(path, dirName);
     }
 
-    public Task<IResult> Invoke(ProgressReporter reporter, CancellationToken ct) =>
+    public Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct) =>
         Task.FromResult(_fileIoHandler.NewDirAt(_path, _dirName));
 
-    public Task<IResult> Undo(ProgressReporter reporter, CancellationToken ct) =>
+    public Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct) =>
         Task.FromResult(_fileIoHandler.DeleteFile(_dirPath));
 }

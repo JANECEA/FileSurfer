@@ -139,7 +139,7 @@ public class LocalArchiveManager : IArchiveManager
         }
     }
 
-    public async Task<IResult> ArchiveEntries(
+    public async Task<IResult> ArchiveEntriesAsync(
         IList<IFileSystemEntry> entries,
         string destinationDir,
         string archiveName,
@@ -197,7 +197,7 @@ public class LocalArchiveManager : IArchiveManager
         return SimpleResult.Ok();
     }
 
-    public async Task<IResult> ExtractArchive(
+    public async Task<IResult> ExtractArchiveAsync(
         string archivePath,
         string destinationPath,
         ProgressReporter reporter,

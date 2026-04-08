@@ -110,7 +110,7 @@ public class ClipboardManager : IClipboardManager
             stream.Position = 0;
 
             using FileTransferStream fileStream = new(imgName, stream);
-            IResult result = await destination.FileSystem.FileIoHandler.WriteFileStream(
+            IResult result = await destination.FileSystem.FileIoHandler.WriteFileStreamAsync(
                 fileStream,
                 destination.Path,
                 ProgressReporter.None,
@@ -139,7 +139,7 @@ public class ClipboardManager : IClipboardManager
         {
             MemoryStream stream = new(Encoding.UTF8.GetBytes(text));
             using FileTransferStream fileStream = new(textName, stream);
-            IResult result = await destination.FileSystem.FileIoHandler.WriteFileStream(
+            IResult result = await destination.FileSystem.FileIoHandler.WriteFileStreamAsync(
                 fileStream,
                 destination.Path,
                 ProgressReporter.None,
@@ -361,14 +361,19 @@ public class ClipboardManager : IClipboardManager
         foreach (FileTransferStream file in files)
         {
             rep.ReportItem($"Transferring file: \"{file.Name}\"");
-            IResult r = await f.WriteFileStream(file, destination.Path, ProgressReporter.None, ct);
+            IResult r = await f.WriteFileStreamAsync(
+                file,
+                destination.Path,
+                ProgressReporter.None,
+                ct
+            );
             if (!r.IsOk)
                 return r;
         }
         foreach (DirTransferStream dir in dirs)
         {
             rep.ReportItem($"Writing directory: \"{dir.Name}\"");
-            IResult r = await f.WriteDirStream(dir, destination.Path, reporter, ct);
+            IResult r = await f.WriteDirStreamAsync(dir, destination.Path, reporter, ct);
             if (!r.IsOk)
                 return r;
         }
@@ -389,7 +394,7 @@ public class ClipboardManager : IClipboardManager
             destination.Path
         );
 
-        IResult result = await op.Invoke(reporter, ct);
+        IResult result = await op.InvokeAsync(reporter, ct);
         return result.IsOk ? OpResult.Ok(op) : OpResult.Error(result);
     }
 
@@ -406,7 +411,7 @@ public class ClipboardManager : IClipboardManager
             destination.Path
         );
 
-        IResult result = await op.Invoke(reporter, ct);
+        IResult result = await op.InvokeAsync(reporter, ct);
         return result.IsOk ? OpResult.Ok(op) : OpResult.Error(result);
     }
 
@@ -429,7 +434,7 @@ public class ClipboardManager : IClipboardManager
             copyNames
         );
 
-        IResult result = await op.Invoke(reporter, ct);
+        IResult result = await op.InvokeAsync(reporter, ct);
         return result.IsOk ? OpResult.Ok(op) : OpResult.Error(result);
     }
 }

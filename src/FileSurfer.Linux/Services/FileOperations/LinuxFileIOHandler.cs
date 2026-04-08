@@ -48,7 +48,7 @@ public class LinuxFileIoHandler : IFileIoHandler
         }
     }
 
-    public async Task<IResult> WriteFileStream(
+    public async Task<IResult> WriteFileStreamAsync(
         FileTransferStream fileStream,
         string dirPath,
         ProgressReporter reporter,
@@ -60,7 +60,7 @@ public class LinuxFileIoHandler : IFileIoHandler
         try
         {
             await using FileStream writeStream = File.Open(filePath, FileMode.Create);
-            result = await fileStream.WriteToStream(writeStream, filePath, reporter, ct);
+            result = await fileStream.WriteToStreamAsync(writeStream, filePath, reporter, ct);
         }
         catch (Exception ex)
         {
@@ -72,12 +72,12 @@ public class LinuxFileIoHandler : IFileIoHandler
         return result;
     }
 
-    public Task<IResult> WriteDirStream(
+    public Task<IResult> WriteDirStreamAsync(
         DirTransferStream dirStream,
         string dirPath,
         ProgressReporter reporter,
         CancellationToken ct
-    ) => dirStream.WriteWithIoHandler(this, LocalPathTools.Instance, dirPath, reporter, ct);
+    ) => dirStream.WriteWithIoHandlerAsync(this, LocalPathTools.Instance, dirPath, reporter, ct);
 
     public IResult NewFileAt(string dirPath, string fileName)
     {

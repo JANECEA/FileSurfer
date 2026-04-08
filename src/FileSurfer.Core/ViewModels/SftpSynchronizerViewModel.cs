@@ -152,7 +152,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         Synchronizing = true;
         Initializing = true;
 
-        IResult result = await _dialogService.ProgressDialog(
+        IResult result = await _dialogService.ProgressDialogAsync(
             "Initial synchronization",
             (r, ct) => _synchronizer.Initialize(InitFromRemote, r, ct)
         );
@@ -191,7 +191,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
             .Select(l => l.Path)
             .Distinct();
 
-        string? path = await dialogService.SuggestInputDialog(
+        string? path = await dialogService.SuggestInputDialogAsync(
             title,
             context,
             suggestLabel,

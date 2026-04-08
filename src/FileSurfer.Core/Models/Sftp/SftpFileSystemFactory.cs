@@ -21,7 +21,7 @@ public class SftpFileSystemFactory
             host - "{connection.HostnameOrIpAddress}"
             username - "{connection.Username}"
             """;
-        return await _dialogService.InputDialog(title, context, true);
+        return await _dialogService.InputDialogAsync(title, context, true);
     }
 
     private async Task<string?> RequestPassphraseAsync(SftpConnection connection)
@@ -31,7 +31,7 @@ public class SftpFileSystemFactory
             Please enter the passphrase for:
             key path - "{connection.KeyPath}"
             """;
-        return await _dialogService.InputDialog(title, context, true);
+        return await _dialogService.InputDialogAsync(title, context, true);
     }
 
     private async Task<ValueResult<AuthenticationMethod>> GetAuthMethod(SftpConnection connection)
@@ -138,7 +138,7 @@ public class SftpFileSystemFactory
 
             Do you want to trust the new fingerprint and continue connecting?
             """;
-        return await _dialogService.ConfirmationDialog(title, context);
+        return await _dialogService.ConfirmationDialogAsync(title, context);
     }
 
     private void AddedNewFpAsync(SftpConnection connection, FingerPrint newFingerprint)

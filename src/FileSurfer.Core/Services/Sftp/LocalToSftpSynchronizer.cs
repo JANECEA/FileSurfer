@@ -140,10 +140,10 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
 
         IResult result = SimpleResult.Ok();
         foreach (DirTransferStream dirStream in streamR.Value.Directories.Where(_ => result.IsOk))
-            result = await toIo.WriteDirStream(dirStream, rootTo.Path, reporter, ct);
+            result = await toIo.WriteDirStreamAsync(dirStream, rootTo.Path, reporter, ct);
 
         foreach (FileTransferStream fileStream in streamR.Value.Files.Where(_ => result.IsOk))
-            result = await toIo.WriteFileStream(fileStream, rootTo.Path, reporter, ct);
+            result = await toIo.WriteFileStreamAsync(fileStream, rootTo.Path, reporter, ct);
 
         streamR.Value.Dispose();
         return result;
@@ -214,7 +214,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         string remoteParent = _remoteRoot.FileSystem.FileInfoProvider.PathTools.GetParentDir(
             remotePath
         );
-        return await _remoteRoot.FileSystem.FileIoHandler.WriteFileStream(
+        return await _remoteRoot.FileSystem.FileIoHandler.WriteFileStreamAsync(
             fileStreamR.Value,
             remoteParent,
             ProgressReporter.None,

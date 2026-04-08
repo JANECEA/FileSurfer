@@ -22,11 +22,11 @@ public abstract class UndoableOperation : IUndoableFileOperation
         Entries = entries;
     }
 
-    public async Task<IResult> Invoke(ProgressReporter reporter, CancellationToken ct) =>
+    public async Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct) =>
         await Task.Run(() => InvokeInternal(InvokeAction, InvokeOpName, reporter, ct), ct)
             .ConfigureAwait(false);
 
-    public async Task<IResult> Undo(ProgressReporter reporter, CancellationToken ct) =>
+    public async Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct) =>
         await Task.Run(() => InvokeInternal(UndoAction, UndoOpName, reporter, ct), ct)
             .ConfigureAwait(false);
 

@@ -11,15 +11,15 @@ public interface IDialogService
 {
     public void InfoDialog(string title, string info);
 
-    public Task<T> ProgressDialog<T>(string title, ReportingOperation<T> operation);
+    public Task<T> ProgressDialogAsync<T>(string title, ReportingOperation<T> operation);
 
-    public Task<T> ProgressDialog<T>(string title, CancellableOperation<T> operation);
+    public Task<T> ProgressDialogAsync<T>(string title, CancellableOperation<T> operation);
 
-    public Task<bool> ConfirmationDialog(string title, string question);
+    public Task<bool> ConfirmationDialogAsync(string title, string question);
 
-    public Task<string?> InputDialog(string title, string context, bool secret);
+    public Task<string?> InputDialogAsync(string title, string context, bool secret);
 
-    public Task<string?> SuggestInputDialog(
+    public Task<string?> SuggestInputDialogAsync(
         string title,
         string context,
         string suggestionLabel,

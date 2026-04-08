@@ -15,17 +15,17 @@ public interface IIconProvider : IDisposable
     /// </summary>
     /// <param name="filePath"></param>
     /// <returns>The associated icon.</returns>
-    public Task<Bitmap> GetFileIcon(string filePath);
+    public Task<Bitmap> GetFileIconAsync(string filePath);
 
     /// <summary>
     /// Retrieves the icon associated with directories.
     /// </summary>
-    public Task<Bitmap> GetDirectoryIcon(string dirPath);
+    public Task<Bitmap> GetDirectoryIconAsync(string dirPath);
 
     /// <summary>
     /// Retrieves the icon associated with drives.
     /// </summary>
-    public Task<Bitmap> GetDriveIcon(DriveEntryInfo driveEntryInfo);
+    public Task<Bitmap> GetDriveIconAsync(DriveEntryInfo driveEntryInfo);
 }
 
 public class BaseIconProvider : IIconProvider
@@ -40,11 +40,13 @@ public class BaseIconProvider : IIconProvider
         AssetLoader.Open(new Uri("avares://FileSurfer.Core/Assets/DriveIcon.png"))
     );
 
-    public virtual Task<Bitmap> GetFileIcon(string filePath) => Task.FromResult(GenericFileIcon);
+    public virtual Task<Bitmap> GetFileIconAsync(string filePath) =>
+        Task.FromResult(GenericFileIcon);
 
-    public virtual Task<Bitmap> GetDirectoryIcon(string dirPath) => Task.FromResult(DirectoryIcon);
+    public virtual Task<Bitmap> GetDirectoryIconAsync(string dirPath) =>
+        Task.FromResult(DirectoryIcon);
 
-    public virtual Task<Bitmap> GetDriveIcon(DriveEntryInfo driveEntryInfo) =>
+    public virtual Task<Bitmap> GetDriveIconAsync(DriveEntryInfo driveEntryInfo) =>
         Task.FromResult(DriveIcon);
 
     public virtual void Dispose() { }

@@ -1117,7 +1117,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         );
 
         NewFileAt op = new(PathTools, CurrentFs.FileIoHandler, CurrentDir, newFileName);
-        IResult result = await _dialogService.ProgressDialog("Creating new file", op.Invoke);
+        IResult result = await _dialogService.ProgressDialogAsync(
+            "Creating new file",
+            op.InvokeAsync
+        );
         if (result.IsOk)
         {
             SoftReload();
@@ -1137,7 +1140,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         );
 
         NewDirAt op = new(PathTools, CurrentFs.FileIoHandler, CurrentDir, newDirName);
-        IResult result = await _dialogService.ProgressDialog("Creating new directory", op.Invoke);
+        IResult result = await _dialogService.ProgressDialogAsync(
+            "Creating new directory",
+            op.InvokeAsync
+        );
         if (result.IsOk)
         {
             SoftReload();
@@ -1158,9 +1164,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         string archName =
             selected.Length == 1 ? SelectedFiles[0].FileSystemEntry.NameWoExtension : ArchiveName;
 
-        IResult result = await _dialogService.ProgressDialog<IResult>(
+        IResult result = await _dialogService.ProgressDialogAsync<IResult>(
             "Archiving files",
-            (r, ct) => CurrentFs.ArchiveManager.ArchiveEntries(selected, cwd, archName, r, ct)
+            (r, ct) => CurrentFs.ArchiveManager.ArchiveEntriesAsync(selected, cwd, archName, r, ct)
         );
 
         ShowIfError(result);
@@ -1184,9 +1190,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         List<Task> tasks = selected
             .Select(async e =>
             {
-                IResult result = await _dialogService.ProgressDialog<IResult>(
+                IResult result = await _dialogService.ProgressDialogAsync<IResult>(
                     "Extracting archive",
-                    (r, ct) => CurrentFs.ArchiveManager.ExtractArchive(e.PathToEntry, cwd, r, ct)
+                    (r, ct) =>
+                        CurrentFs.ArchiveManager.ExtractArchiveAsync(e.PathToEntry, cwd, r, ct)
                 );
                 ShowIfError(result);
             })
@@ -1229,7 +1236,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private async Task PasteAsync()
     {
-        ValueResult<IUndoableFileOperation?> r = await _dialogService.ProgressDialog(
+        ValueResult<IUndoableFileOperation?> r = await _dialogService.ProgressDialogAsync(
             "Pasting...",
             (r, ct) => ClipboardManager.PasteAsync(CurrentLocation, r, ct)
         );
@@ -1314,7 +1321,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
         RenameOne op = new(PathTools, CurrentFs.FileIoHandler, entry.FileSystemEntry, newName);
 
-        IResult result = await _dialogService.ProgressDialog($"Renaming {entry.Name}", op.Invoke);
+        IResult result = await _dialogService.ProgressDialogAsync(
+            $"Renaming {entry.Name}",
+            op.InvokeAsync
+        );
         if (result.IsOk)
         {
             _undoRedoHistory.AddNewNode(op);
@@ -1349,7 +1359,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             namingPattern
         );
         RenameMultiple op = new(PathTools, CurrentFs.FileIoHandler, entries, availableNames);
-        IResult result = await _dialogService.ProgressDialog("Renaming multiple files", op.Invoke);
+        IResult result = await _dialogService.ProgressDialogAsync(
+            "Renaming multiple files",
+            op.InvokeAsync
+        );
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(op);
 
@@ -1377,7 +1390,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry)
         );
 
-        IResult result = await _dialogService.ProgressDialog("Moving to Trash", op.Invoke);
+        IResult result = await _dialogService.ProgressDialogAsync(
+            "Moving to Trash",
+            op.InvokeAsync
+        );
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(op);
 
@@ -1399,9 +1415,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             CurrentFs.FileInfoProvider,
             entry.PathToEntry
         );
-        IResult result = await _dialogService.ProgressDialog(
+        IResult result = await _dialogService.ProgressDialogAsync(
             $"Flattening \"{entry.Name}\"",
-            op.Invoke
+            op.InvokeAsync
         );
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(op);
@@ -1443,7 +1459,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         IUndoableFileOperation op =
             _undoRedoHistory.Current ?? throw new InvalidOperationException();
 
-        IResult result = await _dialogService.ProgressDialog("Undoing Operation", op.Undo);
+        IResult result = await _dialogService.ProgressDialogAsync(
+            "Undoing Operation",
+            op.UndoAsync
+        );
         if (result.IsOk)
         {
             _undoRedoHistory.MoveToPrevious();
@@ -1465,7 +1484,10 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             return;
 
         IUndoableFileOperation op = _undoRedoHistory.Current;
-        IResult result = await _dialogService.ProgressDialog("Redoing Operation", op.Invoke);
+        IResult result = await _dialogService.ProgressDialogAsync(
+            "Redoing Operation",
+            op.InvokeAsync
+        );
         if (result.IsOk)
             HardReload();
         else

@@ -80,7 +80,7 @@ public class WindowsFileIoHandler : IFileIoHandler
         try
         {
             await using FileStream writeStream = File.Open(filePath, FileMode.Create);
-            result = await fileStream.WriteToStream(writeStream, filePath, reporter, ct);
+            result = await fileStream.WriteToStreamAsync(writeStream, filePath, reporter, ct);
         }
         catch (Exception ex)
         {
@@ -97,7 +97,14 @@ public class WindowsFileIoHandler : IFileIoHandler
         string dirPath,
         ProgressReporter reporter,
         CancellationToken ct
-    ) => await dirStream.WriteWithIoHandler(this, LocalPathTools.Instance, dirPath, reporter, ct);
+    ) =>
+        await dirStream.WriteWithIoHandlerAsync(
+            this,
+            LocalPathTools.Instance,
+            dirPath,
+            reporter,
+            ct
+        );
 
     public IResult NewFileAt(string dirPath, string fileName)
     {

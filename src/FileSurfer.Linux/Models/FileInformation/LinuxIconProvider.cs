@@ -39,7 +39,7 @@ public sealed class LinuxIconProvider : BaseIconProvider
         _shellHandler = shellHandler;
         _searchPaths = IconPathResolver.GetSearchPaths(shellHandler);
         _themedGenericFileIcon =
-            ExtractIcon(GenericMimeType) ?? base.GetFileIcon(string.Empty).Result;
+            ExtractIcon(GenericMimeType) ?? base.GetFileIconAsync(string.Empty).Result;
 
         if (!File.Exists(GlobsParser.GlobsPath))
             return;
@@ -54,7 +54,7 @@ public sealed class LinuxIconProvider : BaseIconProvider
         }
     }
 
-    public override async Task<Bitmap> GetFileIcon(string filePath) =>
+    public override async Task<Bitmap> GetFileIconAsync(string filePath) =>
         await _mimeToIcon.GetOrAdd(
             await GetMimeType(filePath),
             mimeType => Task.Run(() => ExtractIcon(mimeType) ?? _themedGenericFileIcon)

@@ -19,7 +19,7 @@ public interface IArchiveManager
     /// Compresses specified file paths into a new archive.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    Task<IResult> ArchiveEntries(
+    Task<IResult> ArchiveEntriesAsync(
         IList<IFileSystemEntry> entries,
         string destinationDir,
         string archiveName,
@@ -31,7 +31,7 @@ public interface IArchiveManager
     /// Extracts the archive, overwriting already existing files.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    Task<IResult> ExtractArchive(
+    Task<IResult> ExtractArchiveAsync(
         string archivePath,
         string destinationPath,
         ProgressReporter reporter,

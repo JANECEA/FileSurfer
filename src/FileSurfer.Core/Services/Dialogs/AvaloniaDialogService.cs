@@ -55,7 +55,7 @@ public sealed class AvaloniaDialogService : IDialogService
         }
     }
 
-    public async Task<T> ProgressDialog<T>(string title, ReportingOperation<T> operation)
+    public async Task<T> ProgressDialogAsync<T>(string title, ReportingOperation<T> operation)
     {
         ProgressReporter reporter = new();
         CancellationTokenSource cts = new();
@@ -63,14 +63,14 @@ public sealed class AvaloniaDialogService : IDialogService
         return await ProgressDialogInternal(title, opTask, reporter, cts);
     }
 
-    public async Task<T> ProgressDialog<T>(string title, CancellableOperation<T> operation)
+    public async Task<T> ProgressDialogAsync<T>(string title, CancellableOperation<T> operation)
     {
         CancellationTokenSource cts = new();
         Task<T> opTask = operation(cts.Token);
         return await ProgressDialogInternal(title, opTask, ProgressReporter.None, cts);
     }
 
-    public async Task<bool> ConfirmationDialog(string title, string question)
+    public async Task<bool> ConfirmationDialogAsync(string title, string question)
     {
         bool? result = await Dispatcher.UIThread.InvokeAsync(async () =>
             await new ConfirmationDialogWindow
@@ -82,7 +82,7 @@ public sealed class AvaloniaDialogService : IDialogService
         return result is true;
     }
 
-    public async Task<string?> InputDialog(string title, string context, bool secret) =>
+    public async Task<string?> InputDialogAsync(string title, string context, bool secret) =>
         await Dispatcher.UIThread.InvokeAsync(async () =>
         {
             InputDialogWindow dialog = new() { Title = title, Context = context };
@@ -92,7 +92,7 @@ public sealed class AvaloniaDialogService : IDialogService
             return string.IsNullOrEmpty(result) ? null : result;
         });
 
-    public async Task<string?> SuggestInputDialog(
+    public async Task<string?> SuggestInputDialogAsync(
         string title,
         string context,
         string suggestionLabel,

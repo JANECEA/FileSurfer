@@ -93,7 +93,7 @@ public interface IFileIoHandler
     /// <param name="reporter">Reports the current state of the operation</param>
     /// <param name="ct">Token for cancellation</param>
     /// <returns>An <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public Task<IResult> WriteFileStream(
+    public Task<IResult> WriteFileStreamAsync(
         FileTransferStream fileStream,
         string dirPath,
         ProgressReporter reporter,
@@ -112,7 +112,7 @@ public interface IFileIoHandler
     /// <param name="reporter">Reports the current state of the operation</param>
     /// <param name="ct">Token for cancellation</param>
     /// <returns>An <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public Task<IResult> WriteDirStream(
+    public Task<IResult> WriteDirStreamAsync(
         DirTransferStream dirStream,
         string dirPath,
         ProgressReporter reporter,

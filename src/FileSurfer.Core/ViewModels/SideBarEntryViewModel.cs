@@ -67,8 +67,8 @@ public class SideBarEntryViewModel : ReactiveObject
     private static Task<Bitmap> LoadIconAsync(IFileSystemEntry entry, IIconProvider iconProvider) =>
         entry switch
         {
-            FileEntry => iconProvider.GetFileIcon(entry.PathToEntry),
-            DirectoryEntry => iconProvider.GetDirectoryIcon(entry.PathToEntry),
+            FileEntry => iconProvider.GetFileIconAsync(entry.PathToEntry),
+            DirectoryEntry => iconProvider.GetDirectoryIconAsync(entry.PathToEntry),
             _ => throw new NotSupportedException(),
         };
 
@@ -78,6 +78,8 @@ public class SideBarEntryViewModel : ReactiveObject
         PathToEntry = driveEntryInfo.PathToEntry;
         IsDirectory = true;
 
-        _ = Task.Run(async () => Icon = await fileSystem.IconProvider.GetDriveIcon(driveEntryInfo));
+        _ = Task.Run(async () =>
+            Icon = await fileSystem.IconProvider.GetDriveIconAsync(driveEntryInfo)
+        );
     }
 }

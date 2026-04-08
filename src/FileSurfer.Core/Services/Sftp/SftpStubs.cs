@@ -19,7 +19,7 @@ public class StubArchiveManager : IArchiveManager
 
     public bool IsArchived(string filePath) => false;
 
-    public Task<IResult> ArchiveEntries(
+    public Task<IResult> ArchiveEntriesAsync(
         IList<IFileSystemEntry> entries,
         string destinationDir,
         string archiveName,
@@ -27,7 +27,7 @@ public class StubArchiveManager : IArchiveManager
         CancellationToken ct
     ) => Task.FromResult<IResult>(SimpleResult.Error(_message));
 
-    public Task<IResult> ExtractArchive(
+    public Task<IResult> ExtractArchiveAsync(
         string archivePath,
         string destinationPath,
         ProgressReporter reporter,

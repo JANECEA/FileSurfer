@@ -46,7 +46,7 @@ public sealed class WindowsIconProvider : BaseIconProvider
         Bitmap? icon = await CreateIconTask(filePath);
 
         if (icon is null)
-            return await base.GetFileIcon(filePath);
+            return await base.GetFileIconAsync(filePath);
 
         lock (_genericIconLock)
             _genericFileIcon ??= icon;
