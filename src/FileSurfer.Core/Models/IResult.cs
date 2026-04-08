@@ -120,6 +120,8 @@ public sealed class Result : IResult
 
     public static Result Error(IEnumerable<string> errors) => new(null, errors.ToList());
 
+    public static Result Error(IResult result) => Error(result.Errors);
+
     public void AddError(string errorMessage)
     {
         _errors ??= new List<string>();

@@ -76,6 +76,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private const string EmptyDirMessage = "This directory is empty.";
     private const string EmptySearchMessage = "No items match your query";
     private const string NoRemoteMark = "-";
+    private const string ArchiveName = "Archive";
 
     private readonly UndoRedoHandler<IUndoableFileOperation> _undoRedoHistory;
     private readonly UndoRedoHandler<Location> _locationHistory;
@@ -1150,11 +1151,12 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private async Task AddToArchive()
     {
         string cwd = CurrentDir;
-        if (!CurrentFs.FileInfoProvider.DirectoryExists(cwd))
+        IFileSystemEntry[] selected = SelectedFiles.ConvertToArray(e => e.FileSystemEntry);
+        if (!CurrentFs.FileInfoProvider.DirectoryExists(cwd) || selected.Length == 0)
             return;
 
-        string archName = SelectedFiles[^1].FileSystemEntry.NameWoExtension;
-        IFileSystemEntry[] selected = SelectedFiles.ConvertToArray(e => e.FileSystemEntry);
+        string archName =
+            selected.Length == 1 ? SelectedFiles[0].FileSystemEntry.NameWoExtension : ArchiveName;
 
         IResult result = await _dialogService.ProgressDialog<IResult>(
             "Archiving files",

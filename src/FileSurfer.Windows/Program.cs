@@ -62,7 +62,7 @@ public class WindowsPlatformBootstrap : IPlatformBootstrap
         {
             LocalFileInfoProvider = fileInfoProvider,
             IconProvider = new WindowsIconProvider(),
-            ArchiveManager = new LocalArchiveManager(fileInfoProvider),
+            ArchiveManager = new LocalArchiveManager(fileInfoProvider, fileIoHandler),
             FileIoHandler = fileIoHandler,
             BinInteraction = binInteraction,
             FileProperties = new WindowsFileProperties(),

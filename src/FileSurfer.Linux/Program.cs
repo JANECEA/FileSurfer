@@ -50,12 +50,13 @@ public class LinuxPlatformBootstrap : IPlatformBootstrap
     )
     {
         LinuxFileInfoProvider fileInfoProvider = new(LinuxShellHandler);
+        LinuxFileIoHandler fileIoHandler = new();
         LocalFileSystem localFileSystem = new()
         {
             LocalFileInfoProvider = fileInfoProvider,
             IconProvider = new LinuxIconProvider(LinuxShellHandler),
-            ArchiveManager = new LocalArchiveManager(fileInfoProvider),
-            FileIoHandler = new LinuxFileIoHandler(),
+            ArchiveManager = new LocalArchiveManager(fileInfoProvider, fileIoHandler),
+            FileIoHandler = fileIoHandler,
             BinInteraction = new LinuxBinInteraction(LinuxShellHandler),
             FileProperties = new LinuxFileProperties(new LinuxPropertiesVmFactory()),
             LocalShellHandler = LinuxShellHandler,

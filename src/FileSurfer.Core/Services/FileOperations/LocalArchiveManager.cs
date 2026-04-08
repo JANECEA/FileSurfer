@@ -40,9 +40,18 @@ public class LocalArchiveManager : IArchiveManager
     ];
 
     private readonly IFileInfoProvider _fileInfoProvider;
+    private readonly IFileIoHandler _fileIoHandler;
 
-    public LocalArchiveManager(IFileInfoProvider fileInfoProvider) =>
+    public LocalArchiveManager(IFileInfoProvider fileInfoProvider, IFileIoHandler fileIoHandler)
+    {
         _fileInfoProvider = fileInfoProvider;
+        _fileIoHandler = fileIoHandler;
+    }
+
+    private static IReader GetReader(Stream stream, ArchiveType archiveType) =>
+        archiveType.FactoryFn is not null
+            ? archiveType.FactoryFn(stream)
+            : ReaderFactory.Open(stream);
 
     public bool IsArchived(string filePath) => GetArchiveExtension(filePath) is not null;
 
@@ -56,16 +65,14 @@ public class LocalArchiveManager : IArchiveManager
         return null;
     }
 
-    private static async Task<IResult> ArchiveInternal(
+    private static async Task<IResult> RunArchivation(
         IList<IFileSystemEntry> entries,
-        string destinationDir,
-        string archivePath,
+        FileStream zipStream,
         List<FileStream> fileStreams,
         CancellationToken ct
     )
     {
         using ZipArchive archive = ZipArchive.Create();
-        await using FileStream zipStream = File.OpenWrite(archivePath);
 
         await Task.Run(() =>
         {
@@ -87,7 +94,8 @@ public class LocalArchiveManager : IArchiveManager
                 );
                 foreach (string filePath in allFiles)
                 {
-                    string relativePath = Path.GetRelativePath(destinationDir, filePath);
+                    string parent = LocalPathTools.GetParentDir(entry.PathToEntry);
+                    string relativePath = Path.GetRelativePath(parent, filePath);
                     ct.ThrowIfCancellationRequested();
                     FileStream fileStream = File.OpenRead(filePath);
                     archive.AddEntry(relativePath, fileStream);
@@ -102,6 +110,33 @@ public class LocalArchiveManager : IArchiveManager
             await archive.SaveToAsync(zipStream, new WriterOptions(CompressionType.Deflate), ct);
         });
         return SimpleResult.Ok();
+    }
+
+    private static async Task<IResult> ArchiveInternal(
+        IList<IFileSystemEntry> entries,
+        string archivePath,
+        CancellationToken ct
+    )
+    {
+        List<FileStream> fileStreams = new();
+        try
+        {
+            await using FileStream zipStream = File.OpenWrite(archivePath);
+            return await RunArchivation(entries, zipStream, fileStreams, ct);
+        }
+        catch (Exception ex) when (ex is OperationCanceledException or ObjectDisposedException)
+        {
+            return SimpleResult.Error("Archivation has been cancelled.");
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
+        finally
+        {
+            foreach (FileStream fileStream in fileStreams)
+                fileStream.Close();
+        }
     }
 
     public async Task<IResult> ArchiveEntries(
@@ -121,25 +156,12 @@ public class LocalArchiveManager : IArchiveManager
 
         IndeterminateReporter r = new(reporter);
         r.ReportItem($"Archiving \"{name}\".");
-        List<FileStream> fileStreams = new();
 
-        try
-        {
-            return await ArchiveInternal(entries, destinationDir, archivePath, fileStreams, ct);
-        }
-        catch (Exception ex) when (ex is OperationCanceledException or ObjectDisposedException)
-        {
-            return SimpleResult.Error("Archivation has been cancelled.");
-        }
-        catch (Exception ex)
-        {
-            return SimpleResult.Error(ex.Message);
-        }
-        finally
-        {
-            foreach (FileStream fileStream in fileStreams)
-                fileStream.Close();
-        }
+        IResult result = await ArchiveInternal(entries, archivePath, ct);
+        if (!result.IsOk)
+            return Result.Error(result).MergeResult(_fileIoHandler.DeleteFile(archivePath));
+
+        return SimpleResult.Ok();
     }
 
     private async Task<IResult> ExtractInternal(
@@ -198,9 +220,4 @@ public class LocalArchiveManager : IArchiveManager
             return SimpleResult.Error(ex.Message);
         }
     }
-
-    private static IReader GetReader(Stream stream, ArchiveType archiveType) =>
-        archiveType.FactoryFn is not null
-            ? archiveType.FactoryFn(stream)
-            : ReaderFactory.Open(stream);
 }
