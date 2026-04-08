@@ -261,7 +261,7 @@ public partial class MainWindow : Window
             _viewModel is not null
             && sender is ListBox { SelectedItem: SftpConnectionViewModel connectionVm }
         )
-            _ = _viewModel.OpenSftpConnection(connectionVm);
+            _ = _viewModel.OpenSftpConnectionAsync(connectionVm);
 
         ClearFocus();
     }
@@ -335,7 +335,7 @@ public partial class MainWindow : Window
     {
         if (NameInputBox.Text is string newName)
         {
-            _viewModel?.Rename(newName);
+            _viewModel?.RenameAsync(newName);
             NewNameBar.IsVisible = false;
             NameInputBox.Text = string.Empty;
         }

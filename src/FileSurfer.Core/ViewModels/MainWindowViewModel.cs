@@ -416,34 +416,34 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             AddToQuickAccess,
             local
         );
-        AddToArchiveCommand = ReactiveCommand.Create(AddToArchive, localNotSearching);
-        ExtractArchiveCommand = ReactiveCommand.Create(ExtractArchive, localNotSearching);
+        AddToArchiveCommand = ReactiveCommand.Create(AddToArchiveAsync, localNotSearching);
+        ExtractArchiveCommand = ReactiveCommand.Create(ExtractArchiveAsync, localNotSearching);
         GoBackCommand = ReactiveCommand.Create(GoBack, canGoBack);
         GoForwardCommand = ReactiveCommand.Create(GoForward, canGoForward);
         GoUpCommand = ReactiveCommand.Create(GoUp);
         ReloadCommand = ReactiveCommand.Create(HardReload, notSearching);
         OpenTerminalCommand = ReactiveCommand.Create(OpenTerminal, localNotSearching);
         CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
-        NewFileCommand = ReactiveCommand.Create(NewFile, notSearching);
-        NewDirCommand = ReactiveCommand.Create(NewDir, notSearching);
-        CutCommand = ReactiveCommand.Create(Cut, selection);
-        CopyCommand = ReactiveCommand.Create(Copy, selection);
-        CopyPathCommand = ReactiveCommand.Create<FileSystemEntryViewModel?, Task>(CopyPath);
+        NewFileCommand = ReactiveCommand.Create(NewFileAsync, notSearching);
+        NewDirCommand = ReactiveCommand.Create(NewDirAsync, notSearching);
+        CutCommand = ReactiveCommand.Create(CutAsync, selection);
+        CopyCommand = ReactiveCommand.Create(CopyAsync, selection);
+        CopyPathCommand = ReactiveCommand.Create<FileSystemEntryViewModel?, Task>(CopyPathAsync);
         CreateShortcutCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(CreateShortcut);
         FlattenFolderCommand = ReactiveCommand.Create<FileSystemEntryViewModel, Task>(
-            FlattenFolder
+            FlattenFolderAsync
         );
         ShowPropertiesCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(ShowProperties);
         SyncDirCommand = ReactiveCommand.Create<FileSystemEntryViewModel?, Task>(
-            SynchronizeDir,
+            SynchronizeDirAsync,
             notLocalNotSearchingNotSync
         );
-        PasteCommand = ReactiveCommand.Create(Paste, notSearching);
-        MoveToTrashCommand = ReactiveCommand.Create(MoveToTrash, localSelection);
+        PasteCommand = ReactiveCommand.Create(PasteAsync, notSearching);
+        MoveToTrashCommand = ReactiveCommand.Create(MoveToTrashAsync, localSelection);
         DeleteCommand = ReactiveCommand.Create(Delete, selection);
         SetSortByCommand = ReactiveCommand.Create<SortBy>(SetSortBy);
-        UndoCommand = ReactiveCommand.Create(Undo);
-        RedoCommand = ReactiveCommand.Create(Redo);
+        UndoCommand = ReactiveCommand.Create(UndoAsync);
+        RedoCommand = ReactiveCommand.Create(RedoAsync);
         SelectAllCommand = ReactiveCommand.Create(SelectAll);
         SelectNoneCommand = ReactiveCommand.Create(SelectNone);
         InvertSelectionCommand = ReactiveCommand.Create(InvertSelection);
@@ -506,7 +506,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             HardReload();
     }
 
-    private void CheckForUpdates(object? sender, EventArgs e)
+    private void CheckForUpdates(object? sender, EventArgs e) // TODO ASYNC
     {
         if (CurrentLocation.Exists())
         {
@@ -517,7 +517,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    private bool CompareSetLastWriteTime()
+    private bool CompareSetLastWriteTime() // TODO ASYNC
     {
         DateTime lastWriteTimeUtc =
             CurrentFs.FileInfoProvider.GetDirLastModifiedUtc(CurrentDir) ?? DateTime.UtcNow;
@@ -532,7 +532,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private void HardReload() => Reload(true);
 
-    private void Reload(bool forceHardReload)
+    private void Reload(bool forceHardReload) // TODO ASYNC
     {
         if (Searching)
             return;
@@ -640,7 +640,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// TODO
     /// </summary>
-    public async Task OpenSftpConnection(SftpConnectionViewModel connectionVm)
+    public async Task OpenSftpConnectionAsync(SftpConnectionViewModel connectionVm) // TODO ASYNC
     {
         SftpConnection connection = connectionVm.SftpConnection;
 
@@ -746,14 +746,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
                 new DirectoryEntry(path, LocalPathTools.Instance)
             ));
 
-    private void LoadDrives()
+    private void LoadDrives() // TODO ASYNC
     {
         Drives.Clear();
         foreach (DriveEntryInfo driveEntry in _localFs.LocalFileInfoProvider.GetDrives())
             Drives.Add(new SideBarEntryViewModel(_localFs, driveEntry));
     }
 
-    private void LoadQuickAccess()
+    private void LoadQuickAccess() // TODO ASYNC
     {
         foreach (string path in FileSurferSettings.QuickAccess)
         {
@@ -784,7 +784,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SftpConnectionsVms.Add(new SftpConnectionViewModel(connection));
     }
 
-    private IResult UpdateEntries(bool forceHardReload)
+    private IResult UpdateEntries(bool forceHardReload) // TODO ASYNC
     {
         if (forceHardReload || CompareSetLastWriteTime())
             return LoadDirEntries(CurrentLocation);
@@ -796,7 +796,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         return SimpleResult.Ok();
     }
 
-    private IResult LoadDirEntries(Location location)
+    private IResult LoadDirEntries(Location location) // TODO ASYNC
     {
         IFileSystem fs = location.FileSystem;
         var dirsResult = fs.FileInfoProvider.GetPathDirs(
@@ -936,7 +936,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ? new RepoStateInfo(info.CommitsToPull.ToString(), info.CommitsToPush.ToString())
             : new RepoStateInfo(NoRemoteMark, NoRemoteMark);
 
-    private IResult SetLocationNoHistory(Location location)
+    private IResult SetLocationNoHistory(Location location) // TODO ASYNC
     {
         if (!location.Exists())
             return SimpleResult.Error(
@@ -1108,7 +1108,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    private async Task NewFile()
+    private async Task NewFileAsync()
     {
         string newFileName = FileNameGenerator.GetAvailableName(
             CurrentFs.FileInfoProvider,
@@ -1128,7 +1128,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         ShowIfError(result);
     }
 
-    private async Task NewDir()
+    private async Task NewDirAsync()
     {
         string newDirName = FileNameGenerator.GetAvailableName(
             CurrentFs.FileInfoProvider,
@@ -1148,7 +1148,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         ShowIfError(result);
     }
 
-    private async Task AddToArchive()
+    private async Task AddToArchiveAsync()
     {
         string cwd = CurrentDir;
         IFileSystemEntry[] selected = SelectedFiles.ConvertToArray(e => e.FileSystemEntry);
@@ -1167,7 +1167,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         HardReload();
     }
 
-    private async Task ExtractArchive()
+    private async Task ExtractArchiveAsync()
     {
         string cwd = CurrentDir;
         if (!CurrentFs.FileInfoProvider.DirectoryExists(cwd))
@@ -1196,14 +1196,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         HardReload();
     }
 
-    private async Task CopyPath(FileSystemEntryViewModel? entry) =>
+    private async Task CopyPathAsync(FileSystemEntryViewModel? entry) =>
         ShowIfError(
             await ClipboardManager.CopyPathToFileAsync(
                 entry is null ? CurrentDir : entry.PathToEntry
             )
         );
 
-    private async Task Cut()
+    private async Task CutAsync()
     {
         if (SelectedFiles.Count <= 0)
             return;
@@ -1215,7 +1215,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         ShowIfError(result);
     }
 
-    private async Task Copy()
+    private async Task CopyAsync()
     {
         if (SelectedFiles.Count <= 0)
             return;
@@ -1227,7 +1227,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         ShowIfError(result);
     }
 
-    private async Task Paste()
+    private async Task PasteAsync()
     {
         ValueResult<IUndoableFileOperation?> r = await _dialogService.ProgressDialog(
             "Pasting...",
@@ -1257,7 +1257,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private void ShowProperties(FileSystemEntryViewModel entry) =>
         ShowIfError(CurrentFs.FileProperties.ShowFileProperties(entry));
 
-    private async Task SynchronizeDir(FileSystemEntryViewModel? entry)
+    private async Task SynchronizeDirAsync(FileSystemEntryViewModel? entry)
     {
         if (IsSynchronizerOpen)
         {
@@ -1296,19 +1296,19 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// Relays the operation to <see cref="RenameOne(string)"/> or <see cref="RenameMultiple(string)"/>.
+    /// Relays the operation to <see cref="RenameOneAsync"/> or <see cref="RenameMultipleAsync"/>.
     /// </summary>
-    public async Task Rename(string newName)
+    public async Task RenameAsync(string newName)
     {
         newName = newName.Trim();
 
         if (SelectedFiles.Count == 1)
-            await RenameOne(newName);
+            await RenameOneAsync(newName);
         else if (SelectedFiles.Count > 1)
-            await RenameMultiple(newName);
+            await RenameMultipleAsync(newName);
     }
 
-    private async Task RenameOne(string newName)
+    private async Task RenameOneAsync(string newName)
     {
         FileSystemEntryViewModel entry = SelectedFiles[0];
 
@@ -1329,7 +1329,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         ShowIfError(result);
     }
 
-    private async Task RenameMultiple(string namingPattern)
+    private async Task RenameMultipleAsync(string namingPattern)
     {
         IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry);
         if (
@@ -1369,7 +1369,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         ShowIfError(result);
     }
 
-    private async Task MoveToTrash()
+    private async Task MoveToTrashAsync()
     {
         MoveFilesToTrash op = new(
             CurrentFs.BinInteraction,
@@ -1386,7 +1386,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         HardReload();
     }
 
-    private async Task FlattenFolder(FileSystemEntryViewModel entry)
+    private async Task FlattenFolderAsync(FileSystemEntryViewModel entry)
     {
         if (!entry.IsDirectory)
         {
@@ -1432,7 +1432,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         HardReload();
     }
 
-    private async Task Undo()
+    private async Task UndoAsync()
     {
         if (_undoRedoHistory.IsTail())
             _undoRedoHistory.MoveToPrevious();
@@ -1458,7 +1458,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    private async Task Redo()
+    private async Task RedoAsync()
     {
         _undoRedoHistory.MoveToNext();
         if (_undoRedoHistory.Current is null)
@@ -1543,7 +1543,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    private void GitFetch()
+    private void GitFetch() // TODO ASYNC
     {
         if (IsVersionControlled)
         {
@@ -1552,7 +1552,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    private void GitPull()
+    private void GitPull() // TODO ASYNC
     {
         if (!IsVersionControlled)
             return;
@@ -1586,7 +1586,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Relays the operations to <see cref="IGitIntegration"/>.
     /// </summary>
-    private void GitPush()
+    private void GitPush() // TODO ASYNC
     {
         if (!IsVersionControlled)
             return;
