@@ -11,6 +11,7 @@
         MinHeight="465"
         x:DataType="vm:PropertiesWindowViewModel"
         Background="{DynamicResource PrimaryColor}"
+        CanResize="False"
         Foreground="{DynamicResource TextColor}"
         KeyDown="KeyPressed"
         WindowStartupLocation="CenterOwner"
