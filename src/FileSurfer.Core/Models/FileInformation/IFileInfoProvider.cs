@@ -2,10 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
 
 namespace FileSurfer.Core.Models.FileInformation;
+
+public readonly struct ExistsInfo
+{
+    public bool AsPath => AsFile || AsDir;
+    public bool AsFile { get; }
+    public bool AsDir { get; }
+
+    private ExistsInfo(bool asFile, bool asDir)
+    {
+        AsFile = asFile;
+        AsDir = asDir;
+    }
+
+    public static ExistsInfo ExistsAsFile() => new(true, false);
+
+    public static ExistsInfo ExistsAsDirectory() => new(false, true);
+
+    public static ExistsInfo DoesNotExist() => new(false, false);
+}
 
 /// <summary>
 /// Defines methods for retrieving file and directory information.
@@ -48,22 +68,16 @@ public interface IFileInfoProvider
     public ValueResult<Stream> GetFileStream(string path);
 
     /// <summary>
-    /// Gets the size of a file in bytes.
-    /// </summary>
-    /// <returns>The size of the file in bytes.</returns>
-    public long GetFileSizeB(string path);
-
-    /// <summary>
     /// Gets the last modified Utc time of a file.
     /// </summary>
     /// <returns>The last modified date of the file, or <see langword="null"/> if the file does not exist.</returns>
-    public DateTime? GetFileLastModifiedUtc(string filePath);
+    public Task<DateTime?> GetFileLastWriteUtcAsync(string filePath);
 
     /// <summary>
     /// Gets the last modified Utc time of a directory.
     /// </summary>
     /// <returns>The last modified date of the directory, or <see langword="null"/> if the directory does not exist.</returns>
-    public DateTime? GetDirLastModifiedUtc(string dirPath);
+    public Task<DateTime?> GetDirLastWriteUtcAsync(string dirPath);
 
     /// <summary>
     /// Checks if a path is hidden.
@@ -77,19 +91,14 @@ public interface IFileInfoProvider
     public string GetRoot();
 
     /// <summary>
-    /// Determines if the file exists within the containing file system.
+    /// Determines if the file or directory exists within the containing file system.
     /// </summary>
-    public bool FileExists(string path);
+    public ExistsInfo Exists(string path);
 
     /// <summary>
-    /// Determines if the directory exists within the containing file system.
+    /// Asynchronously determines if the file or directory exists within the containing file system.
     /// </summary>
-    public bool DirectoryExists(string path);
-
-    /// <summary>
-    /// Determines if the file or directory exists  within the containing file system.
-    /// </summary>
-    public bool PathExists(string path);
+    public Task<ExistsInfo> ExistsAsync(string path);
 }
 
 /// <summary>

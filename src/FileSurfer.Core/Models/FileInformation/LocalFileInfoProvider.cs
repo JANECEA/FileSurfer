@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
 
 // ReSharper disable VirtualMemberNeverOverridden.Global
@@ -85,40 +86,32 @@ public abstract class LocalFileInfoProvider : ILocalFileInfoProvider
         }
     }
 
-    public long GetFileSizeB(string path)
+    public Task<DateTime?> GetFileLastWriteUtcAsync(string filePath)
     {
+        DateTime? time;
         try
         {
-            return new FileInfo(path).Length;
+            time = File.GetLastWriteTimeUtc(filePath);
         }
         catch
         {
-            return 0;
+            time = null;
         }
+        return Task.FromResult(time);
     }
 
-    public virtual DateTime? GetFileLastModifiedUtc(string filePath)
+    public virtual Task<DateTime?> GetDirLastWriteUtcAsync(string dirPath)
     {
+        DateTime? time;
         try
         {
-            return new FileInfo(filePath).LastWriteTimeUtc;
+            time = Directory.GetLastWriteTimeUtc(dirPath);
         }
         catch
         {
-            return null;
+            time = null;
         }
-    }
-
-    public virtual DateTime? GetDirLastModifiedUtc(string dirPath)
-    {
-        try
-        {
-            return new DirectoryInfo(dirPath).LastWriteTimeUtc;
-        }
-        catch
-        {
-            return null;
-        }
+        return Task.FromResult(time);
     }
 
     protected virtual bool IsOsProtected(string path, bool isDirectory)
@@ -139,11 +132,18 @@ public abstract class LocalFileInfoProvider : ILocalFileInfoProvider
 
     public abstract string GetRoot();
 
-    public bool FileExists(string path) => File.Exists(path);
+    public ExistsInfo Exists(string path)
+    {
+        if (Directory.Exists(path))
+            return ExistsInfo.ExistsAsDirectory();
 
-    public bool DirectoryExists(string path) => Directory.Exists(path);
+        if (File.Exists(path))
+            return ExistsInfo.ExistsAsFile();
 
-    public bool PathExists(string path) => Path.Exists(path);
+        return ExistsInfo.DoesNotExist();
+    }
+
+    public Task<ExistsInfo> ExistsAsync(string path) => Task.FromResult(Exists(path));
 
     public abstract DriveEntryInfo[] GetDrives();
 

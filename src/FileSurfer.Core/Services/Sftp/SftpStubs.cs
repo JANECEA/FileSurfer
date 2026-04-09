@@ -38,7 +38,6 @@ public class StubArchiveManager : IArchiveManager
 public class StubGitIntegration : IGitIntegration
 {
     private readonly ValueResult<string> _result;
-    private readonly Task<ValueResult<string>> _taskResult;
 
     public StubGitIntegration(string message) => _result = ValueResult<string>.Error(message);
 

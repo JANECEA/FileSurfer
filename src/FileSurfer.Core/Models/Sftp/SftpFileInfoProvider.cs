@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.Sftp;
@@ -117,24 +119,11 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
             file.LastWriteTimeUtc
         );
 
-    public long GetFileSizeB(string path)
+    public async Task<DateTime?> GetFileLastWriteUtcAsync(string filePath)
     {
         try
         {
-            ISftpFile file = _client.Get(path);
-            return file.Length;
-        }
-        catch
-        {
-            return 0;
-        }
-    }
-
-    public DateTime? GetFileLastModifiedUtc(string filePath)
-    {
-        try
-        {
-            ISftpFile file = _client.Get(filePath);
+            ISftpFile file = await _client.GetAsync(filePath, CancellationToken.None);
             return file.LastWriteTimeUtc;
         }
         catch
@@ -143,11 +132,11 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         }
     }
 
-    public DateTime? GetDirLastModifiedUtc(string dirPath)
+    public async Task<DateTime?> GetDirLastWriteUtcAsync(string dirPath)
     {
         try
         {
-            ISftpFile dir = _client.Get(dirPath);
+            ISftpFile dir = await _client.GetAsync(dirPath, CancellationToken.None);
             return dir.LastWriteTimeUtc;
         }
         catch
@@ -174,41 +163,35 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
 
     public string GetRoot() => RemoteUnixPathTools.RootDir;
 
-    public bool FileExists(string path)
+    public ExistsInfo Exists(string path)
     {
         try
         {
-            ISftpFile file = _client.Get(path);
-            return file.IsRegularFile || file.IsSymbolicLink;
+            return ExistsInternal(_client.Get(path));
         }
         catch
         {
-            return false;
+            return ExistsInfo.DoesNotExist();
         }
     }
 
-    public bool DirectoryExists(string path)
+    public async Task<ExistsInfo> ExistsAsync(string path)
     {
         try
         {
-            ISftpFile file = _client.Get(path);
-            return file.IsDirectory;
+            return ExistsInternal(await _client.GetAsync(path, CancellationToken.None));
         }
         catch
         {
-            return false;
+            return ExistsInfo.DoesNotExist();
         }
     }
 
-    public bool PathExists(string path)
+    private static ExistsInfo ExistsInternal(ISftpFile entry)
     {
-        try
-        {
-            return _client.Exists(path);
-        }
-        catch
-        {
-            return false;
-        }
+        if (entry.IsRegularFile || entry.IsSymbolicLink)
+            return ExistsInfo.ExistsAsFile();
+
+        return entry.IsDirectory ? ExistsInfo.ExistsAsDirectory() : ExistsInfo.DoesNotExist();
     }
 }

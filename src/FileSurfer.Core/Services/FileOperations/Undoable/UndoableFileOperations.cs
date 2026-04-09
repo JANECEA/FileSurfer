@@ -250,7 +250,7 @@ public sealed class FlattenFolder : IUndoableFileOperation
     private IResult RenameIfConflict(out string newDirPath)
     {
         newDirPath = _dirPath;
-        if (!_infoProvider.PathExists(_pathTools.Combine(_dirPath, _dirName)))
+        if (!_infoProvider.Exists(_pathTools.Combine(_dirPath, _dirName)).AsPath)
             return SimpleResult.Ok();
 
         string newName = FileNameGenerator.GetNameMultipleDirs(
@@ -307,7 +307,7 @@ public sealed class FlattenFolder : IUndoableFileOperation
     private SimpleResult CheckConditions(out string newDirName)
     {
         newDirName = _dirName;
-        if (!_infoProvider.PathExists(_dirPath))
+        if (!_infoProvider.Exists(_dirPath).AsPath)
             return SimpleResult.Ok();
 
         if (!_movedEntries.Any(e => _pathTools.NamesAreEqual(_dirName, e.Name)))

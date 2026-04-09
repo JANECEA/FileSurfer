@@ -21,7 +21,7 @@ public static class FileNameGenerator
     )
     {
         IPathTools pathTools = fileInfoProvider.PathTools;
-        if (!fileInfoProvider.PathExists(pathTools.Combine(directory, newName)))
+        if (!fileInfoProvider.Exists(pathTools.Combine(directory, newName)).AsPath)
             return newName;
 
         string nameWithoutExtension = Path.GetFileNameWithoutExtension(newName);
@@ -30,7 +30,7 @@ public static class FileNameGenerator
         {
             string newFileName = $"{nameWithoutExtension} ({index}){extension}";
 
-            if (!fileInfoProvider.PathExists(pathTools.Combine(directory, newFileName)))
+            if (!fileInfoProvider.Exists(pathTools.Combine(directory, newFileName)).AsPath)
                 return newFileName;
         }
     }
@@ -46,11 +46,7 @@ public static class FileNameGenerator
     )
     {
         IPathTools pathTools = fileInfoProvider.PathTools;
-        if (
-            dirPaths.All(dirPath =>
-                !fileInfoProvider.PathExists(pathTools.Combine(dirPath, newName))
-            )
-        )
+        if (dirPaths.All(d => !fileInfoProvider.Exists(pathTools.Combine(d, newName)).AsPath))
             return newName;
 
         string nameWithoutExtension = Path.GetFileNameWithoutExtension(newName);
@@ -60,8 +56,8 @@ public static class FileNameGenerator
             string newFileName = $"{nameWithoutExtension} ({index}){extension}";
 
             if (
-                dirPaths.All(dirPath =>
-                    !fileInfoProvider.PathExists(pathTools.Combine(dirPath, newFileName))
+                dirPaths.All(d =>
+                    !fileInfoProvider.Exists(pathTools.Combine(d, newFileName)).AsPath
                 )
             )
                 return newFileName;
@@ -140,7 +136,7 @@ public static class FileNameGenerator
                 string newFileName = $"{nameWithoutExtension} ({index}){extension}";
                 lastIndex++;
 
-                if (!fileInfoProvider.PathExists(pathTools.Combine(directory, newFileName)))
+                if (!fileInfoProvider.Exists(pathTools.Combine(directory, newFileName)).AsPath)
                 {
                     newNames[i] = newFileName;
                     break;

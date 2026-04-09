@@ -497,7 +497,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
                 Interval = TimeSpan.FromMilliseconds(FileSurferSettings.AutomaticRefreshInterval),
             };
             _lastRefreshedUtc = DateTime.UtcNow;
-            _refreshTimer.Tick += CheckForUpdates;
+            _refreshTimer.Tick += (_, _) => _ = CheckForUpdates();
             _refreshTimer.Start();
         }
 
@@ -506,21 +506,21 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             HardReload();
     }
 
-    private void CheckForUpdates(object? sender, EventArgs e) // TODO ASYNC
+    private async Task CheckForUpdates() // TODO ASYNC
     {
-        if (CurrentLocation.Exists())
+        if (await CurrentLocation.ExistsAsync())
         {
-            if (CompareSetLastWriteTime())
+            if (await CompareSetLastWriteTime())
                 HardReload();
             else if (IsVersionControlled)
                 SoftReload();
         }
     }
 
-    private bool CompareSetLastWriteTime() // TODO ASYNC
+    private async Task<bool> CompareSetLastWriteTime()
     {
         DateTime lastWriteTimeUtc =
-            CurrentFs.FileInfoProvider.GetDirLastModifiedUtc(CurrentDir) ?? DateTime.UtcNow;
+            await CurrentFs.FileInfoProvider.GetDirLastWriteUtcAsync(CurrentDir) ?? DateTime.UtcNow;
         if (_lastRefreshedUtc >= lastWriteTimeUtc)
             return false;
 
@@ -640,7 +640,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// TODO
     /// </summary>
-    public async Task OpenSftpConnectionAsync(SftpConnectionViewModel connectionVm) // TODO ASYNC
+    public async Task OpenSftpConnectionAsync(SftpConnectionViewModel connectionVm)
     {
         SftpConnection connection = connectionVm.SftpConnection;
 
@@ -758,9 +758,11 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         foreach (string path in FileSurferSettings.QuickAccess)
         {
             IFileSystemEntry? entry = null;
-            if (_localFs.LocalFileInfoProvider.DirectoryExists(path))
+
+            ExistsInfo exists = _localFs.LocalFileInfoProvider.Exists(path);
+            if (exists.AsDir)
                 entry = new DirectoryEntry(path, LocalPathTools.Instance);
-            else if (_localFs.LocalFileInfoProvider.FileExists(path))
+            else if (exists.AsFile)
                 entry = new FileEntry(path, LocalPathTools.Instance);
 
             if (entry is not null)
@@ -786,7 +788,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private IResult UpdateEntries(bool forceHardReload)
     {
-        if (forceHardReload || CompareSetLastWriteTime())
+        if (forceHardReload || CompareSetLastWriteTime().Result)
             return LoadDirEntries(CurrentLocation);
 
         if (IsVersionControlled)
@@ -900,7 +902,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         IsVersionControlled =
             FileSurferSettings.GitIntegration
-            && location.FileSystem.FileInfoProvider.DirectoryExists(location.Path)
+            && location.FileSystem.FileInfoProvider.Exists(location.Path).AsDir
             && location.FileSystem.GitIntegration.InitIfGitRepository(location.Path);
 
         if (IsVersionControlled)
@@ -1073,7 +1075,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private void OpenTerminal()
     {
-        if (CurrentFs is LocalFileSystem fs && fs.LocalFileInfoProvider.DirectoryExists(CurrentDir))
+        if (CurrentFs is LocalFileSystem fs && fs.LocalFileInfoProvider.Exists(CurrentDir).AsDir)
             ShowIfError(fs.LocalShellHandler.OpenTerminalAt(CurrentDir));
     }
 
@@ -1158,7 +1160,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     {
         string cwd = CurrentDir;
         IFileSystemEntry[] selected = SelectedFiles.ConvertToArray(e => e.FileSystemEntry);
-        if (!CurrentFs.FileInfoProvider.DirectoryExists(cwd) || selected.Length == 0)
+        if (!(await CurrentFs.FileInfoProvider.ExistsAsync(cwd)).AsDir || selected.Length == 0)
             return;
 
         string archName =
@@ -1176,7 +1178,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private async Task ExtractArchiveAsync()
     {
         string cwd = CurrentDir;
-        if (!CurrentFs.FileInfoProvider.DirectoryExists(cwd))
+        if (!(await CurrentFs.FileInfoProvider.ExistsAsync(cwd)).AsDir)
             return;
 
         IFileSystemEntry[] selected = SelectedFiles.ConvertToArray(e => e.FileSystemEntry);
