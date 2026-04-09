@@ -22,6 +22,8 @@ public static class ResultExtensions
     /// </summary>
     public static ValueResult<T> OkResult<T>(this T value) => ValueResult<T>.Ok(value);
 
+    public static Task<IResult> ToTask(this IResult result) => Task.FromResult(result);
+
     /// <summary>
     /// Return first failed result
     /// </summary>

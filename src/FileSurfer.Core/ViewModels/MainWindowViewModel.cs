@@ -1305,14 +1305,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// Relays the operation to <see cref="RenameOneAsync"/> or <see cref="RenameMultipleAsync"/>.
     /// </summary>
-    public async Task RenameAsync(string newName)
+    public Task RenameAsync(string newName)
     {
         newName = newName.Trim();
 
         if (SelectedFiles.Count == 1)
-            await RenameOneAsync(newName);
-        else if (SelectedFiles.Count > 1)
-            await RenameMultipleAsync(newName);
+            return RenameOneAsync(newName);
+        if (SelectedFiles.Count > 1)
+            return RenameMultipleAsync(newName);
+
+        return Task.CompletedTask;
     }
 
     private async Task RenameOneAsync(string newName)

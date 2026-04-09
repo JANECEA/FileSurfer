@@ -13,7 +13,7 @@ public class SftpFileSystemFactory
 
     public SftpFileSystemFactory(IDialogService dialogService) => _dialogService = dialogService;
 
-    private async Task<string?> RequestPasswordAsync(SftpConnection connection)
+    private Task<string?> RequestPasswordAsync(SftpConnection connection)
     {
         const string title = "Input password";
         string context = $"""
@@ -21,17 +21,17 @@ public class SftpFileSystemFactory
             host - "{connection.HostnameOrIpAddress}"
             username - "{connection.Username}"
             """;
-        return await _dialogService.InputDialogAsync(title, context, true);
+        return _dialogService.InputDialogAsync(title, context, true);
     }
 
-    private async Task<string?> RequestPassphraseAsync(SftpConnection connection)
+    private Task<string?> RequestPassphraseAsync(SftpConnection connection)
     {
         const string title = "Input passphrase";
         string context = $"""
             Please enter the passphrase for:
             key path - "{connection.KeyPath}"
             """;
-        return await _dialogService.InputDialogAsync(title, context, true);
+        return _dialogService.InputDialogAsync(title, context, true);
     }
 
     private async Task<ValueResult<AuthenticationMethod>> GetAuthMethod(SftpConnection connection)
@@ -117,7 +117,7 @@ public class SftpFileSystemFactory
         }
     }
 
-    private async Task<bool> ConfirmNewFpAsync(
+    private Task<bool> ConfirmNewFpAsync(
         SftpConnection connection,
         FingerPrint oldFingerprint,
         FingerPrint newFingerprint
@@ -138,7 +138,7 @@ public class SftpFileSystemFactory
 
             Do you want to trust the new fingerprint and continue connecting?
             """;
-        return await _dialogService.ConfirmationDialogAsync(title, context);
+        return _dialogService.ConfirmationDialogAsync(title, context);
     }
 
     private void AddedNewFpAsync(SftpConnection connection, FingerPrint newFingerprint)

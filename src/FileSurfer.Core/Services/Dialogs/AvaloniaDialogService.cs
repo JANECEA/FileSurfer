@@ -55,25 +55,25 @@ public sealed class AvaloniaDialogService : IDialogService
         }
     }
 
-    public async Task<T> ProgressDialogAsync<T>(string title, AsyncOperation<T> operation)
+    public Task<T> ProgressDialogAsync<T>(string title, AsyncOperation<T> operation)
     {
         Task<T> opTask = operation();
-        return await ProgressDialogInternal(title, opTask, ProgressReporter.None, null);
+        return ProgressDialogInternal(title, opTask, ProgressReporter.None, null);
     }
 
-    public async Task<T> ProgressDialogAsync<T>(string title, CancellableOperation<T> operation)
+    public Task<T> ProgressDialogAsync<T>(string title, CancellableOperation<T> operation)
     {
         CancellationTokenSource cts = new();
         Task<T> opTask = operation(cts.Token);
-        return await ProgressDialogInternal(title, opTask, ProgressReporter.None, cts);
+        return ProgressDialogInternal(title, opTask, ProgressReporter.None, cts);
     }
 
-    public async Task<T> ProgressDialogAsync<T>(string title, ReportingOperation<T> operation)
+    public Task<T> ProgressDialogAsync<T>(string title, ReportingOperation<T> operation)
     {
         ProgressReporter reporter = new();
         CancellationTokenSource cts = new();
         Task<T> opTask = operation(reporter, cts.Token);
-        return await ProgressDialogInternal(title, opTask, reporter, cts);
+        return ProgressDialogInternal(title, opTask, reporter, cts);
     }
 
     public async Task<bool> ConfirmationDialogAsync(string title, string question)
@@ -88,8 +88,8 @@ public sealed class AvaloniaDialogService : IDialogService
         return result is true;
     }
 
-    public async Task<string?> InputDialogAsync(string title, string context, bool secret) =>
-        await Dispatcher.UIThread.InvokeAsync(async () =>
+    public Task<string?> InputDialogAsync(string title, string context, bool secret) =>
+        Dispatcher.UIThread.InvokeAsync(async () =>
         {
             InputDialogWindow dialog = new() { Title = title, Context = context };
             dialog.HideInput(secret);
@@ -98,13 +98,13 @@ public sealed class AvaloniaDialogService : IDialogService
             return string.IsNullOrEmpty(result) ? null : result;
         });
 
-    public async Task<string?> SuggestInputDialogAsync(
+    public Task<string?> SuggestInputDialogAsync(
         string title,
         string context,
         string suggestionLabel,
         IEnumerable<string> options
     ) =>
-        await Dispatcher.UIThread.InvokeAsync(async () =>
+        Dispatcher.UIThread.InvokeAsync(async () =>
         {
             SuggestInputDialogWindow dialog = new()
             {

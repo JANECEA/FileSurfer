@@ -172,11 +172,13 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
                 await RaiseAsync(new FileSystemEvent(filePath, false, FileSystemEventType.Updated));
     }
 
-    private async Task RaiseAsync(FileSystemEvent fsEvent)
+    private Task RaiseAsync(FileSystemEvent fsEvent)
     {
         Func<object?, FileSystemEvent, Task>? eventMethod = ChangeDetected;
 
-        if (eventMethod is not null)
-            await eventMethod(this, fsEvent);
+        if (eventMethod is null)
+            return Task.CompletedTask;
+
+        return eventMethod(this, fsEvent);
     }
 }

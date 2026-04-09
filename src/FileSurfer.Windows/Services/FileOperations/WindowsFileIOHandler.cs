@@ -92,19 +92,12 @@ public class WindowsFileIoHandler : IFileIoHandler
         return result;
     }
 
-    public async Task<IResult> WriteDirStream(
+    public Task<IResult> WriteDirStream(
         DirTransferStream dirStream,
         string dirPath,
         ProgressReporter reporter,
         CancellationToken ct
-    ) =>
-        await dirStream.WriteWithIoHandlerAsync(
-            this,
-            LocalPathTools.Instance,
-            dirPath,
-            reporter,
-            ct
-        );
+    ) => dirStream.WriteWithIoHandlerAsync(this, LocalPathTools.Instance, dirPath, reporter, ct);
 
     public IResult NewFileAt(string dirPath, string fileName)
     {

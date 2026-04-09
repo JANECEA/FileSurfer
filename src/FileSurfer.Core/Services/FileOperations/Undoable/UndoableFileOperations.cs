@@ -343,18 +343,14 @@ public sealed class RenameOne : IUndoableFileOperation
     }
 
     public Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct) =>
-        Task.FromResult(
-            _entry is DirectoryEntry
-                ? _fileIoHandler.RenameDirAt(_entry.PathToEntry, _newName)
-                : _fileIoHandler.RenameFileAt(_entry.PathToEntry, _newName)
-        );
+        _entry is DirectoryEntry
+            ? _fileIoHandler.RenameDirAt(_entry.PathToEntry, _newName).ToTask()
+            : _fileIoHandler.RenameFileAt(_entry.PathToEntry, _newName).ToTask();
 
     public Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct) =>
-        Task.FromResult(
-            _entry is DirectoryEntry
-                ? _fileIoHandler.RenameDirAt(_newPath, _entry.Name)
-                : _fileIoHandler.RenameFileAt(_newPath, _entry.Name)
-        );
+        _entry is DirectoryEntry
+            ? _fileIoHandler.RenameDirAt(_newPath, _entry.Name).ToTask()
+            : _fileIoHandler.RenameFileAt(_newPath, _entry.Name).ToTask();
 }
 
 /// <summary>
@@ -376,10 +372,10 @@ public sealed class NewFileAt : IUndoableFileOperation
     }
 
     public Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct) =>
-        Task.FromResult(_fileIoHandler.NewFileAt(_path, _fileName));
+        _fileIoHandler.NewFileAt(_path, _fileName).ToTask();
 
     public Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct) =>
-        Task.FromResult(_fileIoHandler.DeleteFile(_filePath));
+        _fileIoHandler.DeleteFile(_filePath).ToTask();
 }
 
 /// <summary>
@@ -401,8 +397,8 @@ public sealed class NewDirAt : IUndoableFileOperation
     }
 
     public Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct) =>
-        Task.FromResult(_fileIoHandler.NewDirAt(_path, _dirName));
+        _fileIoHandler.NewDirAt(_path, _dirName).ToTask();
 
     public Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct) =>
-        Task.FromResult(_fileIoHandler.DeleteFile(_dirPath));
+        _fileIoHandler.DeleteFile(_dirPath).ToTask();
 }

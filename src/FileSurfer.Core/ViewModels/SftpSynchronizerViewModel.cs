@@ -138,11 +138,11 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
                 _dialogService.InfoDialog(SyncErrorTitle, error);
     }
 
-    private async Task ShowEvent(FileSystemEvent fsEvent, string remotePath, IResult result)
+    private Task ShowEvent(FileSystemEvent fsEvent, string remotePath, IResult result)
     {
         ShowIfError(result);
         SyncEventViewModel e = _syncEventVmFactory.GetEvent(fsEvent, remotePath);
-        await Dispatcher.UIThread.InvokeAsync(() => SyncEvents.Add(e));
+        return Dispatcher.UIThread.InvokeAsync(() => SyncEvents.Add(e)).GetTask();
     }
 
     private async Task StartSynchronization()
@@ -167,7 +167,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         ShowIfError(result);
     }
 
-    private async Task StopSynchronization() => await _synchronizer.StopAsync();
+    private Task StopSynchronization() => _synchronizer.StopAsync();
 
     public static async Task<ValueResult<string>> GetLocalPath(
         Location remoteLocation,
@@ -208,12 +208,13 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         await CastAndDispose(StopSyncCommand);
         return;
 
-        static async ValueTask CastAndDispose(IDisposable resource)
+        static ValueTask CastAndDispose(IDisposable resource)
         {
             if (resource is IAsyncDisposable resourceAs)
-                await resourceAs.DisposeAsync();
-            else
-                resource.Dispose();
+                return resourceAs.DisposeAsync();
+
+            resource.Dispose();
+            return ValueTask.CompletedTask;
         }
     }
 

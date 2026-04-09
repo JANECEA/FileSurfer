@@ -8,7 +8,7 @@ namespace FileSurfer.Core.Services.FileOperations.Undoable;
 
 public abstract class UndoableOperation : IUndoableFileOperation
 {
-    private const int WaitBetweenMs = 5;
+    private const int WaitBetweenMs = 10;
 
     protected IFileIoHandler FileIoHandler { get; }
     protected IFileSystemEntry[] Entries { get; }
@@ -22,13 +22,11 @@ public abstract class UndoableOperation : IUndoableFileOperation
         Entries = entries;
     }
 
-    public async Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct) =>
-        await Task.Run(() => InvokeInternal(InvokeAction, InvokeOpName, reporter, ct), ct)
-            .ConfigureAwait(false);
+    public Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct) =>
+        Task.Run(() => InvokeInternal(InvokeAction, InvokeOpName, reporter, ct), ct);
 
-    public async Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct) =>
-        await Task.Run(() => InvokeInternal(UndoAction, UndoOpName, reporter, ct), ct)
-            .ConfigureAwait(false);
+    public Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct) =>
+        Task.Run(() => InvokeInternal(UndoAction, UndoOpName, reporter, ct), ct);
 
     private async Task<IResult> InvokeInternal(
         Func<IFileSystemEntry, int, IResult> action,

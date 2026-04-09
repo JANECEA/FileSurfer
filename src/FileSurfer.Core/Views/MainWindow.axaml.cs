@@ -335,7 +335,7 @@ public partial class MainWindow : Window
     {
         if (NameInputBox.Text is string newName)
         {
-            _viewModel?.RenameAsync(newName);
+            _ = _viewModel?.RenameAsync(newName);
             NewNameBar.IsVisible = false;
             NameInputBox.Text = string.Empty;
         }
@@ -345,7 +345,7 @@ public partial class MainWindow : Window
     {
         if (CommitInputBox.Text is string commitMessage)
         {
-            _viewModel?.GitCommitAsync(commitMessage.Trim());
+            _ = _viewModel?.GitCommitAsync(commitMessage.Trim());
             CommitMessageBar.IsVisible = false;
             CommitInputBox.Text = string.Empty;
         }

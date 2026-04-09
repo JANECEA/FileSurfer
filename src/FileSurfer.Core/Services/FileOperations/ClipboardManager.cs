@@ -86,15 +86,11 @@ public class ClipboardManager : IClipboardManager
         return SimpleResult.Ok();
     }
 
-    public async Task<IResult> CutAsync(
-        IFileSystemEntry[] selectedFiles,
-        Location currentLocation
-    ) => await SetClipboardInternal(selectedFiles, currentLocation, PasteType.Cut);
+    public Task<IResult> CutAsync(IFileSystemEntry[] selectedFiles, Location currentLocation) =>
+        SetClipboardInternal(selectedFiles, currentLocation, PasteType.Cut);
 
-    public async Task<IResult> CopyAsync(
-        IFileSystemEntry[] selectedFiles,
-        Location currentLocation
-    ) => await SetClipboardInternal(selectedFiles, currentLocation, PasteType.Copy);
+    public Task<IResult> CopyAsync(IFileSystemEntry[] selectedFiles, Location currentLocation) =>
+        SetClipboardInternal(selectedFiles, currentLocation, PasteType.Copy);
 
     private static async Task<OpResult> SaveImageToPath(Location destination, Bitmap bitmap)
     {
