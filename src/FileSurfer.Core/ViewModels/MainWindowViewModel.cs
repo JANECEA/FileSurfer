@@ -746,14 +746,14 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
                 new DirectoryEntry(path, LocalPathTools.Instance)
             ));
 
-    private void LoadDrives() // TODO ASYNC
+    private void LoadDrives()
     {
         Drives.Clear();
         foreach (DriveEntryInfo driveEntry in _localFs.LocalFileInfoProvider.GetDrives())
             Drives.Add(new SideBarEntryViewModel(_localFs, driveEntry));
     }
 
-    private void LoadQuickAccess() // TODO ASYNC
+    private void LoadQuickAccess()
     {
         foreach (string path in FileSurferSettings.QuickAccess)
         {
@@ -784,7 +784,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             SftpConnectionsVms.Add(new SftpConnectionViewModel(connection));
     }
 
-    private IResult UpdateEntries(bool forceHardReload) // TODO ASYNC
+    private IResult UpdateEntries(bool forceHardReload)
     {
         if (forceHardReload || CompareSetLastWriteTime())
             return LoadDirEntries(CurrentLocation);

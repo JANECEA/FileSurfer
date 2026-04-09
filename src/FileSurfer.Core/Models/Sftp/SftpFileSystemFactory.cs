@@ -34,7 +34,9 @@ public class SftpFileSystemFactory
         return _dialogService.InputDialogAsync(title, context, true);
     }
 
-    private async Task<ValueResult<AuthenticationMethod>> GetAuthMethod(SftpConnection connection)
+    private async Task<ValueResult<AuthenticationMethod>> GetAuthMethodAsync(
+        SftpConnection connection
+    )
     {
         if (string.IsNullOrWhiteSpace(connection.KeyPath))
         {
@@ -74,47 +76,68 @@ public class SftpFileSystemFactory
 
         try
         {
-            ValueResult<AuthenticationMethod> authMethodResult = await GetAuthMethod(connection);
-            if (!authMethodResult.IsOk)
-                return ValueResult<SftpFileSystem>.Error(authMethodResult);
-
-            ConnectionInfo connectionInfo = new(
-                connection.HostnameOrIpAddress,
-                connection.Port,
-                connection.Username,
-                authMethodResult.Value
-            );
-            SftpClient sftpClient = new(connectionInfo);
-            SshClient sshClient = new(connectionInfo);
-            HostKeyEventArgs? args = null;
-            sftpClient.HostKeyReceived += (_, e) => args = e;
-            sftpClient.Connect(); // HostKeyReceived is invoked before Connect returns
-            sshClient.Connect();
-
-            if (args is null)
-                return ValueResult<SftpFileSystem>.Error("Host key verification failed.");
-
-            if (!await ProcessHostKeyArgs(args, connection))
-                return ValueResult<SftpFileSystem>.Error();
-
-            if (sftpClient.IsConnected && sshClient.IsConnected)
-                return new SftpFileSystem(
-                    connection.HostnameOrIpAddress,
-                    sftpClient,
-                    sshClient
-                ).OkResult();
-
-            sftpClient.Dispose();
-            return ValueResult<SftpFileSystem>.Error("Host key verification failed.");
+            return await TryConnectInternal(connection);
         }
         catch (SshOperationTimeoutException)
         {
-            return ValueResult<SftpFileSystem>.Error("SFTP connection timed out");
+            return ValueResult<SftpFileSystem>.Error("SFTP connection timed out.");
+        }
+        catch (OperationCanceledException)
+        {
+            return ValueResult<SftpFileSystem>.Error();
         }
         catch (Exception ex)
         {
             return ValueResult<SftpFileSystem>.Error(ex.Message);
         }
+    }
+
+    private async Task<ValueResult<SftpFileSystem>> TryConnectInternal(SftpConnection connection)
+    {
+        ValueResult<AuthenticationMethod> authMethodResult = await GetAuthMethodAsync(connection);
+        if (!authMethodResult.IsOk)
+            return ValueResult<SftpFileSystem>.Error(authMethodResult);
+
+        ConnectionInfo connectionInfo = new(
+            connection.HostnameOrIpAddress,
+            connection.Port,
+            connection.Username,
+            authMethodResult.Value
+        );
+        SftpClient sftpClient = new(connectionInfo);
+        SshClient sshClient = new(connectionInfo);
+        HostKeyEventArgs? args = null;
+
+        sftpClient.HostKeyReceived += (_, e) => args = e;
+
+        await _dialogService.ProgressDialogAsync(
+            $"Connecting to {connection.HostnameOrIpAddress}",
+            async (r, ct) =>
+            {
+                IndeterminateReporter rep = new(r);
+                rep.ReportItem("Connecting SFTP client...");
+                await sftpClient.ConnectAsync(ct);
+                rep.ReportItem("Connecting SSH client...");
+                await sshClient.ConnectAsync(ct);
+                return Task.CompletedTask;
+            }
+        );
+
+        if (args is null)
+            return ValueResult<SftpFileSystem>.Error("Host key verification failed.");
+
+        if (!await ProcessHostKeyArgs(args, connection))
+            return ValueResult<SftpFileSystem>.Error();
+
+        if (sftpClient.IsConnected && sshClient.IsConnected)
+            return new SftpFileSystem(
+                connection.HostnameOrIpAddress,
+                sftpClient,
+                sshClient
+            ).OkResult();
+
+        sftpClient.Dispose();
+        return ValueResult<SftpFileSystem>.Error("Host key verification failed.");
     }
 
     private Task<bool> ConfirmNewFpAsync(
