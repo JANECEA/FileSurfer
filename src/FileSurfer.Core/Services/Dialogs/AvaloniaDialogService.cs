@@ -25,7 +25,7 @@ public sealed class AvaloniaDialogService : IDialogService
         string title,
         Task<T> opTask,
         ProgressReporter reporter,
-        CancellationTokenSource cts
+        CancellationTokenSource? cts
     )
     {
         Task waitTask = Task.Delay(ShowOpDialogDelayMs);
@@ -51,8 +51,21 @@ public sealed class AvaloniaDialogService : IDialogService
         {
             if (!dialogClosedByUser)
                 await Dispatcher.UIThread.InvokeAsync(dialog.Close);
-            cts.Dispose();
+            cts?.Dispose();
         }
+    }
+
+    public async Task<T> ProgressDialogAsync<T>(string title, AsyncOperation<T> operation)
+    {
+        Task<T> opTask = operation();
+        return await ProgressDialogInternal(title, opTask, ProgressReporter.None, null);
+    }
+
+    public async Task<T> ProgressDialogAsync<T>(string title, CancellableOperation<T> operation)
+    {
+        CancellationTokenSource cts = new();
+        Task<T> opTask = operation(cts.Token);
+        return await ProgressDialogInternal(title, opTask, ProgressReporter.None, cts);
     }
 
     public async Task<T> ProgressDialogAsync<T>(string title, ReportingOperation<T> operation)
@@ -61,13 +74,6 @@ public sealed class AvaloniaDialogService : IDialogService
         CancellationTokenSource cts = new();
         Task<T> opTask = operation(reporter, cts.Token);
         return await ProgressDialogInternal(title, opTask, reporter, cts);
-    }
-
-    public async Task<T> ProgressDialogAsync<T>(string title, CancellableOperation<T> operation)
-    {
-        CancellationTokenSource cts = new();
-        Task<T> opTask = operation(cts.Token);
-        return await ProgressDialogInternal(title, opTask, ProgressReporter.None, cts);
     }
 
     public async Task<bool> ConfirmationDialogAsync(string title, string question)

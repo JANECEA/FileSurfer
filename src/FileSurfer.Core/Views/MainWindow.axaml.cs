@@ -345,7 +345,7 @@ public partial class MainWindow : Window
     {
         if (CommitInputBox.Text is string commitMessage)
         {
-            _viewModel?.GitCommit(commitMessage.Trim());
+            _viewModel?.GitCommitAsync(commitMessage.Trim());
             CommitMessageBar.IsVisible = false;
             CommitInputBox.Text = string.Empty;
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using FileSurfer.Core;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Shell;
@@ -150,6 +151,22 @@ public class LinuxShellHandler : IShellCommandHandler
         return RunProcess(psi);
     }
 
+    public Task<ValueResult<string>> ExecuteCommandAsync(string programName, params string[] args)
+    {
+        ProcessStartInfo psi = new()
+        {
+            FileName = programName,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        foreach (string arg in args)
+            psi.ArgumentList.Add(arg);
+
+        return RunProcessAsync(psi);
+    }
+
     public ValueResult<string> ExecuteShellCommand(string shellCommand, params string[] args) =>
         RunProcess(GetShellPsi(null, shellCommand, args));
 
@@ -187,6 +204,40 @@ public class LinuxShellHandler : IShellCommandHandler
             string stdOut = process.StandardOutput.ReadToEnd();
             string stdErr = process.StandardError.ReadToEnd();
             process.WaitForExit();
+
+            if (string.IsNullOrWhiteSpace(stdOut))
+                stdOut = stdErr;
+
+            if (string.IsNullOrWhiteSpace(stdErr))
+                stdErr = stdOut;
+
+            return process.ExitCode == 0
+                ? ValueResult<string>.Ok(stdOut)
+                : ValueResult<string>.Error(stdErr);
+        }
+        catch (Exception ex)
+        {
+            return ValueResult<string>.Error(ex.Message);
+        }
+    }
+
+    private static async Task<ValueResult<string>> RunProcessAsync(
+        ProcessStartInfo processStartInfo
+    )
+    {
+        using Process process = new();
+        process.StartInfo = processStartInfo;
+        try
+        {
+            process.Start();
+
+            Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync();
+            Task<string> stderrTask = process.StandardError.ReadToEndAsync();
+
+            await process.WaitForExitAsync().ConfigureAwait(false);
+
+            string stdOut = await stdoutTask.ConfigureAwait(false);
+            string stdErr = await stderrTask.ConfigureAwait(false);
 
             if (string.IsNullOrWhiteSpace(stdOut))
                 stdOut = stdErr;

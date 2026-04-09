@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using FileSurfer.Core.Models;
 
 namespace FileSurfer.Core.Services.VersionControl;
@@ -49,13 +50,13 @@ public interface IGitIntegration : IDisposable
     /// Downloads the latest changes from the version control system to the local repository.
     /// </summary>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    public IResult FetchChanges();
+    public Task<IResult> FetchChangesAsync();
 
     /// <summary>
     /// Downloads and merges the latest changes from the version control system to the local repository.
     /// </summary>
     /// <returns>A <see cref="ValueResult{string}"/> representing the result of the operation and standard output of the command.</returns>
-    public ValueResult<string> PullChanges();
+    public Task<ValueResult<string>> PullChangesAsync();
 
     /// <summary>
     /// Retrieves how many commits the local repository is behind and ahead of the remote.
@@ -121,11 +122,11 @@ public interface IGitIntegration : IDisposable
     /// </summary>
     /// <param name="commitMessage">The message describing the commit.</param>
     /// <returns>A <see cref="ValueResult{string}"/> representing the result of the operation and standard output of the command.</returns>
-    public ValueResult<string> CommitChanges(string commitMessage);
+    public Task<ValueResult<string>> CommitChangesAsync(string commitMessage);
 
     /// <summary>
     /// Uploads the committed changes to the remote repository.
     /// </summary>
     /// <returns>A <see cref="ValueResult{string}"/> representing the result of the operation and standard output of the command.</returns>
-    public ValueResult<string> PushChanges();
+    public Task<ValueResult<string>> PushChangesAsync();
 }

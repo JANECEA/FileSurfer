@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Shell;
@@ -43,7 +44,7 @@ public class LocalGitIntegration : IGitIntegration
 
     public LocalGitIntegration(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
-    private ValueResult<string> ExecuteGitCommand(params string[] restOfCommand)
+    private string[] GetWholeCommand(string[] restOfCommand)
     {
         string[] commandStart = ["-C", GetWorkingDir(_currentRepo!)];
         string[] wholeCommand = new string[commandStart.Length + restOfCommand.Length];
@@ -54,8 +55,14 @@ public class LocalGitIntegration : IGitIntegration
         for (int i = 0; i < restOfCommand.Length; i++)
             wholeCommand[i + commandStart.Length] = restOfCommand[i];
 
-        return _shellHandler.ExecuteCommand("git", wholeCommand);
+        return wholeCommand;
     }
+
+    private ValueResult<string> ExecuteGitCommand(params string[] restOfCommand) =>
+        _shellHandler.ExecuteCommand("git", GetWholeCommand(restOfCommand));
+
+    private Task<ValueResult<string>> ExecuteGitCommandAsync(params string[] restOfCommand) =>
+        _shellHandler.ExecuteCommandAsync("git", GetWholeCommand(restOfCommand));
 
     public bool InitIfGitRepository(string directoryPath)
     {
@@ -89,28 +96,14 @@ public class LocalGitIntegration : IGitIntegration
     private static string GetWorkingDir(Repository repo) =>
         LocalPathTools.NormalizePath(repo.Info.WorkingDirectory);
 
-    public IResult FetchChanges()
+    public async Task<IResult> FetchChangesAsync()
     {
         if (_currentRepo is null)
             return MissingRepoResult;
 
         try
         {
-            Remote? remote = _currentRepo.Head.TrackedBranch is Branch branch
-                ? _currentRepo.Network.Remotes[branch.RemoteName]
-                : _currentRepo.Network.Remotes["origin"];
-
-            if (remote is null)
-                return SimpleResult.Error("No tracking information found.");
-
-            Commands.Fetch(
-                _currentRepo,
-                remote.Name,
-                remote.FetchRefSpecs.Select(spec => spec.Specification),
-                null,
-                null
-            );
-            return SimpleResult.Ok();
+            return await ExecuteGitCommandAsync("fetch");
         }
         catch (Exception ex)
         {
@@ -118,20 +111,22 @@ public class LocalGitIntegration : IGitIntegration
         }
     }
 
-    public ValueResult<string> PullChanges()
+    public Task<ValueResult<string>> PullChangesAsync()
     {
         if (_currentRepo is null)
-            return MissingRepoResult;
+            return Task.FromResult(MissingRepoResult);
 
         Branch branch = _currentRepo.Head;
         if (branch.TrackedBranch is not null)
-            return ExecuteGitCommand("pull");
+            return ExecuteGitCommandAsync("pull");
 
         Remote? origin = _currentRepo.Network.Remotes["origin"];
         if (origin is null)
-            return ValueResult<string>.Error("No remote configured for this repository.");
+            return Task.FromResult(
+                ValueResult<string>.Error("No remote configured for this repository.")
+            );
 
-        return ExecuteGitCommand("pull", "origin", branch.FriendlyName);
+        return ExecuteGitCommandAsync("pull", "origin", branch.FriendlyName);
     }
 
     public RepoDetails? GetRepositoryState()
@@ -368,15 +363,17 @@ public class LocalGitIntegration : IGitIntegration
         }
     }
 
-    public ValueResult<string> CommitChanges(string commitMessage)
+    public Task<ValueResult<string>> CommitChangesAsync(string commitMessage)
     {
         if (_currentRepo is null)
-            return MissingRepoResult;
+            return Task.FromResult(MissingRepoResult);
 
         if (!ValidateCommitMessage(commitMessage))
-            return ValueResult<string>.Error($"Commit message: \"{commitMessage}\" is invalid.");
+            return Task.FromResult(
+                ValueResult<string>.Error($"Commit message: \"{commitMessage}\" is invalid.")
+            );
 
-        return ExecuteGitCommand("commit", "-m", commitMessage.Trim());
+        return ExecuteGitCommandAsync("commit", "-m", commitMessage.Trim());
     }
 
     private static bool ValidateCommitMessage(string commitMessage)
@@ -391,25 +388,27 @@ public class LocalGitIntegration : IGitIntegration
         return true;
     }
 
-    private ValueResult<string> PushChangesInternal()
+    private Task<ValueResult<string>> PushChangesInternal()
     {
         if (_currentRepo is null)
-            return MissingRepoResult;
+            return Task.FromResult(MissingRepoResult);
 
         Branch currentBranch = _currentRepo.Head;
         if (currentBranch.TrackedBranch is not null)
-            return ExecuteGitCommand("push");
+            return ExecuteGitCommandAsync("push");
 
         Remote? origin = _currentRepo.Network.Remotes["origin"];
         if (origin is null)
-            return ValueResult<string>.Error("No remote configured for this repository.");
+            return Task.FromResult(
+                ValueResult<string>.Error("No remote configured for this repository.")
+            );
 
-        return ExecuteGitCommand("push", "origin", currentBranch.FriendlyName);
+        return ExecuteGitCommandAsync("push", "origin", currentBranch.FriendlyName);
     }
 
-    public ValueResult<string> PushChanges()
+    public async Task<ValueResult<string>> PushChangesAsync()
     {
-        ValueResult<string> result = PushChangesInternal();
+        ValueResult<string> result = await PushChangesInternal();
         if (result.IsOk && string.IsNullOrWhiteSpace(result.Value))
             result = "Changes pushed successfully.".OkResult();
 

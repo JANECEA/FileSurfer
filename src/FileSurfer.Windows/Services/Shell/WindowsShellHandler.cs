@@ -185,6 +185,22 @@ public class WindowsShellHandler : ILocalShellHandler
         return RunProcess(startInfo);
     }
 
+    public Task<ValueResult<string>> ExecuteCommandAsync(string programName, params string[] args)
+    {
+        ProcessStartInfo startInfo = new()
+        {
+            FileName = programName,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        foreach (string arg in args)
+            startInfo.ArgumentList.Add(arg);
+
+        return RunProcessAsync(startInfo);
+    }
+
     private static ValueResult<string> RunProcess(ProcessStartInfo processStartInfo)
     {
         using Process process = new();
@@ -195,6 +211,40 @@ public class WindowsShellHandler : ILocalShellHandler
             string stdOut = process.StandardOutput.ReadToEnd();
             string stdErr = process.StandardError.ReadToEnd();
             process.WaitForExit();
+
+            if (string.IsNullOrWhiteSpace(stdOut))
+                stdOut = stdErr;
+
+            if (string.IsNullOrWhiteSpace(stdErr))
+                stdErr = stdOut;
+
+            return process.ExitCode == 0
+                ? ValueResult<string>.Ok(stdOut)
+                : ValueResult<string>.Error(stdErr);
+        }
+        catch (Exception ex)
+        {
+            return ValueResult<string>.Error(ex.Message);
+        }
+    }
+
+    private static async Task<ValueResult<string>> RunProcessAsync(
+        ProcessStartInfo processStartInfo
+    )
+    {
+        using Process process = new();
+        process.StartInfo = processStartInfo;
+        try
+        {
+            process.Start();
+
+            Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync();
+            Task<string> stderrTask = process.StandardError.ReadToEndAsync();
+
+            await process.WaitForExitAsync().ConfigureAwait(false);
+
+            string stdOut = await stdoutTask.ConfigureAwait(false);
+            string stdErr = await stderrTask.ConfigureAwait(false);
 
             if (string.IsNullOrWhiteSpace(stdOut))
                 stdOut = stdErr;

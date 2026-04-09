@@ -337,9 +337,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitRestoreCommand { get; }
     public ReactiveCommand<Unit, Unit> GitStashCommand { get; }
     public ReactiveCommand<Unit, Unit> GitStashPopCommand { get; }
-    public ReactiveCommand<Unit, Unit> GitFetchCommand { get; }
-    public ReactiveCommand<Unit, Unit> GitPullCommand { get; }
-    public ReactiveCommand<Unit, Unit> GitPushCommand { get; }
+    public ReactiveCommand<Unit, Task> GitFetchCommand { get; }
+    public ReactiveCommand<Unit, Task> GitPullCommand { get; }
+    public ReactiveCommand<Unit, Task> GitPushCommand { get; }
 
     /// <summary>
     /// TODO
@@ -452,9 +452,9 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         GitRestoreCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitRestore);
         GitStashCommand = ReactiveCommand.Create(GitStash);
         GitStashPopCommand = ReactiveCommand.Create(GitStashPop);
-        GitFetchCommand = ReactiveCommand.Create(GitFetch);
-        GitPullCommand = ReactiveCommand.Create(GitPull);
-        GitPushCommand = ReactiveCommand.Create(GitPush);
+        GitFetchCommand = ReactiveCommand.Create(GitFetchAsync);
+        GitPullCommand = ReactiveCommand.Create(GitPullAsync);
+        GitPushCommand = ReactiveCommand.Create(GitPushAsync);
 
         LoadQuickAccess();
         LoadDrives();
@@ -1565,21 +1565,28 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
-    private void GitFetch() // TODO ASYNC
-    {
-        if (IsVersionControlled)
-        {
-            ShowIfError(CurrentFs.GitIntegration.FetchChanges());
-            SoftReload();
-        }
-    }
-
-    private void GitPull() // TODO ASYNC
+    private async Task GitFetchAsync()
     {
         if (!IsVersionControlled)
             return;
 
-        ValueResult<string> result = CurrentFs.GitIntegration.PullChanges();
+        IResult result = await _dialogService.ProgressDialogAsync(
+            "Fetching changes",
+            () => CurrentFs.GitIntegration.FetchChangesAsync()
+        );
+        ShowIfError(result);
+        SoftReload();
+    }
+
+    private async Task GitPullAsync()
+    {
+        if (!IsVersionControlled)
+            return;
+
+        ValueResult<string> result = await _dialogService.ProgressDialogAsync(
+            "Pulling changes",
+            () => CurrentFs.GitIntegration.PullChangesAsync()
+        );
         if (result.IsOk)
             ShowInfo(result.Value);
         else
@@ -1588,15 +1595,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         HardReload();
     }
 
-    /// <summary>
-    /// Relays the operations to <see cref="IGitIntegration"/>.
-    /// </summary>
-    public void GitCommit(string commitMessage)
+    public async Task GitCommitAsync(string commitMessage)
     {
         if (!IsVersionControlled)
             return;
 
-        ValueResult<string> result = CurrentFs.GitIntegration.CommitChanges(commitMessage);
+        ValueResult<string> result = await _dialogService.ProgressDialogAsync(
+            "Commiting changes",
+            () => CurrentFs.GitIntegration.CommitChangesAsync(commitMessage)
+        );
         if (result.IsOk)
             ShowInfo(result.Value);
         else
@@ -1605,15 +1612,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         HardReload();
     }
 
-    /// <summary>
-    /// Relays the operations to <see cref="IGitIntegration"/>.
-    /// </summary>
-    private void GitPush() // TODO ASYNC
+    private async Task GitPushAsync()
     {
         if (!IsVersionControlled)
             return;
 
-        ValueResult<string> result = CurrentFs.GitIntegration.PushChanges();
+        ValueResult<string> result = await _dialogService.ProgressDialogAsync(
+            "Pushing changes",
+            () => CurrentFs.GitIntegration.PushChangesAsync()
+        );
         if (result.IsOk)
             ShowInfo(result.Value);
         else
