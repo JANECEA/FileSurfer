@@ -79,10 +79,22 @@ public interface IFileInfoProvider
     /// Gets the last modified Utc time of a file.
     /// </summary>
     /// <returns>The last modified date of the file, or <see langword="null"/> if the file does not exist.</returns>
+    public DateTime? GetFileLastWriteUtc(string filePath);
+
+    /// <summary>
+    /// Asynchronously gets the last modified Utc time of a file.
+    /// </summary>
+    /// <returns>The last modified date of the file, or <see langword="null"/> if the file does not exist.</returns>
     public Task<DateTime?> GetFileLastWriteUtcAsync(string filePath);
 
     /// <summary>
     /// Gets the last modified Utc time of a directory.
+    /// </summary>
+    /// <returns>The last modified date of the directory, or <see langword="null"/> if the directory does not exist.</returns>
+    public DateTime? GetDirLastWriteUtc(string dirPath);
+
+    /// <summary>
+    /// Asynchronously gets the last modified Utc time of a directory.
     /// </summary>
     /// <returns>The last modified date of the directory, or <see langword="null"/> if the directory does not exist.</returns>
     public Task<DateTime?> GetDirLastWriteUtcAsync(string dirPath);

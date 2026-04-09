@@ -114,33 +114,35 @@ public abstract class LocalFileInfoProvider : ILocalFileInfoProvider
         }
     }
 
-    public Task<DateTime?> GetFileLastWriteUtcAsync(string filePath)
+    public DateTime? GetFileLastWriteUtc(string filePath)
     {
-        DateTime? time;
         try
         {
-            time = File.GetLastWriteTimeUtc(filePath);
+            return File.GetLastWriteTimeUtc(filePath);
         }
         catch
         {
-            time = null;
+            return null;
         }
-        return Task.FromResult(time);
     }
 
-    public virtual Task<DateTime?> GetDirLastWriteUtcAsync(string dirPath)
+    public Task<DateTime?> GetFileLastWriteUtcAsync(string filePath) =>
+        Task.FromResult(GetFileLastWriteUtc(filePath));
+
+    public DateTime? GetDirLastWriteUtc(string dirPath)
     {
-        DateTime? time;
         try
         {
-            time = Directory.GetLastWriteTimeUtc(dirPath);
+            return Directory.GetLastWriteTimeUtc(dirPath);
         }
         catch
         {
-            time = null;
+            return null;
         }
-        return Task.FromResult(time);
     }
+
+    public virtual Task<DateTime?> GetDirLastWriteUtcAsync(string dirPath) =>
+        Task.FromResult(GetDirLastWriteUtc(dirPath));
 
     protected virtual bool IsOsProtected(string path, bool isDirectory)
     {

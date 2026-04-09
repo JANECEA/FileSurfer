@@ -520,8 +520,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private bool CompareSetLastWriteTime()
     {
         DateTime lastWriteTimeUtc =
-            CurrentFs.FileInfoProvider.GetDirLastWriteUtcAsync(CurrentDir).Result
-            ?? DateTime.UtcNow;
+            CurrentFs.FileInfoProvider.GetDirLastWriteUtc(CurrentDir) ?? DateTime.UtcNow;
 
         if (_lastRefreshedUtc >= lastWriteTimeUtc)
             return false;

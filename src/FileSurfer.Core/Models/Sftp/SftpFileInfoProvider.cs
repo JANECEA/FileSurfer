@@ -159,12 +159,38 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         }
     }
 
+    public DateTime? GetFileLastWriteUtc(string filePath)
+    {
+        try
+        {
+            ISftpFile file = _client.Get(filePath);
+            return ExistsInternal(file).AsFile ? file.LastWriteTimeUtc : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     public async Task<DateTime?> GetFileLastWriteUtcAsync(string filePath)
     {
         try
         {
             ISftpFile file = await _client.GetAsync(filePath, CancellationToken.None);
             return ExistsInternal(file).AsFile ? file.LastWriteTimeUtc : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public DateTime? GetDirLastWriteUtc(string dirPath)
+    {
+        try
+        {
+            ISftpFile dir = _client.Get(dirPath);
+            return ExistsInternal(dir).AsDir ? dir.LastWriteTimeUtc : null;
         }
         catch
         {
