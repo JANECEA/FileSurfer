@@ -226,14 +226,13 @@ public sealed class FlattenFolder : IUndoableFileOperation
         if (!result.IsOk)
             return result;
 
-        var dirsResult = _infoProvider.GetPathDirs(newDirPath, true, true);
-        var filesResult = _infoProvider.GetPathFiles(newDirPath, true, true);
-        if (ResultExtensions.FirstError(dirsResult, filesResult) is IResult err)
-            return err;
+        var entriesR = await _infoProvider.GetPathEntriesAsync(newDirPath, true, true, ct);
+        if (!entriesR.IsOk)
+            return entriesR;
 
-        IFileSystemEntry[] oldEntries = dirsResult
-            .Value.Cast<IFileSystemEntry>()
-            .Concat(filesResult.Value)
+        IFileSystemEntry[] oldEntries = entriesR
+            .Value.Dirs.Cast<IFileSystemEntry>()
+            .Concat(entriesR.Value.Files)
             .ToArray();
 
         result = await new MoveFilesTo(

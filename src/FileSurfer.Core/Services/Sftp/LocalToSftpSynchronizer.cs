@@ -100,16 +100,15 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
     {
         IFileSystem fs = dir.FileSystem;
 
-        var dirResult = fs.FileInfoProvider.GetPathDirs(dir.Path, syncHidden, false);
-        var fileResult = fs.FileInfoProvider.GetPathFiles(dir.Path, syncHidden, false);
-        if (ResultExtensions.FirstError(dirResult, fileResult) is IResult result)
-            return result;
+        var entriesR = fs.FileInfoProvider.GetPathEntries(dir.Path, syncHidden, false);
+        if (!entriesR.IsOk)
+            return entriesR;
 
         Result rs = Result.Ok();
-        foreach (DirectoryEntryInfo d in dirResult.Value)
+        foreach (DirectoryEntryInfo d in entriesR.Value.Dirs)
             rs.MergeResult(fs.FileIoHandler.DeleteDir(d.PathToEntry));
 
-        foreach (FileEntryInfo f in fileResult.Value)
+        foreach (FileEntryInfo f in entriesR.Value.Files)
             rs.MergeResult(fs.FileIoHandler.DeleteFile(f.PathToEntry));
 
         return rs;

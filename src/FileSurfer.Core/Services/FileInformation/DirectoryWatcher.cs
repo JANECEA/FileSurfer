@@ -105,19 +105,17 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
         {
             string path = queue.Dequeue();
 
-            var dirResult = fs.FileInfoProvider.GetPathDirs(path, syncHidden, false);
-            var fileResult = fs.FileInfoProvider.GetPathFiles(path, syncHidden, false);
+            var entriesR = fs.FileInfoProvider.GetPathEntries(path, syncHidden, false);
+            if (!entriesR.IsOk)
+                return ValueResult<Dictionary<string, FsEntryMeta>>.Error(entriesR);
 
-            if (ResultExtensions.FirstError(dirResult, fileResult) is IResult result)
-                return ValueResult<Dictionary<string, FsEntryMeta>>.Error(result);
-
-            foreach (DirectoryEntryInfo dir in dirResult.Value)
+            foreach (DirectoryEntryInfo dir in entriesR.Value.Dirs)
             {
                 snapshot[dir.PathToEntry] = new FsEntryMeta(true, dir.LastModifiedUtc, 0);
                 queue.Enqueue(dir.PathToEntry);
             }
 
-            foreach (FileEntryInfo file in fileResult.Value)
+            foreach (FileEntryInfo file in entriesR.Value.Files)
                 snapshot[file.PathToEntry] = new FsEntryMeta(
                     false,
                     file.LastModifiedUtc,

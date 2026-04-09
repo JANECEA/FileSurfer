@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
@@ -27,6 +28,12 @@ public readonly struct ExistsInfo
     public static ExistsInfo DoesNotExist() => new(false, false);
 }
 
+public sealed class DirectoryContents
+{
+    public required IReadOnlyList<DirectoryEntryInfo> Dirs { get; init; }
+    public required IReadOnlyList<FileEntryInfo> Files { get; init; }
+}
+
 /// <summary>
 /// Defines methods for retrieving file and directory information.
 /// </summary>
@@ -44,21 +51,22 @@ public interface IFileInfoProvider
     public bool IsLinkedToDirectory(string linkPath, [NotNullWhen(true)] out string? directory);
 
     /// <summary>
-    /// Gets directories in a path, with optional inclusion of hidden and system directories.
+    /// Gets files and directories in a directory, with optional inclusion of hidden and system entries.
     /// </summary>
-    public ValueResult<List<DirectoryEntryInfo>> GetPathDirs(
+    public ValueResult<DirectoryContents> GetPathEntries(
         string path,
         bool includeHidden,
         bool includeOs
     );
 
     /// <summary>
-    /// Gets files in a path, with optional inclusion of hidden and system files.
+    /// Asynchronously gets files in a directory, with optional inclusion of hidden and system entries.
     /// </summary>
-    public ValueResult<List<FileEntryInfo>> GetPathFiles(
+    public Task<ValueResult<DirectoryContents>> GetPathEntriesAsync(
         string path,
         bool includeHidden,
-        bool includeOs
+        bool includeOs,
+        CancellationToken ct
     );
 
     /// <summary>

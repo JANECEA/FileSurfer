@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
 
@@ -22,7 +24,7 @@ public abstract class LocalFileInfoProvider : ILocalFileInfoProvider
         [NotNullWhen(true)] out string? directory
     );
 
-    public virtual ValueResult<List<DirectoryEntryInfo>> GetPathDirs(
+    public ValueResult<DirectoryContents> GetPathEntries(
         string path,
         bool includeHidden,
         bool includeOs
@@ -30,47 +32,73 @@ public abstract class LocalFileInfoProvider : ILocalFileInfoProvider
     {
         try
         {
-            DirectoryInfo[] dirs = new DirectoryInfo(path).GetDirectories();
-            List<DirectoryEntryInfo> dirsList = new(dirs.Length);
+            IEnumerable<FileSystemInfo> entries = new DirectoryInfo(
+                path
+            ).EnumerateFileSystemInfos();
+            if (!includeHidden)
+                entries = entries.Where(e => !IsHidden(e.FullName, e is DirectoryInfo));
+            if (!includeOs)
+                entries = entries.Where(e => !IsOsProtected(e.FullName, e is DirectoryInfo));
 
-            foreach (DirectoryInfo d in dirs)
-                if (
-                    (includeHidden || !IsHidden(d.FullName, true))
-                    && (includeOs || !IsOsProtected(d.FullName, true))
-                )
-                    dirsList.Add(new DirectoryEntryInfo(d));
+            List<DirectoryEntryInfo> dirs = new();
+            List<FileEntryInfo> files = new();
 
-            return dirsList.OkResult();
+            foreach (FileSystemInfo entry in entries)
+            {
+                if (entry is FileInfo f)
+                    files.Add(new FileEntryInfo(f));
+                if (entry is DirectoryInfo d)
+                    dirs.Add(new DirectoryEntryInfo(d));
+            }
+
+            return new DirectoryContents { Files = files, Dirs = dirs }.OkResult();
         }
         catch (Exception ex)
         {
-            return ValueResult<List<DirectoryEntryInfo>>.Error(ex.Message);
+            return ValueResult<DirectoryContents>.Error(ex.Message);
         }
     }
 
-    public virtual ValueResult<List<FileEntryInfo>> GetPathFiles(
+    public async Task<ValueResult<DirectoryContents>> GetPathEntriesAsync(
         string path,
         bool includeHidden,
-        bool includeOs
+        bool includeOs,
+        CancellationToken ct
     )
     {
         try
         {
-            FileInfo[] files = new DirectoryInfo(path).GetFiles();
-            List<FileEntryInfo> fileList = new(files.Length);
+            IEnumerable<FileSystemInfo> entries = new DirectoryInfo(
+                path
+            ).EnumerateFileSystemInfos();
+            if (!includeHidden)
+                entries = entries.Where(e => !IsHidden(e.FullName, e is DirectoryInfo));
+            if (!includeOs)
+                entries = entries.Where(e => !IsOsProtected(e.FullName, e is DirectoryInfo));
 
-            foreach (FileInfo f in files)
-                if (
-                    (includeHidden || !IsHidden(f.FullName, false))
-                    && (includeOs || !IsOsProtected(f.FullName, false))
-                )
-                    fileList.Add(new FileEntryInfo(f));
+            (List<DirectoryEntryInfo> dirs, List<FileEntryInfo> files) = await Task.Run(
+                () =>
+                {
+                    List<DirectoryEntryInfo> dirs = new();
+                    List<FileEntryInfo> files = new();
+                    foreach (FileSystemInfo entry in entries)
+                    {
+                        ct.ThrowIfCancellationRequested();
+                        if (entry is FileInfo f)
+                            files.Add(new FileEntryInfo(f));
+                        if (entry is DirectoryInfo d)
+                            dirs.Add(new DirectoryEntryInfo(d));
+                    }
+                    return (dirs, files);
+                },
+                ct
+            );
 
-            return fileList.OkResult();
+            return new DirectoryContents { Files = files, Dirs = dirs }.OkResult();
         }
         catch (Exception ex)
         {
-            return ValueResult<List<FileEntryInfo>>.Error(ex.Message);
+            return ValueResult<DirectoryContents>.Error(ex.Message);
         }
     }
 

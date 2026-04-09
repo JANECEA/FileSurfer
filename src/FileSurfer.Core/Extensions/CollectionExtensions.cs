@@ -6,7 +6,7 @@ namespace FileSurfer.Core.Extensions;
 public static class CollectionExtensions
 {
     public static TOut[] ConvertToArray<TIn, TOut>(
-        this ICollection<TIn> collection,
+        this IReadOnlyCollection<TIn> collection,
         Func<TIn, TOut> action
     )
     {
@@ -19,7 +19,7 @@ public static class CollectionExtensions
         return array;
     }
 
-    public static T[] ConvertToArray<T>(this ICollection<T> collection)
+    public static T[] ConvertToArray<T>(this IReadOnlyCollection<T> collection)
     {
         T[] array = new T[collection.Count];
 
@@ -30,9 +30,26 @@ public static class CollectionExtensions
         return array;
     }
 
+    public static IEnumerable<int> EfficientChunk<T>(this IEnumerable<T> source, T[] buffer)
+    {
+        int index = 0;
+        foreach (T item in source)
+        {
+            buffer[index++] = item;
+
+            if (index == buffer.Length)
+            {
+                yield return index;
+                index = 0;
+            }
+        }
+        if (index != 0)
+            yield return index;
+    }
+
     public static bool EqualsUnordered<T>(
-        this ICollection<T> collectionA,
-        ICollection<T> collectionB
+        this IReadOnlyCollection<T> collectionA,
+        IReadOnlyCollection<T> collectionB
     )
         where T : IComparable<T>
     {

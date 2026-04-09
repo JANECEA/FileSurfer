@@ -21,7 +21,7 @@ public sealed class AvaloniaDialogService : IDialogService
             new InfoDialogWindow { Title = title, Message = info }.ShowDialog(_parentWindow);
         });
 
-    private static async Task<T> ProgressDialogInternal<T>(
+    private async Task<T> ProgressDialogInternal<T>(
         string title,
         Task<T> opTask,
         ProgressReporter reporter,
@@ -42,7 +42,11 @@ public sealed class AvaloniaDialogService : IDialogService
         };
         dialog.Closed += (_, _) => dialogClosedByUser = true;
 
-        await Dispatcher.UIThread.InvokeAsync(dialog.Show);
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            _parentWindow.IsHitTestVisible = false;
+            dialog.Show();
+        });
         try
         {
             return await opTask;
@@ -52,6 +56,7 @@ public sealed class AvaloniaDialogService : IDialogService
             if (!dialogClosedByUser)
                 await Dispatcher.UIThread.InvokeAsync(dialog.Close);
             cts?.Dispose();
+            await Dispatcher.UIThread.InvokeAsync(() => _parentWindow.IsHitTestVisible = true);
         }
     }
 

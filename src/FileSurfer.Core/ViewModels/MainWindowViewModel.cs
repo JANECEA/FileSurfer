@@ -497,7 +497,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
                 Interval = TimeSpan.FromMilliseconds(FileSurferSettings.AutomaticRefreshInterval),
             };
             _lastRefreshedUtc = DateTime.UtcNow;
-            _refreshTimer.Tick += (_, _) => _ = CheckForUpdates();
+            _refreshTimer.Tick += (_, _) => CheckForUpdates();
             _refreshTimer.Start();
         }
 
@@ -506,21 +506,23 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             HardReload();
     }
 
-    private async Task CheckForUpdates() // TODO ASYNC
+    private void CheckForUpdates() // TODO ASYNC
     {
-        if (await CurrentLocation.ExistsAsync())
+        if (CurrentLocation.Exists())
         {
-            if (await CompareSetLastWriteTime())
+            if (CompareSetLastWriteTime())
                 HardReload();
             else if (IsVersionControlled)
                 SoftReload();
         }
     }
 
-    private async Task<bool> CompareSetLastWriteTime()
+    private bool CompareSetLastWriteTime()
     {
         DateTime lastWriteTimeUtc =
-            await CurrentFs.FileInfoProvider.GetDirLastWriteUtcAsync(CurrentDir) ?? DateTime.UtcNow;
+            CurrentFs.FileInfoProvider.GetDirLastWriteUtcAsync(CurrentDir).Result
+            ?? DateTime.UtcNow;
+
         if (_lastRefreshedUtc >= lastWriteTimeUtc)
             return false;
 
@@ -788,7 +790,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
 
     private IResult UpdateEntries(bool forceHardReload)
     {
-        if (forceHardReload || CompareSetLastWriteTime().Result)
+        if (forceHardReload || CompareSetLastWriteTime())
             return LoadDirEntries(CurrentLocation);
 
         if (IsVersionControlled)
@@ -801,23 +803,18 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     private IResult LoadDirEntries(Location location) // TODO ASYNC
     {
         IFileSystem fs = location.FileSystem;
-        var dirsResult = fs.FileInfoProvider.GetPathDirs(
+        var entriesR = fs.FileInfoProvider.GetPathEntries(
             location.Path,
             FileSurferSettings.ShowHiddenFiles,
             FileSurferSettings.ShowProtectedFiles
         );
-        var filesResult = fs.FileInfoProvider.GetPathFiles(
-            location.Path,
-            FileSurferSettings.ShowHiddenFiles,
-            FileSurferSettings.ShowProtectedFiles
-        );
-        if (!dirsResult.IsOk || !filesResult.IsOk)
-            return Result.Error(dirsResult.Errors);
+        if (!entriesR.IsOk)
+            return entriesR;
 
-        FileSystemEntryViewModel[] dirs = dirsResult.Value.ConvertToArray(
+        FileSystemEntryViewModel[] dirs = entriesR.Value.Dirs.ConvertToArray(
             entry => new FileSystemEntryViewModel(fs, entry, GetGitStatus(entry.PathToEntry, fs))
         );
-        FileSystemEntryViewModel[] files = filesResult.Value.ConvertToArray(
+        FileSystemEntryViewModel[] files = entriesR.Value.Files.ConvertToArray(
             entry => new FileSystemEntryViewModel(fs, entry, GetGitStatus(entry.PathToEntry, fs))
         );
 
