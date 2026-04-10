@@ -152,7 +152,7 @@ public partial class MainWindow : Window
         GoBackButton.ContextFlyout?.Hide();
         GoForwardButton.ContextFlyout?.Hide();
         if (e.AddedItems is [LocationDisplay location])
-            _viewModel?.GoBack(location);
+            _viewModel?.GoBackCommand.Execute(location).Subscribe();
     }
 
     private void GoForwardTapped(object? sender, SelectionChangedEventArgs e)
@@ -160,7 +160,7 @@ public partial class MainWindow : Window
         GoBackButton.ContextFlyout?.Hide();
         GoForwardButton.ContextFlyout?.Hide();
         if (e.AddedItems is [LocationDisplay location])
-            _viewModel?.GoForward(location);
+            _viewModel?.GoForwardCommand.Execute(location).Subscribe();
     }
 
     /// <summary>
@@ -180,9 +180,9 @@ public partial class MainWindow : Window
             }
 
             if (listBox.SelectedItem is FileSystemEntryViewModel entry)
-                _viewModel?.OpenEntry(entry.FileSystemEntry);
+                _viewModel?.OpenEntryCommand.Execute(entry).Subscribe();
             else
-                _viewModel?.GoUp();
+                _viewModel?.GoUpCommand.Execute().Subscribe();
         }
     }
 
@@ -216,7 +216,7 @@ public partial class MainWindow : Window
     private void CloseSftp(object sender, RoutedEventArgs e)
     {
         if (SftpListBox.SelectedItem is SftpConnectionViewModel connectionVm)
-            _viewModel?.CloseSftpConnection(connectionVm);
+            _viewModel?.CloseSftpCommand.Execute(connectionVm).Subscribe();
     }
 
     private void OnAddSftpButtonClicked(object sender, RoutedEventArgs e)
@@ -250,7 +250,7 @@ public partial class MainWindow : Window
     private void SideBarEntryClicked(object sender, TappedEventArgs e)
     {
         if (sender is ListBox { SelectedItem: SideBarEntryViewModel entry })
-            _viewModel?.OpenSideBarEntry(entry);
+            _viewModel?.OpenSideBarEntryCommand.Execute(entry).Subscribe();
 
         ClearFocus();
     }
@@ -270,10 +270,10 @@ public partial class MainWindow : Window
     {
         PointerPointProperties properties = e.GetCurrentPoint(this).Properties;
         if (properties.IsXButton1Pressed)
-            _viewModel?.GoBackCommand.Execute().Subscribe();
+            _viewModel?.GoBackCommand.Execute(null).Subscribe();
 
         if (properties.IsXButton2Pressed)
-            _viewModel?.GoForwardCommand.Execute().Subscribe();
+            _viewModel?.GoForwardCommand.Execute(null).Subscribe();
     }
 
     /// <summary>
@@ -360,9 +360,9 @@ public partial class MainWindow : Window
         if (sender is CheckBox { DataContext: FileSystemEntryViewModel entry } checkBox)
         {
             if (checkBox.IsChecked is true)
-                _viewModel?.GitStage(entry);
+                _viewModel?.GitStageCommand.Execute(entry).Subscribe();
             else
-                _viewModel?.GitUnstage(entry);
+                _viewModel?.GitUnstageCommand.Execute(entry).Subscribe();
         }
     }
 
@@ -481,7 +481,7 @@ public partial class MainWindow : Window
         if (PathBox.IsFocused)
         {
             if (PathBox.Text is string path)
-                _viewModel?.SetNewLocation(path);
+                _viewModel?.SetNewLocationCommand.Execute(path).Subscribe();
             ClearFocus();
             return;
         }
@@ -490,13 +490,13 @@ public partial class MainWindow : Window
         {
             if (SearchBox.IsFocused && !string.IsNullOrWhiteSpace(SearchBox.Text))
             {
-                _viewModel?.SearchAsync(SearchBox.Text);
+                _viewModel?.SearchCommand.Execute(SearchBox.Text).Subscribe();
                 ClearFocus();
             }
             else if (_viewModel.SelectedFiles.Count == 1)
-                _viewModel.OpenEntry(_viewModel.SelectedFiles[0].FileSystemEntry);
+                _viewModel.OpenEntryCommand.Execute(_viewModel.SelectedFiles[0]).Subscribe();
             else if (_viewModel.SelectedFiles.Count > 1)
-                _viewModel.OpenEntries();
+                _viewModel.OpenEntriesCommand.Execute().Subscribe();
         }
     }
 
@@ -509,11 +509,7 @@ public partial class MainWindow : Window
 
     private void OnClosing(object? sender, WindowClosingEventArgs? e)
     {
-        if (_viewModel is not null)
-        {
-            _viewModel.CloseApp();
-            _viewModel.Dispose();
-        }
+        _viewModel?.Dispose();
         FileSurferSettings.SaveSettings();
     }
 }
