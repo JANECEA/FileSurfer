@@ -15,24 +15,26 @@ namespace FileSurfer.Core.ViewModels;
 
 public sealed partial class MainWindowViewModel
 {
-    private void SoftReload() => Reload(false);
+    private Task SoftReload() => Reload(false);
 
-    private void HardReload() => Reload(true);
+    private Task HardReload() => Reload(true);
 
-    private void Reload(bool forceHardReload) // TODO ASYNC
+    private Task Reload(bool forceHardReload) // TODO ASYNC
     {
         if (Searching)
-            return;
+            return Task.CompletedTask;
 
         CheckVersionControl(CurrentLocation);
 
         IResult result = UpdateEntries(forceHardReload);
         ShowIfError(result);
         if (!result.IsOk)
-            return;
+            return Task.CompletedTask;
 
         CurrentInfoMessage = FileEntries.Count > 0 ? null : EmptyDirMessage;
         _lastRefreshedUtc = DateTime.UtcNow;
+
+        return Task.CompletedTask;
     }
 
     private void ShowError(string? errorMessage)
@@ -158,13 +160,15 @@ public sealed partial class MainWindowViewModel
                 ShowIfError(fs.LocalShellHandler.OpenInNotepad(entry.PathToEntry));
     }
 
-    private void GoUp()
+    private Task GoUp()
     {
         IPathTools pathTools = CurrentFs.FileInfoProvider.PathTools;
         string parent = pathTools.GetParentDir(pathTools.NormalizePath(CurrentDir));
 
         if (!string.IsNullOrWhiteSpace(parent))
             SetNewLocation(parent);
+
+        return Task.CompletedTask;
     }
 
     private void AddToQuickAccess(FileSystemEntryViewModel? entry) =>

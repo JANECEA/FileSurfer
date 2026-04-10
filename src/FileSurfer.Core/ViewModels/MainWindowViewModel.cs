@@ -289,27 +289,27 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     }
     private bool _isSynchronizerOpen = false;
 
-    public ReactiveCommand<Unit, Task> OpenEntriesCommand { get; }
-    public ReactiveCommand<FileSystemEntryViewModel, Task> OpenEntryCommand { get; }
-    public ReactiveCommand<SideBarEntryViewModel, Task> OpenSideBarEntryCommand { get; }
+    public ReactiveCommand<Unit, Unit> OpenEntriesCommand { get; }
+    public ReactiveCommand<FileSystemEntryViewModel, Unit> OpenEntryCommand { get; }
+    public ReactiveCommand<SideBarEntryViewModel, Unit> OpenSideBarEntryCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel, Unit> OpenAsCommand { get; }
-    public ReactiveCommand<string, Task> SetNewLocationCommand { get; }
+    public ReactiveCommand<string, Unit> SetNewLocationCommand { get; }
     public ReactiveCommand<Unit, Unit> OpenInNotepadCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> AddToQuickAccessCommand { get; }
     public ReactiveCommand<Unit, Task> AddToArchiveCommand { get; }
     public ReactiveCommand<Unit, Task> ExtractArchiveCommand { get; }
-    public ReactiveCommand<LocationDisplay?, Task> GoBackCommand { get; }
-    public ReactiveCommand<LocationDisplay?, Task> GoForwardCommand { get; }
+    public ReactiveCommand<LocationDisplay?, Unit> GoBackCommand { get; }
+    public ReactiveCommand<LocationDisplay?, Unit> GoForwardCommand { get; }
     public ReactiveCommand<Unit, Unit> GoUpCommand { get; }
     public ReactiveCommand<Unit, Unit> ReloadCommand { get; }
     public ReactiveCommand<Unit, Unit> OpenTerminalCommand { get; }
     public ReactiveCommand<string, Task> SearchCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
-    public ReactiveCommand<Unit, Task> NewFileCommand { get; }
-    public ReactiveCommand<Unit, Task> NewDirCommand { get; }
-    public ReactiveCommand<string, Task> RenameCommand { get; }
-    public ReactiveCommand<Unit, Task> CutCommand { get; }
-    public ReactiveCommand<Unit, Task> CopyCommand { get; }
+    public ReactiveCommand<Unit, Unit> NewFileCommand { get; }
+    public ReactiveCommand<Unit, Unit> NewDirCommand { get; }
+    public ReactiveCommand<string, Unit> RenameCommand { get; }
+    public ReactiveCommand<Unit, Unit> CutCommand { get; }
+    public ReactiveCommand<Unit, Unit> CopyCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel?, Task> CopyPathCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel, Unit> CreateShortcutCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel, Task> FlattenFolderCommand { get; }
@@ -319,23 +319,23 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Task> MoveToTrashCommand { get; }
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
     public ReactiveCommand<SortBy, Unit> SetSortByCommand { get; }
-    public ReactiveCommand<Unit, Task> UndoCommand { get; }
-    public ReactiveCommand<Unit, Task> RedoCommand { get; }
+    public ReactiveCommand<Unit, Unit> UndoCommand { get; }
+    public ReactiveCommand<Unit, Unit> RedoCommand { get; }
     public ReactiveCommand<Unit, Unit> SelectAllCommand { get; }
     public ReactiveCommand<Unit, Unit> SelectNoneCommand { get; }
     public ReactiveCommand<Unit, Unit> InvertSelectionCommand { get; }
-    public ReactiveCommand<SftpConnectionViewModel, Task> OpenSftpCommand { get; }
-    public ReactiveCommand<SftpConnectionViewModel, Task> CloseSftpCommand { get; }
+    public ReactiveCommand<SftpConnectionViewModel, Unit> OpenSftpCommand { get; }
+    public ReactiveCommand<SftpConnectionViewModel, Unit> CloseSftpCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitStageCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitUnstageCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitRestoreCommand { get; }
-    public ReactiveCommand<string, Task> GitSwitchBranchCommand { get; }
+    public ReactiveCommand<string, Unit> GitSwitchBranchCommand { get; }
     public ReactiveCommand<Unit, Unit> GitStashCommand { get; }
     public ReactiveCommand<Unit, Unit> GitStashPopCommand { get; }
-    public ReactiveCommand<Unit, Task> GitFetchCommand { get; }
-    public ReactiveCommand<Unit, Task> GitPullCommand { get; }
-    public ReactiveCommand<string, Task> GitCommitCommand { get; }
-    public ReactiveCommand<Unit, Task> GitPushCommand { get; }
+    public ReactiveCommand<Unit, Unit> GitFetchCommand { get; }
+    public ReactiveCommand<Unit, Unit> GitPullCommand { get; }
+    public ReactiveCommand<string, Unit> GitCommitCommand { get; }
+    public ReactiveCommand<Unit, Unit> GitPushCommand { get; }
 
     /// <summary>
     /// TODO
@@ -405,41 +405,41 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
             (loc, nSearch, nSync) => !loc && nSearch && !nSync
         );
 
-        OpenEntriesCommand = ReactiveCommand.Create(
+        OpenEntriesCommand = ReactiveCommand.CreateFromTask(
             () => SelectedFiles.Count == 1 ? OpenEntry(SelectedFiles[0]) : OpenEntries(),
             local
         );
-        OpenEntryCommand = ReactiveCommand.Create<FileSystemEntryViewModel, Task>(OpenEntry);
-        OpenSideBarEntryCommand = ReactiveCommand.Create<SideBarEntryViewModel, Task>(
+        OpenEntryCommand = ReactiveCommand.CreateFromTask<FileSystemEntryViewModel>(OpenEntry);
+        OpenSideBarEntryCommand = ReactiveCommand.CreateFromTask<SideBarEntryViewModel>(
             OpenSideBarEntry
         );
         OpenInNotepadCommand = ReactiveCommand.Create(OpenInNotepad, local);
         OpenAsCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(OpenAs, local);
-        SetNewLocationCommand = ReactiveCommand.Create<string, Task>(SetNewLocation);
+        SetNewLocationCommand = ReactiveCommand.CreateFromTask<string>(SetNewLocation);
         AddToQuickAccessCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(
             AddToQuickAccess,
             local
         );
         AddToArchiveCommand = ReactiveCommand.Create(AddToArchiveAsync, localNotSearching);
         ExtractArchiveCommand = ReactiveCommand.Create(ExtractArchiveAsync, localNotSearching);
-        GoBackCommand = ReactiveCommand.Create<LocationDisplay?, Task>(
+        GoBackCommand = ReactiveCommand.CreateFromTask<LocationDisplay?>(
             l => l is null ? GoBack() : GoBackToLocation(l),
             canGoBack
         );
-        GoForwardCommand = ReactiveCommand.Create<LocationDisplay?, Task>(
+        GoForwardCommand = ReactiveCommand.CreateFromTask<LocationDisplay?>(
             l => l is null ? GoForward() : GoForwardToLocation(l),
             canGoForward
         );
-        GoUpCommand = ReactiveCommand.Create(GoUp);
-        ReloadCommand = ReactiveCommand.Create(HardReload, notSearching);
+        GoUpCommand = ReactiveCommand.CreateFromTask(GoUp);
+        ReloadCommand = ReactiveCommand.CreateFromTask(HardReload, notSearching);
         OpenTerminalCommand = ReactiveCommand.Create(OpenTerminal, localNotSearching);
         SearchCommand = ReactiveCommand.Create<string, Task>(SearchAsync);
         CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
-        NewFileCommand = ReactiveCommand.Create(NewFileAsync, notSearching);
-        NewDirCommand = ReactiveCommand.Create(NewDirAsync, notSearching);
-        RenameCommand = ReactiveCommand.Create<string, Task>(RenameAsync, selection);
-        CutCommand = ReactiveCommand.Create(CutAsync, selection);
-        CopyCommand = ReactiveCommand.Create(CopyAsync, selection);
+        NewFileCommand = ReactiveCommand.CreateFromTask(NewFileAsync, notSearching);
+        NewDirCommand = ReactiveCommand.CreateFromTask(NewDirAsync, notSearching);
+        RenameCommand = ReactiveCommand.CreateFromTask<string>(RenameAsync, selection);
+        CutCommand = ReactiveCommand.CreateFromTask(CutAsync, selection);
+        CopyCommand = ReactiveCommand.CreateFromTask(CopyAsync, selection);
         CopyPathCommand = ReactiveCommand.Create<FileSystemEntryViewModel?, Task>(CopyPathAsync);
         CreateShortcutCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(CreateShortcut);
         FlattenFolderCommand = ReactiveCommand.Create<FileSystemEntryViewModel, Task>(
@@ -454,27 +454,27 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         MoveToTrashCommand = ReactiveCommand.Create(MoveToTrashAsync, localSelection);
         DeleteCommand = ReactiveCommand.Create(Delete, selection);
         SetSortByCommand = ReactiveCommand.Create<SortBy>(SetSortBy);
-        UndoCommand = ReactiveCommand.Create(UndoAsync);
-        RedoCommand = ReactiveCommand.Create(RedoAsync);
+        UndoCommand = ReactiveCommand.CreateFromTask(UndoAsync);
+        RedoCommand = ReactiveCommand.CreateFromTask(RedoAsync);
         SelectAllCommand = ReactiveCommand.Create(SelectAll);
         SelectNoneCommand = ReactiveCommand.Create(SelectNone);
         InvertSelectionCommand = ReactiveCommand.Create(InvertSelection);
-        OpenSftpCommand = ReactiveCommand.Create<SftpConnectionViewModel, Task>(
+        OpenSftpCommand = ReactiveCommand.CreateFromTask<SftpConnectionViewModel>(
             OpenSftpConnectionAsync
         );
-        CloseSftpCommand = ReactiveCommand.Create<SftpConnectionViewModel, Task>(
+        CloseSftpCommand = ReactiveCommand.CreateFromTask<SftpConnectionViewModel>(
             CloseSftpConnection
         );
         GitStageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitStage);
         GitUnstageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitUnstage);
         GitRestoreCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitRestore);
-        GitSwitchBranchCommand = ReactiveCommand.Create<string, Task>(GitSwitchBranchAsync);
+        GitSwitchBranchCommand = ReactiveCommand.CreateFromTask<string>(GitSwitchBranchAsync);
         GitStashCommand = ReactiveCommand.Create(GitStash);
         GitStashPopCommand = ReactiveCommand.Create(GitStashPop);
-        GitFetchCommand = ReactiveCommand.Create(GitFetchAsync);
-        GitPullCommand = ReactiveCommand.Create(GitPullAsync);
-        GitCommitCommand = ReactiveCommand.Create<string, Task>(GitCommitAsync);
-        GitPushCommand = ReactiveCommand.Create(GitPushAsync);
+        GitFetchCommand = ReactiveCommand.CreateFromTask(GitFetchAsync);
+        GitPullCommand = ReactiveCommand.CreateFromTask(GitPullAsync);
+        GitCommitCommand = ReactiveCommand.CreateFromTask<string>(GitCommitAsync);
+        GitPushCommand = ReactiveCommand.CreateFromTask(GitPushAsync);
 
         LoadQuickAccess();
         LoadDrives();
