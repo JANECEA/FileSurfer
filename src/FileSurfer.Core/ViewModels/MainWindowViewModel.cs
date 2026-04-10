@@ -95,7 +95,6 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public required IClipboardManager ClipboardManager { private get; init; }
 
-    private bool _isActionUserInvoked = true;
     private DateTime _lastRefreshedUtc;
     private DispatcherTimer? _refreshTimer;
 
@@ -260,15 +259,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public string CurrentBranch
     {
         get => _currentBranch;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _currentBranch, value);
-            if (_isActionUserInvoked && !string.IsNullOrEmpty(value) && Branches.Contains(value))
-            {
-                ShowIfError(CurrentFs.GitIntegration.SwitchBranches(value));
-                HardReload();
-            }
-        }
+        set { this.RaiseAndSetIfChanged(ref _currentBranch, value); }
     }
     private string _currentBranch = string.Empty;
 
@@ -316,6 +307,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
     public ReactiveCommand<Unit, Task> NewFileCommand { get; }
     public ReactiveCommand<Unit, Task> NewDirCommand { get; }
+    public ReactiveCommand<string, Task> RenameCommand { get; }
     public ReactiveCommand<Unit, Task> CutCommand { get; }
     public ReactiveCommand<Unit, Task> CopyCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel?, Task> CopyPathCommand { get; }
@@ -332,13 +324,16 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<Unit, Unit> SelectAllCommand { get; }
     public ReactiveCommand<Unit, Unit> SelectNoneCommand { get; }
     public ReactiveCommand<Unit, Unit> InvertSelectionCommand { get; }
+    public ReactiveCommand<SftpConnectionViewModel, Task> OpenSftpCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitStageCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitUnstageCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitRestoreCommand { get; }
+    public ReactiveCommand<string, Task> GitSwitchBranchCommand { get; }
     public ReactiveCommand<Unit, Unit> GitStashCommand { get; }
     public ReactiveCommand<Unit, Unit> GitStashPopCommand { get; }
     public ReactiveCommand<Unit, Task> GitFetchCommand { get; }
     public ReactiveCommand<Unit, Task> GitPullCommand { get; }
+    public ReactiveCommand<string, Task> GitCommitCommand { get; }
     public ReactiveCommand<Unit, Task> GitPushCommand { get; }
 
     /// <summary>
@@ -426,6 +421,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
         NewFileCommand = ReactiveCommand.Create(NewFileAsync, notSearching);
         NewDirCommand = ReactiveCommand.Create(NewDirAsync, notSearching);
+        RenameCommand = ReactiveCommand.Create<string, Task>(RenameAsync, selection);
         CutCommand = ReactiveCommand.Create(CutAsync, selection);
         CopyCommand = ReactiveCommand.Create(CopyAsync, selection);
         CopyPathCommand = ReactiveCommand.Create<FileSystemEntryViewModel?, Task>(CopyPathAsync);
@@ -447,13 +443,18 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         SelectAllCommand = ReactiveCommand.Create(SelectAll);
         SelectNoneCommand = ReactiveCommand.Create(SelectNone);
         InvertSelectionCommand = ReactiveCommand.Create(InvertSelection);
+        OpenSftpCommand = ReactiveCommand.Create<SftpConnectionViewModel, Task>(
+            OpenSftpConnectionAsync
+        );
         GitStageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitStage);
         GitUnstageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitUnstage);
         GitRestoreCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitRestore);
+        GitSwitchBranchCommand = ReactiveCommand.Create<string, Task>(GitSwitchBranchAsync);
         GitStashCommand = ReactiveCommand.Create(GitStash);
         GitStashPopCommand = ReactiveCommand.Create(GitStashPop);
         GitFetchCommand = ReactiveCommand.Create(GitFetchAsync);
         GitPullCommand = ReactiveCommand.Create(GitPullAsync);
+        GitCommitCommand = ReactiveCommand.Create<string, Task>(GitCommitAsync);
         GitPushCommand = ReactiveCommand.Create(GitPushAsync);
 
         LoadQuickAccess();
@@ -638,10 +639,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             ShowIfError(_localFs.LocalShellHandler.OpenFile(entry.PathToEntry));
     }
 
-    /// <summary>
-    /// TODO
-    /// </summary>
-    public async Task OpenSftpConnectionAsync(SftpConnectionViewModel connectionVm)
+    private async Task OpenSftpConnectionAsync(SftpConnectionViewModel connectionVm)
     {
         SftpConnection connection = connectionVm.SftpConnection;
 
@@ -923,10 +921,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
             if (string.Equals(currentBranch, branch, StringComparison.Ordinal))
                 currentBranch = branch; // Object references must match
         }
-
-        _isActionUserInvoked = false;
         CurrentBranch = currentBranch;
-        _isActionUserInvoked = true;
     }
 
     private void LoadRepoStateInfo() =>
@@ -979,7 +974,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
     /// Removes the directory from <see cref="_locationHistory"/> in case it's invalid.
     /// </para>
     /// </summary>
-    public void GoBack()
+    private void GoBack()
     {
         if (Searching)
             CancelSearch();
@@ -1300,10 +1295,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         syncWindow.Show();
     }
 
-    /// <summary>
-    /// Relays the operation to <see cref="RenameOneAsync"/> or <see cref="RenameMultipleAsync"/>.
-    /// </summary>
-    public Task RenameAsync(string newName)
+    private Task RenameAsync(string newName)
     {
         newName = newName.Trim();
 
@@ -1547,6 +1539,15 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         }
     }
 
+    private async Task GitSwitchBranchAsync(string branchName)
+    {
+        if (string.IsNullOrEmpty(branchName) || !Branches.Contains(branchName))
+            return;
+
+        ShowIfError(CurrentFs.GitIntegration.SwitchBranches(branchName));
+        HardReload();
+    }
+
     private void GitStash()
     {
         if (IsVersionControlled)
@@ -1595,7 +1596,7 @@ public sealed class MainWindowViewModel : ReactiveObject, IDisposable
         HardReload();
     }
 
-    public async Task GitCommitAsync(string commitMessage)
+    private async Task GitCommitAsync(string commitMessage)
     {
         if (!IsVersionControlled)
             return;

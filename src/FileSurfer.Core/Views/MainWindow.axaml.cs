@@ -257,11 +257,8 @@ public partial class MainWindow : Window
 
     private void SftpEntryClicked(object sender, TappedEventArgs e)
     {
-        if (
-            _viewModel is not null
-            && sender is ListBox { SelectedItem: SftpConnectionViewModel connectionVm }
-        )
-            _ = _viewModel.OpenSftpConnectionAsync(connectionVm);
+        if (sender is ListBox { SelectedItem: SftpConnectionViewModel connectionVm })
+            _viewModel?.OpenSftpCommand.Execute(connectionVm).Subscribe();
 
         ClearFocus();
     }
@@ -273,10 +270,10 @@ public partial class MainWindow : Window
     {
         PointerPointProperties properties = e.GetCurrentPoint(this).Properties;
         if (properties.IsXButton1Pressed)
-            _viewModel?.GoBack();
+            _viewModel?.GoBackCommand.Execute().Subscribe();
 
         if (properties.IsXButton2Pressed)
-            _viewModel?.GoForward();
+            _viewModel?.GoForwardCommand.Execute().Subscribe();
     }
 
     /// <summary>
@@ -299,6 +296,12 @@ public partial class MainWindow : Window
 
         NameInputBox.SelectionStart = 0;
         NameInputBox.SelectionEnd = entry.FileSystemEntry.NameWoExtension.Length;
+    }
+
+    private void OnBranchComboBoxClicked(object? sender, SelectionChangedEventArgs e)
+    {
+        if (sender is ComboBox { SelectedItem: string branch } && _viewModel is not null)
+            _viewModel.GitSwitchBranchCommand.Execute(branch).Subscribe();
     }
 
     /// <summary>
@@ -326,16 +329,14 @@ public partial class MainWindow : Window
     /// <para>
     /// </para>
     /// </summary>
-    private void PathBoxLostFocus(object sender, RoutedEventArgs e)
-    {
+    private void PathBoxLostFocus(object sender, RoutedEventArgs e) =>
         PathBox.Text = _viewModel?.PathBoxText ?? string.Empty;
-    }
 
     private void NameEntered()
     {
         if (NameInputBox.Text is string newName)
         {
-            _ = _viewModel?.RenameAsync(newName);
+            _viewModel?.RenameCommand.Execute(newName.Trim()).Subscribe();
             NewNameBar.IsVisible = false;
             NameInputBox.Text = string.Empty;
         }
@@ -345,7 +346,7 @@ public partial class MainWindow : Window
     {
         if (CommitInputBox.Text is string commitMessage)
         {
-            _ = _viewModel?.GitCommitAsync(commitMessage.Trim());
+            _viewModel?.GitCommitCommand.Execute(commitMessage.Trim()).Subscribe();
             CommitMessageBar.IsVisible = false;
             CommitInputBox.Text = string.Empty;
         }

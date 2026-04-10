@@ -403,7 +403,11 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <ComboBox Classes="BranchComboBox" ItemsSource="{Binding Branches}" SelectedItem="{Binding CurrentBranch, Mode=TwoWay}" ToolTip.Tip="Local branches" />
+                    <ComboBox Classes="BranchComboBox"
+                              ItemsSource="{Binding Branches}"
+                              SelectedItem="{Binding CurrentBranch, Mode=OneWay}"
+                              SelectionChanged="OnBranchComboBoxClicked"
+                              ToolTip.Tip="Local branches" />
                     <Button Classes="GitButton" Command="{Binding GitPullCommand}" Content="PULL" ToolTip.Tip="Pull commits from remote" />
                     <Button Classes="GitButton" Click="OnCommitClicked" Content="COMMIT" ToolTip.Tip="Commit staged changes" />
                     <Button Classes="GitButton" Command="{Binding GitPushCommand}" Content="PUSH" ToolTip.Tip="Push commits to remote" />
