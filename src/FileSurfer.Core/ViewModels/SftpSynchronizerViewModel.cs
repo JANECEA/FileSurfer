@@ -152,7 +152,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         Synchronizing = true;
         Initializing = true;
 
-        IResult result = await _dialogService.ProgressDialogAsync(
+        IResult result = await _dialogService.BlockingDialogAsync(
             "Initial synchronization",
             (r, ct) => _synchronizer.Initialize(InitFromRemote, r, ct)
         );

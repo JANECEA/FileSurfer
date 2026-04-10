@@ -484,7 +484,7 @@ public sealed partial class MainWindowViewModel
         );
 
         NewFileAt op = new(PathTools, CurrentFs.FileIoHandler, CurrentDir, newFileName);
-        IResult result = await _dialogService.ProgressDialogAsync(
+        IResult result = await _dialogService.BackgroundDialogAsync(
             "Creating new file",
             op.InvokeAsync
         );
@@ -507,7 +507,7 @@ public sealed partial class MainWindowViewModel
         );
 
         NewDirAt op = new(PathTools, CurrentFs.FileIoHandler, CurrentDir, newDirName);
-        IResult result = await _dialogService.ProgressDialogAsync(
+        IResult result = await _dialogService.BackgroundDialogAsync(
             "Creating new directory",
             op.InvokeAsync
         );
@@ -531,7 +531,7 @@ public sealed partial class MainWindowViewModel
         string archName =
             selected.Length == 1 ? SelectedFiles[0].FileSystemEntry.NameWoExtension : ArchiveName;
 
-        IResult result = await _dialogService.ProgressDialogAsync<IResult>(
+        IResult result = await _dialogService.BackgroundDialogAsync<IResult>(
             "Archiving files",
             (r, ct) => CurrentFs.ArchiveManager.ArchiveEntriesAsync(selected, cwd, archName, r, ct)
         );
@@ -557,7 +557,7 @@ public sealed partial class MainWindowViewModel
         List<Task> tasks = selected
             .Select(async e =>
             {
-                IResult result = await _dialogService.ProgressDialogAsync<IResult>(
+                IResult result = await _dialogService.BackgroundDialogAsync<IResult>(
                     "Extracting archive",
                     (r, ct) =>
                         CurrentFs.ArchiveManager.ExtractArchiveAsync(e.PathToEntry, cwd, r, ct)
@@ -603,7 +603,7 @@ public sealed partial class MainWindowViewModel
 
     private async Task PasteAsync()
     {
-        ValueResult<IUndoableFileOperation?> r = await _dialogService.ProgressDialogAsync(
+        ValueResult<IUndoableFileOperation?> r = await _dialogService.BackgroundDialogAsync(
             "Pasting...",
             (r, ct) => ClipboardManager.PasteAsync(CurrentLocation, r, ct)
         );
@@ -684,7 +684,7 @@ public sealed partial class MainWindowViewModel
 
         RenameOne op = new(PathTools, CurrentFs.FileIoHandler, entry.FileSystemEntry, newName);
 
-        IResult result = await _dialogService.ProgressDialogAsync(
+        IResult result = await _dialogService.BackgroundDialogAsync(
             $"Renaming {entry.Name}",
             op.InvokeAsync
         );
@@ -722,7 +722,7 @@ public sealed partial class MainWindowViewModel
             namingPattern
         );
         RenameMultiple op = new(PathTools, CurrentFs.FileIoHandler, entries, availableNames);
-        IResult result = await _dialogService.ProgressDialogAsync(
+        IResult result = await _dialogService.BackgroundDialogAsync(
             "Renaming multiple files",
             op.InvokeAsync
         );
@@ -753,7 +753,7 @@ public sealed partial class MainWindowViewModel
             SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry)
         );
 
-        IResult result = await _dialogService.ProgressDialogAsync(
+        IResult result = await _dialogService.BackgroundDialogAsync(
             "Moving to Trash",
             op.InvokeAsync
         );
@@ -778,7 +778,7 @@ public sealed partial class MainWindowViewModel
             CurrentFs.FileInfoProvider,
             entry.PathToEntry
         );
-        IResult result = await _dialogService.ProgressDialogAsync(
+        IResult result = await _dialogService.BackgroundDialogAsync(
             $"Flattening \"{entry.Name}\"",
             op.InvokeAsync
         );
@@ -822,7 +822,7 @@ public sealed partial class MainWindowViewModel
         IUndoableFileOperation op =
             _undoRedoHistory.Current ?? throw new InvalidOperationException();
 
-        IResult result = await _dialogService.ProgressDialogAsync(
+        IResult result = await _dialogService.BackgroundDialogAsync(
             "Undoing Operation",
             op.UndoAsync
         );
@@ -847,7 +847,7 @@ public sealed partial class MainWindowViewModel
             return;
 
         IUndoableFileOperation op = _undoRedoHistory.Current;
-        IResult result = await _dialogService.ProgressDialogAsync(
+        IResult result = await _dialogService.BackgroundDialogAsync(
             "Redoing Operation",
             op.InvokeAsync
         );
@@ -937,7 +937,7 @@ public sealed partial class MainWindowViewModel
         if (!IsVersionControlled)
             return;
 
-        IResult result = await _dialogService.ProgressDialogAsync(
+        IResult result = await _dialogService.BackgroundDialogAsync(
             "Fetching changes",
             () => CurrentFs.GitIntegration.FetchChangesAsync()
         );
@@ -950,7 +950,7 @@ public sealed partial class MainWindowViewModel
         if (!IsVersionControlled)
             return;
 
-        ValueResult<string> result = await _dialogService.ProgressDialogAsync(
+        ValueResult<string> result = await _dialogService.BackgroundDialogAsync(
             "Pulling changes",
             () => CurrentFs.GitIntegration.PullChangesAsync()
         );
@@ -967,7 +967,7 @@ public sealed partial class MainWindowViewModel
         if (!IsVersionControlled)
             return;
 
-        ValueResult<string> result = await _dialogService.ProgressDialogAsync(
+        ValueResult<string> result = await _dialogService.BackgroundDialogAsync(
             "Commiting changes",
             () => CurrentFs.GitIntegration.CommitChangesAsync(commitMessage)
         );
@@ -984,7 +984,7 @@ public sealed partial class MainWindowViewModel
         if (!IsVersionControlled)
             return;
 
-        ValueResult<string> result = await _dialogService.ProgressDialogAsync(
+        ValueResult<string> result = await _dialogService.BackgroundDialogAsync(
             "Pushing changes",
             () => CurrentFs.GitIntegration.PushChangesAsync()
         );

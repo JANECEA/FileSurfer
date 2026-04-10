@@ -23,6 +23,7 @@ public sealed class AvaloniaDialogService : IDialogService
 
     private async Task<T> ProgressDialogInternal<T>(
         string title,
+        bool blocking,
         Task<T> opTask,
         ProgressReporter reporter,
         CancellationTokenSource? cts
@@ -44,41 +45,68 @@ public sealed class AvaloniaDialogService : IDialogService
 
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
-            _parentWindow.IsHitTestVisible = false;
+            if (blocking)
+                _parentWindow.IsHitTestVisible = false;
             dialog.Show();
         });
+
         try
         {
             return await opTask;
         }
         finally
         {
-            if (!dialogClosedByUser)
-                await Dispatcher.UIThread.InvokeAsync(dialog.Close);
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (!dialogClosedByUser)
+                    dialog.Close();
+                if (blocking)
+                    _parentWindow.IsHitTestVisible = true;
+            });
             cts?.Dispose();
-            await Dispatcher.UIThread.InvokeAsync(() => _parentWindow.IsHitTestVisible = true);
         }
     }
 
-    public Task<T> ProgressDialogAsync<T>(string title, AsyncOperation<T> operation)
+    public Task<T> BlockingDialogAsync<T>(string title, AsyncOperation<T> operation)
     {
         Task<T> opTask = operation();
-        return ProgressDialogInternal(title, opTask, ProgressReporter.None, null);
+        return ProgressDialogInternal(title, true, opTask, ProgressReporter.None, null);
     }
 
-    public Task<T> ProgressDialogAsync<T>(string title, CancellableOperation<T> operation)
+    public Task<T> BlockingDialogAsync<T>(string title, CancellableOperation<T> operation)
     {
         CancellationTokenSource cts = new();
         Task<T> opTask = operation(cts.Token);
-        return ProgressDialogInternal(title, opTask, ProgressReporter.None, cts);
+        return ProgressDialogInternal(title, true, opTask, ProgressReporter.None, cts);
     }
 
-    public Task<T> ProgressDialogAsync<T>(string title, ReportingOperation<T> operation)
+    public Task<T> BlockingDialogAsync<T>(string title, ReportingOperation<T> operation)
     {
         ProgressReporter reporter = new();
         CancellationTokenSource cts = new();
         Task<T> opTask = operation(reporter, cts.Token);
-        return ProgressDialogInternal(title, opTask, reporter, cts);
+        return ProgressDialogInternal(title, true, opTask, reporter, cts);
+    }
+
+    public Task<T> BackgroundDialogAsync<T>(string title, AsyncOperation<T> operation)
+    {
+        Task<T> opTask = operation();
+        return ProgressDialogInternal(title, false, opTask, ProgressReporter.None, null);
+    }
+
+    public Task<T> BackgroundDialogAsync<T>(string title, CancellableOperation<T> operation)
+    {
+        CancellationTokenSource cts = new();
+        Task<T> opTask = operation(cts.Token);
+        return ProgressDialogInternal(title, false, opTask, ProgressReporter.None, cts);
+    }
+
+    public Task<T> BackgroundDialogAsync<T>(string title, ReportingOperation<T> operation)
+    {
+        ProgressReporter reporter = new();
+        CancellationTokenSource cts = new();
+        Task<T> opTask = operation(reporter, cts.Token);
+        return ProgressDialogInternal(title, false, opTask, reporter, cts);
     }
 
     public async Task<bool> ConfirmationDialogAsync(string title, string question)

@@ -110,7 +110,7 @@ public class SftpFileSystemFactory
 
         sftpClient.HostKeyReceived += (_, e) => args = e;
 
-        await _dialogService.ProgressDialogAsync(
+        await _dialogService.BlockingDialogAsync(
             $"Connecting to {connection.HostnameOrIpAddress}",
             async (r, ct) =>
             {
