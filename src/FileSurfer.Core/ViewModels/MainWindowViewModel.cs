@@ -93,7 +93,6 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
 
     private DateTime _lastRefreshedUtc;
     private DispatcherTimer? _refreshTimer;
-    private int _isLoading = 0; // For Interlocked use
 
     /// <summary>
     /// TODO

@@ -17,21 +17,58 @@ namespace FileSurfer.Core.ViewModels;
 
 public sealed partial class MainWindowViewModel
 {
-    private void SoftReload() => LockReload(false);
-
-    private void HardReload() => LockReload(true);
-
-    private void LockReload(bool forceHardReload)
+    private sealed class LoadOperation
     {
-        if (Interlocked.CompareExchange(ref _isLoading, 1, 0) == 1)
-            return;
+        public bool IsSoft { get; }
+        public Task LoadTask { get; }
 
-        _ = _dialogService.BlockingDialogAsync(
+        public bool IsCompleted => LoadTask.IsCompleted;
+
+        private LoadOperation(bool isSoft, Task loadTask)
+        {
+            IsSoft = isSoft;
+            LoadTask = loadTask;
+        }
+
+        public static LoadOperation Soft(Task task) => new(true, task);
+
+        public static LoadOperation Hard(Task task) => new(false, task);
+
+        public LoadOperation ChainHardOp(Func<Task> taskFunc) =>
+            new(
+                false,
+                LoadTask
+                    .ContinueWith(
+                        _ => taskFunc(),
+                        TaskScheduler.FromCurrentSynchronizationContext()
+                    )
+                    .Unwrap()
+            );
+    }
+
+    private LoadOperation _loadOp = LoadOperation.Soft(Task.CompletedTask);
+
+    private void SoftReload()
+    {
+        if (_loadOp.IsCompleted)
+            _loadOp = LoadOperation.Soft(ExecuteReload(false));
+    }
+
+    private void HardReload()
+    {
+        if (_loadOp.IsCompleted)
+            _loadOp = LoadOperation.Hard(ExecuteReload(true));
+        else if (_loadOp.IsSoft)
+            _loadOp = _loadOp.ChainHardOp(() => ExecuteReload(true));
+    }
+
+    private async Task ExecuteReload(bool forceHardReload)
+    {
+        await _dialogService.BlockingDialogAsync(
             "Reloading",
             async () =>
             {
                 await Reload(forceHardReload);
-                Interlocked.Exchange(ref _isLoading, 0);
                 return SimpleResult.Ok();
             }
         );
@@ -327,8 +364,9 @@ public sealed partial class MainWindowViewModel
 
     private async Task<IResult> SetLocationInternal(Location location)
     {
+        string dirName = location.FileSystem.FileInfoProvider.PathTools.GetFileName(location.Path);
         ValueResult<DirectoryContents> contentsR = await _dialogService.BlockingDialogAsync(
-            "Loading...",
+            $"Loading contents of \"{location.FileSystem.GetLabel()} : {dirName}\"",
             async () =>
             {
                 if (!await location.ExistsAsync())
@@ -359,19 +397,16 @@ public sealed partial class MainWindowViewModel
         return SimpleResult.Ok();
     }
 
-    private async Task<IResult> SetLocationNoHistory(Location location)
+    private Task<IResult> SetLocationNoHistory(Location location)
     {
-        if (Interlocked.CompareExchange(ref _isLoading, 1, 0) == 1)
-            return SimpleResult.Error();
-
-        try
-        {
-            return await SetLocationInternal(location);
-        }
-        finally
-        {
-            Interlocked.Exchange(ref _isLoading, 0);
-        }
+        Task<IResult> resultTask = _loadOp
+            .LoadTask.ContinueWith(
+                _ => SetLocationInternal(location),
+                TaskScheduler.FromCurrentSynchronizationContext()
+            )
+            .Unwrap();
+        _loadOp = LoadOperation.Hard(resultTask);
+        return resultTask;
     }
 
     private async Task SetLocation(Location location)
