@@ -92,6 +92,9 @@ internal class RemoteUnixPathTools : IPathTools
         StringBuilder sb = new(path);
 
         ShaveSep(sb);
+        if (sb.Length == 0)
+            return string.Empty;
+
         ShaveNonSep(sb);
         ShaveSep(sb);
 

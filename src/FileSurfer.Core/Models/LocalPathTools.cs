@@ -104,7 +104,7 @@ public class LocalPathTools : IPathTools
         }
         catch
         {
-            // GetFullPath may fail, continue with this step
+            // GetFullPath may fail, continue without.
         }
 
         StringBuilder sb = new(path.Length);
@@ -136,7 +136,7 @@ public class LocalPathTools : IPathTools
     {
         ReadOnlySpan<char> trimmed = path.AsSpan().TrimEnd(DirSeparator).TrimEnd(OtherSeparator);
         ReadOnlySpan<char> parent = Path.GetDirectoryName(trimmed);
-        return parent.IsEmpty ? path : parent.ToString();
+        return parent.ToString();
     }
 
     public static string GetFileName(string path)
@@ -168,7 +168,7 @@ public class LocalPathTools : IPathTools
     {
         int lastSep = int.Max(path.LastIndexOf(DirSeparator), path.LastIndexOf(OtherSeparator));
 
-        for (int index = lastSep + 1; index <= path.Length - 3; index++)
+        for (int index = lastSep + 1; index <= path.Length - 2; index++)
             if (path[index] == '.')
                 yield return path[(index + 1)..];
     }

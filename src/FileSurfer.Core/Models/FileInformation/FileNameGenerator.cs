@@ -126,9 +126,10 @@ public static class FileNameGenerator
         string[] newNames = new string[entries.Count];
         string extension = Path.GetExtension(namingPattern);
         string nameWithoutExtension = Path.GetFileNameWithoutExtension(namingPattern);
-        string directory =
-            pathTools.GetParentDir(entries.First().PathToEntry)
-            ?? throw new ArgumentException(entries.First().PathToEntry);
+        string directory = pathTools.GetParentDir(entries.First().PathToEntry);
+
+        if (string.IsNullOrEmpty(directory))
+            throw new ArgumentException(entries.First().PathToEntry);
 
         int lastIndex = 1;
         for (int i = 0; i < newNames.Length; i++)
