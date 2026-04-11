@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -62,6 +63,12 @@ public sealed partial class MainWindowViewModel
             _loadOp = _loadOp.ChainHardOp(() => ExecuteReload(true));
     }
 
+    private async Task WaitForHardReload()
+    {
+        HardReload();
+        await _loadOp.LoadTask;
+    }
+
     private async Task ExecuteReload(bool forceHardReload)
     {
         await _dialogService.BlockingDialogAsync(
@@ -84,7 +91,7 @@ public sealed partial class MainWindowViewModel
         if (!result.IsOk)
             return;
 
-        CheckVersionControl(CurrentLocation);
+        await CheckVersionControl(CurrentLocation);
         CurrentInfoMessage = FileEntries.Count > 0 ? null : EmptyDirMessage;
         _lastRefreshedUtc = DateTime.UtcNow;
     }
@@ -319,7 +326,7 @@ public sealed partial class MainWindowViewModel
         }
     }
 
-    private void CheckVersionControl(Location location)
+    private async Task CheckVersionControl(Location location)
     {
         IsVersionControlled =
             FileSurferSettings.GitIntegration
@@ -329,14 +336,23 @@ public sealed partial class MainWindowViewModel
         {
             LoadBranches(location);
             LoadRepoStateInfo();
-            foreach (FileSystemEntryViewModel e in FileEntries)
-                e.UpdateGitStatus(GetGitStatus(e.PathToEntry, location.FileSystem));
+            await SetGitStatuses(location);
         }
     }
 
-    private GitStatus GetGitStatus(string path, IFileSystem fileSystem) =>
+    private async Task SetGitStatuses(Location location)
+    {
+        FileSystemEntryViewModel[] entries = FileEntries.ConvertToArray();
+        GitStatus[] statuses = await Task.Run(() =>
+            entries.ConvertToArray(e => GetGitStatus(e, location.FileSystem))
+        );
+        for (int i = 0; i < statuses.Length; i++)
+            entries[i].UpdateGitStatus(statuses[i]);
+    }
+
+    private GitStatus GetGitStatus(FileSystemEntryViewModel entry, IFileSystem fileSystem) =>
         IsVersionControlled
-            ? fileSystem.GitIntegration.GetStatus(path)
+            ? fileSystem.GitIntegration.GetStatus(entry.PathToEntry)
             : GitStatus.NotVersionControlled;
 
     private void LoadBranches(Location location)
@@ -389,7 +405,7 @@ public sealed partial class MainWindowViewModel
             return contentsR;
 
         LoadDirEntries(location, contentsR.Value);
-        CheckVersionControl(location);
+        await CheckVersionControl(location);
         CurrentLocation = location;
         _lastRefreshedUtc = DateTime.UtcNow;
         CurrentInfoMessage = FileEntries.Count > 0 ? null : EmptyDirMessage;
@@ -543,20 +559,25 @@ public sealed partial class MainWindowViewModel
 
     private async Task NewFileAsync()
     {
-        string newFileName = FileNameGenerator.GetAvailableName(
-            CurrentFs.FileInfoProvider,
-            CurrentDir,
-            FileSurferSettings.NewFileName
+        string newFileName = null!;
+        NewFileAt op = null!;
+        IResult result = await _dialogService.BackgroundDialogAsync(
+            "Creating a new file",
+            async (r, ct) =>
+            {
+                newFileName = await FileNameGenerator.GetAvailableNameAsync(
+                    CurrentFs.FileInfoProvider,
+                    CurrentDir,
+                    FileSurferSettings.NewFileName
+                );
+                op = new NewFileAt(PathTools, CurrentFs.FileIoHandler, CurrentDir, newFileName);
+                return await op.InvokeAsync(r, ct);
+            }
         );
 
-        NewFileAt op = new(PathTools, CurrentFs.FileIoHandler, CurrentDir, newFileName);
-        IResult result = await _dialogService.BackgroundDialogAsync(
-            "Creating new file",
-            op.InvokeAsync
-        );
         if (result.IsOk)
         {
-            SoftReload();
+            await WaitForHardReload();
             _undoRedoHistory.AddNewNode(op);
             if (FileEntries.FirstOrDefault(e => e.Name == newFileName) is { } entry)
                 SelectedFiles.Add(entry);
@@ -566,20 +587,25 @@ public sealed partial class MainWindowViewModel
 
     private async Task NewDirAsync()
     {
-        string newDirName = FileNameGenerator.GetAvailableName(
-            CurrentFs.FileInfoProvider,
-            CurrentDir,
-            FileSurferSettings.NewDirectoryName
+        string newDirName = null!;
+        NewDirAt op = null!;
+        IResult result = await _dialogService.BackgroundDialogAsync(
+            "Creating a new directory",
+            async (r, ct) =>
+            {
+                newDirName = await FileNameGenerator.GetAvailableNameAsync(
+                    CurrentFs.FileInfoProvider,
+                    CurrentDir,
+                    FileSurferSettings.NewDirectoryName
+                );
+                op = new NewDirAt(PathTools, CurrentFs.FileIoHandler, CurrentDir, newDirName);
+                return await op.InvokeAsync(r, ct);
+            }
         );
 
-        NewDirAt op = new(PathTools, CurrentFs.FileIoHandler, CurrentDir, newDirName);
-        IResult result = await _dialogService.BackgroundDialogAsync(
-            "Creating new directory",
-            op.InvokeAsync
-        );
         if (result.IsOk)
         {
-            SoftReload();
+            await WaitForHardReload();
             _undoRedoHistory.AddNewNode(op);
             if (FileEntries.FirstOrDefault(e => e.Name == newDirName) is { } entry)
                 SelectedFiles.Add(entry);
@@ -696,11 +722,6 @@ public sealed partial class MainWindowViewModel
 
     private async Task SynchronizeDirAsync(FileSystemEntryViewModel? entry)
     {
-        if (IsSynchronizerOpen)
-        {
-            ShowError("Another directory is being synchronized.");
-            return;
-        }
         if (CurrentFs is not SftpFileSystem sftpFs)
         {
             ShowError("Cannot synchronize with a local directory.");
@@ -726,9 +747,6 @@ public sealed partial class MainWindowViewModel
             new Location(_localFs, localPathResult.Value),
             remoteLocation
         );
-
-        IsSynchronizerOpen = true;
-        syncWindow.Closed += (_, _) => IsSynchronizerOpen = false;
         syncWindow.Show();
     }
 
@@ -887,8 +905,7 @@ public sealed partial class MainWindowViewModel
         if (_undoRedoHistory.IsHead())
             return;
 
-        IUndoableFileOperation op =
-            _undoRedoHistory.Current ?? throw new InvalidOperationException();
+        IUndoableFileOperation op = _undoRedoHistory.Current ?? throw new UnreachableException();
 
         IResult result = await _dialogService.BackgroundDialogAsync(
             "Undoing Operation",

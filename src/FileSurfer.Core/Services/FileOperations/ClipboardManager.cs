@@ -94,7 +94,7 @@ public class ClipboardManager : IClipboardManager
 
     private static async Task<OpResult> SaveImageToPath(Location destination, Bitmap bitmap)
     {
-        string imgName = FileNameGenerator.GetAvailableName(
+        string imgName = await FileNameGenerator.GetAvailableNameAsync(
             destination.FileSystem.FileInfoProvider,
             destination.Path,
             FileSurferSettings.NewImageName + ImageExtension
@@ -126,7 +126,7 @@ public class ClipboardManager : IClipboardManager
 
     private static async Task<OpResult> SaveTextToPath(Location destination, string text)
     {
-        string textName = FileNameGenerator.GetAvailableName(
+        string textName = await FileNameGenerator.GetAvailableNameAsync(
             destination.FileSystem.FileInfoProvider,
             destination.Path,
             FileSurferSettings.NewTextFileName + TextExtension

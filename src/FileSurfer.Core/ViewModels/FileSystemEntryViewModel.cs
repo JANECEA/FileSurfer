@@ -153,6 +153,9 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         _ = LoadIconAsync(entry, fileSystem.IconProvider);
     }
 
+    private async Task LoadIconAsync(FileEntryInfo entry, IIconProvider iconProvider) =>
+        Icon = await Task.Run(() => iconProvider.GetFileIconAsync(entry.PathToEntry));
+
     public FileSystemEntryViewModel(IFileSystem fileSystem, DirectoryEntryInfo entry)
     {
         FileSystemEntry = entry;
@@ -168,16 +171,11 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         IsArchived = fileSystem.ArchiveManager.IsArchived(entry.PathToEntry);
         SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
 
-        _ = Task.Run(() => LoadIconAsync(entry, fileSystem.IconProvider));
+        _ = LoadIconAsync(entry, fileSystem.IconProvider);
     }
 
-    private async Task LoadIconAsync(IFileSystemEntry entry, IIconProvider iconProvider) =>
-        Icon = entry switch
-        {
-            FileEntry => await iconProvider.GetFileIconAsync(entry.PathToEntry),
-            DirectoryEntry => await iconProvider.GetDirectoryIconAsync(entry.PathToEntry),
-            _ => throw new NotSupportedException(),
-        };
+    private async Task LoadIconAsync(DirectoryEntryInfo entry, IIconProvider iconProvider) =>
+        Icon = await Task.Run(() => iconProvider.GetDirectoryIconAsync(entry.PathToEntry));
 
     internal void UpdateGitStatus(GitStatus newStatus)
     {

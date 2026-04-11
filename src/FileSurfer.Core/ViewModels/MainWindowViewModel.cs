@@ -279,16 +279,6 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     }
     private RepoStateInfo _repoStateInfo = new(string.Empty, string.Empty);
 
-    /// <summary>
-    /// Indicates whether there is an opened directory synchronizer window
-    /// </summary>
-    public bool IsSynchronizerOpen
-    {
-        get => _isSynchronizerOpen;
-        set => this.RaiseAndSetIfChanged(ref _isSynchronizerOpen, value);
-    }
-    private bool _isSynchronizerOpen = false;
-
     public ReactiveCommand<Unit, Unit> OpenEntriesCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel, Unit> OpenEntryCommand { get; }
     public ReactiveCommand<SideBarEntryViewModel, Unit> OpenSideBarEntryCommand { get; }
@@ -391,7 +381,6 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
             this.RaisePropertyChanged(nameof(LocationsForward));
         });
 
-        IObservable<bool> isSynchronizing = this.WhenAnyValue(x => x.IsSynchronizerOpen);
         IObservable<bool> canGoForward = this.WhenAnyValue(x => x.CanGoForward);
         IObservable<bool> canGoBack = this.WhenAnyValue(x => x.CanGoBack);
         IObservable<bool> local = this.WhenAnyValue(x => x.IsLocal);
@@ -399,10 +388,9 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         IObservable<bool> selection = this.WhenAnyValue(x => x.SelectionNotEmpty);
         IObservable<bool> localNotSearching = local.CombineLatest(notSearching, (l, nS) => l && nS);
         IObservable<bool> localSelection = local.CombineLatest(selection, (l, sl) => l && sl);
-        IObservable<bool> notLocalNotSearchingNotSync = local.CombineLatest(
+        IObservable<bool> notLocalNotSearching = local.CombineLatest(
             notSearching,
-            isSynchronizing,
-            (loc, nSearch, nSync) => !loc && nSearch && !nSync
+            (loc, nSearch) => !loc && nSearch
         );
 
         OpenEntriesCommand = ReactiveCommand.CreateFromTask(
@@ -448,7 +436,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         ShowPropertiesCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(ShowProperties);
         SyncDirCommand = ReactiveCommand.Create<FileSystemEntryViewModel?, Task>(
             SynchronizeDirAsync,
-            notLocalNotSearchingNotSync
+            notLocalNotSearching
         );
         PasteCommand = ReactiveCommand.Create(PasteAsync, notSearching);
         MoveToTrashCommand = ReactiveCommand.Create(MoveToTrashAsync, localSelection);

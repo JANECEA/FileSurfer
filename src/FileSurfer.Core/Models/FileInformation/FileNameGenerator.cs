@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FileSurfer.Core.Models.FileInformation;
 
@@ -31,6 +32,32 @@ public static class FileNameGenerator
             string newFileName = $"{nameWithoutExtension} ({index}){extension}";
 
             if (!fileInfoProvider.Exists(pathTools.Combine(directory, newFileName)).AsPath)
+                return newFileName;
+        }
+    }
+
+    /// <summary>
+    /// Finds a name available to use in <paramref name="directory"/> based on <paramref name="newName"/>.
+    /// </summary>
+    /// <returns><see cref="string"/> name available to use in <paramref name="directory"/>.</returns>
+    public static async Task<string> GetAvailableNameAsync(
+        IFileInfoProvider fileInfoProvider,
+        string directory,
+        string newName
+    )
+    {
+        IPathTools pathTools = fileInfoProvider.PathTools;
+        if (!(await fileInfoProvider.ExistsAsync(pathTools.Combine(directory, newName))).AsPath)
+            return newName;
+
+        string nameWithoutExtension = Path.GetFileNameWithoutExtension(newName);
+        string extension = Path.GetExtension(newName);
+        for (int index = 1; ; index++)
+        {
+            string newFileName = $"{nameWithoutExtension} ({index}){extension}";
+
+            string newPath = pathTools.Combine(directory, newFileName);
+            if (!(await fileInfoProvider.ExistsAsync(newPath)).AsPath)
                 return newFileName;
         }
     }
