@@ -134,12 +134,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// </summary>
     /// <param name="fileSystem">Current fileSystem</param>
     /// <param name="entry">The file or directory entry.</param>
-    /// <param name="status">Optional version control status of the entry, defaulting to not version controlled.</param>
-    public FileSystemEntryViewModel(
-        IFileSystem fileSystem,
-        FileEntryInfo entry,
-        GitStatus status = GitStatus.NotVersionControlled
-    )
+    public FileSystemEntryViewModel(IFileSystem fileSystem, FileEntryInfo entry)
     {
         FileSystemEntry = entry;
         LastModTime = entry.LastModified;
@@ -152,18 +147,13 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         Opacity = fileSystem.FileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory)
             ? HiddenOpacity
             : 1;
-        UpdateGitStatus(status);
         IsArchived = fileSystem.ArchiveManager.IsArchived(entry.PathToEntry);
         SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
 
         _ = LoadIconAsync(entry, fileSystem.IconProvider);
     }
 
-    public FileSystemEntryViewModel(
-        IFileSystem fileSystem,
-        DirectoryEntryInfo entry,
-        GitStatus status = GitStatus.NotVersionControlled
-    )
+    public FileSystemEntryViewModel(IFileSystem fileSystem, DirectoryEntryInfo entry)
     {
         FileSystemEntry = entry;
         LastModTime = entry.LastModified;
@@ -175,7 +165,6 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         Opacity = fileSystem.FileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory)
             ? HiddenOpacity
             : 1;
-        UpdateGitStatus(status);
         IsArchived = fileSystem.ArchiveManager.IsArchived(entry.PathToEntry);
         SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
 

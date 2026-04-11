@@ -21,7 +21,7 @@
         <Border Classes="InfoBlockBorder">
             <StackPanel Margin="20 0 20 0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
                 <TextBlock FontSize="11" Foreground="{DynamicResource TextColor}" Text="{Binding Reporter.CurrentItem}" TextTrimming="LeadingCharacterEllipsis" />
-                <ProgressBar Height="20"
+                <ProgressBar Classes="DialogProgress"
                              IsIndeterminate="{Binding Reporter.IsIndeterminate}"
                              Maximum="{Binding Reporter.Maximum}"
                              Minimum="{Binding Reporter.Minimum}"

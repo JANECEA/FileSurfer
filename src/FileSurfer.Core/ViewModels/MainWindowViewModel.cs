@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using FileSurfer.Core.Models;
@@ -93,6 +94,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
 
     private DateTime _lastRefreshedUtc;
     private DispatcherTimer? _refreshTimer;
+    private int _isLoading = 0; // For Interlocked use
 
     /// <summary>
     /// TODO
@@ -431,10 +433,10 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
             canGoForward
         );
         GoUpCommand = ReactiveCommand.CreateFromTask(GoUp);
-        ReloadCommand = ReactiveCommand.CreateFromTask(HardReload, notSearching);
+        ReloadCommand = ReactiveCommand.Create(HardReload, notSearching);
         OpenTerminalCommand = ReactiveCommand.Create(OpenTerminal, localNotSearching);
         SearchCommand = ReactiveCommand.Create<string, Task>(SearchAsync);
-        CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
+        CancelSearchCommand = ReactiveCommand.CreateFromTask(CancelSearchAndGoBack);
         NewFileCommand = ReactiveCommand.CreateFromTask(NewFileAsync, notSearching);
         NewDirCommand = ReactiveCommand.CreateFromTask(NewDirAsync, notSearching);
         RenameCommand = ReactiveCommand.CreateFromTask<string>(RenameAsync, selection);
@@ -452,8 +454,8 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         );
         PasteCommand = ReactiveCommand.Create(PasteAsync, notSearching);
         MoveToTrashCommand = ReactiveCommand.Create(MoveToTrashAsync, localSelection);
-        DeleteCommand = ReactiveCommand.Create(Delete, selection);
-        SetSortByCommand = ReactiveCommand.Create<SortBy>(SetSortBy);
+        DeleteCommand = ReactiveCommand.CreateFromTask(Delete, selection);
+        SetSortByCommand = ReactiveCommand.CreateFromTask<SortBy>(SetSortBy);
         UndoCommand = ReactiveCommand.CreateFromTask(UndoAsync);
         RedoCommand = ReactiveCommand.CreateFromTask(RedoAsync);
         SelectAllCommand = ReactiveCommand.Create(SelectAll);
@@ -467,10 +469,10 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         );
         GitStageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitStage);
         GitUnstageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitUnstage);
-        GitRestoreCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitRestore);
+        GitRestoreCommand = ReactiveCommand.CreateFromTask<FileSystemEntryViewModel?>(GitRestore);
         GitSwitchBranchCommand = ReactiveCommand.CreateFromTask<string>(GitSwitchBranchAsync);
-        GitStashCommand = ReactiveCommand.Create(GitStash);
-        GitStashPopCommand = ReactiveCommand.Create(GitStashPop);
+        GitStashCommand = ReactiveCommand.CreateFromTask(GitStash);
+        GitStashPopCommand = ReactiveCommand.CreateFromTask(GitStashPop);
         GitFetchCommand = ReactiveCommand.CreateFromTask(GitFetchAsync);
         GitPullCommand = ReactiveCommand.CreateFromTask(GitPullAsync);
         GitCommitCommand = ReactiveCommand.CreateFromTask<string>(GitCommitAsync);
@@ -519,12 +521,16 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     private void SetInitialLocation(string localPath)
     {
         Location requestedLocation = new(_localFs, localPath);
+        Task t = Task.CompletedTask;
         if (!requestedLocation.Exists())
         {
             Location root = new(_localFs, _localFs.LocalFileInfoProvider.GetRoot());
-            SetLocation(root);
+            t = SetLocation(root);
         }
-        SetLocation(requestedLocation);
+        t.ContinueWith(
+            _ => SetLocation(requestedLocation),
+            TaskScheduler.FromCurrentSynchronizationContext()
+        );
     }
 
     private void LoadSettings(bool reload)
@@ -547,7 +553,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
                 Interval = TimeSpan.FromMilliseconds(FileSurferSettings.AutomaticRefreshInterval),
             };
             _lastRefreshedUtc = DateTime.UtcNow;
-            _refreshTimer.Tick += (_, _) => CheckForUpdates();
+            _refreshTimer.Tick += (_, _) => _ = CheckForUpdates();
             _refreshTimer.Start();
         }
 
@@ -600,21 +606,21 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         SearchWaterMark = $"Search {dirName}";
     }
 
-    private void CheckForUpdates() // TODO ASYNC
+    private async Task CheckForUpdates()
     {
-        if (CurrentLocation.Exists())
+        if (await CurrentLocation.ExistsAsync())
         {
-            if (CompareSetLastWriteTime())
+            if (await CompareSetLastWriteTime())
                 HardReload();
             else if (IsVersionControlled)
                 SoftReload();
         }
     }
 
-    private bool CompareSetLastWriteTime()
+    private async Task<bool> CompareSetLastWriteTime()
     {
         DateTime lastWriteTimeUtc =
-            CurrentFs.FileInfoProvider.GetDirLastWriteUtc(CurrentDir) ?? DateTime.UtcNow;
+            await CurrentFs.FileInfoProvider.GetDirLastWriteUtcAsync(CurrentDir) ?? DateTime.UtcNow;
 
         if (_lastRefreshedUtc >= lastWriteTimeUtc)
             return false;

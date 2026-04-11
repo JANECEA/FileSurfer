@@ -9,7 +9,7 @@ namespace FileSurfer.Core.Services.Dialogs;
 
 public sealed class AvaloniaDialogService : IDialogService
 {
-    private const int ShowOpDialogDelayMs = 1000;
+    private const int ShowOpDialogDelayMs = 750;
 
     private readonly Window _parentWindow;
 
@@ -21,9 +21,8 @@ public sealed class AvaloniaDialogService : IDialogService
             new InfoDialogWindow { Title = title, Message = info }.ShowDialog(_parentWindow);
         });
 
-    private async Task<T> ProgressDialogInternal<T>(
+    private static async Task<T> ProgressDialogInternal<T>(
         string title,
-        bool blocking,
         Task<T> opTask,
         ProgressReporter reporter,
         CancellationTokenSource? cts
@@ -43,12 +42,7 @@ public sealed class AvaloniaDialogService : IDialogService
         };
         dialog.Closed += (_, _) => dialogClosedByUser = true;
 
-        await Dispatcher.UIThread.InvokeAsync(() =>
-        {
-            if (blocking)
-                _parentWindow.IsHitTestVisible = false;
-            dialog.Show();
-        });
+        await Dispatcher.UIThread.InvokeAsync(dialog.Show);
 
         try
         {
@@ -56,28 +50,48 @@ public sealed class AvaloniaDialogService : IDialogService
         }
         finally
         {
+            if (!dialogClosedByUser)
+                await Dispatcher.UIThread.InvokeAsync(dialog.Close);
+            cts?.Dispose();
+        }
+    }
+
+    private async Task<T> LockWindowWithDialog<T>(
+        string title,
+        Task<T> opTask,
+        ProgressReporter reporter,
+        CancellationTokenSource? cts
+    )
+    {
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            _parentWindow.IsHitTestVisible = false;
+        });
+
+        try
+        {
+            return await ProgressDialogInternal(title, opTask, reporter, cts);
+        }
+        finally
+        {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                if (!dialogClosedByUser)
-                    dialog.Close();
-                if (blocking)
-                    _parentWindow.IsHitTestVisible = true;
+                _parentWindow.IsHitTestVisible = true;
             });
-            cts?.Dispose();
         }
     }
 
     public Task<T> BlockingDialogAsync<T>(string title, AsyncOperation<T> operation)
     {
         Task<T> opTask = operation();
-        return ProgressDialogInternal(title, true, opTask, ProgressReporter.None, null);
+        return LockWindowWithDialog(title, opTask, ProgressReporter.None, null);
     }
 
     public Task<T> BlockingDialogAsync<T>(string title, CancellableOperation<T> operation)
     {
         CancellationTokenSource cts = new();
         Task<T> opTask = operation(cts.Token);
-        return ProgressDialogInternal(title, true, opTask, ProgressReporter.None, cts);
+        return LockWindowWithDialog(title, opTask, ProgressReporter.None, cts);
     }
 
     public Task<T> BlockingDialogAsync<T>(string title, ReportingOperation<T> operation)
@@ -85,20 +99,20 @@ public sealed class AvaloniaDialogService : IDialogService
         ProgressReporter reporter = new();
         CancellationTokenSource cts = new();
         Task<T> opTask = operation(reporter, cts.Token);
-        return ProgressDialogInternal(title, true, opTask, reporter, cts);
+        return LockWindowWithDialog(title, opTask, reporter, cts);
     }
 
     public Task<T> BackgroundDialogAsync<T>(string title, AsyncOperation<T> operation)
     {
         Task<T> opTask = operation();
-        return ProgressDialogInternal(title, false, opTask, ProgressReporter.None, null);
+        return ProgressDialogInternal(title, opTask, ProgressReporter.None, null);
     }
 
     public Task<T> BackgroundDialogAsync<T>(string title, CancellableOperation<T> operation)
     {
         CancellationTokenSource cts = new();
         Task<T> opTask = operation(cts.Token);
-        return ProgressDialogInternal(title, false, opTask, ProgressReporter.None, cts);
+        return ProgressDialogInternal(title, opTask, ProgressReporter.None, cts);
     }
 
     public Task<T> BackgroundDialogAsync<T>(string title, ReportingOperation<T> operation)
@@ -106,7 +120,7 @@ public sealed class AvaloniaDialogService : IDialogService
         ProgressReporter reporter = new();
         CancellationTokenSource cts = new();
         Task<T> opTask = operation(reporter, cts.Token);
-        return ProgressDialogInternal(title, false, opTask, reporter, cts);
+        return ProgressDialogInternal(title, opTask, reporter, cts);
     }
 
     public async Task<bool> ConfirmationDialogAsync(string title, string question)
