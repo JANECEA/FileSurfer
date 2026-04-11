@@ -35,6 +35,9 @@ internal class OsClipboardProxy
         IList<IFileSystemEntry> programItems
     )
     {
+        if (osItems.Length != programItems.Count)
+            return false;
+
         HashSet<string> files = programItems
             .Where(entry => entry is FileEntry)
             .Select(file => LocalPathTools.NormalizePath(file.PathToEntry))

@@ -31,7 +31,10 @@ public sealed class AvaloniaDialogService : IDialogService
         Task waitTask = Task.Delay(ShowOpDialogDelayMs);
         await Task.WhenAny(opTask, waitTask);
         if (opTask.IsCompleted)
+        {
+            cts?.Dispose();
             return await opTask;
+        }
 
         bool dialogClosedByUser = false;
         ProgressDialogWindow dialog = new()

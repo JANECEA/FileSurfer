@@ -42,7 +42,6 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
     private readonly Location _root;
     private Dictionary<string, FsEntryMeta> _snapshot = new();
 
-    public bool SyncHiddenFiles { get; set; } = false;
     public event Func<object?, FileSystemEvent, Task>? ChangeDetected;
 
     public DirectoryWatcher(Location root) => _root = root;

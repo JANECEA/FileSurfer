@@ -82,7 +82,7 @@ public sealed class CountingReporter
     public CountingReporter(ProgressReporter progressReporter, long totalCount)
     {
         _progressReporter = progressReporter;
-        _totalCount = totalCount;
+        _totalCount = totalCount == 0 ? 1.0 : totalCount;
         _progressReporter.IsIndeterminate = false;
     }
 

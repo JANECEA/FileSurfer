@@ -39,7 +39,8 @@ public class ClipboardManager : IClipboardManager
     private readonly OsClipboardProxy _osClipboard;
     private readonly LocalFileSystem _localFs;
 
-    private Location? _origin;
+    private IFileSystem? _originFs;
+    private string? _originPath;
     private readonly List<IFileSystemEntry> _programClipboard = [];
     private PasteType _pasteType = PasteType.Copy;
 
@@ -71,7 +72,8 @@ public class ClipboardManager : IClipboardManager
             if (!result.IsOk)
             {
                 _programClipboard.Clear();
-                _origin = null;
+                _originFs = null;
+                _originPath = null;
                 return result;
             }
         }
@@ -79,7 +81,8 @@ public class ClipboardManager : IClipboardManager
             await _osClipboard.ExecuteAsync(c => c.ClearAsync());
 
         _pasteType = pasteType;
-        _origin = location;
+        _originFs = location.FileSystem;
+        _originPath = location.Path;
         _programClipboard.Clear();
         _programClipboard.AddRange(entries);
 
@@ -149,28 +152,22 @@ public class ClipboardManager : IClipboardManager
         }
     }
 
-    private Location DetermineBaseLocation()
+    private string? DetermineBaseLocation()
     {
         if (_programClipboard.Count == 0)
             throw new UnreachableException();
 
-        if (_programClipboard.Count == 1)
-            return new Location(
-                _localFs,
-                LocalPathTools.GetParentDir(_programClipboard[0].PathToEntry)
-            );
-
-        int minLength = _programClipboard.Min(entry => entry.PathToEntry.Length);
-
-        int i = 0;
-        for (; i < minLength; i++)
-        {
-            char ch = _programClipboard[0].PathToEntry[i];
-
-            if (_programClipboard.Any(entry => entry.PathToEntry[i] != ch))
-                break;
-        }
-        return new Location(_localFs, _programClipboard[0].PathToEntry[..i]);
+        string basePath = LocalPathTools.NormalizePath(
+            LocalPathTools.GetParentDir(_programClipboard[0].PathToEntry)
+        );
+        return _programClipboard.All(entry =>
+            LocalPathTools.PathsAreEqualNormalized(
+                basePath,
+                LocalPathTools.NormalizePath(LocalPathTools.GetParentDir(entry.PathToEntry))
+            )
+        )
+            ? basePath
+            : null;
     }
 
     private void PlaceInProgramClipboard(IStorageItem[] items)
@@ -212,10 +209,11 @@ public class ClipboardManager : IClipboardManager
         {
             _pasteType = PasteType.Copy;
             PlaceInProgramClipboard(items);
-            _origin = DetermineBaseLocation();
+            _originFs = _localFs;
+            _originPath = DetermineBaseLocation();
         }
 
-        if (_origin is null || _programClipboard.Count == 0)
+        if (_originFs is null || _programClipboard.Count == 0)
             return OpResult.Error("Clipboard is empty.");
 
         return await PasteInternalAsync(destination, reporter, ct);
@@ -227,8 +225,14 @@ public class ClipboardManager : IClipboardManager
         CancellationToken ct
     )
     {
-        bool destIsSame = destination.IsSame(_origin);
-        bool fsIsSame = destination.FileSystem.IsSame(_origin?.FileSystem);
+        bool fsIsSame = destination.FileSystem.IsSame(_originFs);
+        bool destIsSame =
+            fsIsSame
+            && _originPath is not null
+            && destination.FileSystem.FileInfoProvider.PathTools.PathsAreEqual(
+                destination.Path,
+                _originPath
+            );
 
         OpResult result = _pasteType switch
         {
@@ -245,42 +249,43 @@ public class ClipboardManager : IClipboardManager
         {
             await _osClipboard.ExecuteAsync(c => c.ClearAsync());
             _programClipboard.Clear();
-            _origin = null;
+            _originFs = null;
+            _originPath = null;
         }
         return result;
     }
 
     private static ValueResult<FileTransferStream> ToFileTransferStream(
         IFileSystemEntry e,
-        Location l
-    ) => FileTransferStream.FromInfoProvider(l.FileSystem.FileInfoProvider, e.PathToEntry);
+        IFileInfoProvider infoProvider
+    ) => FileTransferStream.FromInfoProvider(infoProvider, e.PathToEntry);
 
     private static ValueResult<DirTransferStream> ToDirTransferStream(
         IFileSystemEntry e,
-        Location l,
+        IFileInfoProvider infoProvider,
         bool includeHidden,
         bool includeOs
-    ) =>
-        DirTransferStream.FromInfoProvider(
-            l.FileSystem.FileInfoProvider,
-            e.PathToEntry,
-            includeHidden,
-            includeOs
-        );
+    ) => DirTransferStream.FromInfoProvider(infoProvider, e.PathToEntry, includeHidden, includeOs);
 
     private ValueResult<(FileTransferStream[], DirTransferStream[])> GetStreams()
     {
+        if (_originFs is null)
+            return ValueResult<(FileTransferStream[], DirTransferStream[])>.Error(
+                "Clipboard origin file system is unavailable."
+            );
+
         bool includeHidden = FileSurferSettings.ShowHiddenFiles;
         bool includeOs = FileSurferSettings.ShowProtectedFiles;
+        IFileInfoProvider infoProvider = _originFs.FileInfoProvider;
 
         List<ValueResult<FileTransferStream>> fileResults = _programClipboard
             .Where(e => e is FileEntry)
-            .Select(e => ToFileTransferStream(e, _origin!))
+            .Select(e => ToFileTransferStream(e, infoProvider))
             .ToList();
 
         List<ValueResult<DirTransferStream>> dirResults = _programClipboard
             .Where(e => e is DirectoryEntry)
-            .Select(e => ToDirTransferStream(e, _origin!, includeHidden, includeOs))
+            .Select(e => ToDirTransferStream(e, infoProvider, includeHidden, includeOs))
             .ToList();
 
         IResult? errResult = fileResults
@@ -313,7 +318,10 @@ public class ClipboardManager : IClipboardManager
         if (!result.IsOk)
             return result;
 
-        IFileIoHandler f = _origin!.FileSystem.FileIoHandler;
+        if (_originFs is null)
+            return OpResult.Error("Clipboard origin file system is unavailable.");
+
+        IFileIoHandler f = _originFs.FileIoHandler;
         foreach (IFileSystemEntry e in _programClipboard)
         {
             IResult r = e is FileEntry ? f.DeleteFile(e.PathToEntry) : f.DeleteDir(e.PathToEntry);

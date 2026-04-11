@@ -39,7 +39,7 @@ public class FileTransferStream : IDisposable
 }
 
 /// <summary>
-/// Defines a tree of <see cref="FileTransferStream"/> used for directory trasnfer.
+/// Defines a tree of <see cref="FileTransferStream"/> used for directory transfer.
 /// </summary>
 public class DirTransferStream : IDisposable
 {
