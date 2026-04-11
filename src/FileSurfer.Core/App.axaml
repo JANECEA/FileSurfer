@@ -37,6 +37,7 @@
                     <Color x:Key="GitTextColor">#FFFFFF</Color>
                     <Color x:Key="GitHoverColor">#B03C21</Color>
                     <Color x:Key="AcceptColor">#98971A</Color>
+                    <Color x:Key="HighLightColor">#D79921</Color>
                 </ResourceDictionary>
 
                 <ResourceDictionary x:Key="Dark">
@@ -49,6 +50,7 @@
                     <Color x:Key="GitTextColor">#FFFFFF</Color>
                     <Color x:Key="GitHoverColor">#F2836B</Color>
                     <Color x:Key="AcceptColor">#B8B926</Color>
+                    <Color x:Key="HighLightColor">#D79921</Color>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>

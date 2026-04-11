@@ -98,12 +98,12 @@
                        Source="{Binding Icon}" />
 
                 <Canvas Grid.Column="1">
-                    <TextBlock Canvas.Top="8"
-                               Width="{Binding $parent[Canvas].Bounds.Width}"
-                               Classes="FileInfo"
-                               FontSize="15"
-                               FontWeight="Regular"
-                               Text="{Binding Name}" />
+                    <helpers:HighlightTextBlock Canvas.Top="8"
+                                                Width="{Binding $parent[Canvas].Bounds.Width}"
+                                                Classes="SearchEntryName"
+                                                HighlightBrush="{DynamicResource HighLightColor}"
+                                                Query="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).CurrentQuery}"
+                                                Text="{Binding Name}" />
                 </Canvas>
 
                 <Canvas Grid.Column="2">

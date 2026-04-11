@@ -245,6 +245,16 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     private bool _searching;
 
     /// <summary>
+    /// Current searching query.
+    /// </summary>
+    public string CurrentQuery
+    {
+        get => _currentQuery;
+        set => this.RaiseAndSetIfChanged(ref _currentQuery, value);
+    }
+    private string _currentQuery = string.Empty;
+
+    /// <summary>
     /// Contains a list of current repository's branches, displayed in the "Branches" combobox.
     /// </summary>
     public ObservableCollection<string> Branches { get; } = new();

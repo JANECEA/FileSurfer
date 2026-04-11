@@ -12,7 +12,7 @@ namespace FileSurfer.Core.ViewModels;
 
 public class SearchManager : IDisposable
 {
-    private const int ChunkSize = 25;
+    private const int ChunkSize = 50;
     private const int SearchAnimationPeriodMs = 500;
     private const string SearchingFinishedLabel = "Searching finished";
     private static readonly IReadOnlyList<string> SearchingStates =

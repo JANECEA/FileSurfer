@@ -532,6 +532,7 @@ public sealed partial class MainWindowViewModel
 
     private async Task SearchAsync(string searchQuery)
     {
+        CurrentQuery = searchQuery;
         if (Searching)
         {
             CurrentInfoMessage = null;
@@ -548,6 +549,7 @@ public sealed partial class MainWindowViewModel
     private async Task CancelSearchAsync()
     {
         Searching = false;
+        CurrentQuery = string.Empty;
         await _searchManager.CancelSearchAsync();
     }
 
