@@ -38,13 +38,6 @@ public class SearchManager : IDisposable
         _animationTimer = GetAnimationTimer();
     }
 
-    public void CancelSearch()
-    {
-        CancellationTokenSource cts = _searchCts;
-        if (!cts.IsCancellationRequested)
-            cts.Cancel();
-    }
-
     private async Task WaitForActiveTask()
     {
         if (!_searchCts.IsCancellationRequested)

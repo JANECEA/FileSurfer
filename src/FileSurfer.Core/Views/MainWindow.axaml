@@ -406,7 +406,7 @@
                     <ComboBox Classes="BranchComboBox"
                               ItemsSource="{Binding Branches}"
                               SelectedItem="{Binding CurrentBranch, Mode=OneWay}"
-                              SelectionChanged="OnBranchComboBoxClicked"
+                              SelectionChanged="OnBranchSelectionChanged"
                               ToolTip.Tip="Local branches" />
                     <Button Classes="GitButton" Command="{Binding GitPullCommand}" Content="PULL" ToolTip.Tip="Pull commits from remote" />
                     <Button Classes="GitButton" Click="OnCommitClicked" Content="COMMIT" ToolTip.Tip="Commit staged changes" />

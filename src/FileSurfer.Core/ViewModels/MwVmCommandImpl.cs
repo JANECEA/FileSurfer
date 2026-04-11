@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
@@ -328,13 +329,23 @@ public sealed partial class MainWindowViewModel
     {
         ValueResult<DirectoryContents> contentsR = await _dialogService.BlockingDialogAsync(
             "Loading...",
-            () =>
-                location.FileSystem.FileInfoProvider.GetPathEntriesAsync(
+            async () =>
+            {
+                if (!await location.ExistsAsync())
+                    return ValueResult<DirectoryContents>.Error(
+                        $"Location {location.FileSystem.GetLabel()}:{location.Path} does not exist."
+                    );
+
+                if (Searching)
+                    await CancelSearch();
+
+                return await location.FileSystem.FileInfoProvider.GetPathEntriesAsync(
                     location.Path,
                     FileSurferSettings.ShowHiddenFiles,
                     FileSurferSettings.ShowProtectedFiles,
                     CancellationToken.None
-                )
+                );
+            }
         );
         if (!contentsR.IsOk)
             return contentsR;
@@ -350,19 +361,11 @@ public sealed partial class MainWindowViewModel
 
     private async Task<IResult> SetLocationNoHistory(Location location)
     {
-        if (!await location.ExistsAsync())
-            return SimpleResult.Error(
-                $"Location {location.FileSystem.GetLabel()}:{location.Path} does not exist."
-            );
-
         if (Interlocked.CompareExchange(ref _isLoading, 1, 0) == 1)
             return SimpleResult.Error();
 
         try
         {
-            if (Searching)
-                await CancelSearch();
-
             return await SetLocationInternal(location);
         }
         finally
@@ -925,47 +928,47 @@ public sealed partial class MainWindowViewModel
             ShowIfError(CurrentFs.GitIntegration.UnstagePath(entry?.PathToEntry ?? CurrentDir));
     }
 
-    private Task GitRestore(FileSystemEntryViewModel? entry)
+    private void GitRestore(FileSystemEntryViewModel? entry)
     {
         if (IsVersionControlled)
         {
             ShowIfError(CurrentFs.GitIntegration.RestorePath(entry?.PathToEntry ?? CurrentDir));
             HardReload();
         }
-
-        return Task.CompletedTask;
     }
 
-    private Task GitSwitchBranchAsync(string branchName)
+    private void GitSwitchBranch(string branchName)
     {
         if (string.IsNullOrEmpty(branchName) || !Branches.Contains(branchName))
-            return Task.CompletedTask;
+            return;
 
-        ShowIfError(CurrentFs.GitIntegration.SwitchBranches(branchName));
-        HardReload();
-        return Task.CompletedTask;
+        string prevBranch = CurrentBranch;
+        CurrentBranch = branchName;
+
+        IResult result = CurrentFs.GitIntegration.SwitchBranches(branchName);
+        ShowIfError(result);
+        if (result.IsOk)
+            HardReload();
+        else
+            Dispatcher.UIThread.Post(() => CurrentBranch = prevBranch);
     }
 
-    private Task GitStash()
+    private void GitStash()
     {
         if (IsVersionControlled)
         {
             ShowIfError(CurrentFs.GitIntegration.StashChanges());
             HardReload();
         }
-
-        return Task.CompletedTask;
     }
 
-    private Task GitStashPop()
+    private void GitStashPop()
     {
         if (IsVersionControlled)
         {
             ShowIfError(CurrentFs.GitIntegration.PopChanges());
             HardReload();
         }
-
-        return Task.CompletedTask;
     }
 
     private async Task GitFetchAsync()

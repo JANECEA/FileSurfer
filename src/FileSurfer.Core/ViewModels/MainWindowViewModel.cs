@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using FileSurfer.Core.Models;
@@ -257,7 +256,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     public string CurrentBranch
     {
         get => _currentBranch;
-        set { this.RaiseAndSetIfChanged(ref _currentBranch, value); }
+        set => this.RaiseAndSetIfChanged(ref _currentBranch, value);
     }
     private string _currentBranch = string.Empty;
 
@@ -469,10 +468,10 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         );
         GitStageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitStage);
         GitUnstageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitUnstage);
-        GitRestoreCommand = ReactiveCommand.CreateFromTask<FileSystemEntryViewModel?>(GitRestore);
-        GitSwitchBranchCommand = ReactiveCommand.CreateFromTask<string>(GitSwitchBranchAsync);
-        GitStashCommand = ReactiveCommand.CreateFromTask(GitStash);
-        GitStashPopCommand = ReactiveCommand.CreateFromTask(GitStashPop);
+        GitRestoreCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitRestore);
+        GitSwitchBranchCommand = ReactiveCommand.Create<string>(GitSwitchBranch);
+        GitStashCommand = ReactiveCommand.Create(GitStash);
+        GitStashPopCommand = ReactiveCommand.Create(GitStashPop);
         GitFetchCommand = ReactiveCommand.CreateFromTask(GitFetchAsync);
         GitPullCommand = ReactiveCommand.CreateFromTask(GitPullAsync);
         GitCommitCommand = ReactiveCommand.CreateFromTask<string>(GitCommitAsync);

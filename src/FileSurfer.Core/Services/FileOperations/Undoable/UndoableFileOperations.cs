@@ -399,5 +399,5 @@ public sealed class NewDirAt : IUndoableFileOperation
         _fileIoHandler.NewDirAt(_path, _dirName).ToTask();
 
     public Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct) =>
-        _fileIoHandler.DeleteFile(_dirPath).ToTask();
+        _fileIoHandler.DeleteDir(_dirPath).ToTask();
 }
