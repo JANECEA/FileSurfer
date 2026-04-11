@@ -76,13 +76,13 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
                 if (!comparisonTask.Result.IsOk)
                     return comparisonTask.Result;
 
-                comparisonTask = Task.Run(() => DiffOnce(syncHidden), token);
+                comparisonTask = Task.Run(() => DiffOnceAsync(syncHidden), token);
             }
         }
         return await comparisonTask;
     }
 
-    private async Task<IResult> DiffOnce(bool syncHidden)
+    private async Task<IResult> DiffOnceAsync(bool syncHidden)
     {
         ValueResult<Dictionary<string, FsEntryMeta>> snapshotResult = TakeSnapshot(syncHidden);
         if (!snapshotResult.IsOk)

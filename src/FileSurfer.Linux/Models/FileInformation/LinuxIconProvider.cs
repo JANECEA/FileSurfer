@@ -56,11 +56,11 @@ public sealed class LinuxIconProvider : BaseIconProvider
 
     public override async Task<Bitmap> GetFileIconAsync(string filePath) =>
         await _mimeToIcon.GetOrAdd(
-            await GetMimeType(filePath),
+            await GetMimeTypeAsync(filePath),
             mimeType => Task.Run(() => ExtractIcon(mimeType) ?? _themedGenericFileIcon)
         );
 
-    private async Task<string> GetMimeType(string filePath)
+    private async Task<string> GetMimeTypeAsync(string filePath)
     {
         string? extension = null;
         foreach (string ext in LocalPathTools.EnumerateExtensions(filePath))
@@ -78,7 +78,7 @@ public sealed class LinuxIconProvider : BaseIconProvider
                 inspector.Inspect(filePath).ByMimeType()
             );
             mimeType = result.IsEmpty
-                ? GetXdgMimeType(filePath)
+                ? await GetXdgMimeTypeAsync(filePath)
                 : NormalizeMime(result[0].MimeType);
         }
         catch
@@ -91,9 +91,9 @@ public sealed class LinuxIconProvider : BaseIconProvider
         return mimeType;
     }
 
-    private string GetXdgMimeType(string filePath)
+    private async Task<string> GetXdgMimeTypeAsync(string filePath)
     {
-        ValueResult<string> result = _shellHandler.ExecuteCommand(
+        ValueResult<string> result = await _shellHandler.ExecuteCommandAsync(
             "xdg-mime",
             "query",
             "filetype",

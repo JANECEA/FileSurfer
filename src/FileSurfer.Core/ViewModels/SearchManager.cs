@@ -38,7 +38,7 @@ public class SearchManager : IDisposable
         _animationTimer = GetAnimationTimer();
     }
 
-    private async Task WaitForActiveTask()
+    private async Task WaitForActiveAsync()
     {
         if (!_searchCts.IsCancellationRequested)
             await _searchCts.CancelAsync();
@@ -61,7 +61,7 @@ public class SearchManager : IDisposable
         await _searchLock.WaitAsync();
         try
         {
-            await WaitForActiveTask();
+            await WaitForActiveAsync();
         }
         finally
         {
@@ -102,7 +102,7 @@ public class SearchManager : IDisposable
         try
         {
             if (_activeSearchTask is not null)
-                await WaitForActiveTask();
+                await WaitForActiveAsync();
 
             CancellationToken token = ResetToken();
             _updateAnimation(SearchingStates[0]);
@@ -158,7 +158,7 @@ public class SearchManager : IDisposable
         {
             string currentDirPath = directories.Dequeue();
 
-            DirectoryContents entries = await GetAllEntries(fileSystem, currentDirPath, ct);
+            DirectoryContents entries = await GetAllEntriesAsync(fileSystem, currentDirPath, ct);
             Task<List<FileSystemEntryViewModel>> filesTask = Task.Run(
                 () => GetFiles(fileSystem, entries.Files, searchQuery),
                 _searchCts.Token
@@ -170,7 +170,7 @@ public class SearchManager : IDisposable
             await Task.WhenAll(filesTask, dirsTask);
 
             foundEntries += filesTask.Result.Count + dirsTask.Result.Count;
-            await PushResults(filesTask.Result.Concat(dirsTask.Result), ct);
+            await PushResultsAsync(filesTask.Result.Concat(dirsTask.Result), ct);
 
             foreach (DirectoryEntryInfo dir in entries.Dirs)
                 directories.Enqueue(dir.PathToEntry);
@@ -178,7 +178,7 @@ public class SearchManager : IDisposable
         return ct.IsCancellationRequested ? null : foundEntries;
     }
 
-    private async Task PushResults(
+    private async Task PushResultsAsync(
         IEnumerable<FileSystemEntryViewModel> results,
         CancellationToken token
     )
@@ -209,7 +209,7 @@ public class SearchManager : IDisposable
         }
     }
 
-    private static async Task<DirectoryContents> GetAllEntries(
+    private static async Task<DirectoryContents> GetAllEntriesAsync(
         IFileSystem fileSystem,
         string directory,
         CancellationToken ct

@@ -52,46 +52,46 @@ public sealed partial class MainWindowViewModel
     private void SoftReload()
     {
         if (_loadOp.IsCompleted)
-            _loadOp = LoadOperation.Soft(ExecuteReload(false));
+            _loadOp = LoadOperation.Soft(ExecuteReloadAsync(false));
     }
 
     private void HardReload()
     {
         if (_loadOp.IsCompleted)
-            _loadOp = LoadOperation.Hard(ExecuteReload(true));
+            _loadOp = LoadOperation.Hard(ExecuteReloadAsync(true));
         else if (_loadOp.IsSoft)
-            _loadOp = _loadOp.ChainHardOp(() => ExecuteReload(true));
+            _loadOp = _loadOp.ChainHardOp(() => ExecuteReloadAsync(true));
     }
 
-    private async Task WaitForHardReload()
+    private async Task WaitForHardReloadAsync()
     {
         HardReload();
         await _loadOp.LoadTask;
     }
 
-    private async Task ExecuteReload(bool forceHardReload)
+    private async Task ExecuteReloadAsync(bool forceHardReload)
     {
         await _dialogService.BlockingDialogAsync(
             "Reloading",
             async () =>
             {
-                await Reload(forceHardReload);
+                await ReloadAsync(forceHardReload);
                 return SimpleResult.Ok();
             }
         );
     }
 
-    private async Task Reload(bool forceHardReload)
+    private async Task ReloadAsync(bool forceHardReload)
     {
         if (Searching)
             return;
 
-        IResult result = await UpdateEntries(forceHardReload);
+        IResult result = await UpdateEntriesAsync(forceHardReload);
         ShowIfError(result);
         if (!result.IsOk)
             return;
 
-        await CheckVersionControl(CurrentLocation);
+        await CheckVersionControlAsync(CurrentLocation);
         CurrentInfoMessage = FileEntries.Count > 0 ? null : EmptyDirMessage;
         _lastRefreshedUtc = DateTime.UtcNow;
     }
@@ -115,22 +115,22 @@ public sealed partial class MainWindowViewModel
                 ShowError(errorMessage);
     }
 
-    private async Task OpenEntry(FileSystemEntryViewModel entry)
+    private async Task OpenEntryAsync(FileSystemEntryViewModel entry)
     {
         if (entry.FileSystemEntry is DirectoryEntry)
-            await SetNewLocation(entry.PathToEntry);
+            await SetNewLocationAsync(entry.PathToEntry);
         else if (CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
-            await SetNewLocation(dir);
+            await SetNewLocationAsync(dir);
         else if (CurrentFs is LocalFileSystem fs)
             ShowIfError(fs.LocalShellHandler.OpenFile(entry.PathToEntry));
     }
 
-    private async Task OpenSideBarEntry(SideBarEntryViewModel entry)
+    private async Task OpenSideBarEntryAsync(SideBarEntryViewModel entry)
     {
         if (entry.IsDirectory)
-            await SetLocation(_localFs.GetLocation(entry.PathToEntry));
+            await SetLocationAsync(_localFs.GetLocation(entry.PathToEntry));
         else if (CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
-            await SetLocation(_localFs.GetLocation(dir));
+            await SetLocationAsync(_localFs.GetLocation(dir));
         else
             ShowIfError(_localFs.LocalShellHandler.OpenFile(entry.PathToEntry));
     }
@@ -143,7 +143,7 @@ public sealed partial class MainWindowViewModel
         {
             string initialDir =
                 connection.InitialDirectory ?? connectionVm.FileSystem.FileInfoProvider.GetRoot();
-            await SetLocation(new Location(connectionVm.FileSystem, initialDir));
+            await SetLocationAsync(new Location(connectionVm.FileSystem, initialDir));
             return;
         }
         ValueResult<SftpFileSystem> result = await SftpFsFactory.TryConnectAsync(connection);
@@ -155,12 +155,12 @@ public sealed partial class MainWindowViewModel
         connectionVm.FileSystem = fs;
 
         if (string.IsNullOrWhiteSpace(connection.InitialDirectory))
-            await SetLocation(new Location(fs, fs.FileInfoProvider.GetRoot()));
+            await SetLocationAsync(new Location(fs, fs.FileInfoProvider.GetRoot()));
         else
-            await SetLocation(new Location(fs, connection.InitialDirectory));
+            await SetLocationAsync(new Location(fs, connection.InitialDirectory));
     }
 
-    private async Task CloseSftpConnection(SftpConnectionViewModel connectionVm)
+    private async Task CloseSftpConnectionAsync(SftpConnectionViewModel connectionVm)
     {
         if (connectionVm.FileSystem is null)
         {
@@ -172,7 +172,9 @@ public sealed partial class MainWindowViewModel
         fileSystem.Dispose();
         connectionVm.FileSystem = null;
         if (ReferenceEquals(fileSystem, CurrentFs))
-            await SetLocation(new Location(_localFs, _localFs.LocalFileInfoProvider.GetRoot()));
+            await SetLocationAsync(
+                new Location(_localFs, _localFs.LocalFileInfoProvider.GetRoot())
+            );
     }
 
     private void OpenAs(FileSystemEntryViewModel entry)
@@ -210,13 +212,13 @@ public sealed partial class MainWindowViewModel
                 ShowIfError(fs.LocalShellHandler.OpenInNotepad(entry.PathToEntry));
     }
 
-    private Task GoUp()
+    private Task GoUpAsync()
     {
         IPathTools pathTools = CurrentFs.FileInfoProvider.PathTools;
         string parent = pathTools.GetParentDir(pathTools.NormalizePath(CurrentDir));
 
         if (!string.IsNullOrWhiteSpace(parent))
-            return SetNewLocation(parent);
+            return SetNewLocationAsync(parent);
 
         return Task.CompletedTask;
     }
@@ -231,9 +233,9 @@ public sealed partial class MainWindowViewModel
                 )
         );
 
-    private async Task<IResult> UpdateEntries(bool forceHardReload)
+    private async Task<IResult> UpdateEntriesAsync(bool forceHardReload)
     {
-        if (!forceHardReload && !await CompareSetLastWriteTime())
+        if (!forceHardReload && !await CompareSetLastWriteTimeAsync())
             return SimpleResult.Ok();
 
         ValueResult<DirectoryContents> contentsR =
@@ -326,7 +328,7 @@ public sealed partial class MainWindowViewModel
         }
     }
 
-    private async Task CheckVersionControl(Location location)
+    private async Task CheckVersionControlAsync(Location location)
     {
         IsVersionControlled =
             FileSurferSettings.GitIntegration
@@ -336,11 +338,11 @@ public sealed partial class MainWindowViewModel
         {
             LoadBranches(location);
             LoadRepoStateInfo();
-            await SetGitStatuses(location);
+            await SetGitStatusesAsync(location);
         }
     }
 
-    private async Task SetGitStatuses(Location location)
+    private async Task SetGitStatusesAsync(Location location)
     {
         FileSystemEntryViewModel[] entries = FileEntries.ConvertToArray();
         GitStatus[] statuses = await Task.Run(() =>
@@ -378,7 +380,7 @@ public sealed partial class MainWindowViewModel
             ? new RepoStateInfo(info.CommitsToPull.ToString(), info.CommitsToPush.ToString())
             : new RepoStateInfo(NoRemoteMark, NoRemoteMark);
 
-    private async Task<IResult> SetLocationInternal(Location location)
+    private async Task<IResult> SetLocationInternalAsync(Location location)
     {
         string dirName = location.FileSystem.FileInfoProvider.PathTools.GetFileName(location.Path);
         ValueResult<DirectoryContents> contentsR = await _dialogService.BlockingDialogAsync(
@@ -391,7 +393,7 @@ public sealed partial class MainWindowViewModel
                     );
 
                 if (Searching)
-                    await CancelSearch();
+                    await CancelSearchAsync();
 
                 return await location.FileSystem.FileInfoProvider.GetPathEntriesAsync(
                     location.Path,
@@ -405,7 +407,7 @@ public sealed partial class MainWindowViewModel
             return contentsR;
 
         LoadDirEntries(location, contentsR.Value);
-        await CheckVersionControl(location);
+        await CheckVersionControlAsync(location);
         CurrentLocation = location;
         _lastRefreshedUtc = DateTime.UtcNow;
         CurrentInfoMessage = FileEntries.Count > 0 ? null : EmptyDirMessage;
@@ -413,11 +415,11 @@ public sealed partial class MainWindowViewModel
         return SimpleResult.Ok();
     }
 
-    private Task<IResult> SetLocationNoHistory(Location location)
+    private Task<IResult> SetLocationNoHistoryAsync(Location location)
     {
         Task<IResult> resultTask = _loadOp
             .LoadTask.ContinueWith(
-                _ => SetLocationInternal(location),
+                _ => SetLocationInternalAsync(location),
                 TaskScheduler.FromCurrentSynchronizationContext()
             )
             .Unwrap();
@@ -425,25 +427,25 @@ public sealed partial class MainWindowViewModel
         return resultTask;
     }
 
-    private async Task SetLocation(Location location)
+    private async Task SetLocationAsync(Location location)
     {
-        IResult result = await SetLocationNoHistory(location);
+        IResult result = await SetLocationNoHistoryAsync(location);
 
         ShowIfError(result);
         if (result.IsOk && !location.IsSame(_locationHistory.Current))
             _locationHistory.AddNewNode(location);
     }
 
-    private Task SetNewLocation(string path)
+    private Task SetNewLocationAsync(string path)
     {
         Location location = CurrentFs.GetLocation(path);
-        return SetLocation(location);
+        return SetLocationAsync(location);
     }
 
-    private async Task GoBack()
+    private async Task GoBackAsync()
     {
         if (Searching)
-            await CancelSearch();
+            await CancelSearchAsync();
 
         while (_locationHistory.GetPrevious() is Location prevLocation)
         {
@@ -451,17 +453,17 @@ public sealed partial class MainWindowViewModel
 
             if (await prevLocation.ExistsAsync())
             {
-                await SetLocationNoHistory(prevLocation);
+                await SetLocationNoHistoryAsync(prevLocation);
                 return;
             }
             _locationHistory.RemoveCurrent(true);
         }
     }
 
-    private async Task GoBackToLocation(LocationDisplay locationDisplay)
+    private async Task GoBackToLocationAsync(LocationDisplay locationDisplay)
     {
         if (Searching)
-            await CancelSearch();
+            await CancelSearchAsync();
 
         Location location = locationDisplay.GetLocation();
         if (!LocationsBack.Any(l => l.Equals(locationDisplay)))
@@ -476,13 +478,13 @@ public sealed partial class MainWindowViewModel
             if (ReferenceEquals(location, nextLocation))
                 break;
         }
-        await SetLocation(location);
+        await SetLocationAsync(location);
     }
 
-    private async Task GoForward()
+    private async Task GoForwardAsync()
     {
         if (Searching)
-            await CancelSearch();
+            await CancelSearchAsync();
 
         while (_locationHistory.GetNext() is Location nextLocation)
         {
@@ -490,17 +492,17 @@ public sealed partial class MainWindowViewModel
 
             if (await nextLocation.ExistsAsync())
             {
-                await SetLocationNoHistory(nextLocation);
+                await SetLocationNoHistoryAsync(nextLocation);
                 return;
             }
             _locationHistory.RemoveCurrent(true);
         }
     }
 
-    private async Task GoForwardToLocation(LocationDisplay locationDisplay)
+    private async Task GoForwardToLocationAsync(LocationDisplay locationDisplay)
     {
         if (Searching)
-            await CancelSearch();
+            await CancelSearchAsync();
 
         Location location = locationDisplay.GetLocation();
         if (!LocationsForward.Any(l => l.Equals(locationDisplay)))
@@ -515,7 +517,7 @@ public sealed partial class MainWindowViewModel
             if (ReferenceEquals(location, nextLocation))
                 break;
         }
-        await SetLocation(location);
+        await SetLocationAsync(location);
     }
 
     private void OpenTerminal()
@@ -539,21 +541,21 @@ public sealed partial class MainWindowViewModel
             CurrentInfoMessage = EmptySearchMessage;
     }
 
-    private async Task CancelSearch()
+    private async Task CancelSearchAsync()
     {
         Searching = false;
         await _searchManager.CancelSearchAsync();
     }
 
-    private async Task CancelSearchAndGoBack()
+    private async Task CancelSearchAndGoBackAsync()
     {
-        await CancelSearch();
+        await CancelSearchAsync();
 
         if (_locationHistory.Current is Location location)
         {
-            IResult result = await SetLocationNoHistory(location);
+            IResult result = await SetLocationNoHistoryAsync(location);
             if (!result.IsOk)
-                await GoBack();
+                await GoBackAsync();
         }
     }
 
@@ -577,7 +579,7 @@ public sealed partial class MainWindowViewModel
 
         if (result.IsOk)
         {
-            await WaitForHardReload();
+            await WaitForHardReloadAsync();
             _undoRedoHistory.AddNewNode(op);
             if (FileEntries.FirstOrDefault(e => e.Name == newFileName) is { } entry)
                 SelectedFiles.Add(entry);
@@ -605,7 +607,7 @@ public sealed partial class MainWindowViewModel
 
         if (result.IsOk)
         {
-            await WaitForHardReload();
+            await WaitForHardReloadAsync();
             _undoRedoHistory.AddNewNode(op);
             if (FileEntries.FirstOrDefault(e => e.Name == newDirName) is { } entry)
                 SelectedFiles.Add(entry);
@@ -778,7 +780,7 @@ public sealed partial class MainWindowViewModel
         {
             _undoRedoHistory.AddNewNode(op);
             StageSilently([entry.FileSystemEntry]);
-            await WaitForHardReload();
+            await WaitForHardReloadAsync();
 
             FileSystemEntryViewModel? newEntry = FileEntries.FirstOrDefault(e =>
                 CurrentFs.FileInfoProvider.PathTools.NamesAreEqual(e.Name, newName)

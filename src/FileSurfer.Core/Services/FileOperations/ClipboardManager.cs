@@ -218,10 +218,10 @@ public class ClipboardManager : IClipboardManager
         if (_origin is null || _programClipboard.Count == 0)
             return OpResult.Error("Clipboard is empty.");
 
-        return await PasteInternal(destination, reporter, ct);
+        return await PasteInternalAsync(destination, reporter, ct);
     }
 
-    private async Task<OpResult> PasteInternal(
+    private async Task<OpResult> PasteInternalAsync(
         Location destination,
         ProgressReporter reporter,
         CancellationToken ct

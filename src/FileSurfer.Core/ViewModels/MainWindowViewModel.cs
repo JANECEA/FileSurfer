@@ -394,16 +394,16 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         );
 
         OpenEntriesCommand = ReactiveCommand.CreateFromTask(
-            () => SelectedFiles.Count == 1 ? OpenEntry(SelectedFiles[0]) : OpenEntries(),
+            () => SelectedFiles.Count == 1 ? OpenEntryAsync(SelectedFiles[0]) : OpenEntries(),
             local
         );
-        OpenEntryCommand = ReactiveCommand.CreateFromTask<FileSystemEntryViewModel>(OpenEntry);
+        OpenEntryCommand = ReactiveCommand.CreateFromTask<FileSystemEntryViewModel>(OpenEntryAsync);
         OpenSideBarEntryCommand = ReactiveCommand.CreateFromTask<SideBarEntryViewModel>(
-            OpenSideBarEntry
+            OpenSideBarEntryAsync
         );
         OpenInNotepadCommand = ReactiveCommand.Create(OpenInNotepad, local);
         OpenAsCommand = ReactiveCommand.Create<FileSystemEntryViewModel>(OpenAs, local);
-        SetNewLocationCommand = ReactiveCommand.CreateFromTask<string>(SetNewLocation);
+        SetNewLocationCommand = ReactiveCommand.CreateFromTask<string>(SetNewLocationAsync);
         AddToQuickAccessCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(
             AddToQuickAccess,
             local
@@ -411,18 +411,18 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         AddToArchiveCommand = ReactiveCommand.Create(AddToArchiveAsync, localNotSearching);
         ExtractArchiveCommand = ReactiveCommand.Create(ExtractArchiveAsync, localNotSearching);
         GoBackCommand = ReactiveCommand.CreateFromTask<LocationDisplay?>(
-            l => l is null ? GoBack() : GoBackToLocation(l),
+            l => l is null ? GoBackAsync() : GoBackToLocationAsync(l),
             canGoBack
         );
         GoForwardCommand = ReactiveCommand.CreateFromTask<LocationDisplay?>(
-            l => l is null ? GoForward() : GoForwardToLocation(l),
+            l => l is null ? GoForwardAsync() : GoForwardToLocationAsync(l),
             canGoForward
         );
-        GoUpCommand = ReactiveCommand.CreateFromTask(GoUp);
+        GoUpCommand = ReactiveCommand.CreateFromTask(GoUpAsync);
         ReloadCommand = ReactiveCommand.Create(HardReload, notSearching);
         OpenTerminalCommand = ReactiveCommand.Create(OpenTerminal, localNotSearching);
         SearchCommand = ReactiveCommand.Create<string, Task>(SearchAsync);
-        CancelSearchCommand = ReactiveCommand.CreateFromTask(CancelSearchAndGoBack);
+        CancelSearchCommand = ReactiveCommand.CreateFromTask(CancelSearchAndGoBackAsync);
         NewFileCommand = ReactiveCommand.CreateFromTask(NewFileAsync, notSearching);
         NewDirCommand = ReactiveCommand.CreateFromTask(NewDirAsync, notSearching);
         RenameCommand = ReactiveCommand.CreateFromTask<string>(RenameAsync, selection);
@@ -451,7 +451,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
             OpenSftpConnectionAsync
         );
         CloseSftpCommand = ReactiveCommand.CreateFromTask<SftpConnectionViewModel>(
-            CloseSftpConnection
+            CloseSftpConnectionAsync
         );
         GitStageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitStage);
         GitUnstageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitUnstage);
@@ -511,10 +511,10 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         if (!requestedLocation.Exists())
         {
             Location root = new(_localFs, _localFs.LocalFileInfoProvider.GetRoot());
-            t = SetLocation(root);
+            t = SetLocationAsync(root);
         }
         t.ContinueWith(
-            _ => SetLocation(requestedLocation),
+            _ => SetLocationAsync(requestedLocation),
             TaskScheduler.FromCurrentSynchronizationContext()
         );
     }
@@ -539,7 +539,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
                 Interval = TimeSpan.FromMilliseconds(FileSurferSettings.AutomaticRefreshInterval),
             };
             _lastRefreshedUtc = DateTime.UtcNow;
-            _refreshTimer.Tick += (_, _) => _ = CheckForUpdates();
+            _refreshTimer.Tick += (_, _) => _ = CheckForUpdatesAsync();
             _refreshTimer.Start();
         }
 
@@ -592,18 +592,18 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         SearchWaterMark = $"Search {dirName}";
     }
 
-    private async Task CheckForUpdates()
+    private async Task CheckForUpdatesAsync()
     {
         if (await CurrentLocation.ExistsAsync())
         {
-            if (await CompareSetLastWriteTime())
+            if (await CompareSetLastWriteTimeAsync())
                 HardReload();
             else if (IsVersionControlled)
                 SoftReload();
         }
     }
 
-    private async Task<bool> CompareSetLastWriteTime()
+    private async Task<bool> CompareSetLastWriteTimeAsync()
     {
         DateTime lastWriteTimeUtc =
             await CurrentFs.FileInfoProvider.GetDirLastWriteUtcAsync(CurrentDir) ?? DateTime.UtcNow;

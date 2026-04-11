@@ -125,10 +125,10 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
             remoteDir,
             new DirectoryWatcher(localDir)
         );
-        _synchronizer.OnSyncEvent += ShowEvent;
+        _synchronizer.OnSyncEvent += ShowEventAsync;
 
-        StartSyncCommand = ReactiveCommand.Create(StartSynchronization);
-        StopSyncCommand = ReactiveCommand.Create(StopSynchronization);
+        StartSyncCommand = ReactiveCommand.Create(StartSyncAsync);
+        StopSyncCommand = ReactiveCommand.Create(StopSyncAsync);
     }
 
     private void ShowIfError(IResult result)
@@ -138,14 +138,14 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
                 _dialogService.InfoDialog(SyncErrorTitle, error);
     }
 
-    private Task ShowEvent(FileSystemEvent fsEvent, string remotePath, IResult result)
+    private Task ShowEventAsync(FileSystemEvent fsEvent, string remotePath, IResult result)
     {
         ShowIfError(result);
         SyncEventViewModel e = _syncEventVmFactory.GetEvent(fsEvent, remotePath);
         return Dispatcher.UIThread.InvokeAsync(() => SyncEvents.Add(e)).GetTask();
     }
 
-    private async Task StartSynchronization()
+    private async Task StartSyncAsync()
     {
         SyncEvents.Clear();
 
@@ -167,7 +167,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         ShowIfError(result);
     }
 
-    private Task StopSynchronization() => _synchronizer.StopAsync();
+    private Task StopSyncAsync() => _synchronizer.StopAsync();
 
     public static async Task<ValueResult<string>> GetLocalPath(
         Location remoteLocation,
@@ -175,7 +175,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         IDialogService dialogService
     )
     {
-        if (!remoteLocation.Exists())
+        if (!await remoteLocation.ExistsAsync())
             return ValueResult<string>.Error(
                 $"Remote directory \"{remoteLocation.Path}\" does not exist."
             );
@@ -202,7 +202,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        await StopSynchronization();
+        await StopSyncAsync();
         await _synchronizer.DisposeAsync();
         await CastAndDispose(StartSyncCommand);
         await CastAndDispose(StopSyncCommand);

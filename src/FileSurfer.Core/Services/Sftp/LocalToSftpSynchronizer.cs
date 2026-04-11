@@ -43,7 +43,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         _localRoot = localRoot;
         _localRootPath = LocalPathTools.NormalizePath(localRoot.Path);
 
-        _watcher.ChangeDetected += OnFsEvent;
+        _watcher.ChangeDetected += OnFsEventAsync;
     }
 
     public async Task<IResult> StartAsync()
@@ -186,7 +186,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         }
     }
 
-    private async Task OnFsEvent(object? sender, FileSystemEvent fsEvent)
+    private async Task OnFsEventAsync(object? sender, FileSystemEvent fsEvent)
     {
         string remotePath = ToRemotePath(fsEvent.OriginalPath);
 
@@ -276,6 +276,6 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         await StopAsync();
-        _watcher.ChangeDetected -= OnFsEvent;
+        _watcher.ChangeDetected -= OnFsEventAsync;
     }
 }

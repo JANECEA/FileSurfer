@@ -76,7 +76,7 @@ public class SftpFileSystemFactory
 
         try
         {
-            return await TryConnectInternal(connection);
+            return await TryConnectInternalAsync(connection);
         }
         catch (SshOperationTimeoutException)
         {
@@ -92,7 +92,9 @@ public class SftpFileSystemFactory
         }
     }
 
-    private async Task<ValueResult<SftpFileSystem>> TryConnectInternal(SftpConnection connection)
+    private async Task<ValueResult<SftpFileSystem>> TryConnectInternalAsync(
+        SftpConnection connection
+    )
     {
         ValueResult<AuthenticationMethod> authMethodResult = await GetAuthMethodAsync(connection);
         if (!authMethodResult.IsOk)
@@ -126,7 +128,7 @@ public class SftpFileSystemFactory
         if (args is null)
             return ValueResult<SftpFileSystem>.Error("Host key verification failed.");
 
-        if (!await ProcessHostKeyArgs(args, connection))
+        if (!await ProcessHostKeyArgsAsync(args, connection))
             return ValueResult<SftpFileSystem>.Error();
 
         if (sftpClient.IsConnected && sshClient.IsConnected)
@@ -174,7 +176,7 @@ public class SftpFileSystemFactory
         _dialogService.InfoDialog(title, context);
     }
 
-    private async Task<bool> ProcessHostKeyArgs(HostKeyEventArgs e, SftpConnection connection)
+    private async Task<bool> ProcessHostKeyArgsAsync(HostKeyEventArgs e, SftpConnection connection)
     {
         string algorithm = e.HostKeyName;
         string fingerprintHex = BitConverter
