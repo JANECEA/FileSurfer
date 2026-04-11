@@ -172,7 +172,6 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         {
             _currentDir = value;
             PathBoxText = value;
-            SetSearchWaterMark(CurrentDir);
         }
     }
     private string _currentDir = string.Empty;
@@ -191,6 +190,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
             if (FileSurferSettings.OpenInLastLocation && CurrentFs is LocalFileSystem)
                 FileSurferSettings.OpenIn = value.Path;
 
+            SetSearchWaterMark(CurrentDir);
             this.RaisePropertyChanged(nameof(IsLocal));
         }
     }

@@ -109,31 +109,6 @@ public static class FileNameGenerator
         );
 
     /// <summary>
-    /// Determines if the files or directories represented by <paramref name="entries"/> can be collectively renamed.
-    /// </summary>
-    /// <returns><see langword="true"/> if <paramref name="entries"/> can be collectively renamed, otherwise <see langword="false"/>.</returns>
-    public static bool CanBeRenamedCollectively(
-        IList<IFileSystemEntry> entries,
-        IPathTools pathTools
-    )
-    {
-        if (entries.Count < 2)
-            return true;
-
-        bool onlyFiles = entries[0] is FileEntry;
-        string extension = entries[0].Extension;
-
-        for (int i = 1; i < entries.Count; i++)
-            if (
-                entries[i] is FileEntry != onlyFiles
-                || pathTools.NamesAreEqual(entries[i].Extension, extension)
-            )
-                return false;
-
-        return true;
-    }
-
-    /// <summary>
     /// Gets new available name for the files represented by <paramref name="entries"/> accoring to <paramref name="namingPattern"/>.
     /// </summary>
     /// <returns>An array of names available for <paramref name="entries"/>.</returns>

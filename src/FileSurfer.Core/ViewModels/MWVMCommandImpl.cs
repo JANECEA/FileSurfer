@@ -765,6 +765,8 @@ public sealed partial class MainWindowViewModel
     private async Task RenameOneAsync(string newName)
     {
         FileSystemEntryViewModel entry = SelectedFiles[0];
+        if (string.Equals(newName, entry.Name, StringComparison.Ordinal))
+            return;
 
         RenameOne op = new(PathTools, CurrentFs.FileIoHandler, entry.FileSystemEntry, newName);
 
@@ -775,7 +777,8 @@ public sealed partial class MainWindowViewModel
         if (result.IsOk)
         {
             _undoRedoHistory.AddNewNode(op);
-            HardReload();
+            StageSilently([entry.FileSystemEntry]);
+            await WaitForHardReload();
 
             FileSystemEntryViewModel? newEntry = FileEntries.FirstOrDefault(e =>
                 CurrentFs.FileInfoProvider.PathTools.NamesAreEqual(e.Name, newName)
@@ -789,14 +792,10 @@ public sealed partial class MainWindowViewModel
     private async Task RenameMultipleAsync(string namingPattern)
     {
         IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry);
-        if (
-            !FileNameGenerator.CanBeRenamedCollectively(
-                entries,
-                CurrentFs.FileInfoProvider.PathTools
-            )
-        )
+        int dirCount = entries.Cast<DirectoryEntry>().Count();
+        if (dirCount != 0 && dirCount != entries.Length)
         {
-            ShowError("Selected entries aren't of the same type.");
+            ShowError("Selected entries are not of the same type.");
             return;
         }
 
@@ -811,31 +810,28 @@ public sealed partial class MainWindowViewModel
             op.InvokeAsync
         );
         if (result.IsOk)
+        {
             _undoRedoHistory.AddNewNode(op);
+            StageSilently(entries);
+        }
 
         ShowIfError(result);
         HardReload();
     }
 
-    private void StageIfVersionControlled(IEnumerable<FileSystemEntryViewModel> entries)
+    private void StageSilently(IEnumerable<IFileSystemEntry> entries)
     {
         if (!IsVersionControlled)
             return;
 
-        Result result = Result.Ok();
-        foreach (FileSystemEntryViewModel entry in entries)
-            result.MergeResult(CurrentFs.GitIntegration.StagePath(entry.PathToEntry));
-
-        ShowIfError(result);
+        foreach (IFileSystemEntry entry in entries)
+            _ = CurrentFs.GitIntegration.StagePath(entry.PathToEntry);
     }
 
     private async Task MoveToTrashAsync()
     {
-        MoveFilesToTrash op = new(
-            CurrentFs.BinInteraction,
-            CurrentFs.FileIoHandler,
-            SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry)
-        );
+        IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry);
+        MoveFilesToTrash op = new(CurrentFs.BinInteraction, CurrentFs.FileIoHandler, entries);
 
         IResult result = await _dialogService.BackgroundDialogAsync(
             "Moving to Trash",
@@ -844,7 +840,7 @@ public sealed partial class MainWindowViewModel
         if (result.IsOk)
             _undoRedoHistory.AddNewNode(op);
 
-        StageIfVersionControlled(SelectedFiles);
+        StageSilently(entries);
         ShowIfError(result);
         HardReload();
     }
@@ -875,14 +871,15 @@ public sealed partial class MainWindowViewModel
 
     private Task Delete()
     {
-        foreach (FileSystemEntryViewModel entry in SelectedFiles)
+        IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry);
+        foreach (IFileSystemEntry entry in entries)
             ShowIfError(
-                entry.IsDirectory
+                entry is DirectoryEntry
                     ? CurrentFs.FileIoHandler.DeleteDir(entry.PathToEntry)
                     : CurrentFs.FileIoHandler.DeleteFile(entry.PathToEntry)
             );
 
-        StageIfVersionControlled(SelectedFiles);
+        StageSilently(entries);
         HardReload();
         return Task.CompletedTask;
     }
