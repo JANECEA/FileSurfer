@@ -139,6 +139,7 @@ public class SftpFileSystemFactory
             ).OkResult();
 
         sftpClient.Dispose();
+        sshClient.Dispose();
         return ValueResult<SftpFileSystem>.Error("Host key verification failed.");
     }
 

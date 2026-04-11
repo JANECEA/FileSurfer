@@ -112,7 +112,7 @@ public sealed class SftpFileIoHandler : IFileIoHandler
         try
         {
             await using SftpFileStream writeStream = _client.Open(filePath, FileMode.Create);
-            result = await fileStream.WriteToStreamAsync(writeStream, filePath, reporter, ct);
+            result = await fileStream.WriteToStreamAsync(writeStream, reporter, ct);
         }
         catch (Exception ex)
         {

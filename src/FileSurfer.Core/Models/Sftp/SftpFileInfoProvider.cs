@@ -28,20 +28,6 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
 
     public bool IsLinkedToDirectory(string linkPath, out string directory)
     {
-        try // Fast path
-        {
-            if (_client.Get(linkPath).IsSymbolicLink)
-            {
-                _ = _client.ListDirectory(linkPath);
-                directory = linkPath;
-                return true;
-            }
-        }
-        catch
-        {
-            // Might be false negative, try ssh
-        }
-
         string path = SshShellHandler.Quote(linkPath);
         ValueResult<string> result = _sshShellHandler.ExecuteSshCommand(
             $"test -L {path} && test -d {path} && readlink -f {path}"

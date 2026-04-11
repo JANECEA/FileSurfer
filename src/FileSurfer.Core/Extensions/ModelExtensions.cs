@@ -42,7 +42,6 @@ public static class TransferStreamExtensions
     public static async Task<IResult> WriteToStreamAsync(
         this FileTransferStream fileStream,
         Stream writeStream,
-        string filePath,
         ProgressReporter reporter,
         CancellationToken ct
     )

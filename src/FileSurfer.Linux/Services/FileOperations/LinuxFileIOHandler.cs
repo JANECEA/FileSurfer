@@ -60,7 +60,7 @@ public class LinuxFileIoHandler : IFileIoHandler
         try
         {
             await using FileStream writeStream = File.Open(filePath, FileMode.Create);
-            result = await fileStream.WriteToStreamAsync(writeStream, filePath, reporter, ct);
+            result = await fileStream.WriteToStreamAsync(writeStream, reporter, ct);
         }
         catch (Exception ex)
         {

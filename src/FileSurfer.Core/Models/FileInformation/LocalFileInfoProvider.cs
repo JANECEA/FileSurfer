@@ -116,6 +116,8 @@ public abstract class LocalFileInfoProvider : ILocalFileInfoProvider
 
     public DateTime? GetFileLastWriteUtc(string filePath)
     {
+        if (!File.Exists(filePath))
+            return null;
         try
         {
             return File.GetLastWriteTimeUtc(filePath);
@@ -131,6 +133,8 @@ public abstract class LocalFileInfoProvider : ILocalFileInfoProvider
 
     public DateTime? GetDirLastWriteUtc(string dirPath)
     {
+        if (!Directory.Exists(dirPath))
+            return null;
         try
         {
             return Directory.GetLastWriteTimeUtc(dirPath);
