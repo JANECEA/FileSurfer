@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,6 +9,11 @@ public delegate Task<T> AsyncOperation<T>();
 public delegate Task<T> CancellableOperation<T>(CancellationToken ct);
 public delegate Task<T> ReportingOperation<T>(ProgressReporter reporter, CancellationToken ct);
 
+[SuppressMessage(
+    "ReSharper",
+    "UnusedMember.Global",
+    Justification = "Methods are included for parity."
+)]
 public interface IDialogService
 {
     public void InfoDialog(string title, string info);

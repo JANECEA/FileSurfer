@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -377,7 +378,10 @@ public sealed partial class MainWindowViewModel
 
     private void LoadRepoStateInfo() =>
         RepoStateInfo = CurrentFs.GitIntegration.GetRepositoryState() is RepoDetails info
-            ? new RepoStateInfo(info.CommitsToPull.ToString(), info.CommitsToPush.ToString())
+            ? new RepoStateInfo(
+                info.CommitsToPull.ToString(NumberFormatInfo.InvariantInfo),
+                info.CommitsToPush.ToString(NumberFormatInfo.InvariantInfo)
+            )
             : new RepoStateInfo(NoRemoteMark, NoRemoteMark);
 
     private async Task<IResult> SetLocationInternalAsync(Location location)

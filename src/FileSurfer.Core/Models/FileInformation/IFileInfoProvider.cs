@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
+// ReSharper disable UnusedMemberInSuper.Global - Methods included for parity
 // ReSharper disable UnusedMember.Global
 
 namespace FileSurfer.Core.Models.FileInformation;

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -32,6 +33,11 @@ public partial class ProgressDialogWindow : Window
     private void OnCancelClicked(object? sender = null, RoutedEventArgs? e = null) => Cancel();
 }
 
+[SuppressMessage(
+    "ReSharper",
+    "UnusedMember.Global",
+    Justification = "Properties are used by the progress dialog."
+)]
 public sealed class ProgressReporterVm : ReactiveObject
 {
     public ProgressReporter Reporter

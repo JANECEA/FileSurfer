@@ -66,7 +66,6 @@ public enum SortBy
 )]
 public static class FileSurferSettings
 {
-    public const long ShowDialogLimitB = 250 * 1024 * 1024; // 250 MiB
     private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
     private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
     private static readonly string FileSurferDataDir = Path.Combine(
