@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
 using FileSurfer.Core.Models;
-using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.Shell;
 using Microsoft.VisualBasic.FileIO;
 using FolderItem = Shell32.FolderItem;
@@ -20,15 +19,7 @@ public class WindowsBinInteraction : IBinInteraction
     private const int PathColumn = 1;
     private const string RestoreVerb = "ESTORE";
 
-    private readonly long _showDialogLimit;
     private readonly StaWorkerSync _workerSync = new("Bin worker thread");
-    private readonly IFileInfoProvider _fileInfoProvider;
-
-    public WindowsBinInteraction(long showDialogLimit, IFileInfoProvider fileInfoProvider)
-    {
-        _fileInfoProvider = fileInfoProvider;
-        _showDialogLimit = showDialogLimit;
-    }
 
     public IResult RestoreFile(string originalFilePath) =>
         _workerSync.Invoke(() => RestoreInternal(originalFilePath));
@@ -83,9 +74,7 @@ public class WindowsBinInteraction : IBinInteraction
         {
             FileSystem.DeleteFile(
                 filePath,
-                _fileInfoProvider.GetFileSizeB(filePath) > _showDialogLimit
-                    ? UIOption.AllDialogs
-                    : UIOption.OnlyErrorDialogs,
+                UIOption.OnlyErrorDialogs,
                 RecycleOption.SendToRecycleBin,
                 UICancelOption.ThrowException
             );
@@ -103,7 +92,7 @@ public class WindowsBinInteraction : IBinInteraction
         {
             FileSystem.DeleteDirectory(
                 dirPath,
-                UIOption.AllDialogs,
+                UIOption.OnlyErrorDialogs,
                 RecycleOption.SendToRecycleBin,
                 UICancelOption.ThrowException
             );
