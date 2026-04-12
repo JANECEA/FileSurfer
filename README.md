@@ -15,13 +15,12 @@ Your feedback is very welcome: if you encounter any bugs or have suggestions, pl
 ## ✨ **Features**  
 All what you'd expect from a file manager plus some more:  
 
-- **Image and text Pasting from Clipboard**: Paste images or text directly from your clipboard into folders.  
-- **Batch Renaming**: Rename multiple files or directories at once.  
-- **Undo & Redo**: Reverse most file operations with a simple undo/redo feature.  
-- **Saving Last Opened Directory**: Pick up where you left off.
 - **Git Integration**: Speed up basic interactions with Git repositories directly from the app.  
 - **SFTP Integration**: Browse and easily interact with remote folders.
 - **Directory synchronization**: Synchronize local directories with remote locations.
+- **Image and text Pasting from Clipboard**: Paste images or text directly from your clipboard into folders.  
+- **Batch Renaming**: Rename multiple files or directories at once.  
+- **Undo & Redo**: Reverse most file operations with a simple undo/redo feature.
 
 ---
 
