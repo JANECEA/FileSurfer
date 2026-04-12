@@ -6,9 +6,8 @@
 
 ---
 
-FileSurfer is an open-source file explorer for Linux and Windows built with Avalonia UI.
-FileSurfer is designed for convenience and efficiency, targeting more technical users while still providing a familiar and modern interface.
-I've also included features that I personally find useful, even if they're not commonly found in other file explorers.
+FileSurfer is an open-source file explorer for Linux and Windows built with AvaloniaUI.
+FileSurfer is designed for convenience and efficiency, targeting technical users while still providing a familiar and modern interface.
 Your feedback is very welcome: if you encounter any bugs or have suggestions, please open an issue here on GitHub!
 
 ---
@@ -16,11 +15,13 @@ Your feedback is very welcome: if you encounter any bugs or have suggestions, pl
 ## ✨ **Features**  
 All what you'd expect from a file manager plus some more:  
 
-- **Image Pasting from Clipboard**: Paste images directly from your clipboard into folders.  
+- **Image and text Pasting from Clipboard**: Paste images or text directly from your clipboard into folders.  
 - **Batch Renaming**: Rename multiple files or directories at once.  
 - **Undo & Redo**: Reverse most file operations with a simple undo/redo feature.  
 - **Saving Last Opened Directory**: Pick up where you left off.
 - **Git Integration**: Speed up basic interactions with Git repositories directly from the app.  
+- **SFTP Integration**: Browse and easily interact with remote folders.
+- **Directory synchronization**: Synchronize local directories with remote locations.
 
 ---
 
@@ -43,12 +44,12 @@ Make sure to have the following command line tools installed!:
 
 ### **Download and Install**  
 1. Download the latest release from the [Releases Page](https://github.com/JANECEA/FileSurfer/releases/latest).  
-2. Just extract the `.zip`, open the executable file, and you're all set!
+2. Just extract the `.zip`, open the executable file.
 
 ### **Build from Source**  
-If you want to customize FileSurfer, you can build it from source. Check out the 
+If you want to customize FileSurfer, you can build it from source. 
 <br>
-[Building from Source](#️-building-from-source) section for detailed instructions.  
+See the following section for detailed instructions.  
 
 ---
 
@@ -71,7 +72,7 @@ To build FileSurfer from source on Windows, you'll need the following:
    ```  
 2. Locate the compiled executable at: ` "...\src\FileSurfer.Windows\bin\Release\net8.0-windows\FileSurfer.exe" `
 
-*(You can also use Visual Studio 2022 to build the project.)*  
+*(You can also use Visual Studio 2022/2026 to build the project.)*  
 
 ---
 
@@ -96,7 +97,7 @@ To build FileSurfer from source on Windows, you'll need the following:
 
 ---
 
-## 📚 **Documentation**  
+## 📚 **Documentation (WIP)**  
 
 - **[User Guide](docs/UserGuide/UserGuide.md)**: Learn how to use FileSurfer's features.  
 - **[Specification](docs/Specification/)**: Check out the [technical](docs/Specification/TechnicalSpecification.md) and [functional](docs/Specification/FunctionalSpecification.md) specification of the project.  
