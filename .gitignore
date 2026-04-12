@@ -1,5 +1,6 @@
 docs/ProgrammingDocumentation/html/
 bin/
+publish/
 obj/
 .vs/
 .idea/
