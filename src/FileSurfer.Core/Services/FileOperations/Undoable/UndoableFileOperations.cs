@@ -12,12 +12,12 @@ namespace FileSurfer.Core.Services.FileOperations.Undoable;
 /// <summary>
 /// Represents the action of moving selected files to the system trash.
 /// </summary>
-public sealed class MoveFilesToTrash : UndoableOperation
+public sealed class MoveFilesToTrash : UndoableFileOperation
 {
     private readonly IBinInteraction _fileRestorer;
 
-    protected override string InvokeOpName => "Trashing";
-    protected override string UndoOpName => "Restoring";
+    protected override string InvokeVerb => "Trashing";
+    protected override string UndoVerb => "Restoring";
 
     public MoveFilesToTrash(
         IBinInteraction fileRestorer,
@@ -40,13 +40,13 @@ public sealed class MoveFilesToTrash : UndoableOperation
 /// <summary>
 /// Represents the action of moving files and directories to a specific directory.
 /// </summary>
-public sealed class MoveFilesTo : UndoableOperation
+public sealed class MoveFilesTo : UndoableFileOperation
 {
     private readonly IPathTools _pathTools;
     private readonly string _destinationDir;
 
-    protected override string InvokeOpName => "Moving";
-    protected override string UndoOpName => "Moving back";
+    protected override string InvokeVerb => "Moving";
+    protected override string UndoVerb => "Moving back";
 
     public MoveFilesTo(
         IPathTools pathTools,
@@ -78,13 +78,13 @@ public sealed class MoveFilesTo : UndoableOperation
 /// <summary>
 /// Represents the action of copying files and directories to a specific directory.
 /// </summary>
-public sealed class CopyFilesTo : UndoableOperation
+public sealed class CopyFilesTo : UndoableFileOperation
 {
     private readonly IPathTools _pathTools;
     private readonly string _destinationDir;
 
-    protected override string InvokeOpName => "Copying";
-    protected override string UndoOpName => "Deleting";
+    protected override string InvokeVerb => "Copying";
+    protected override string UndoVerb => "Deleting";
 
     public CopyFilesTo(
         IPathTools pathTools,
@@ -115,14 +115,14 @@ public sealed class CopyFilesTo : UndoableOperation
 /// <summary>
 /// Represents the action of duplicating files or directories in a specific directory.
 /// </summary>
-public sealed class DuplicateFiles : UndoableOperation
+public sealed class DuplicateFiles : UndoableFileOperation
 {
     private readonly IPathTools _pathTools;
     private readonly string[] _copyNames;
     private readonly string _parentDir;
 
-    protected override string InvokeOpName => "Duplicating";
-    protected override string UndoOpName => "Deleting";
+    protected override string InvokeVerb => "Duplicating";
+    protected override string UndoVerb => "Deleting";
 
     public DuplicateFiles(
         IPathTools pathTools,
@@ -152,14 +152,14 @@ public sealed class DuplicateFiles : UndoableOperation
 /// <summary>
 /// Represents the action of renaming multiple files or directories.
 /// </summary>
-public sealed class RenameMultiple : UndoableOperation
+public sealed class RenameMultiple : UndoableFileOperation
 {
     private readonly IPathTools _pathTools;
     private readonly string[] _newNames;
     private readonly string _dirName;
 
-    protected override string InvokeOpName => "Renaming";
-    protected override string UndoOpName => "Renaming";
+    protected override string InvokeVerb => "Renaming";
+    protected override string UndoVerb => "Renaming";
 
     public RenameMultiple(
         IPathTools pathTools,

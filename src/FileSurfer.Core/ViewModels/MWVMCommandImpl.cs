@@ -11,6 +11,7 @@ using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Models.Sftp;
 using FileSurfer.Core.Services.Dialogs;
+using FileSurfer.Core.Services.FileOperations;
 using FileSurfer.Core.Services.FileOperations.Undoable;
 using FileSurfer.Core.Services.VersionControl;
 using FileSurfer.Core.Views;
@@ -877,19 +878,21 @@ public sealed partial class MainWindowViewModel
         HardReload();
     }
 
-    private Task Delete()
+    private async Task Delete()
     {
-        IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry);
-        foreach (IFileSystemEntry entry in entries)
-            ShowIfError(
-                entry is DirectoryEntry
-                    ? CurrentFs.FileIoHandler.DeleteDir(entry.PathToEntry)
-                    : CurrentFs.FileIoHandler.DeleteFile(entry.PathToEntry)
-            );
+        IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(e => e.FileSystemEntry);
 
-        StageSilently(entries);
+        DeleteFiles op = new(CurrentFs.FileIoHandler, entries);
+        IResult result = await _dialogService.BackgroundDialogAsync(
+            "Deleting files",
+            op.InvokeAsync
+        );
+
+        ShowIfError(result);
+        if (result.IsOk)
+            StageSilently(entries);
+
         HardReload();
-        return Task.CompletedTask;
     }
 
     private Task SetSortBy(SortBy sortBy)
