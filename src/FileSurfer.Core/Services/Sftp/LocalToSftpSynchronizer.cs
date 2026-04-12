@@ -43,7 +43,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         _localRoot = localRoot;
         _localRootPath = LocalPathTools.NormalizePath(localRoot.Path);
 
-        _watcher.ChangeDetected += OnFsEvent;
+        _watcher.ChangeDetected += OnFsEventAsync;
     }
 
     public async Task<IResult> StartAsync()
@@ -100,16 +100,15 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
     {
         IFileSystem fs = dir.FileSystem;
 
-        var dirResult = fs.FileInfoProvider.GetPathDirs(dir.Path, syncHidden, false);
-        var fileResult = fs.FileInfoProvider.GetPathFiles(dir.Path, syncHidden, false);
-        if (ResultExtensions.FirstError(dirResult, fileResult) is IResult result)
-            return result;
+        var entriesR = fs.FileInfoProvider.GetPathEntries(dir.Path, syncHidden, false);
+        if (!entriesR.IsOk)
+            return entriesR;
 
         Result rs = Result.Ok();
-        foreach (DirectoryEntryInfo d in dirResult.Value)
+        foreach (DirectoryEntryInfo d in entriesR.Value.Dirs)
             rs.MergeResult(fs.FileIoHandler.DeleteDir(d.PathToEntry));
 
-        foreach (FileEntryInfo f in fileResult.Value)
+        foreach (FileEntryInfo f in entriesR.Value.Files)
             rs.MergeResult(fs.FileIoHandler.DeleteFile(f.PathToEntry));
 
         return rs;
@@ -187,7 +186,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         }
     }
 
-    private async Task OnFsEvent(object? sender, FileSystemEvent fsEvent)
+    private async Task OnFsEventAsync(object? sender, FileSystemEvent fsEvent)
     {
         string remotePath = ToRemotePath(fsEvent.OriginalPath);
 
@@ -202,52 +201,56 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
             await eventMethod(fsEvent, remotePath, result);
     }
 
-    private async Task<IResult> UploadFile(string localPath, string remotePath)
+    private Task<IResult> UploadFile(string localPath, string remotePath)
     {
         ValueResult<FileTransferStream> fileStreamR = FileTransferStream.FromInfoProvider(
             _localRoot.FileSystem.FileInfoProvider,
             localPath
         );
         if (!fileStreamR.IsOk)
-            return fileStreamR;
+            return fileStreamR.ToTask();
 
         string remoteParent = _remoteRoot.FileSystem.FileInfoProvider.PathTools.GetParentDir(
             remotePath
         );
-        return await _remoteRoot.FileSystem.FileIoHandler.WriteFileStreamAsync(
-            fileStreamR.Value,
-            remoteParent,
-            ProgressReporter.None,
-            _cts!.Token
-        );
+        try
+        {
+            return _remoteRoot.FileSystem.FileIoHandler.WriteFileStreamAsync(
+                fileStreamR.Value,
+                remoteParent,
+                ProgressReporter.None,
+                _cts!.Token
+            );
+        }
+        finally
+        {
+            fileStreamR.Value.Dispose();
+        }
     }
 
-    private async Task<IResult> HandleFileEvent(FileSystemEvent e, string remotePath) =>
+    private Task<IResult> HandleFileEvent(FileSystemEvent e, string remotePath) =>
         e.EventType switch
         {
-            FileSystemEventType.Created or FileSystemEventType.Updated => await UploadFile(
+            FileSystemEventType.Created or FileSystemEventType.Updated => UploadFile(
                 e.OriginalPath,
                 remotePath
             ),
 
-            FileSystemEventType.Deleted => _remoteHandler.DeleteFile(remotePath),
+            FileSystemEventType.Deleted => _remoteHandler.DeleteFile(remotePath).ToTask(),
 
-            FileSystemEventType.Moved when e.NewPath is string newPath => _remoteHandler.MoveFileTo(
-                remotePath,
-                RemoteUnixPathTools.GetParentDir(ToRemotePath(newPath))
-            ),
+            FileSystemEventType.Moved when e.NewPath is string newPath => _remoteHandler
+                .MoveFileTo(remotePath, RemoteUnixPathTools.GetParentDir(ToRemotePath(newPath)))
+                .ToTask(),
 
-            FileSystemEventType.Copied when e.NewPath is string newPath =>
-                _remoteHandler.CopyFileTo(
-                    remotePath,
-                    RemoteUnixPathTools.GetParentDir(ToRemotePath(newPath))
-                ),
+            FileSystemEventType.Copied when e.NewPath is string newPath => _remoteHandler
+                .CopyFileTo(remotePath, RemoteUnixPathTools.GetParentDir(ToRemotePath(newPath)))
+                .ToTask(),
 
-            FileSystemEventType.Moved or FileSystemEventType.Copied => SimpleResult.Error(
-                $"Missing newPath on {e.EventType} event for '{e.OriginalPath}'."
-            ),
+            FileSystemEventType.Moved or FileSystemEventType.Copied => SimpleResult
+                .Error($"Missing newPath on {e.EventType} event for '{e.OriginalPath}'.")
+                .ToTask(),
 
-            _ => SimpleResult.Error("Unknown event type."),
+            _ => SimpleResult.Error("Unknown event type.").ToTask(),
         };
 
     private IResult HandleDirEvent(FileSystemEvent e, string remotePath) =>
@@ -280,6 +283,6 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         await StopAsync();
-        _watcher.ChangeDetected -= OnFsEvent;
+        _watcher.ChangeDetected -= OnFsEventAsync;
     }
 }

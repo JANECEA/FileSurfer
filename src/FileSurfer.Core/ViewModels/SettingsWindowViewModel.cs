@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
-using FileSurfer.Core.Models;
 using ReactiveUI;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor.
@@ -208,6 +207,6 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         foreach (char c in input.Where(ch => !invalidChars.Contains(ch)))
             sb.Append(c);
 
-        return LocalPathTools.TrimEndDirectorySeparator(sb.ToString());
+        return sb.ToString();
     }
 }

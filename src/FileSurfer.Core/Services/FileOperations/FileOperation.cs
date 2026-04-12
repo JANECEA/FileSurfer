@@ -4,35 +4,42 @@ using System.Threading.Tasks;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Dialogs;
 
-namespace FileSurfer.Core.Services.FileOperations.Undoable;
+namespace FileSurfer.Core.Services.FileOperations;
 
-public abstract class UndoableOperation : IUndoableFileOperation
+/// <summary>
+/// Represents a file operation in the context of the <see cref="FileSurfer"/> app.
+/// </summary>
+public interface IFileOperation
+{
+    /// <summary>
+    /// Invokes the file operation.
+    /// Implementations of this method should apply the effects of the operation.
+    /// </summary>
+    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    public Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct);
+}
+
+public abstract class FileOperation : IFileOperation
 {
     private const int WaitBetweenMs = 5;
 
     protected IFileIoHandler FileIoHandler { get; }
     protected IFileSystemEntry[] Entries { get; }
 
-    protected abstract string InvokeOpName { get; }
-    protected abstract string UndoOpName { get; }
+    protected abstract string InvokeVerb { get; }
 
-    protected UndoableOperation(IFileIoHandler fileIoHandler, IFileSystemEntry[] entries)
+    protected FileOperation(IFileIoHandler fileIoHandler, IFileSystemEntry[] entries)
     {
         FileIoHandler = fileIoHandler;
         Entries = entries;
     }
 
-    public async Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct) =>
-        await Task.Run(() => InvokeInternal(InvokeAction, InvokeOpName, reporter, ct), ct)
-            .ConfigureAwait(false);
+    public Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct) =>
+        Task.Run(() => InvokeInternal(InvokeAction, InvokeVerb, reporter, ct), ct);
 
-    public async Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct) =>
-        await Task.Run(() => InvokeInternal(UndoAction, UndoOpName, reporter, ct), ct)
-            .ConfigureAwait(false);
-
-    private async Task<IResult> InvokeInternal(
+    private protected async Task<IResult> InvokeInternal(
         Func<IFileSystemEntry, int, IResult> action,
-        string opName,
+        string opVerb,
         ProgressReporter reporter,
         CancellationToken ct
     )
@@ -42,7 +49,7 @@ public abstract class UndoableOperation : IUndoableFileOperation
         Result result = Result.Ok();
         for (int i = 0; i < Entries.Length; i++)
         {
-            rep.ReportItem($"{opName}: \"{Entries[i].Name}\"");
+            rep.ReportItem($"{opVerb}: \"{Entries[i].Name}\"");
             result.MergeResult(action(Entries[i], i));
             if (i == Entries.Length - 1)
                 return result;
@@ -67,12 +74,4 @@ public abstract class UndoableOperation : IUndoableFileOperation
     /// <param name="index">Entry's index in <see cref="Entries"/>, in case it is useful.</param>
     /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
     protected abstract IResult InvokeAction(IFileSystemEntry entry, int index);
-
-    /// <summary>
-    /// Represents a undo-action invoked on <see cref="IFileSystemEntry"/> from <see cref="Entries"/>.
-    /// </summary>
-    /// <param name="entry"><see cref="IFileSystemEntry"/> for the undo-action.</param>
-    /// <param name="index">Entry's index in <see cref="Entries"/>, in case it is useful.</param>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
-    protected abstract IResult UndoAction(IFileSystemEntry entry, int index);
 }

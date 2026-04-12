@@ -11,7 +11,6 @@ namespace FileSurfer.Core.Models.Sftp;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public sealed class SftpFileSystem : IFileSystem
 {
-    private const string EnvironmentNotSupported = "The SFTP environment is not supported.";
     private readonly SftpClient _sftpClient;
     private readonly SshClient _sshClient;
     private readonly string _label;
@@ -28,12 +27,15 @@ public sealed class SftpFileSystem : IFileSystem
 
     public SftpFileInfoProvider FileInfoProvider { get; }
     public BaseIconProvider IconProvider { get; } = new();
-    public StubArchiveManager ArchiveManager { get; } = new(EnvironmentNotSupported);
+    public StubArchiveManager ArchiveManager { get; } =
+        new("Archivation is not supported on SFTP file systems.");
     public SftpFileIoHandler FileIoHandler { get; }
-    public StubBinInteraction BinInteraction { get; } = new(EnvironmentNotSupported);
+    public StubBinInteraction BinInteraction { get; } =
+        new("Trash is not supported on SFTP file systems.");
     public SftpFileProperties FileProperties { get; }
     public SshShellHandler ShellHandler { get; }
-    public StubGitIntegration GitIntegration { get; } = new(EnvironmentNotSupported);
+    public StubGitIntegration GitIntegration { get; } =
+        new("Git is not supported on SFTP file systems.");
 
     public SftpFileSystem(string label, SftpClient sftpClient, SshClient sshClient)
     {

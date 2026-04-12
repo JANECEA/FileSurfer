@@ -14,6 +14,15 @@
         <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
     </Style>
 
+    <Style Selector="ProgressBar.DialogProgress">
+        <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="CornerRadius" Value="9" />
+        <Setter Property="Foreground" Value="{DynamicResource AcceptColor}" />
+        <Setter Property="Height" Value="18" />
+        <Setter Property="Opacity" Value="0.8" />
+    </Style>
+
     <Style Selector="Border.InfoBlockBorder">
         <Setter Property="BorderThickness" Value="2" />
         <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}" />

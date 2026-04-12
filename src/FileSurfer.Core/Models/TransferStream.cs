@@ -39,7 +39,7 @@ public class FileTransferStream : IDisposable
 }
 
 /// <summary>
-/// Defines a tree of <see cref="FileTransferStream"/> used for directory trasnfer.
+/// Defines a tree of <see cref="FileTransferStream"/> used for directory transfer.
 /// </summary>
 public class DirTransferStream : IDisposable
 {
@@ -104,12 +104,15 @@ public class DirTransferStream : IDisposable
         {
             (DirectoryEntry info, DirTransferStream currentStream) = queue.Dequeue();
 
-            var dirR = fileInfoProvider.GetPathDirs(info.PathToEntry, includeHidden, includeOs);
-            var fileR = fileInfoProvider.GetPathFiles(info.PathToEntry, includeHidden, includeOs);
-            if (ResultExtensions.FirstError(dirR, fileR) is IResult currentResult)
-                return ValueResult<DirTransferStream>.Error(currentResult);
+            var entriesR = fileInfoProvider.GetPathEntries(
+                info.PathToEntry,
+                includeHidden,
+                includeOs
+            );
+            if (!entriesR.IsOk)
+                return ValueResult<DirTransferStream>.Error(entriesR);
 
-            foreach (FileEntryInfo file in fileR.Value)
+            foreach (FileEntryInfo file in entriesR.Value.Files)
             {
                 ValueResult<Stream> streamR = fileInfoProvider.GetFileStream(file.PathToEntry);
                 if (!streamR.IsOk)
@@ -118,7 +121,7 @@ public class DirTransferStream : IDisposable
                 currentStream.Files.Add(new FileTransferStream(file.Name, streamR.Value));
             }
 
-            foreach (DirectoryEntryInfo dir in dirR.Value)
+            foreach (DirectoryEntryInfo dir in entriesR.Value.Dirs)
             {
                 DirTransferStream stream = new(dir.Name);
                 queue.Enqueue((dir, stream));

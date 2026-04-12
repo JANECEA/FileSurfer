@@ -24,17 +24,20 @@ internal class OsClipboardProxy
         _storageProvider = storageProvider;
     }
 
-    internal async Task<T> ExecuteAsync<T>(Func<IClipboard, Task<T>> operation) =>
-        await Dispatcher.UIThread.InvokeAsync(() => operation(Clipboard));
+    internal Task<T> ExecuteAsync<T>(Func<IClipboard, Task<T>> operation) =>
+        Dispatcher.UIThread.InvokeAsync(() => operation(Clipboard));
 
-    internal async Task ExecuteAsync(Func<IClipboard, Task> operation) =>
-        await Dispatcher.UIThread.InvokeAsync(() => operation(Clipboard));
+    internal Task ExecuteAsync(Func<IClipboard, Task> operation) =>
+        Dispatcher.UIThread.InvokeAsync(() => operation(Clipboard));
 
     internal static bool CompareClipboards(
         IStorageItem[] osItems,
         IList<IFileSystemEntry> programItems
     )
     {
+        if (osItems.Length != programItems.Count)
+            return false;
+
         HashSet<string> files = programItems
             .Where(entry => entry is FileEntry)
             .Select(file => LocalPathTools.NormalizePath(file.PathToEntry))
@@ -59,8 +62,8 @@ internal class OsClipboardProxy
         return true;
     }
 
-    internal async Task<IResult> CopyToOsClipboardAsync(IFileSystemEntry[] entries) =>
-        await Dispatcher.UIThread.InvokeAsync(() => CopyToOsClipboardInternal(entries));
+    internal Task<IResult> CopyToOsClipboardAsync(IFileSystemEntry[] entries) =>
+        Dispatcher.UIThread.InvokeAsync(() => CopyToOsClipboardInternal(entries));
 
     private async Task<IResult> CopyToOsClipboardInternal(IFileSystemEntry[] entries)
     {

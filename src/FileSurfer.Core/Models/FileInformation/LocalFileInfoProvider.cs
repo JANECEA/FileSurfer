@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
 
 // ReSharper disable VirtualMemberNeverOverridden.Global
@@ -21,7 +24,7 @@ public abstract class LocalFileInfoProvider : ILocalFileInfoProvider
         [NotNullWhen(true)] out string? directory
     );
 
-    public virtual ValueResult<List<DirectoryEntryInfo>> GetPathDirs(
+    public ValueResult<DirectoryContents> GetPathEntries(
         string path,
         bool includeHidden,
         bool includeOs
@@ -29,47 +32,73 @@ public abstract class LocalFileInfoProvider : ILocalFileInfoProvider
     {
         try
         {
-            DirectoryInfo[] dirs = new DirectoryInfo(path).GetDirectories();
-            List<DirectoryEntryInfo> dirsList = new(dirs.Length);
+            IEnumerable<FileSystemInfo> entries = new DirectoryInfo(
+                path
+            ).EnumerateFileSystemInfos();
+            if (!includeHidden)
+                entries = entries.Where(e => !IsHidden(e.FullName, e is DirectoryInfo));
+            if (!includeOs)
+                entries = entries.Where(e => !IsOsProtected(e.FullName, e is DirectoryInfo));
 
-            foreach (DirectoryInfo d in dirs)
-                if (
-                    (includeHidden || !IsHidden(d.FullName, true))
-                    && (includeOs || !IsOsProtected(d.FullName, true))
-                )
-                    dirsList.Add(new DirectoryEntryInfo(d));
+            List<DirectoryEntryInfo> dirs = new();
+            List<FileEntryInfo> files = new();
 
-            return dirsList.OkResult();
+            foreach (FileSystemInfo entry in entries)
+            {
+                if (entry is FileInfo f)
+                    files.Add(new FileEntryInfo(f));
+                if (entry is DirectoryInfo d)
+                    dirs.Add(new DirectoryEntryInfo(d));
+            }
+
+            return new DirectoryContents { Files = files, Dirs = dirs }.OkResult();
         }
         catch (Exception ex)
         {
-            return ValueResult<List<DirectoryEntryInfo>>.Error(ex.Message);
+            return ValueResult<DirectoryContents>.Error(ex.Message);
         }
     }
 
-    public virtual ValueResult<List<FileEntryInfo>> GetPathFiles(
+    public async Task<ValueResult<DirectoryContents>> GetPathEntriesAsync(
         string path,
         bool includeHidden,
-        bool includeOs
+        bool includeOs,
+        CancellationToken ct
     )
     {
         try
         {
-            FileInfo[] files = new DirectoryInfo(path).GetFiles();
-            List<FileEntryInfo> fileList = new(files.Length);
+            IEnumerable<FileSystemInfo> entries = new DirectoryInfo(
+                path
+            ).EnumerateFileSystemInfos();
+            if (!includeHidden)
+                entries = entries.Where(e => !IsHidden(e.FullName, e is DirectoryInfo));
+            if (!includeOs)
+                entries = entries.Where(e => !IsOsProtected(e.FullName, e is DirectoryInfo));
 
-            foreach (FileInfo f in files)
-                if (
-                    (includeHidden || !IsHidden(f.FullName, false))
-                    && (includeOs || !IsOsProtected(f.FullName, false))
-                )
-                    fileList.Add(new FileEntryInfo(f));
+            (List<DirectoryEntryInfo> dirs, List<FileEntryInfo> files) = await Task.Run(
+                () =>
+                {
+                    List<DirectoryEntryInfo> dirs = new();
+                    List<FileEntryInfo> files = new();
+                    foreach (FileSystemInfo entry in entries)
+                    {
+                        ct.ThrowIfCancellationRequested();
+                        if (entry is FileInfo f)
+                            files.Add(new FileEntryInfo(f));
+                        if (entry is DirectoryInfo d)
+                            dirs.Add(new DirectoryEntryInfo(d));
+                    }
+                    return (dirs, files);
+                },
+                ct
+            );
 
-            return fileList.OkResult();
+            return new DirectoryContents { Files = files, Dirs = dirs }.OkResult();
         }
         catch (Exception ex)
         {
-            return ValueResult<List<FileEntryInfo>>.Error(ex.Message);
+            return ValueResult<DirectoryContents>.Error(ex.Message);
         }
     }
 
@@ -85,23 +114,13 @@ public abstract class LocalFileInfoProvider : ILocalFileInfoProvider
         }
     }
 
-    public long GetFileSizeB(string path)
+    public DateTime? GetFileLastWriteUtc(string filePath)
     {
+        if (!File.Exists(filePath))
+            return null;
         try
         {
-            return new FileInfo(path).Length;
-        }
-        catch
-        {
-            return 0;
-        }
-    }
-
-    public virtual DateTime? GetFileLastModifiedUtc(string filePath)
-    {
-        try
-        {
-            return new FileInfo(filePath).LastWriteTimeUtc;
+            return File.GetLastWriteTimeUtc(filePath);
         }
         catch
         {
@@ -109,17 +128,25 @@ public abstract class LocalFileInfoProvider : ILocalFileInfoProvider
         }
     }
 
-    public virtual DateTime? GetDirLastModifiedUtc(string dirPath)
+    public Task<DateTime?> GetFileLastWriteUtcAsync(string filePath) =>
+        Task.FromResult(GetFileLastWriteUtc(filePath));
+
+    public DateTime? GetDirLastWriteUtc(string dirPath)
     {
+        if (!Directory.Exists(dirPath))
+            return null;
         try
         {
-            return new DirectoryInfo(dirPath).LastWriteTimeUtc;
+            return Directory.GetLastWriteTimeUtc(dirPath);
         }
         catch
         {
             return null;
         }
     }
+
+    public virtual Task<DateTime?> GetDirLastWriteUtcAsync(string dirPath) =>
+        Task.FromResult(GetDirLastWriteUtc(dirPath));
 
     protected virtual bool IsOsProtected(string path, bool isDirectory)
     {
@@ -139,11 +166,18 @@ public abstract class LocalFileInfoProvider : ILocalFileInfoProvider
 
     public abstract string GetRoot();
 
-    public bool FileExists(string path) => File.Exists(path);
+    public ExistsInfo Exists(string path)
+    {
+        if (Directory.Exists(path))
+            return ExistsInfo.ExistsAsDirectory();
 
-    public bool DirectoryExists(string path) => Directory.Exists(path);
+        if (File.Exists(path))
+            return ExistsInfo.ExistsAsFile();
 
-    public bool PathExists(string path) => Path.Exists(path);
+        return ExistsInfo.DoesNotExist();
+    }
+
+    public Task<ExistsInfo> ExistsAsync(string path) => Task.FromResult(Exists(path));
 
     public abstract DriveEntryInfo[] GetDrives();
 

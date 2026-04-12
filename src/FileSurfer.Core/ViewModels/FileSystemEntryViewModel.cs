@@ -134,12 +134,7 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// </summary>
     /// <param name="fileSystem">Current fileSystem</param>
     /// <param name="entry">The file or directory entry.</param>
-    /// <param name="status">Optional version control status of the entry, defaulting to not version controlled.</param>
-    public FileSystemEntryViewModel(
-        IFileSystem fileSystem,
-        FileEntryInfo entry,
-        GitStatus status = GitStatus.NotVersionControlled
-    )
+    public FileSystemEntryViewModel(IFileSystem fileSystem, FileEntryInfo entry)
     {
         FileSystemEntry = entry;
         LastModTime = entry.LastModified;
@@ -152,18 +147,16 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         Opacity = fileSystem.FileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory)
             ? HiddenOpacity
             : 1;
-        UpdateGitStatus(status);
         IsArchived = fileSystem.ArchiveManager.IsArchived(entry.PathToEntry);
         SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
 
         _ = LoadIconAsync(entry, fileSystem.IconProvider);
     }
 
-    public FileSystemEntryViewModel(
-        IFileSystem fileSystem,
-        DirectoryEntryInfo entry,
-        GitStatus status = GitStatus.NotVersionControlled
-    )
+    private async Task LoadIconAsync(FileEntryInfo entry, IIconProvider iconProvider) =>
+        Icon = await Task.Run(() => iconProvider.GetFileIconAsync(entry.PathToEntry));
+
+    public FileSystemEntryViewModel(IFileSystem fileSystem, DirectoryEntryInfo entry)
     {
         FileSystemEntry = entry;
         LastModTime = entry.LastModified;
@@ -175,20 +168,14 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
         Opacity = fileSystem.FileInfoProvider.IsHidden(entry.PathToEntry, IsDirectory)
             ? HiddenOpacity
             : 1;
-        UpdateGitStatus(status);
         IsArchived = fileSystem.ArchiveManager.IsArchived(entry.PathToEntry);
         SupportsOpenAs = fileSystem.FileProperties.SupportsOpenAs(entry);
 
-        _ = Task.Run(() => LoadIconAsync(entry, fileSystem.IconProvider));
+        _ = LoadIconAsync(entry, fileSystem.IconProvider);
     }
 
-    private async Task LoadIconAsync(IFileSystemEntry entry, IIconProvider iconProvider) =>
-        Icon = entry switch
-        {
-            FileEntry => await iconProvider.GetFileIconAsync(entry.PathToEntry),
-            DirectoryEntry => await iconProvider.GetDirectoryIconAsync(entry.PathToEntry),
-            _ => throw new NotSupportedException(),
-        };
+    private async Task LoadIconAsync(DirectoryEntryInfo entry, IIconProvider iconProvider) =>
+        Icon = await Task.Run(() => iconProvider.GetDirectoryIconAsync(entry.PathToEntry));
 
     internal void UpdateGitStatus(GitStatus newStatus)
     {

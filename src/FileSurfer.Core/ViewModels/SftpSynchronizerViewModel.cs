@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
@@ -55,6 +56,7 @@ public class SyncEventVmFactory
     }
 }
 
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
 {
     private const string SyncErrorTitle = "Synchronization Error";
@@ -125,10 +127,10 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
             remoteDir,
             new DirectoryWatcher(localDir)
         );
-        _synchronizer.OnSyncEvent += ShowEvent;
+        _synchronizer.OnSyncEvent += ShowEventAsync;
 
-        StartSyncCommand = ReactiveCommand.Create(StartSynchronization);
-        StopSyncCommand = ReactiveCommand.Create(StopSynchronization);
+        StartSyncCommand = ReactiveCommand.Create(StartSyncAsync);
+        StopSyncCommand = ReactiveCommand.Create(StopSyncAsync);
     }
 
     private void ShowIfError(IResult result)
@@ -138,21 +140,21 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
                 _dialogService.InfoDialog(SyncErrorTitle, error);
     }
 
-    private async Task ShowEvent(FileSystemEvent fsEvent, string remotePath, IResult result)
+    private Task ShowEventAsync(FileSystemEvent fsEvent, string remotePath, IResult result)
     {
         ShowIfError(result);
         SyncEventViewModel e = _syncEventVmFactory.GetEvent(fsEvent, remotePath);
-        await Dispatcher.UIThread.InvokeAsync(() => SyncEvents.Add(e));
+        return Dispatcher.UIThread.InvokeAsync(() => SyncEvents.Add(e)).GetTask();
     }
 
-    private async Task StartSynchronization()
+    private async Task StartSyncAsync()
     {
         SyncEvents.Clear();
 
         Synchronizing = true;
         Initializing = true;
 
-        IResult result = await _dialogService.ProgressDialogAsync(
+        IResult result = await _dialogService.BlockingDialogAsync(
             "Initial synchronization",
             (r, ct) => _synchronizer.Initialize(InitFromRemote, r, ct)
         );
@@ -167,7 +169,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         ShowIfError(result);
     }
 
-    private async Task StopSynchronization() => await _synchronizer.StopAsync();
+    private Task StopSyncAsync() => _synchronizer.StopAsync();
 
     public static async Task<ValueResult<string>> GetLocalPath(
         Location remoteLocation,
@@ -175,7 +177,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         IDialogService dialogService
     )
     {
-        if (!remoteLocation.Exists())
+        if (!await remoteLocation.ExistsAsync())
             return ValueResult<string>.Error(
                 $"Remote directory \"{remoteLocation.Path}\" does not exist."
             );
@@ -202,18 +204,19 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        await StopSynchronization();
+        await StopSyncAsync();
         await _synchronizer.DisposeAsync();
         await CastAndDispose(StartSyncCommand);
         await CastAndDispose(StopSyncCommand);
         return;
 
-        static async ValueTask CastAndDispose(IDisposable resource)
+        static ValueTask CastAndDispose(IDisposable resource)
         {
             if (resource is IAsyncDisposable resourceAs)
-                await resourceAs.DisposeAsync();
-            else
-                resource.Dispose();
+                return resourceAs.DisposeAsync();
+
+            resource.Dispose();
+            return ValueTask.CompletedTask;
         }
     }
 

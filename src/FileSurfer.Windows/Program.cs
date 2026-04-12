@@ -48,15 +48,8 @@ public class WindowsPlatformBootstrap : IPlatformBootstrap
     )
     {
         WindowsFileInfoProvider fileInfoProvider = new();
-        WindowsFileIoHandler fileIoHandler = new(
-            fileInfoProvider,
-            FileSurferSettings.ShowDialogLimitB
-        );
+        WindowsFileIoHandler fileIoHandler = new(fileInfoProvider);
         WindowsShellHandler shellHandler = new();
-        WindowsBinInteraction binInteraction = new(
-            FileSurferSettings.ShowDialogLimitB,
-            fileInfoProvider
-        );
 
         LocalFileSystem localFileSystem = new()
         {
@@ -64,8 +57,8 @@ public class WindowsPlatformBootstrap : IPlatformBootstrap
             IconProvider = new WindowsIconProvider(),
             ArchiveManager = new LocalArchiveManager(fileInfoProvider, fileIoHandler),
             FileIoHandler = fileIoHandler,
-            BinInteraction = binInteraction,
-            FileProperties = new WindowsFileProperties(),
+            BinInteraction = new WindowsBinInteraction(),
+            FileProperties = new WindowsFileProperties(shellHandler),
             LocalShellHandler = shellHandler,
             GitIntegration = new LocalGitIntegration(shellHandler),
         };

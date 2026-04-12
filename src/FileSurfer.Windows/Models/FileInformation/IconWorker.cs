@@ -25,6 +25,7 @@ internal sealed class IconWorker : IDisposable
 
     private readonly BlockingCollection<IconRequest> _queue = new();
     private readonly Thread _thread;
+    private bool _disposing = false;
 
     public IconWorker()
     {
@@ -36,9 +37,19 @@ internal sealed class IconWorker : IDisposable
 
     public Task<Bitmap?> Enqueue(string path)
     {
+        if (_disposing || _queue.IsAddingCompleted)
+            return Task.FromResult<Bitmap?>(null);
+
         IconRequest request = new(path);
-        _queue.Add(request);
-        return request.Completion.Task;
+        try
+        {
+            _queue.Add(request);
+            return request.Completion.Task;
+        }
+        catch
+        {
+            return Task.FromResult<Bitmap?>(null);
+        }
     }
 
     private void ThreadMain()
@@ -78,6 +89,7 @@ internal sealed class IconWorker : IDisposable
 
     public void Dispose()
     {
+        _disposing = true;
         _queue.CompleteAdding();
         _thread.Join();
         _queue.Dispose();

@@ -18,13 +18,9 @@ namespace FileSurfer.Windows.Services.FileOperations;
 public class WindowsFileIoHandler : IFileIoHandler
 {
     private readonly IFileInfoProvider _fileInfoProvider;
-    private readonly long _showDialogLimit;
 
-    public WindowsFileIoHandler(IFileInfoProvider fileInfoProvider, long showDialogLimit)
-    {
+    public WindowsFileIoHandler(IFileInfoProvider fileInfoProvider) =>
         _fileInfoProvider = fileInfoProvider;
-        _showDialogLimit = showDialogLimit;
-    }
 
     public IResult DeleteFile(string filePath)
     {
@@ -68,7 +64,7 @@ public class WindowsFileIoHandler : IFileIoHandler
         }
     }
 
-    public async Task<IResult> WriteFileStream(
+    public async Task<IResult> WriteFileStreamAsync(
         FileTransferStream fileStream,
         string dirPath,
         ProgressReporter reporter,
@@ -80,7 +76,7 @@ public class WindowsFileIoHandler : IFileIoHandler
         try
         {
             await using FileStream writeStream = File.Open(filePath, FileMode.Create);
-            result = await fileStream.WriteToStreamAsync(writeStream, filePath, reporter, ct);
+            result = await fileStream.WriteToStreamAsync(writeStream, reporter, ct);
         }
         catch (Exception ex)
         {
@@ -92,19 +88,12 @@ public class WindowsFileIoHandler : IFileIoHandler
         return result;
     }
 
-    public async Task<IResult> WriteDirStream(
+    public Task<IResult> WriteDirStreamAsync(
         DirTransferStream dirStream,
         string dirPath,
         ProgressReporter reporter,
         CancellationToken ct
-    ) =>
-        await dirStream.WriteWithIoHandlerAsync(
-            this,
-            LocalPathTools.Instance,
-            dirPath,
-            reporter,
-            ct
-        );
+    ) => dirStream.WriteWithIoHandlerAsync(this, LocalPathTools.Instance, dirPath, reporter, ct);
 
     public IResult NewFileAt(string dirPath, string fileName)
     {
@@ -184,7 +173,7 @@ public class WindowsFileIoHandler : IFileIoHandler
             FileSystem.MoveFile(
                 filePath,
                 Path.Combine(parentDir, newName),
-                UIOption.AllDialogs,
+                UIOption.OnlyErrorDialogs,
                 UICancelOption.ThrowException
             );
 
@@ -221,7 +210,7 @@ public class WindowsFileIoHandler : IFileIoHandler
             FileSystem.MoveDirectory(
                 dirPath,
                 Path.Combine(parentDir, newName),
-                UIOption.AllDialogs,
+                UIOption.OnlyErrorDialogs,
                 UICancelOption.ThrowException
             );
 
@@ -241,7 +230,7 @@ public class WindowsFileIoHandler : IFileIoHandler
             FileSystem.MoveFile(
                 filePath,
                 newFilePath,
-                UIOption.AllDialogs,
+                UIOption.OnlyErrorDialogs,
                 UICancelOption.ThrowException
             );
             return SimpleResult.Ok();
@@ -260,7 +249,7 @@ public class WindowsFileIoHandler : IFileIoHandler
             FileSystem.MoveDirectory(
                 dirPath,
                 newDirPath,
-                UIOption.AllDialogs,
+                UIOption.OnlyErrorDialogs,
                 UICancelOption.ThrowException
             );
             return SimpleResult.Ok();
@@ -279,7 +268,7 @@ public class WindowsFileIoHandler : IFileIoHandler
             FileSystem.CopyFile(
                 filePath,
                 newFilePath,
-                UIOption.AllDialogs,
+                UIOption.OnlyErrorDialogs,
                 UICancelOption.ThrowException
             );
             return SimpleResult.Ok();
@@ -298,7 +287,7 @@ public class WindowsFileIoHandler : IFileIoHandler
             FileSystem.CopyDirectory(
                 dirPath,
                 newDirPath,
-                UIOption.AllDialogs,
+                UIOption.OnlyErrorDialogs,
                 UICancelOption.ThrowException
             );
             return SimpleResult.Ok();
@@ -311,7 +300,6 @@ public class WindowsFileIoHandler : IFileIoHandler
 
     public IResult DuplicateFile(string filePath, string copyName)
     {
-        bool showDialog = _fileInfoProvider.GetFileSizeB(filePath) > _showDialogLimit;
         try
         {
             if (Path.GetDirectoryName(filePath) is not string parentDir)
@@ -321,7 +309,7 @@ public class WindowsFileIoHandler : IFileIoHandler
             FileSystem.CopyFile(
                 filePath,
                 newFilePath,
-                showDialog ? UIOption.AllDialogs : UIOption.OnlyErrorDialogs,
+                UIOption.OnlyErrorDialogs,
                 UICancelOption.ThrowException
             );
             return SimpleResult.Ok();
@@ -343,7 +331,7 @@ public class WindowsFileIoHandler : IFileIoHandler
             FileSystem.CopyDirectory(
                 dirPath,
                 newDirPath,
-                UIOption.AllDialogs,
+                UIOption.OnlyErrorDialogs,
                 UICancelOption.ThrowException
             );
             return SimpleResult.Ok();

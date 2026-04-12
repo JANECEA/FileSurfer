@@ -54,7 +54,7 @@ public sealed class WindowsIconProvider : BaseIconProvider
         return icon;
     }
 
-    public override async Task<Bitmap> GetFileIcon(string filePath)
+    public override async Task<Bitmap> GetFileIconAsync(string filePath)
     {
         string extension = Path.GetExtension(filePath).ToLowerInvariant();
         if (string.IsNullOrWhiteSpace(extension))

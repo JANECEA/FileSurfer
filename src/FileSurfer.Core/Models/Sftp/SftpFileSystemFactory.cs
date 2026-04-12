@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Services.Dialogs;
@@ -9,11 +11,25 @@ namespace FileSurfer.Core.Models.Sftp;
 
 public class SftpFileSystemFactory
 {
+    private enum HostKeyTrustState
+    {
+        Trusted,
+        New,
+        Mismatch,
+    }
+
+    private sealed record HostKeyDecision(
+        string Algorithm,
+        string Hash,
+        HostKeyTrustState TrustState,
+        FingerPrint? ExistingFingerprint
+    );
+
     private readonly IDialogService _dialogService;
 
     public SftpFileSystemFactory(IDialogService dialogService) => _dialogService = dialogService;
 
-    private async Task<string?> RequestPasswordAsync(SftpConnection connection)
+    private Task<string?> RequestPasswordAsync(SftpConnection connection)
     {
         const string title = "Input password";
         string context = $"""
@@ -21,20 +37,22 @@ public class SftpFileSystemFactory
             host - "{connection.HostnameOrIpAddress}"
             username - "{connection.Username}"
             """;
-        return await _dialogService.InputDialogAsync(title, context, true);
+        return _dialogService.InputDialogAsync(title, context, true);
     }
 
-    private async Task<string?> RequestPassphraseAsync(SftpConnection connection)
+    private Task<string?> RequestPassphraseAsync(SftpConnection connection)
     {
         const string title = "Input passphrase";
         string context = $"""
             Please enter the passphrase for:
             key path - "{connection.KeyPath}"
             """;
-        return await _dialogService.InputDialogAsync(title, context, true);
+        return _dialogService.InputDialogAsync(title, context, true);
     }
 
-    private async Task<ValueResult<AuthenticationMethod>> GetAuthMethod(SftpConnection connection)
+    private async Task<ValueResult<AuthenticationMethod>> GetAuthMethodAsync(
+        SftpConnection connection
+    )
     {
         if (string.IsNullOrWhiteSpace(connection.KeyPath))
         {
@@ -74,42 +92,15 @@ public class SftpFileSystemFactory
 
         try
         {
-            ValueResult<AuthenticationMethod> authMethodResult = await GetAuthMethod(connection);
-            if (!authMethodResult.IsOk)
-                return ValueResult<SftpFileSystem>.Error(authMethodResult);
-
-            ConnectionInfo connectionInfo = new(
-                connection.HostnameOrIpAddress,
-                connection.Port,
-                connection.Username,
-                authMethodResult.Value
-            );
-            SftpClient sftpClient = new(connectionInfo);
-            SshClient sshClient = new(connectionInfo);
-            HostKeyEventArgs? args = null;
-            sftpClient.HostKeyReceived += (_, e) => args = e;
-            sftpClient.Connect(); // HostKeyReceived is invoked before Connect returns
-            sshClient.Connect();
-
-            if (args is null)
-                return ValueResult<SftpFileSystem>.Error("Host key verification failed.");
-
-            if (!await ProcessHostKeyArgs(args, connection))
-                return ValueResult<SftpFileSystem>.Error();
-
-            if (sftpClient.IsConnected && sshClient.IsConnected)
-                return new SftpFileSystem(
-                    connection.HostnameOrIpAddress,
-                    sftpClient,
-                    sshClient
-                ).OkResult();
-
-            sftpClient.Dispose();
-            return ValueResult<SftpFileSystem>.Error("Host key verification failed.");
+            return await TryConnectInternalAsync(connection);
         }
         catch (SshOperationTimeoutException)
         {
-            return ValueResult<SftpFileSystem>.Error("SFTP connection timed out");
+            return ValueResult<SftpFileSystem>.Error("SFTP connection timed out.");
+        }
+        catch (OperationCanceledException)
+        {
+            return ValueResult<SftpFileSystem>.Error();
         }
         catch (Exception ex)
         {
@@ -117,7 +108,106 @@ public class SftpFileSystemFactory
         }
     }
 
-    private async Task<bool> ConfirmNewFpAsync(
+    private async Task<ValueResult<SftpFileSystem>> TryConnectInternalAsync(
+        SftpConnection connection
+    )
+    {
+        ValueResult<AuthenticationMethod> authMethodResult = await GetAuthMethodAsync(connection);
+        if (!authMethodResult.IsOk)
+            return ValueResult<SftpFileSystem>.Error(authMethodResult);
+
+        ConnectionInfo connectionInfo = new(
+            connection.HostnameOrIpAddress,
+            connection.Port,
+            connection.Username,
+            authMethodResult.Value
+        );
+
+        for (int attempt = 0; attempt < 2; attempt++)
+        {
+            (
+                SftpClient sftpClient,
+                SshClient sshClient,
+                HostKeyDecision? pendingDecision,
+                Exception? connectException
+            ) = await ConnectOnceAsync(connectionInfo, connection);
+
+            if (pendingDecision is not null)
+            {
+                bool trusted = await ProcessHostKeyDecisionAsync(pendingDecision, connection);
+                DisposeClients(sftpClient, sshClient);
+                if (!trusted)
+                    return ValueResult<SftpFileSystem>.Error();
+
+                continue;
+            }
+
+            if (connectException is null && sftpClient.IsConnected && sshClient.IsConnected)
+                return new SftpFileSystem(
+                    connection.HostnameOrIpAddress,
+                    sftpClient,
+                    sshClient
+                ).OkResult();
+
+            DisposeClients(sftpClient, sshClient);
+            if (connectException is not null)
+                throw connectException;
+
+            return ValueResult<SftpFileSystem>.Error("Host key verification failed.");
+        }
+
+        return ValueResult<SftpFileSystem>.Error("Host key verification failed.");
+    }
+
+    private async Task<(
+        SftpClient SftpClient,
+        SshClient SshClient,
+        HostKeyDecision? PendingDecision,
+        Exception? ConnectException
+    )> ConnectOnceAsync(ConnectionInfo connectionInfo, SftpConnection connection)
+    {
+        SftpClient sftpClient = new(connectionInfo);
+        SshClient sshClient = new(connectionInfo);
+        List<HostKeyDecision> decisions = new();
+
+        sftpClient.HostKeyReceived += (_, e) =>
+        {
+            HostKeyDecision decision = EvaluateHostKey(e, connection);
+            AddHostKeyDecision(decisions, decision);
+            e.CanTrust = decision.TrustState is HostKeyTrustState.Trusted;
+        };
+        sshClient.HostKeyReceived += (_, e) =>
+        {
+            HostKeyDecision decision = EvaluateHostKey(e, connection);
+            AddHostKeyDecision(decisions, decision);
+            e.CanTrust = decision.TrustState is HostKeyTrustState.Trusted;
+        };
+
+        Exception? connectException = null;
+        try
+        {
+            await _dialogService.BlockingDialogAsync(
+                $"Connecting to {connection.HostnameOrIpAddress}",
+                async (r, ct) =>
+                {
+                    IndeterminateReporter rep = new(r);
+                    rep.ReportItem("Connecting SFTP client...");
+                    await sftpClient.ConnectAsync(ct);
+                    rep.ReportItem("Connecting SSH client...");
+                    await sshClient.ConnectAsync(ct);
+                    return Task.CompletedTask;
+                }
+            );
+        }
+        catch (Exception ex)
+        {
+            connectException = ex;
+        }
+
+        return (sftpClient, sshClient, SelectPendingHostKeyDecision(decisions), connectException);
+    }
+
+    private Task<bool> ConfirmNewFpAsync(
         SftpConnection connection,
         FingerPrint oldFingerprint,
         FingerPrint newFingerprint
@@ -138,7 +228,7 @@ public class SftpFileSystemFactory
 
             Do you want to trust the new fingerprint and continue connecting?
             """;
-        return await _dialogService.ConfirmationDialogAsync(title, context);
+        return _dialogService.ConfirmationDialogAsync(title, context);
     }
 
     private void AddedNewFpAsync(SftpConnection connection, FingerPrint newFingerprint)
@@ -151,7 +241,40 @@ public class SftpFileSystemFactory
         _dialogService.InfoDialog(title, context);
     }
 
-    private async Task<bool> ProcessHostKeyArgs(HostKeyEventArgs e, SftpConnection connection)
+    private static void DisposeClients(SftpClient sftpClient, SshClient sshClient)
+    {
+        sftpClient.Dispose();
+        sshClient.Dispose();
+    }
+
+    private static void AddHostKeyDecision(
+        List<HostKeyDecision> decisions,
+        HostKeyDecision decision
+    )
+    {
+        int index = decisions.FindIndex(d =>
+            string.Equals(d.Algorithm, decision.Algorithm, StringComparison.Ordinal)
+        );
+        if (index == -1)
+            decisions.Add(decision);
+        else
+            decisions[index] = decision;
+    }
+
+    private static HostKeyDecision? SelectPendingHostKeyDecision(
+        IReadOnlyList<HostKeyDecision> decisions
+    )
+    {
+        HostKeyDecision? mismatch = decisions.FirstOrDefault(d =>
+            d.TrustState is HostKeyTrustState.Mismatch
+        );
+        if (mismatch is not null)
+            return mismatch;
+
+        return decisions.FirstOrDefault(d => d.TrustState is HostKeyTrustState.New);
+    }
+
+    private static HostKeyDecision EvaluateHostKey(HostKeyEventArgs e, SftpConnection connection)
     {
         string algorithm = e.HostKeyName;
         string fingerprintHex = BitConverter
@@ -160,23 +283,45 @@ public class SftpFileSystemFactory
             .ToLowerInvariant();
 
         FingerPrint? oldFp = connection.FingerPrints.Find(fp => fp.Algorithm == algorithm);
-        FingerPrint newFp = new(algorithm, fingerprintHex);
-
         if (oldFp is null)
-        {
-            AddedNewFpAsync(connection, newFp);
-            connection.FingerPrints.Add(newFp);
-            e.CanTrust = true;
-        }
-        else if (newFp.IsSame(oldFp))
-            e.CanTrust = true;
-        else
-        {
-            e.CanTrust = await ConfirmNewFpAsync(connection, oldFp, newFp);
-            if (e.CanTrust)
-                oldFp.Hash = newFp.Hash;
-        }
+            return new HostKeyDecision(algorithm, fingerprintHex, HostKeyTrustState.New, null);
 
-        return e.CanTrust;
+        return string.Equals(oldFp.Hash, fingerprintHex, StringComparison.OrdinalIgnoreCase)
+            ? new HostKeyDecision(algorithm, fingerprintHex, HostKeyTrustState.Trusted, oldFp)
+            : new HostKeyDecision(algorithm, fingerprintHex, HostKeyTrustState.Mismatch, oldFp);
+    }
+
+    private async Task<bool> ProcessHostKeyDecisionAsync(
+        HostKeyDecision decision,
+        SftpConnection connection
+    )
+    {
+        FingerPrint newFp = new(decision.Algorithm, decision.Hash);
+
+        switch (decision.TrustState)
+        {
+            case HostKeyTrustState.Trusted:
+                return true;
+
+            case HostKeyTrustState.New:
+                AddedNewFpAsync(connection, newFp);
+                connection.FingerPrints.Add(newFp);
+                return true;
+
+            case HostKeyTrustState.Mismatch when decision.ExistingFingerprint is not null:
+                bool trust = await ConfirmNewFpAsync(
+                    connection,
+                    decision.ExistingFingerprint,
+                    newFp
+                );
+                if (trust)
+                    decision.ExistingFingerprint.Hash = newFp.Hash;
+
+                return trust;
+
+            case HostKeyTrustState.Mismatch:
+            default:
+                return false;
+        }
     }
 }

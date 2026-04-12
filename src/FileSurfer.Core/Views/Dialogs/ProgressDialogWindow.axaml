@@ -17,20 +17,22 @@
     </Window.Styles>
 
     <!--  ReSharper disable Xaml.BindingWithoutContextNotResolved  -->
-    <Grid Classes="MainGrid" RowDefinitions="* 45">
+    <Grid Classes="MainGrid" RowDefinitions="* Auto">
         <Border Classes="InfoBlockBorder">
             <StackPanel Margin="20 0 20 0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
-                <TextBlock FontSize="11" Foreground="{DynamicResource TextColor}" Text="{Binding CurrentItem}" TextTrimming="LeadingCharacterEllipsis" />
-                <ProgressBar Height="20"
-                             IsIndeterminate="{Binding IsIndeterminate}"
-                             Maximum="1"
-                             Minimum="0"
-                             Value="{Binding Fraction}" />
+                <TextBlock FontSize="11" Foreground="{DynamicResource TextColor}" Text="{Binding Reporter.CurrentItem}" TextTrimming="LeadingCharacterEllipsis" />
+                <ProgressBar Classes="DialogProgress"
+                             IsIndeterminate="{Binding Reporter.IsIndeterminate}"
+                             Maximum="{Binding Reporter.Maximum}"
+                             Minimum="{Binding Reporter.Minimum}"
+                             Value="{Binding Reporter.Fraction}" />
             </StackPanel>
         </Border>
 
-        <Rectangle Grid.Row="1" Classes="BottomRectangle" />
-        <Button Grid.Row="1" Classes="BottomButton" Click="OnCancelClicked" Content="Cancel" />
+        <Grid Grid.Row="1" Height="45" IsVisible="{Binding Cts, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <Rectangle Classes="BottomRectangle" />
+            <Button Margin="15 6 15 6" Classes="BottomButton" Click="OnCancelClicked" Content="Cancel" />
+        </Grid>
     </Grid>
 
 </Window>

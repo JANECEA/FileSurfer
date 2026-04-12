@@ -2,10 +2,38 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
+// ReSharper disable UnusedMemberInSuper.Global - Methods included for parity
 // ReSharper disable UnusedMember.Global
 
 namespace FileSurfer.Core.Models.FileInformation;
+
+public readonly struct ExistsInfo
+{
+    public bool AsPath => AsFile || AsDir;
+    public bool AsFile { get; }
+    public bool AsDir { get; }
+
+    private ExistsInfo(bool asFile, bool asDir)
+    {
+        AsFile = asFile;
+        AsDir = asDir;
+    }
+
+    public static ExistsInfo ExistsAsFile() => new(true, false);
+
+    public static ExistsInfo ExistsAsDirectory() => new(false, true);
+
+    public static ExistsInfo DoesNotExist() => new(false, false);
+}
+
+public sealed class DirectoryContents
+{
+    public required IReadOnlyList<DirectoryEntryInfo> Dirs { get; init; }
+    public required IReadOnlyList<FileEntryInfo> Files { get; init; }
+}
 
 /// <summary>
 /// Defines methods for retrieving file and directory information.
@@ -24,21 +52,22 @@ public interface IFileInfoProvider
     public bool IsLinkedToDirectory(string linkPath, [NotNullWhen(true)] out string? directory);
 
     /// <summary>
-    /// Gets directories in a path, with optional inclusion of hidden and system directories.
+    /// Gets files and directories in a directory, with optional inclusion of hidden and system entries.
     /// </summary>
-    public ValueResult<List<DirectoryEntryInfo>> GetPathDirs(
+    public ValueResult<DirectoryContents> GetPathEntries(
         string path,
         bool includeHidden,
         bool includeOs
     );
 
     /// <summary>
-    /// Gets files in a path, with optional inclusion of hidden and system files.
+    /// Asynchronously gets files in a directory, with optional inclusion of hidden and system entries.
     /// </summary>
-    public ValueResult<List<FileEntryInfo>> GetPathFiles(
+    public Task<ValueResult<DirectoryContents>> GetPathEntriesAsync(
         string path,
         bool includeHidden,
-        bool includeOs
+        bool includeOs,
+        CancellationToken ct
     );
 
     /// <summary>
@@ -48,22 +77,28 @@ public interface IFileInfoProvider
     public ValueResult<Stream> GetFileStream(string path);
 
     /// <summary>
-    /// Gets the size of a file in bytes.
-    /// </summary>
-    /// <returns>The size of the file in bytes.</returns>
-    public long GetFileSizeB(string path);
-
-    /// <summary>
     /// Gets the last modified Utc time of a file.
     /// </summary>
     /// <returns>The last modified date of the file, or <see langword="null"/> if the file does not exist.</returns>
-    public DateTime? GetFileLastModifiedUtc(string filePath);
+    public DateTime? GetFileLastWriteUtc(string filePath);
+
+    /// <summary>
+    /// Asynchronously gets the last modified Utc time of a file.
+    /// </summary>
+    /// <returns>The last modified date of the file, or <see langword="null"/> if the file does not exist.</returns>
+    public Task<DateTime?> GetFileLastWriteUtcAsync(string filePath);
 
     /// <summary>
     /// Gets the last modified Utc time of a directory.
     /// </summary>
     /// <returns>The last modified date of the directory, or <see langword="null"/> if the directory does not exist.</returns>
-    public DateTime? GetDirLastModifiedUtc(string dirPath);
+    public DateTime? GetDirLastWriteUtc(string dirPath);
+
+    /// <summary>
+    /// Asynchronously gets the last modified Utc time of a directory.
+    /// </summary>
+    /// <returns>The last modified date of the directory, or <see langword="null"/> if the directory does not exist.</returns>
+    public Task<DateTime?> GetDirLastWriteUtcAsync(string dirPath);
 
     /// <summary>
     /// Checks if a path is hidden.
@@ -77,19 +112,14 @@ public interface IFileInfoProvider
     public string GetRoot();
 
     /// <summary>
-    /// Determines if the file exists within the containing file system.
+    /// Determines if the file or directory exists within the containing file system.
     /// </summary>
-    public bool FileExists(string path);
+    public ExistsInfo Exists(string path);
 
     /// <summary>
-    /// Determines if the directory exists within the containing file system.
+    /// Asynchronously determines if the file or directory exists within the containing file system.
     /// </summary>
-    public bool DirectoryExists(string path);
-
-    /// <summary>
-    /// Determines if the file or directory exists  within the containing file system.
-    /// </summary>
-    public bool PathExists(string path);
+    public Task<ExistsInfo> ExistsAsync(string path);
 }
 
 /// <summary>

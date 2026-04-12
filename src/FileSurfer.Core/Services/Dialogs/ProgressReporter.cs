@@ -8,14 +8,21 @@ namespace FileSurfer.Core.Services.Dialogs;
 /// <summary>
 /// Reports operation progress information to the UI.
 /// </summary>
-[SuppressMessage(
-    "ReSharper",
-    "UnusedMember.Global",
-    Justification = $"Data used by {nameof(ProgressDialogWindow)}"
-)]
+[
+    SuppressMessage(
+        "ReSharper",
+        "UnusedMember.Global",
+        Justification = $"Data used by {nameof(ProgressDialogWindow)}"
+    ),
+    SuppressMessage("Performance", "CA1822:Mark members as static"),
+]
 public sealed class ProgressReporter : ReactiveObject
 {
     public static ProgressReporter None => new();
+
+    public double Maximum => 1.0;
+
+    public double Minimum => 0.0;
 
     private bool _isIndeterminate = true;
     public bool IsIndeterminate
@@ -75,7 +82,7 @@ public sealed class CountingReporter
     public CountingReporter(ProgressReporter progressReporter, long totalCount)
     {
         _progressReporter = progressReporter;
-        _totalCount = totalCount;
+        _totalCount = totalCount == 0 ? 1.0 : totalCount;
         _progressReporter.IsIndeterminate = false;
     }
 

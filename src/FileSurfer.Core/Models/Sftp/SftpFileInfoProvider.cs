@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.Sftp;
@@ -25,20 +28,6 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
 
     public bool IsLinkedToDirectory(string linkPath, out string directory)
     {
-        try // Fast path
-        {
-            if (_client.Get(linkPath).IsSymbolicLink)
-            {
-                _ = _client.ListDirectory(linkPath);
-                directory = linkPath;
-                return true;
-            }
-        }
-        catch
-        {
-            // Might be false negative, try ssh
-        }
-
         string path = SshShellHandler.Quote(linkPath);
         ValueResult<string> result = _sshShellHandler.ExecuteSshCommand(
             $"test -L {path} && test -d {path} && readlink -f {path}"
@@ -48,10 +37,30 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         return result.IsOk && !string.IsNullOrWhiteSpace(directory);
     }
 
-    private IEnumerable<ISftpFile> ListDir(string path) =>
-        _client.ListDirectory(path).Where(e => e.Name is not ("." or ".."));
+    private IEnumerable<ISftpFile> ListDir(string path, bool includeHidden)
+    {
+        IEnumerable<ISftpFile> entries = _client
+            .ListDirectory(path)
+            .Where(e => e.Name is not ("." or ".."));
 
-    public ValueResult<List<DirectoryEntryInfo>> GetPathDirs(
+        return includeHidden ? entries : entries.Where(e => !IsHidden(e.FullName, e.IsDirectory));
+    }
+
+    private async IAsyncEnumerable<ISftpFile> ListDirAsync(
+        string path,
+        bool includeHidden,
+        [EnumeratorCancellation] CancellationToken ct
+    )
+    {
+        await foreach (ISftpFile e in _client.ListDirectoryAsync(path, ct))
+            if (
+                e.Name is not ("." or "..")
+                && (includeHidden || !IsHidden(e.FullName, e.IsDirectory))
+            )
+                yield return e;
+    }
+
+    public ValueResult<DirectoryContents> GetPathEntries(
         string path,
         bool includeHidden,
         bool includeOs
@@ -59,41 +68,70 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
     {
         try
         {
-            IEnumerable<ISftpFile> dirs = ListDir(path).Where(e => e.IsDirectory);
-            if (!includeHidden)
-                dirs = dirs.Where(e => !IsHidden(e.FullName, true));
+            List<DirectoryEntryInfo> dirs = new();
+            List<FileEntryInfo> files = new();
 
-            return dirs.Select(MakeDirInfo).ToList().OkResult();
+            foreach (ISftpFile entry in ListDir(path, includeHidden))
+            {
+                if (entry.IsRegularFile || entry.IsSymbolicLink)
+                    files.Add(MakeFileInfo(entry));
+                if (entry.IsDirectory)
+                    dirs.Add(MakeDirInfo(entry));
+            }
+
+            return new DirectoryContents { Dirs = dirs, Files = files }.OkResult();
         }
         catch (Exception ex)
         {
-            return ValueResult<List<DirectoryEntryInfo>>.Error(ex.Message);
+            return ValueResult<DirectoryContents>.Error(ex.Message);
+        }
+    }
+
+    public async Task<ValueResult<DirectoryContents>> GetPathEntriesAsync(
+        string path,
+        bool includeHidden,
+        bool includeOs,
+        CancellationToken ct
+    )
+    {
+        try
+        {
+            List<DirectoryEntryInfo> dirs = new();
+            List<FileEntryInfo> files = new();
+
+            await foreach (ISftpFile entry in ListDirAsync(path, includeHidden, ct))
+            {
+                if (entry.IsRegularFile || entry.IsSymbolicLink)
+                    files.Add(MakeFileInfo(entry));
+                if (entry.IsDirectory)
+                    dirs.Add(MakeDirInfo(entry));
+            }
+            ct.ThrowIfCancellationRequested();
+
+            return new DirectoryContents { Dirs = dirs, Files = files }.OkResult();
+        }
+        catch (Exception ex) when (ex is OperationCanceledException or TaskCanceledException)
+        {
+            return ValueResult<DirectoryContents>.Error("Operation cancelled.");
+        }
+        catch (Exception ex)
+        {
+            return ValueResult<DirectoryContents>.Error(ex.Message);
         }
     }
 
     private static DirectoryEntryInfo MakeDirInfo(ISftpFile dir) =>
         new(dir.FullName, dir.Name, dir.LastWriteTime, dir.LastWriteTimeUtc);
 
-    public ValueResult<List<FileEntryInfo>> GetPathFiles(
-        string path,
-        bool includeHidden,
-        bool includeOs
-    )
-    {
-        try
-        {
-            IEnumerable<ISftpFile> files = ListDir(path)
-                .Where(e => e.IsRegularFile || e.IsSymbolicLink);
-            if (!includeHidden)
-                files = files.Where(e => !IsHidden(e.FullName, false));
-
-            return files.Select(MakeFileInfo).ToList().OkResult();
-        }
-        catch (Exception ex)
-        {
-            return ValueResult<List<FileEntryInfo>>.Error(ex.Message);
-        }
-    }
+    private static FileEntryInfo MakeFileInfo(ISftpFile file) =>
+        new(
+            file.FullName,
+            file.Name,
+            RemoteUnixPathTools.GetExtension(file.FullName),
+            file.Length,
+            file.LastWriteTime,
+            file.LastWriteTimeUtc
+        );
 
     public ValueResult<Stream> GetFileStream(string path)
     {
@@ -107,35 +145,12 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         }
     }
 
-    private static FileEntryInfo MakeFileInfo(ISftpFile file) =>
-        new(
-            file.FullName,
-            file.Name,
-            RemoteUnixPathTools.GetExtension(file.FullName),
-            file.Length,
-            file.LastWriteTime,
-            file.LastWriteTimeUtc
-        );
-
-    public long GetFileSizeB(string path)
-    {
-        try
-        {
-            ISftpFile file = _client.Get(path);
-            return file.Length;
-        }
-        catch
-        {
-            return 0;
-        }
-    }
-
-    public DateTime? GetFileLastModifiedUtc(string filePath)
+    public DateTime? GetFileLastWriteUtc(string filePath)
     {
         try
         {
             ISftpFile file = _client.Get(filePath);
-            return file.LastWriteTimeUtc;
+            return ExistsInternal(file).AsFile ? file.LastWriteTimeUtc : null;
         }
         catch
         {
@@ -143,12 +158,38 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
         }
     }
 
-    public DateTime? GetDirLastModifiedUtc(string dirPath)
+    public async Task<DateTime?> GetFileLastWriteUtcAsync(string filePath)
+    {
+        try
+        {
+            ISftpFile file = await _client.GetAsync(filePath, CancellationToken.None);
+            return ExistsInternal(file).AsFile ? file.LastWriteTimeUtc : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public DateTime? GetDirLastWriteUtc(string dirPath)
     {
         try
         {
             ISftpFile dir = _client.Get(dirPath);
-            return dir.LastWriteTimeUtc;
+            return ExistsInternal(dir).AsDir ? dir.LastWriteTimeUtc : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public async Task<DateTime?> GetDirLastWriteUtcAsync(string dirPath)
+    {
+        try
+        {
+            ISftpFile dir = await _client.GetAsync(dirPath, CancellationToken.None);
+            return ExistsInternal(dir).AsDir ? dir.LastWriteTimeUtc : null;
         }
         catch
         {
@@ -174,41 +215,35 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
 
     public string GetRoot() => RemoteUnixPathTools.RootDir;
 
-    public bool FileExists(string path)
+    public ExistsInfo Exists(string path)
     {
         try
         {
-            ISftpFile file = _client.Get(path);
-            return file.IsRegularFile || file.IsSymbolicLink;
+            return ExistsInternal(_client.Get(path));
         }
         catch
         {
-            return false;
+            return ExistsInfo.DoesNotExist();
         }
     }
 
-    public bool DirectoryExists(string path)
+    public async Task<ExistsInfo> ExistsAsync(string path)
     {
         try
         {
-            ISftpFile file = _client.Get(path);
-            return file.IsDirectory;
+            return ExistsInternal(await _client.GetAsync(path, CancellationToken.None));
         }
         catch
         {
-            return false;
+            return ExistsInfo.DoesNotExist();
         }
     }
 
-    public bool PathExists(string path)
+    private static ExistsInfo ExistsInternal(ISftpFile entry)
     {
-        try
-        {
-            return _client.Exists(path);
-        }
-        catch
-        {
-            return false;
-        }
+        if (entry.IsRegularFile || entry.IsSymbolicLink)
+            return ExistsInfo.ExistsAsFile();
+
+        return entry.IsDirectory ? ExistsInfo.ExistsAsDirectory() : ExistsInfo.DoesNotExist();
     }
 }

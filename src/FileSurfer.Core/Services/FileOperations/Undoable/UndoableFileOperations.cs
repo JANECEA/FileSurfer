@@ -12,12 +12,12 @@ namespace FileSurfer.Core.Services.FileOperations.Undoable;
 /// <summary>
 /// Represents the action of moving selected files to the system trash.
 /// </summary>
-public sealed class MoveFilesToTrash : UndoableOperation
+public sealed class MoveFilesToTrash : UndoableFileOperation
 {
     private readonly IBinInteraction _fileRestorer;
 
-    protected override string InvokeOpName => "Trashing";
-    protected override string UndoOpName => "Restoring";
+    protected override string InvokeVerb => "Trashing";
+    protected override string UndoVerb => "Restoring";
 
     public MoveFilesToTrash(
         IBinInteraction fileRestorer,
@@ -40,13 +40,13 @@ public sealed class MoveFilesToTrash : UndoableOperation
 /// <summary>
 /// Represents the action of moving files and directories to a specific directory.
 /// </summary>
-public sealed class MoveFilesTo : UndoableOperation
+public sealed class MoveFilesTo : UndoableFileOperation
 {
     private readonly IPathTools _pathTools;
     private readonly string _destinationDir;
 
-    protected override string InvokeOpName => "Moving";
-    protected override string UndoOpName => "Moving back";
+    protected override string InvokeVerb => "Moving";
+    protected override string UndoVerb => "Moving back";
 
     public MoveFilesTo(
         IPathTools pathTools,
@@ -78,13 +78,13 @@ public sealed class MoveFilesTo : UndoableOperation
 /// <summary>
 /// Represents the action of copying files and directories to a specific directory.
 /// </summary>
-public sealed class CopyFilesTo : UndoableOperation
+public sealed class CopyFilesTo : UndoableFileOperation
 {
     private readonly IPathTools _pathTools;
     private readonly string _destinationDir;
 
-    protected override string InvokeOpName => "Copying";
-    protected override string UndoOpName => "Deleting";
+    protected override string InvokeVerb => "Copying";
+    protected override string UndoVerb => "Deleting";
 
     public CopyFilesTo(
         IPathTools pathTools,
@@ -115,14 +115,14 @@ public sealed class CopyFilesTo : UndoableOperation
 /// <summary>
 /// Represents the action of duplicating files or directories in a specific directory.
 /// </summary>
-public sealed class DuplicateFiles : UndoableOperation
+public sealed class DuplicateFiles : UndoableFileOperation
 {
     private readonly IPathTools _pathTools;
     private readonly string[] _copyNames;
     private readonly string _parentDir;
 
-    protected override string InvokeOpName => "Duplicating";
-    protected override string UndoOpName => "Deleting";
+    protected override string InvokeVerb => "Duplicating";
+    protected override string UndoVerb => "Deleting";
 
     public DuplicateFiles(
         IPathTools pathTools,
@@ -152,14 +152,14 @@ public sealed class DuplicateFiles : UndoableOperation
 /// <summary>
 /// Represents the action of renaming multiple files or directories.
 /// </summary>
-public sealed class RenameMultiple : UndoableOperation
+public sealed class RenameMultiple : UndoableFileOperation
 {
     private readonly IPathTools _pathTools;
     private readonly string[] _newNames;
     private readonly string _dirName;
 
-    protected override string InvokeOpName => "Renaming";
-    protected override string UndoOpName => "Renaming";
+    protected override string InvokeVerb => "Renaming";
+    protected override string UndoVerb => "Renaming";
 
     public RenameMultiple(
         IPathTools pathTools,
@@ -226,14 +226,13 @@ public sealed class FlattenFolder : IUndoableFileOperation
         if (!result.IsOk)
             return result;
 
-        var dirsResult = _infoProvider.GetPathDirs(newDirPath, true, true);
-        var filesResult = _infoProvider.GetPathFiles(newDirPath, true, true);
-        if (ResultExtensions.FirstError(dirsResult, filesResult) is IResult err)
-            return err;
+        var entriesR = await _infoProvider.GetPathEntriesAsync(newDirPath, true, true, ct);
+        if (!entriesR.IsOk)
+            return entriesR;
 
-        IFileSystemEntry[] oldEntries = dirsResult
-            .Value.Cast<IFileSystemEntry>()
-            .Concat(filesResult.Value)
+        IFileSystemEntry[] oldEntries = entriesR
+            .Value.Dirs.Cast<IFileSystemEntry>()
+            .Concat(entriesR.Value.Files)
             .ToArray();
 
         result = await new MoveFilesTo(
@@ -250,7 +249,7 @@ public sealed class FlattenFolder : IUndoableFileOperation
     private IResult RenameIfConflict(out string newDirPath)
     {
         newDirPath = _dirPath;
-        if (!_infoProvider.PathExists(_pathTools.Combine(_dirPath, _dirName)))
+        if (!_infoProvider.Exists(_pathTools.Combine(_dirPath, _dirName)).AsPath)
             return SimpleResult.Ok();
 
         string newName = FileNameGenerator.GetNameMultipleDirs(
@@ -307,7 +306,7 @@ public sealed class FlattenFolder : IUndoableFileOperation
     private SimpleResult CheckConditions(out string newDirName)
     {
         newDirName = _dirName;
-        if (!_infoProvider.PathExists(_dirPath))
+        if (!_infoProvider.Exists(_dirPath).AsPath)
             return SimpleResult.Ok();
 
         if (!_movedEntries.Any(e => _pathTools.NamesAreEqual(_dirName, e.Name)))
@@ -343,18 +342,14 @@ public sealed class RenameOne : IUndoableFileOperation
     }
 
     public Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct) =>
-        Task.FromResult(
-            _entry is DirectoryEntry
-                ? _fileIoHandler.RenameDirAt(_entry.PathToEntry, _newName)
-                : _fileIoHandler.RenameFileAt(_entry.PathToEntry, _newName)
-        );
+        _entry is DirectoryEntry
+            ? _fileIoHandler.RenameDirAt(_entry.PathToEntry, _newName).ToTask()
+            : _fileIoHandler.RenameFileAt(_entry.PathToEntry, _newName).ToTask();
 
     public Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct) =>
-        Task.FromResult(
-            _entry is DirectoryEntry
-                ? _fileIoHandler.RenameDirAt(_newPath, _entry.Name)
-                : _fileIoHandler.RenameFileAt(_newPath, _entry.Name)
-        );
+        _entry is DirectoryEntry
+            ? _fileIoHandler.RenameDirAt(_newPath, _entry.Name).ToTask()
+            : _fileIoHandler.RenameFileAt(_newPath, _entry.Name).ToTask();
 }
 
 /// <summary>
@@ -376,10 +371,10 @@ public sealed class NewFileAt : IUndoableFileOperation
     }
 
     public Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct) =>
-        Task.FromResult(_fileIoHandler.NewFileAt(_path, _fileName));
+        _fileIoHandler.NewFileAt(_path, _fileName).ToTask();
 
     public Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct) =>
-        Task.FromResult(_fileIoHandler.DeleteFile(_filePath));
+        _fileIoHandler.DeleteFile(_filePath).ToTask();
 }
 
 /// <summary>
@@ -401,8 +396,8 @@ public sealed class NewDirAt : IUndoableFileOperation
     }
 
     public Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct) =>
-        Task.FromResult(_fileIoHandler.NewDirAt(_path, _dirName));
+        _fileIoHandler.NewDirAt(_path, _dirName).ToTask();
 
     public Task<IResult> UndoAsync(ProgressReporter reporter, CancellationToken ct) =>
-        Task.FromResult(_fileIoHandler.DeleteFile(_dirPath));
+        _fileIoHandler.DeleteDir(_dirPath).ToTask();
 }

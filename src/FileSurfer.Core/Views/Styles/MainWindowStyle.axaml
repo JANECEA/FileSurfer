@@ -1,4 +1,4 @@
-<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:helpers="clr-namespace:FileSurfer.Core.Views.Helpers">
 
     <Style Selector="Button, ListBoxItem, GridSplitter, ComboBox">
         <Setter Property="IsTabStop" Value="False" />
@@ -374,6 +374,17 @@
         <Setter Property="FontSize" Value="13" />
         <Setter Property="FontFamily" Value="Arial, Segoe UI, sans-serif" />
         <Setter Property="FontWeight" Value="Light" />
+        <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Padding" Value="0 0 10 0" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+
+    <Style Selector="helpers|HighlightTextBlock.SearchEntryName">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontFamily" Value="Arial, Segoe UI, sans-serif" />
+        <Setter Property="FontWeight" Value="Regular" />
         <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Padding" Value="0 0 10 0" />

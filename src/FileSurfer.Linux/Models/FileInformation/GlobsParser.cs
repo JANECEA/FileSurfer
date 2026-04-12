@@ -30,10 +30,10 @@ internal static class GlobsParser
             if (str[i] == '*')
                 break;
 
-        if (i <= 0 || i >= str.Length - 3)
-            return null;
+        if (0 < i && i <= str.Length - 3)
+            return str[(i + 2)..];
 
-        return str[(i + 2)..];
+        return null;
     }
 
     private static string? GetMimeType(string str)

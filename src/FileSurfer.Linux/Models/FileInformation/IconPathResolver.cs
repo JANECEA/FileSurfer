@@ -118,15 +118,22 @@ internal static class IconPathResolver
         List<IconPath> result = new();
         foreach (string baseIconDir in BaseIconDirs)
         foreach (string extension in SupportedExtensions)
-        foreach (
-            string path in Directory.EnumerateFiles(
-                baseIconDir,
-                $"{RequiredIcon}.{extension}",
-                SearchOption.AllDirectories
-            )
-        )
-            if (TryGetIconPath(path, baseIconDir, out IconPath? iconPath))
-                result.Add(iconPath!);
+            try
+            {
+                foreach (
+                    string path in Directory.EnumerateFiles(
+                        baseIconDir,
+                        $"{RequiredIcon}.{extension}",
+                        SearchOption.AllDirectories
+                    )
+                )
+                    if (TryGetIconPath(path, baseIconDir, out IconPath? iconPath))
+                        result.Add(iconPath!);
+            }
+            catch
+            {
+                // Skip inaccessible path
+            }
 
         return result;
     }

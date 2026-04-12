@@ -9,7 +9,7 @@ namespace FileSurfer.Core.Services.Dialogs;
 
 public sealed class AvaloniaDialogService : IDialogService
 {
-    private const int ShowOpDialogDelayMs = 1000;
+    private const int ShowOpDialogDelayMs = 750;
 
     private readonly Window _parentWindow;
 
@@ -25,13 +25,16 @@ public sealed class AvaloniaDialogService : IDialogService
         string title,
         Task<T> opTask,
         ProgressReporter reporter,
-        CancellationTokenSource cts
+        CancellationTokenSource? cts
     )
     {
         Task waitTask = Task.Delay(ShowOpDialogDelayMs);
         await Task.WhenAny(opTask, waitTask);
         if (opTask.IsCompleted)
+        {
+            cts?.Dispose();
             return await opTask;
+        }
 
         bool dialogClosedByUser = false;
         ProgressDialogWindow dialog = new()
@@ -43,6 +46,7 @@ public sealed class AvaloniaDialogService : IDialogService
         dialog.Closed += (_, _) => dialogClosedByUser = true;
 
         await Dispatcher.UIThread.InvokeAsync(dialog.Show);
+
         try
         {
             return await opTask;
@@ -51,23 +55,75 @@ public sealed class AvaloniaDialogService : IDialogService
         {
             if (!dialogClosedByUser)
                 await Dispatcher.UIThread.InvokeAsync(dialog.Close);
-            cts.Dispose();
+            cts?.Dispose();
         }
     }
 
-    public async Task<T> ProgressDialogAsync<T>(string title, ReportingOperation<T> operation)
+    private async Task<T> LockWindowWithDialog<T>(
+        string title,
+        Task<T> opTask,
+        ProgressReporter reporter,
+        CancellationTokenSource? cts
+    )
+    {
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            _parentWindow.IsHitTestVisible = false;
+        });
+
+        try
+        {
+            return await ProgressDialogInternal(title, opTask, reporter, cts);
+        }
+        finally
+        {
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                _parentWindow.IsHitTestVisible = true;
+            });
+        }
+    }
+
+    public Task<T> BlockingDialogAsync<T>(string title, AsyncOperation<T> operation)
+    {
+        Task<T> opTask = operation();
+        return LockWindowWithDialog(title, opTask, ProgressReporter.None, null);
+    }
+
+    public Task<T> BlockingDialogAsync<T>(string title, CancellableOperation<T> operation)
+    {
+        CancellationTokenSource cts = new();
+        Task<T> opTask = operation(cts.Token);
+        return LockWindowWithDialog(title, opTask, ProgressReporter.None, cts);
+    }
+
+    public Task<T> BlockingDialogAsync<T>(string title, ReportingOperation<T> operation)
     {
         ProgressReporter reporter = new();
         CancellationTokenSource cts = new();
         Task<T> opTask = operation(reporter, cts.Token);
-        return await ProgressDialogInternal(title, opTask, reporter, cts);
+        return LockWindowWithDialog(title, opTask, reporter, cts);
     }
 
-    public async Task<T> ProgressDialogAsync<T>(string title, CancellableOperation<T> operation)
+    public Task<T> BackgroundDialogAsync<T>(string title, AsyncOperation<T> operation)
+    {
+        Task<T> opTask = operation();
+        return ProgressDialogInternal(title, opTask, ProgressReporter.None, null);
+    }
+
+    public Task<T> BackgroundDialogAsync<T>(string title, CancellableOperation<T> operation)
     {
         CancellationTokenSource cts = new();
         Task<T> opTask = operation(cts.Token);
-        return await ProgressDialogInternal(title, opTask, ProgressReporter.None, cts);
+        return ProgressDialogInternal(title, opTask, ProgressReporter.None, cts);
+    }
+
+    public Task<T> BackgroundDialogAsync<T>(string title, ReportingOperation<T> operation)
+    {
+        ProgressReporter reporter = new();
+        CancellationTokenSource cts = new();
+        Task<T> opTask = operation(reporter, cts.Token);
+        return ProgressDialogInternal(title, opTask, reporter, cts);
     }
 
     public async Task<bool> ConfirmationDialogAsync(string title, string question)
@@ -82,8 +138,8 @@ public sealed class AvaloniaDialogService : IDialogService
         return result is true;
     }
 
-    public async Task<string?> InputDialogAsync(string title, string context, bool secret) =>
-        await Dispatcher.UIThread.InvokeAsync(async () =>
+    public Task<string?> InputDialogAsync(string title, string context, bool secret) =>
+        Dispatcher.UIThread.InvokeAsync(async () =>
         {
             InputDialogWindow dialog = new() { Title = title, Context = context };
             dialog.HideInput(secret);
@@ -92,13 +148,13 @@ public sealed class AvaloniaDialogService : IDialogService
             return string.IsNullOrEmpty(result) ? null : result;
         });
 
-    public async Task<string?> SuggestInputDialogAsync(
+    public Task<string?> SuggestInputDialogAsync(
         string title,
         string context,
         string suggestionLabel,
         IEnumerable<string> options
     ) =>
-        await Dispatcher.UIThread.InvokeAsync(async () =>
+        Dispatcher.UIThread.InvokeAsync(async () =>
         {
             SuggestInputDialogWindow dialog = new()
             {

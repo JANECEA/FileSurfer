@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace FileSurfer.Core.Models;
 
 /// <summary>
@@ -21,8 +23,15 @@ public sealed class Location
         FileSystem = fileSystem;
     }
 
-    public bool Exists() =>
-        FileSystem.IsReady() && FileSystem.FileInfoProvider.DirectoryExists(Path);
+    public bool Exists() => FileSystem.IsReady() && FileSystem.FileInfoProvider.Exists(Path).AsDir;
+
+    public async Task<bool> ExistsAsync()
+    {
+        if (!FileSystem.IsReady())
+            return false;
+
+        return (await FileSystem.FileInfoProvider.ExistsAsync(Path)).AsDir;
+    }
 
     public bool IsSame(Location? other)
     {

@@ -42,7 +42,6 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
     private readonly Location _root;
     private Dictionary<string, FsEntryMeta> _snapshot = new();
 
-    public bool SyncHiddenFiles { get; set; } = false;
     public event Func<object?, FileSystemEvent, Task>? ChangeDetected;
 
     public DirectoryWatcher(Location root) => _root = root;
@@ -76,13 +75,13 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
                 if (!comparisonTask.Result.IsOk)
                     return comparisonTask.Result;
 
-                comparisonTask = Task.Run(() => DiffOnce(syncHidden), token);
+                comparisonTask = Task.Run(() => DiffOnceAsync(syncHidden), token);
             }
         }
         return await comparisonTask;
     }
 
-    private async Task<IResult> DiffOnce(bool syncHidden)
+    private async Task<IResult> DiffOnceAsync(bool syncHidden)
     {
         ValueResult<Dictionary<string, FsEntryMeta>> snapshotResult = TakeSnapshot(syncHidden);
         if (!snapshotResult.IsOk)
@@ -105,19 +104,17 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
         {
             string path = queue.Dequeue();
 
-            var dirResult = fs.FileInfoProvider.GetPathDirs(path, syncHidden, false);
-            var fileResult = fs.FileInfoProvider.GetPathFiles(path, syncHidden, false);
+            var entriesR = fs.FileInfoProvider.GetPathEntries(path, syncHidden, false);
+            if (!entriesR.IsOk)
+                return ValueResult<Dictionary<string, FsEntryMeta>>.Error(entriesR);
 
-            if (ResultExtensions.FirstError(dirResult, fileResult) is IResult result)
-                return ValueResult<Dictionary<string, FsEntryMeta>>.Error(result);
-
-            foreach (DirectoryEntryInfo dir in dirResult.Value)
+            foreach (DirectoryEntryInfo dir in entriesR.Value.Dirs)
             {
                 snapshot[dir.PathToEntry] = new FsEntryMeta(true, dir.LastModifiedUtc, 0);
                 queue.Enqueue(dir.PathToEntry);
             }
 
-            foreach (FileEntryInfo file in fileResult.Value)
+            foreach (FileEntryInfo file in entriesR.Value.Files)
                 snapshot[file.PathToEntry] = new FsEntryMeta(
                     false,
                     file.LastModifiedUtc,
@@ -172,11 +169,13 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
                 await RaiseAsync(new FileSystemEvent(filePath, false, FileSystemEventType.Updated));
     }
 
-    private async Task RaiseAsync(FileSystemEvent fsEvent)
+    private Task RaiseAsync(FileSystemEvent fsEvent)
     {
         Func<object?, FileSystemEvent, Task>? eventMethod = ChangeDetected;
 
-        if (eventMethod is not null)
-            await eventMethod(this, fsEvent);
+        if (eventMethod is null)
+            return Task.CompletedTask;
+
+        return eventMethod(this, fsEvent);
     }
 }

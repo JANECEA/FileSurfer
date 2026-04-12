@@ -38,7 +38,7 @@ public class LinuxFileInfoProvider : LocalFileInfoProvider
             "LABEL,MOUNTPOINT,SIZE,TYPE"
         );
         if (!result.IsOk || string.IsNullOrEmpty(result.Value))
-            return Array.Empty<DriveEntryInfo>();
+            return defaultList;
 
         List<DriveEntryInfo> drives = new();
         LsblkOutput entries;

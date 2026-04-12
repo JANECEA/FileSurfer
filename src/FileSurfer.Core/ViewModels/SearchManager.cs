@@ -4,13 +4,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
+using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Models.FileInformation;
 
 namespace FileSurfer.Core.ViewModels;
 
 public class SearchManager : IDisposable
 {
-    private const int ChunkSize = 25;
+    private const int ChunkSize = 50;
     private const int SearchAnimationPeriodMs = 500;
     private const string SearchingFinishedLabel = "Searching finished";
     private static readonly IReadOnlyList<string> SearchingStates =
@@ -36,14 +38,7 @@ public class SearchManager : IDisposable
         _animationTimer = GetAnimationTimer();
     }
 
-    public void CancelSearch()
-    {
-        CancellationTokenSource cts = _searchCts;
-        if (!cts.IsCancellationRequested)
-            cts.Cancel();
-    }
-
-    private async Task WaitForActiveTask()
+    private async Task WaitForActiveAsync()
     {
         if (!_searchCts.IsCancellationRequested)
             await _searchCts.CancelAsync();
@@ -66,7 +61,7 @@ public class SearchManager : IDisposable
         await _searchLock.WaitAsync();
         try
         {
-            await WaitForActiveTask();
+            await WaitForActiveAsync();
         }
         finally
         {
@@ -107,7 +102,7 @@ public class SearchManager : IDisposable
         try
         {
             if (_activeSearchTask is not null)
-                await WaitForActiveTask();
+                await WaitForActiveAsync();
 
             CancellationToken token = ResetToken();
             _updateAnimation(SearchingStates[0]);
@@ -152,44 +147,44 @@ public class SearchManager : IDisposable
         IFileSystem fileSystem,
         string searchQuery,
         string dirToSearch,
-        CancellationToken token
+        CancellationToken ct
     )
     {
         Queue<string> directories = new();
         directories.Enqueue(dirToSearch);
 
         int foundEntries = 0;
-        while (directories.Count > 0 && !token.IsCancellationRequested)
+        while (directories.Count > 0 && !ct.IsCancellationRequested)
         {
             string currentDirPath = directories.Dequeue();
 
-            List<DirectoryEntryInfo> dirs = GetAllDirs(fileSystem, currentDirPath);
+            DirectoryContents entries = await GetAllEntriesAsync(fileSystem, currentDirPath, ct);
             Task<List<FileSystemEntryViewModel>> filesTask = Task.Run(
-                () => GetFiles(fileSystem, currentDirPath, searchQuery),
-                _searchCts.Token
+                () => GetFiles(fileSystem, entries.Files, searchQuery),
+                ct
             );
-            Task<List<FileSystemEntryViewModel>> filteredDirsTask = Task.Run(
-                () => GetDirs(fileSystem, dirs, searchQuery),
-                _searchCts.Token
+            Task<List<FileSystemEntryViewModel>> dirsTask = Task.Run(
+                () => GetDirs(fileSystem, entries.Dirs, searchQuery),
+                ct
             );
-            await Task.WhenAll(filesTask, filteredDirsTask);
+            await Task.WhenAll(filesTask, dirsTask);
 
-            foundEntries += filesTask.Result.Count + filteredDirsTask.Result.Count;
-            await PushResults(filesTask.Result.Concat(filteredDirsTask.Result), token);
+            foundEntries += filesTask.Result.Count + dirsTask.Result.Count;
+            await PushResultsAsync(filesTask.Result.Concat(dirsTask.Result), ct);
 
-            foreach (DirectoryEntryInfo dir in dirs)
+            foreach (DirectoryEntryInfo dir in entries.Dirs)
                 directories.Enqueue(dir.PathToEntry);
         }
-        return token.IsCancellationRequested ? null : foundEntries;
+        return ct.IsCancellationRequested ? null : foundEntries;
     }
 
-    private async Task PushResults(
+    private async Task PushResultsAsync(
         IEnumerable<FileSystemEntryViewModel> results,
         CancellationToken token
     )
     {
         FileSystemEntryViewModel[] buffer = new FileSystemEntryViewModel[ChunkSize];
-        foreach (int added in EfficientChunk(results, buffer))
+        foreach (int added in results.EfficientChunk(buffer))
         {
             if (token.IsCancellationRequested)
                 return;
@@ -214,58 +209,35 @@ public class SearchManager : IDisposable
         }
     }
 
-    private static IEnumerable<int> EfficientChunk(
-        IEnumerable<FileSystemEntryViewModel> source,
-        FileSystemEntryViewModel[] buffer
+    private static async Task<DirectoryContents> GetAllEntriesAsync(
+        IFileSystem fileSystem,
+        string directory,
+        CancellationToken ct
     )
     {
-        int index = 0;
-        foreach (FileSystemEntryViewModel item in source)
-        {
-            buffer[index++] = item;
+        ValueResult<DirectoryContents> result =
+            await fileSystem.FileInfoProvider.GetPathEntriesAsync(
+                directory,
+                FileSurferSettings.ShowHiddenFiles,
+                FileSurferSettings.ShowProtectedFiles,
+                ct
+            );
 
-            if (index == buffer.Length)
-            {
-                yield return index;
-                index = 0;
-            }
-        }
-        if (index != 0)
-            yield return index;
+        return result.IsOk ? result.Value : new DirectoryContents { Files = [], Dirs = [] };
     }
 
     private static List<FileSystemEntryViewModel> GetFiles(
         IFileSystem fileSystem,
-        string directory,
+        IReadOnlyList<FileEntryInfo> files,
         string query
-    )
-    {
-        ValueResult<List<FileEntryInfo>> result = fileSystem.FileInfoProvider.GetPathFiles(
-            directory,
-            FileSurferSettings.ShowHiddenFiles,
-            FileSurferSettings.ShowProtectedFiles
-        );
-        if (!result.IsOk)
-            return [];
-
-        return FilterPaths(result.Value, query)
+    ) =>
+        FilterPaths(files, query)
             .Select(fileInfo => new FileSystemEntryViewModel(fileSystem, fileInfo))
             .ToList();
-    }
-
-    private static List<DirectoryEntryInfo> GetAllDirs(IFileSystem fileSystem, string directory)
-    {
-        ValueResult<List<DirectoryEntryInfo>> result = fileSystem.FileInfoProvider.GetPathDirs(
-            directory,
-            FileSurferSettings.ShowHiddenFiles,
-            FileSurferSettings.ShowProtectedFiles
-        );
-        return result.IsOk ? result.Value : [];
-    }
 
     private static List<FileSystemEntryViewModel> GetDirs(
         IFileSystem fileSystem,
-        List<DirectoryEntryInfo> dirs,
+        IReadOnlyList<DirectoryEntryInfo> dirs,
         string query
     ) =>
         FilterPaths(dirs, query)

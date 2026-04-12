@@ -47,9 +47,9 @@ public class StubGitIntegration : IGitIntegration
 
     public GitStatus GetStatus(string filePath) => GitStatus.NotVersionControlled;
 
-    public IResult FetchChanges() => _result;
+    public Task<IResult> FetchChangesAsync() => Task.FromResult<IResult>(_result);
 
-    public ValueResult<string> PullChanges() => _result;
+    public Task<ValueResult<string>> PullChangesAsync() => Task.FromResult(_result);
 
     public RepoDetails? GetRepositoryState() => null;
 
@@ -69,9 +69,10 @@ public class StubGitIntegration : IGitIntegration
 
     public IResult RestorePath(string path) => _result;
 
-    public ValueResult<string> CommitChanges(string commitMessage) => _result;
+    public Task<ValueResult<string>> CommitChangesAsync(string commitMessage) =>
+        Task.FromResult(_result);
 
-    public ValueResult<string> PushChanges() => _result;
+    public Task<ValueResult<string>> PushChangesAsync() => Task.FromResult(_result);
 }
 
 public class StubBinInteraction : IBinInteraction

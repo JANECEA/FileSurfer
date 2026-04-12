@@ -1,6 +1,5 @@
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Shell;
@@ -40,6 +39,10 @@ public class WindowsFileProperties : IFileProperties
         public nint hProcess;
     }
 
+    private readonly ILocalShellHandler _shellHandler;
+
+    public WindowsFileProperties(ILocalShellHandler shellHandler) => _shellHandler = shellHandler;
+
     [DllImport("shell32.dll", CharSet = CharSet.Auto, SetLastError = true)]
     [System.Diagnostics.CodeAnalysis.SuppressMessage(
         "Interoperability",
@@ -73,7 +76,11 @@ public class WindowsFileProperties : IFileProperties
     {
         try
         {
-            Process.Start("rundll32.exe", "shell32.dll,OpenAs_RunDLL " + entry.PathToEntry);
+            _shellHandler.ExecuteCommand(
+                "rundll32.exe",
+                "shell32.dll,OpenAs_RunDLL",
+                entry.PathToEntry
+            );
             return SimpleResult.Ok();
         }
         catch (Exception ex)

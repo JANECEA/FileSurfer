@@ -22,6 +22,8 @@ public static class ResultExtensions
     /// </summary>
     public static ValueResult<T> OkResult<T>(this T value) => ValueResult<T>.Ok(value);
 
+    public static Task<IResult> ToTask(this IResult result) => Task.FromResult(result);
+
     /// <summary>
     /// Return first failed result
     /// </summary>
@@ -40,7 +42,6 @@ public static class TransferStreamExtensions
     public static async Task<IResult> WriteToStreamAsync(
         this FileTransferStream fileStream,
         Stream writeStream,
-        string filePath,
         ProgressReporter reporter,
         CancellationToken ct
     )
@@ -71,9 +72,33 @@ public static class TransferStreamExtensions
         CancellationToken ct
     )
     {
+        (IResult result, bool rootCreated) = await WriteDirStreamInternal(
+            dirStream,
+            ioHandler,
+            pathTools,
+            dirPath,
+            reporter,
+            ct
+        );
+        if (!result.IsOk && rootCreated)
+            _ = ioHandler.DeleteDir(pathTools.Combine(dirPath, dirStream.Name));
+
+        return result;
+    }
+
+    private static async Task<(IResult, bool)> WriteDirStreamInternal(
+        DirTransferStream dirStream,
+        IFileIoHandler ioHandler,
+        IPathTools pathTools,
+        string dirPath,
+        ProgressReporter reporter,
+        CancellationToken ct
+    )
+    {
         List<(FileTransferStream, string)> files = new();
         Queue<(DirTransferStream, string)> queue = new();
         queue.Enqueue((dirStream, dirPath));
+        bool rootCreated = false;
 
         while (queue.Count > 0)
         {
@@ -82,8 +107,9 @@ public static class TransferStreamExtensions
 
             IResult result = ioHandler.NewDirAt(absParentPath, dir.Name);
             if (!result.IsOk)
-                return result;
+                return (result, rootCreated);
 
+            rootCreated = true;
             foreach (FileTransferStream f in dir.Files)
                 files.Add((f, absDirPath));
 
@@ -102,9 +128,9 @@ public static class TransferStreamExtensions
                 ct
             );
             if (!result.IsOk)
-                return result;
+                return (result, rootCreated);
         }
 
-        return SimpleResult.Ok();
+        return (SimpleResult.Ok(), rootCreated);
     }
 }
