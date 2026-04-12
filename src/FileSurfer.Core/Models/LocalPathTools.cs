@@ -175,14 +175,9 @@ public class LocalPathTools : IPathTools
 
     private static bool IsSep(char ch) => ch == DirSeparator || ch == OtherSeparator;
 
-    private static StringBuilder ShaveSep(StringBuilder sb)
+    private static void ShaveSep(StringBuilder sb)
     {
         for (int i = sb.Length - 1; i >= 0 && IsSep(sb[i]); i--)
             sb.Remove(sb.Length - 1, 1);
-
-        return sb;
     }
-
-    public static string TrimEndDirectorySeparator(string path) =>
-        ShaveSep(new StringBuilder(path)).ToString();
 }

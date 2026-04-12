@@ -800,7 +800,7 @@ public sealed partial class MainWindowViewModel
     private async Task RenameMultipleAsync(string namingPattern)
     {
         IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry);
-        int dirCount = entries.Cast<DirectoryEntry>().Count();
+        int dirCount = entries.OfType<DirectoryEntry>().Count();
         if (dirCount != 0 && dirCount != entries.Length)
         {
             ShowError("Selected entries are not of the same type.");

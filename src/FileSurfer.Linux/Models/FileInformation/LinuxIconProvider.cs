@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using FileSurfer.Core.Models;
@@ -29,7 +31,7 @@ public sealed class LinuxIconProvider : BaseIconProvider
     private readonly IShellHandler _shellHandler;
     private readonly IReadOnlyList<string> _searchPaths;
     private readonly ConcurrentDictionary<string, string> _extToMime = new();
-    private readonly ConcurrentDictionary<string, Task<Bitmap>> _mimeToIcon = new();
+    private readonly ConcurrentDictionary<string, Lazy<Task<Bitmap>>> _mimeToIcon = new();
     private readonly Bitmap _themedGenericFileIcon;
 
     private static string NormalizeMime(string mime) => mime.ToLowerInvariant().Replace('/', '-');
@@ -54,11 +56,20 @@ public sealed class LinuxIconProvider : BaseIconProvider
         }
     }
 
-    public override async Task<Bitmap> GetFileIconAsync(string filePath) =>
-        await _mimeToIcon.GetOrAdd(
-            await GetMimeTypeAsync(filePath),
-            mimeType => Task.Run(() => ExtractIcon(mimeType) ?? _themedGenericFileIcon)
+    public override async Task<Bitmap> GetFileIconAsync(string filePath)
+    {
+        string mimeType = await GetMimeTypeAsync(filePath);
+
+        Lazy<Task<Bitmap>> lazy = _mimeToIcon.GetOrAdd(
+            mimeType,
+            m => new Lazy<Task<Bitmap>>(
+                () => Task.Run(() => ExtractIcon(m) ?? _themedGenericFileIcon),
+                LazyThreadSafetyMode.ExecutionAndPublication
+            )
         );
+
+        return await lazy.Value;
+    }
 
     private async Task<string> GetMimeTypeAsync(string filePath)
     {
@@ -122,9 +133,9 @@ public sealed class LinuxIconProvider : BaseIconProvider
 
     public override void Dispose()
     {
-        foreach (Task<Bitmap> task in _mimeToIcon.Values)
-            if (task.IsCompletedSuccessfully)
-                task.Result.Dispose();
+        foreach (Lazy<Task<Bitmap>> task in _mimeToIcon.Values)
+            if (task.Value.IsCompletedSuccessfully)
+                task.Value.Result.Dispose();
 
         _mimeToIcon.Clear();
         _themedGenericFileIcon.Dispose();

@@ -78,7 +78,11 @@ public class SftpFileProperties : IFileProperties
         }
         try
         {
-            List<ISftpFile> filesAndDirs = _sftpClient.ListDirectory(entry.PathToEntry).ToList();
+            List<ISftpFile> filesAndDirs = _sftpClient
+                .ListDirectory(entry.PathToEntry)
+                .Where(e => e.Name is not ("." or ".."))
+                .ToList();
+
             int fileCount = filesAndDirs.Count(x => x.IsRegularFile || x.IsSymbolicLink);
             int dirCount = filesAndDirs.Count(x => x.IsDirectory);
             return $"{fileCount} files, {dirCount} sub-directories";

@@ -161,11 +161,11 @@ public class SearchManager : IDisposable
             DirectoryContents entries = await GetAllEntriesAsync(fileSystem, currentDirPath, ct);
             Task<List<FileSystemEntryViewModel>> filesTask = Task.Run(
                 () => GetFiles(fileSystem, entries.Files, searchQuery),
-                _searchCts.Token
+                ct
             );
             Task<List<FileSystemEntryViewModel>> dirsTask = Task.Run(
                 () => GetDirs(fileSystem, entries.Dirs, searchQuery),
-                _searchCts.Token
+                ct
             );
             await Task.WhenAll(filesTask, dirsTask);
 
