@@ -213,12 +213,19 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         string remoteParent = _remoteRoot.FileSystem.FileInfoProvider.PathTools.GetParentDir(
             remotePath
         );
-        return _remoteRoot.FileSystem.FileIoHandler.WriteFileStreamAsync(
-            fileStreamR.Value,
-            remoteParent,
-            ProgressReporter.None,
-            _cts!.Token
-        );
+        try
+        {
+            return _remoteRoot.FileSystem.FileIoHandler.WriteFileStreamAsync(
+                fileStreamR.Value,
+                remoteParent,
+                ProgressReporter.None,
+                _cts!.Token
+            );
+        }
+        finally
+        {
+            fileStreamR.Value.Dispose();
+        }
     }
 
     private Task<IResult> HandleFileEvent(FileSystemEvent e, string remotePath) =>

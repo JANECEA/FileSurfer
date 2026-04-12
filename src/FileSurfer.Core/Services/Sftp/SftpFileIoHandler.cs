@@ -91,13 +91,13 @@ public sealed class SftpFileIoHandler : IFileIoHandler
     public IResult DeleteFile(string filePath)
     {
         string quotedPath = SshShellHandler.Quote(filePath);
-        return _sshShellHandler.ExecuteSshCommand($"rm -f {quotedPath}");
+        return _sshShellHandler.ExecuteSshCommand($"rm -f -- {quotedPath}");
     }
 
     public IResult DeleteDir(string dirPath)
     {
         string quotedPath = SshShellHandler.Quote(dirPath);
-        return _sshShellHandler.ExecuteSshCommand($"rm -rf {quotedPath}");
+        return _sshShellHandler.ExecuteSshCommand($"rm -rf -- {quotedPath}");
     }
 
     public async Task<IResult> WriteFileStreamAsync(
@@ -156,6 +156,6 @@ public sealed class SftpFileIoHandler : IFileIoHandler
     {
         string quotedPathA = SshShellHandler.Quote(pathA);
         string quotedPathB = SshShellHandler.Quote(pathB);
-        return _sshShellHandler.ExecuteSshCommand($"{command} {quotedPathA} {quotedPathB}");
+        return _sshShellHandler.ExecuteSshCommand($"{command} -- {quotedPathA} {quotedPathB}");
     }
 }

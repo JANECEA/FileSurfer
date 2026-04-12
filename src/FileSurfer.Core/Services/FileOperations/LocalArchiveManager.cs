@@ -173,10 +173,11 @@ public class LocalArchiveManager : IArchiveManager
     )
     {
         IndeterminateReporter rep = new(reporter);
+        string archiveName = LocalPathTools.GetFileName(archivePath);
         string extractName = await FileNameGenerator.GetAvailableNameAsync(
             _fileInfoProvider,
             destinationPath,
-            archivePath[..^archiveType.Extension.Length]
+            archiveName[..^archiveType.Extension.Length]
         );
         string extractTo = Path.Combine(destinationPath, extractName);
 

@@ -654,19 +654,19 @@ public sealed partial class MainWindowViewModel
                 return;
             }
 
-        List<Task> tasks = selected
-            .Select(async e =>
-            {
-                IResult result = await _dialogService.BackgroundDialogAsync<IResult>(
+        List<Task<IResult>> tasks = selected
+            .Select(e =>
+                _dialogService.BackgroundDialogAsync<IResult>(
                     "Extracting archive",
                     (r, ct) =>
                         CurrentFs.ArchiveManager.ExtractArchiveAsync(e.PathToEntry, cwd, r, ct)
-                );
-                ShowIfError(result);
-            })
+                )
+            )
             .ToList();
 
-        await Task.WhenAll(tasks);
+        foreach (Task<IResult> task in tasks)
+            ShowIfError(await task);
+
         HardReload();
     }
 
