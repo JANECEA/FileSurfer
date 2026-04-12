@@ -29,8 +29,8 @@ public class LinuxShellHandler : IShellCommandHandler
     {
         try
         {
-            string extension = Path.GetExtension(filePath);
-            string linkName = $"{Path.GetFileName(filePath)} - link{extension}";
+            FileEntry f = new(filePath, LocalPathTools.Instance);
+            string linkName = $"{f.NameWoExtension} - link{f.Extension}";
             string parentDir =
                 Path.GetDirectoryName(filePath)
                 ?? Path.GetPathRoot(filePath)

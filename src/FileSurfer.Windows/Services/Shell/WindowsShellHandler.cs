@@ -163,9 +163,12 @@ public class WindowsShellHandler : ILocalShellHandler
         }
         finally
         {
-            Marshal.FreeHGlobal(argv);
+            _ = LocalFree(argv);
         }
     }
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern IntPtr LocalFree(IntPtr hMem);
 
     [DllImport("shell32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     private static extern IntPtr CommandLineToArgvW(string lpCmdLine, out int pNumArgs);

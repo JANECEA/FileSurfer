@@ -70,7 +70,7 @@ public class WindowsFileInfoProvider : LocalFileInfoProvider
                 )
                     break;
 
-            if (path[i + 1] == '.')
+            if (path.Length != 0 && path[i + 1] == '.')
                 return true;
         }
         try

@@ -15,8 +15,7 @@ namespace FileSurfer.Windows.Services.Shell;
 public class WindowsBinInteraction : IBinInteraction
 {
     private const int BinFolderId = 10;
-    private const int NameColumn = 0;
-    private const int PathColumn = 1;
+    private const string DeletedFromProperty = "System.Recycle.DeletedFrom";
     private const string RestoreVerb = "ESTORE";
 
     private readonly StaWorkerSync _workerSync = new("Bin worker thread");
@@ -36,11 +35,10 @@ public class WindowsBinInteraction : IBinInteraction
         {
             foreach (FolderItem item in bin.Items())
             {
-                string itemName = bin.GetDetailsOf(item, NameColumn);
-                string itemPath = bin.GetDetailsOf(item, PathColumn);
-
-                string combined = LocalPathTools.Combine(itemPath, itemName);
-                if (LocalPathTools.PathsAreEqual(combined, originalPath))
+                if (
+                    TryGetOriginalPath(item, out string? itemOriginalPath)
+                    && LocalPathTools.PathsAreEqual(itemOriginalPath, originalPath)
+                )
                 {
                     DoVerb(item, RestoreVerb);
                     result = SimpleResult.Ok();
@@ -56,6 +54,27 @@ public class WindowsBinInteraction : IBinInteraction
         Marshal.FinalReleaseComObject(shell);
 
         return result;
+    }
+
+    private static bool TryGetOriginalPath(FolderItem item, out string? originalPath)
+    {
+        originalPath = null;
+        try
+        {
+            dynamic comItem = item;
+            string? deletedFrom = comItem.ExtendedProperty(DeletedFromProperty) as string;
+            if (string.IsNullOrWhiteSpace(deletedFrom) || string.IsNullOrWhiteSpace(item.Name))
+                return false;
+
+            originalPath = LocalPathTools.NormalizePath(
+                LocalPathTools.Combine(deletedFrom, item.Name)
+            );
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private static void DoVerb(FolderItem item, string verb)

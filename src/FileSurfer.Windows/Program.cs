@@ -58,7 +58,7 @@ public class WindowsPlatformBootstrap : IPlatformBootstrap
             ArchiveManager = new LocalArchiveManager(fileInfoProvider, fileIoHandler),
             FileIoHandler = fileIoHandler,
             BinInteraction = new WindowsBinInteraction(),
-            FileProperties = new WindowsFileProperties(),
+            FileProperties = new WindowsFileProperties(shellHandler),
             LocalShellHandler = shellHandler,
             GitIntegration = new LocalGitIntegration(shellHandler),
         };
