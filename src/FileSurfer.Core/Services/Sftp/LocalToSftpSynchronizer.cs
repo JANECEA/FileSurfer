@@ -14,7 +14,7 @@ namespace FileSurfer.Core.Services.Sftp;
 /// Synchronizes a local directory to a remote one in real-time by reacting to
 /// <see cref="DirectoryWatcher"/> events and replaying them on the remote filesystem.
 /// </summary>
-public sealed class LocalToSftpSynchronizer : IAsyncDisposable
+public sealed class LocalToSftpSynchronizer : IDisposable
 {
     public delegate Task SyncEvent(FileSystemEvent fsEvent, string remotePath, IResult result);
 
@@ -25,8 +25,8 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
     private readonly Location _remoteRoot;
     private readonly string _remoteRootPath;
 
-    private CancellationTokenSource? _cts;
-    private Task<IResult>? _syncTask;
+    private Task _syncTask = Task.CompletedTask;
+    private CancellationToken _runningToken = CancellationToken.None;
 
     public event SyncEvent? OnSyncEvent;
 
@@ -38,6 +38,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
     {
         _watcher = watcher;
         _remoteHandler = remoteRoot.FileSystem.FileIoHandler;
+
         _remoteRoot = remoteRoot;
         _remoteRootPath = RemoteUnixPathTools.NormalizePath(remoteRoot.Path);
         _localRoot = localRoot;
@@ -46,9 +47,9 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         _watcher.ChangeDetected += OnFsEventAsync;
     }
 
-    public async Task<IResult> StartAsync()
+    public async Task<IResult> SynchronizeAsync(CancellationToken ct)
     {
-        if (_syncTask is not null)
+        if (!_syncTask.IsCompleted)
             return SimpleResult.Error("Synchronizer is already running.");
 
         bool syncHidden = FileSurferSettings.SyncHiddenFiles;
@@ -56,16 +57,17 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
             FileSurferSettings.SynchronizerPollingInterval
         );
 
-        _cts = new CancellationTokenSource();
-
-        _syncTask = _watcher.StartAsync(pollingInterval, syncHidden, _cts.Token);
-        IResult result = await _syncTask;
-
-        _cts.Dispose();
-        _cts = null;
-        _syncTask = null;
-
-        return result;
+        _runningToken = ct;
+        Task<IResult> task = _watcher.StartAsync(pollingInterval, syncHidden, ct);
+        _syncTask = task;
+        try
+        {
+            return await task;
+        }
+        finally
+        {
+            _runningToken = CancellationToken.None;
+        }
     }
 
     public Task<IResult> Initialize(
@@ -162,30 +164,6 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         return RemoteUnixPathTools.Combine(_remoteRootPath, relative);
     }
 
-    public async Task StopAsync()
-    {
-        if (_cts is null)
-            return;
-
-        await _cts.CancelAsync();
-
-        try
-        {
-            if (_syncTask is not null)
-                await _syncTask;
-        }
-        catch (OperationCanceledException)
-        {
-            // expected on cancellation
-        }
-        finally
-        {
-            _cts.Dispose();
-            _cts = null;
-            _syncTask = null;
-        }
-    }
-
     private async Task OnFsEventAsync(FileSystemEvent fsEvent)
     {
         string remotePath = ToRemotePath(fsEvent.OriginalPath);
@@ -210,7 +188,6 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         if (!fileStreamR.IsOk)
             return fileStreamR;
 
-        fileStreamR.Value.Dispose();
         string remoteParent = _remoteRoot.PathTools().GetParentDir(remotePath);
         try
         {
@@ -218,7 +195,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
                 fileStreamR.Value,
                 remoteParent,
                 ProgressReporter.None,
-                _cts!.Token
+                _runningToken
             );
         }
         finally
@@ -279,9 +256,5 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
             _ => SimpleResult.Error("Unknown event type."),
         };
 
-    public async ValueTask DisposeAsync()
-    {
-        await StopAsync();
-        _watcher.ChangeDetected -= OnFsEventAsync;
-    }
+    public void Dispose() => _watcher.ChangeDetected -= OnFsEventAsync;
 }

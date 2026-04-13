@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using FileSurfer.Core.Extensions;
@@ -64,6 +65,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
     private readonly LocalToSftpSynchronizer _synchronizer;
     private readonly IDialogService _dialogService;
     private readonly SyncEventVmFactory _syncEventVmFactory;
+    private CancellationTokenSource? _syncCts;
 
     public string LocalDirLabel { get; }
     public Location LocalDir { get; }
@@ -105,7 +107,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
     public ObservableCollection<SyncEventViewModel> SyncEvents { get; } = [];
 
     public ReactiveCommand<Unit, Task> StartSyncCommand { get; }
-    public ReactiveCommand<Unit, Task> StopSyncCommand { get; }
+    public ReactiveCommand<Unit, Unit> StopSyncCommand { get; }
 
     public SftpSynchronizerViewModel(
         IDialogService dialogService,
@@ -130,7 +132,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         _synchronizer.OnSyncEvent += ShowEventAsync;
 
         StartSyncCommand = ReactiveCommand.Create(StartSyncAsync);
-        StopSyncCommand = ReactiveCommand.Create(StopSyncAsync);
+        StopSyncCommand = ReactiveCommand.Create(StopSync);
     }
 
     private void ShowIfError(IResult result)
@@ -142,13 +144,24 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
 
     private Task ShowEventAsync(FileSystemEvent fsEvent, string remotePath, IResult result)
     {
-        ShowIfError(result);
+        if (!result.IsOk)
+        {
+            if (_syncCts is not null && !_syncCts.IsCancellationRequested)
+                ShowIfError(result);
+
+            _syncCts?.Cancel();
+            return Task.CompletedTask;
+        }
+
         SyncEventViewModel e = _syncEventVmFactory.GetEvent(fsEvent, remotePath);
         return Dispatcher.UIThread.InvokeAsync(() => SyncEvents.Add(e)).GetTask();
     }
 
     private async Task StartSyncAsync()
     {
+        if (_syncCts is not null)
+            return;
+
         SyncEvents.Clear();
 
         Synchronizing = true;
@@ -162,14 +175,36 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         Initializing = false;
 
         if (result.IsOk)
-            result = await _synchronizer.StartAsync();
+        {
+            CancellationTokenSource cts = new();
+            _syncCts = cts;
+
+            result = await _synchronizer.SynchronizeAsync(cts.Token);
+
+            _syncCts = null;
+            cts.Dispose();
+        }
 
         Synchronizing = false;
 
         ShowIfError(result);
     }
 
-    private Task StopSyncAsync() => _synchronizer.StopAsync();
+    private void StopSync()
+    {
+        CancellationTokenSource? cts = _syncCts;
+        if (cts is null)
+            return;
+
+        try
+        {
+            cts.Cancel();
+        }
+        catch (ObjectDisposedException)
+        {
+            // Synchronization has already completed.
+        }
+    }
 
     public static async Task<ValueResult<string>> GetLocalPath(
         Location remoteLocation,
@@ -202,8 +237,8 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        await StopSyncAsync();
-        await _synchronizer.DisposeAsync();
+        StopSync();
+        _synchronizer.Dispose();
         await CastAndDispose(StartSyncCommand);
         await CastAndDispose(StopSyncCommand);
         return;
