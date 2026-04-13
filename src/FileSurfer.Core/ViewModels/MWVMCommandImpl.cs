@@ -794,7 +794,7 @@ public sealed partial class MainWindowViewModel
 
         ValueResult<string> localPathResult = await SftpSynchronizerViewModel.GetLocalPath(
             remoteLocation,
-            _locationHistory.GetCurrentCollectionReversed(),
+            _localPathsOrdered,
             _dialogService
         );
         ShowIfError(localPathResult);

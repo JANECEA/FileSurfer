@@ -110,46 +110,6 @@ internal sealed class UndoRedoHandler<T>
     }
 
     /// <summary>
-    /// Gets the current state of the collection ordered from head to tail
-    /// </summary>
-    /// <returns>The state of the collection</returns>
-    public List<T> GetCurrentCollection()
-    {
-        List<T> list = new();
-
-        UndoRedoNode? current = _head;
-        while (current is not null)
-        {
-            if (current.Data is not null)
-                list.Add(current.Data);
-
-            current = current.Next;
-        }
-
-        return list;
-    }
-
-    /// <summary>
-    /// Gets the current state of the collection ordered from tail to head
-    /// </summary>
-    /// <returns>The state of the collection</returns>
-    public List<T> GetCurrentCollectionReversed()
-    {
-        List<T> list = new();
-
-        UndoRedoNode? current = _tail;
-        while (current is not null)
-        {
-            if (current.Data is not null)
-                list.Add(current.Data);
-
-            current = current.Previous;
-        }
-
-        return list;
-    }
-
-    /// <summary>
     /// Enumerates items from the current position forward.
     /// </summary>
     /// <returns></returns>

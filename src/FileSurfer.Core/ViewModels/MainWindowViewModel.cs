@@ -82,6 +82,9 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     private readonly IDialogService _dialogService;
     private readonly Action<bool> _setDarkMode;
 
+    private readonly List<string> _localPathsOrdered = new();
+    private readonly HashSet<string> _localPaths = new();
+
     /// <summary>
     /// TODO
     /// </summary>
@@ -175,6 +178,9 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
             CurrentFsLabel = value.FileSystem.GetLabel();
             if (FileSurferSettings.OpenInLastLocation && value.FileSystem.IsLocal())
                 FileSurferSettings.OpenIn = value.Path;
+
+            if (value.FileSystem.IsLocal() && _localPaths.Add(value.Path))
+                _localPathsOrdered.Add(value.Path);
 
             SetSearchWaterMark(value);
             this.RaisePropertyChanged(nameof(IsLocal));

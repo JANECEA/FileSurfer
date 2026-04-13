@@ -173,10 +173,12 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
 
     public static async Task<ValueResult<string>> GetLocalPath(
         Location remoteLocation,
-        IEnumerable<Location> pastLocations,
+        IList<string> pastLocalPaths,
         IDialogService dialogService
     )
     {
+        IEnumerable<string> copy = pastLocalPaths.ToList();
+
         if (!await remoteLocation.ExistsAsync())
             return ValueResult<string>.Error(
                 $"Remote directory \"{remoteLocation.Path}\" does not exist."
@@ -188,16 +190,12 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
             remote path: "{remoteLocation.FileSystem.GetLabel()}:{remoteLocation.Path}".
             """;
         const string suggestLabel = "Recent local paths:";
-        IEnumerable<string> suggestions = pastLocations
-            .Where(l => l.FileSystem.IsLocal())
-            .Select(l => l.Path)
-            .Distinct();
 
         string? path = await dialogService.SuggestInputDialogAsync(
             title,
             context,
             suggestLabel,
-            suggestions
+            copy.Reverse()
         );
         return path is not null ? path.OkResult() : ValueResult<string>.Error();
     }
