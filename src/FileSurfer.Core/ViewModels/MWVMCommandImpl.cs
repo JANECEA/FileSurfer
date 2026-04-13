@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Threading;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
@@ -396,7 +395,8 @@ public sealed partial class MainWindowViewModel
             if (string.Equals(currentBranch, branch, StringComparison.Ordinal)) // References must match
                 currentBranch = branch;
         }
-        CurrentBranch = currentBranch;
+
+        SetCurrentBranchSilent(currentBranch);
     }
 
     private void LoadRepoStateInfo(Location location) =>
@@ -1072,15 +1072,13 @@ public sealed partial class MainWindowViewModel
         if (string.IsNullOrEmpty(branchName) || !Branches.Contains(branchName))
             return;
 
-        string prevBranch = CurrentBranch;
-        CurrentBranch = branchName;
-
+        string previous = CurrentBranch;
         IResult result = CurrentLocation.FileSystem.GitIntegration.SwitchBranches(branchName);
         ShowIfError(result);
         if (result.IsOk)
             HardReload();
         else
-            Dispatcher.UIThread.Post(() => CurrentBranch = prevBranch);
+            SetCurrentBranchSilent(previous);
     }
 
     private void GitStash()

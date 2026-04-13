@@ -298,12 +298,6 @@ public partial class MainWindow : Window
         NameInputBox.SelectionEnd = entry.FileSystemEntry.NameWoExtension.Length;
     }
 
-    private void OnBranchSelectionChanged(object? sender, SelectionChangedEventArgs e)
-    {
-        if (sender is ComboBox { SelectedItem: string branch } && _viewModel is not null)
-            _viewModel.GitSwitchBranchCommand.Execute(branch).Subscribe();
-    }
-
     /// <summary>
     /// Shows <see cref="CommitMessageBar"/> and focuses <see cref="CommitInputBox"/>.
     /// </summary>

@@ -247,9 +247,23 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     public string CurrentBranch
     {
         get => _currentBranch;
-        set => this.RaiseAndSetIfChanged(ref _currentBranch, value);
+        set
+        {
+            if (!_suppressBranchSet)
+                GitSwitchBranch(value);
+            this.RaiseAndSetIfChanged(ref _currentBranch, value);
+        }
     }
     private string _currentBranch = string.Empty;
+    private bool _suppressBranchSet = false;
+
+    private void SetCurrentBranchSilent(string branch) =>
+        Dispatcher.UIThread.Post(() =>
+        {
+            _suppressBranchSet = true;
+            CurrentBranch = branch;
+            _suppressBranchSet = false;
+        });
 
     /// <summary>
     /// Indicates whether the current directory is version controlled.
@@ -311,7 +325,6 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitStageCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitUnstageCommand { get; }
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitRestoreCommand { get; }
-    public ReactiveCommand<string, Unit> GitSwitchBranchCommand { get; }
     public ReactiveCommand<Unit, Unit> GitStashCommand { get; }
     public ReactiveCommand<Unit, Unit> GitStashPopCommand { get; }
     public ReactiveCommand<Unit, Unit> GitFetchCommand { get; }
@@ -448,7 +461,6 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         GitStageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitStage);
         GitUnstageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitUnstage);
         GitRestoreCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitRestore);
-        GitSwitchBranchCommand = ReactiveCommand.Create<string>(GitSwitchBranch);
         GitStashCommand = ReactiveCommand.Create(GitStash);
         GitStashPopCommand = ReactiveCommand.Create(GitStashPop);
         GitFetchCommand = ReactiveCommand.CreateFromTask(GitFetchAsync);
