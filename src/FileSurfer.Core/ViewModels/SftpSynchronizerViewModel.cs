@@ -18,9 +18,9 @@ namespace FileSurfer.Core.ViewModels;
 
 public record SyncEventViewModel
 {
-    public required string LocalBasePath { get; init; }
+    public required string LocalPath { get; init; }
     public required string LocalRelPath { get; init; }
-    public required string RemoteBasePath { get; init; }
+    public required string RemotePath { get; init; }
     public required string RemoteRelPath { get; init; }
     public required FileSystemEventType OpType { get; init; }
     public required DateTime TimeStamp { get; init; }
@@ -42,10 +42,10 @@ public class SyncEventVmFactory
     public SyncEventViewModel GetEvent(FileSystemEvent fsEvent, string remotePath) =>
         new()
         {
-            LocalBasePath = _localRoot,
+            LocalPath = fsEvent.OriginalPath,
             LocalRelPath = MakeRelative(_localRoot, fsEvent.OriginalPath, LocalPathTools.Instance),
             OpType = fsEvent.EventType,
-            RemoteBasePath = _remoteRoot,
+            RemotePath = remotePath,
             RemoteRelPath = MakeRelative(_remoteRoot, remotePath, RemoteUnixPathTools.Instance),
             TimeStamp = DateTime.Now,
         };

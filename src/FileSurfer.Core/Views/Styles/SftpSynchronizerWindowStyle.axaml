@@ -10,19 +10,23 @@
     </Style>
 
     <Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
-        <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
+        <Setter Property="Background" Value="{DynamicResource AcceptColor}" />
         <Setter Property="BorderThickness" Value="0" />
-    </Style>
-
-    <Style Selector="TextBlock.EventRelPathInfo">
-        <Setter Property="TextTrimming" Value="None" />
-        <Setter Property="TextWrapping" Value="NoWrap" />
     </Style>
 
     <Style Selector="TextBlock.EventBasePathInfo">
         <Setter Property="TextTrimming" Value="LeadingCharacterEllipsis" />
         <Setter Property="TextWrapping" Value="NoWrap" />
-        <Setter Property="Opacity" Value="0.7" />
+        <Setter Property="Opacity" Value="0.6" />
+        <Setter Property="ZIndex" Value="0" />
+    </Style>
+
+    <Style Selector="TextBlock.EventRelPathInfo">
+        <Setter Property="TextTrimming" Value="LeadingCharacterEllipsis" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="Background" Value="{DynamicResource BackgroundColor}" />
+        <Setter Property="ZIndex" Value="1" />
     </Style>
 
     <Style Selector="TextBox.TopTextBox">
@@ -72,6 +76,7 @@
 
     <Style Selector="Button.SyncButton">
         <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
         <Setter Property="Background" Value="{DynamicResource TextBoxColor}" />
         <Setter Property="HorizontalAlignment" Value="Center" />

@@ -29,6 +29,7 @@
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
                     <Color x:Key="PrimaryColor">#EEEEEE</Color>
+                    <Color x:Key="BackgroundColor">#F2F2F2</Color>
                     <Color x:Key="SecondaryColor">#CCCCCC</Color>
                     <Color x:Key="TextBoxColor">#DDDDDD</Color>
                     <Color x:Key="TextColor">#222222</Color>
@@ -36,12 +37,13 @@
                     <Color x:Key="GitColor">#F34F29</Color>
                     <Color x:Key="GitTextColor">#FFFFFF</Color>
                     <Color x:Key="GitHoverColor">#B03C21</Color>
-                    <Color x:Key="AcceptColor">#98971A</Color>
+                    <Color x:Key="AcceptColor">#888701</Color>
                     <Color x:Key="HighLightColor">#D79921</Color>
                 </ResourceDictionary>
 
                 <ResourceDictionary x:Key="Dark">
                     <Color x:Key="PrimaryColor">#282828</Color>
+                    <Color x:Key="BackgroundColor">#2B2B2B</Color>
                     <Color x:Key="SecondaryColor">#4F4F4F</Color>
                     <Color x:Key="TextBoxColor">#353535</Color>
                     <Color x:Key="TextColor">#D0D0D0</Color>

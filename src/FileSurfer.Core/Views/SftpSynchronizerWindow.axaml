@@ -26,9 +26,9 @@
                 <TextBlock Text="{Binding TimeStampStr}" />
                 <TextBlock Grid.Column="1" Margin="0 0 35 0" Text=":" />
 
-                <Grid Grid.Column="2" HorizontalAlignment="Left" ColumnDefinitions="* Auto">
-                    <TextBlock Classes="EventBasePathInfo" Text="{Binding LocalBasePath}" />
-                    <TextBlock Grid.Column="1" Classes="EventRelPathInfo" Text="{Binding LocalRelPath}" />
+                <Grid Grid.Column="2" HorizontalAlignment="Left">
+                    <TextBlock Classes="EventBasePathInfo" Text="{Binding LocalPath}" />
+                    <TextBlock Classes="EventRelPathInfo" Text="{Binding LocalRelPath}" />
                 </Grid>
 
                 <StackPanel Grid.Column="3" Margin="25 0 25 0" HorizontalAlignment="Center" Orientation="Horizontal">
@@ -37,9 +37,9 @@
                     <TextBlock Text="-&gt;" />
                 </StackPanel>
 
-                <Grid Grid.Column="4" HorizontalAlignment="Right" ColumnDefinitions="* Auto">
-                    <TextBlock Classes="EventBasePathInfo" Text="{Binding RemoteBasePath}" />
-                    <TextBlock Grid.Column="1" Classes="EventRelPathInfo" Text="{Binding RemoteRelPath}" />
+                <Grid Grid.Column="4" HorizontalAlignment="Right">
+                    <TextBlock Classes="EventBasePathInfo" Text="{Binding RemotePath}" />
+                    <TextBlock Classes="EventRelPathInfo" Text="{Binding RemoteRelPath}" />
                 </Grid>
             </Grid>
         </DataTemplate>
@@ -75,7 +75,11 @@
             <TextBlock Classes="SyncEventsLabel" Text="Synchronization events:" />
             <Border Grid.Row="1" Classes="SyncEventsBorder">
                 <ScrollViewer x:Name="SyncEventsViewer">
-                    <ListBox IsHitTestVisible="False" ItemTemplate="{StaticResource SyncEventTemplate}" ItemsSource="{Binding SyncEvents}" SizeChanged="SyncEventsSizeChanged" />
+                    <ListBox Background="{DynamicResource BackgroundColor}"
+                             IsHitTestVisible="False"
+                             ItemTemplate="{StaticResource SyncEventTemplate}"
+                             ItemsSource="{Binding SyncEvents}"
+                             SizeChanged="SyncEventsSizeChanged" />
                 </ScrollViewer>
             </Border>
         </Grid>
