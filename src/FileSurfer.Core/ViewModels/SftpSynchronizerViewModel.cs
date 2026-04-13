@@ -189,7 +189,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
             """;
         const string suggestLabel = "Recent local paths:";
         IEnumerable<string> suggestions = pastLocations
-            .Where(l => l.FileSystem is LocalFileSystem)
+            .Where(l => l.FileSystem.IsLocal())
             .Select(l => l.Path)
             .Distinct();
 

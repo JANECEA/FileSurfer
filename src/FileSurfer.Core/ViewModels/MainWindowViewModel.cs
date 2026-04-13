@@ -8,6 +8,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Threading;
+using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Models.Sftp;
@@ -162,20 +163,6 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     }
     private string _pathBoxText = string.Empty;
 
-    /// <summary>
-    /// Holds the path to the current directory displayed in FileSurfer.
-    /// </summary>
-    private string CurrentDir
-    {
-        get => _currentDir;
-        set
-        {
-            _currentDir = value;
-            PathBoxText = value;
-        }
-    }
-    private string _currentDir = string.Empty;
-
     private Location CurrentLocation
     {
         get =>
@@ -184,21 +171,16 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         set
         {
             _currentLocation = value;
-            CurrentDir = value.Path;
-            CurrentFs = CurrentLocation.FileSystem;
-            CurrentFsLabel = CurrentFs.GetLabel();
-            if (FileSurferSettings.OpenInLastLocation && CurrentFs is LocalFileSystem)
+            PathBoxText = value.Path;
+            CurrentFsLabel = value.FileSystem.GetLabel();
+            if (FileSurferSettings.OpenInLastLocation && value.FileSystem.IsLocal())
                 FileSurferSettings.OpenIn = value.Path;
 
-            SetSearchWaterMark(CurrentDir);
+            SetSearchWaterMark(value);
             this.RaisePropertyChanged(nameof(IsLocal));
         }
     }
     private Location? _currentLocation;
-
-    private IFileSystem CurrentFs { get; set; }
-
-    private IPathTools PathTools => CurrentFs.FileInfoProvider.PathTools;
 
     /// <summary>
     /// TODO
@@ -355,7 +337,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     /// <summary>
     /// TODO
     /// </summary>
-    public bool IsLocal => CurrentFs is LocalFileSystem;
+    public bool IsLocal => CurrentLocation.FileSystem.IsLocal();
 
     /// <summary>
     /// TODO
@@ -376,8 +358,8 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         Action<bool> setDarkMode
     )
     {
-        CurrentFs = localFs;
         _localFs = localFs;
+        CurrentLocation = new Location(_localFs, _localFs.LocalFileInfoProvider.GetRoot()); // Placeholder
         _dialogService = dialogService;
         _setDarkMode = setDarkMode;
 
@@ -461,7 +443,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
             OpenSftpConnectionAsync
         );
         CloseSftpCommand = ReactiveCommand.CreateFromTask<SftpConnectionViewModel>(
-            CloseSftpConnectionAsync
+            CloseSftpConnection
         );
         GitStageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitStage);
         GitUnstageCommand = ReactiveCommand.Create<FileSystemEntryViewModel?>(GitUnstage);
@@ -595,28 +577,32 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         this.RaisePropertyChanged(nameof(SelectionNotEmpty));
     }
 
-    private void SetSearchWaterMark(string dirPath)
+    private void SetSearchWaterMark(Location location)
     {
-        string dirName = PathTools.GetFileName(dirPath);
-        dirName = string.IsNullOrEmpty(dirName) ? CurrentFs.FileInfoProvider.GetRoot() : dirName;
+        string dirName = location.PathTools().GetFileName(location.Path);
+        if (string.IsNullOrEmpty(dirName))
+            dirName = location.FileSystem.FileInfoProvider.GetRoot();
+
         SearchWaterMark = $"Search {dirName}";
     }
 
     private async Task CheckForUpdatesAsync()
     {
-        if (await CurrentLocation.ExistsAsync())
+        Location current = CurrentLocation;
+        if (await current.ExistsAsync())
         {
-            if (await CompareSetLastWriteTimeAsync())
+            if (await CompareSetLastWriteTimeAsync(current))
                 HardReload();
             else if (IsVersionControlled)
                 SoftReload();
         }
     }
 
-    private async Task<bool> CompareSetLastWriteTimeAsync()
+    private async Task<bool> CompareSetLastWriteTimeAsync(Location current)
     {
         DateTime lastWriteTimeUtc =
-            await CurrentFs.FileInfoProvider.GetDirLastWriteUtcAsync(CurrentDir) ?? DateTime.UtcNow;
+            await current.FileSystem.FileInfoProvider.GetDirLastWriteUtcAsync(current.Path)
+            ?? DateTime.UtcNow;
 
         if (_lastRefreshedUtc >= lastWriteTimeUtc)
             return false;
@@ -625,7 +611,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
         return true;
     }
 
-    private void CloseApp()
+    private void SaveSettings()
     {
         FileSurferSettings.QuickAccess = QuickAccess.Select(entry => entry.PathToEntry).ToList();
         FileSurferSettings.SftpConnections = SftpConnectionsVms
@@ -638,8 +624,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     /// </summary>
     public void Dispose()
     {
-        CloseApp();
-        CurrentFs.GitIntegration.Dispose();
+        SaveSettings();
         _refreshTimer?.Stop();
 
         _searchManager.Dispose();

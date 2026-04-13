@@ -119,19 +119,23 @@ public sealed partial class MainWindowViewModel
 
     private async Task OpenEntryAsync(FileSystemEntryViewModel entry)
     {
+        IFileSystem fs = CurrentLocation.FileSystem;
+
         if (entry.FileSystemEntry is DirectoryEntry)
             await SetNewLocationAsync(entry.PathToEntry);
-        else if (CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
+        else if (fs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
             await SetNewLocationAsync(dir);
-        else if (CurrentFs is LocalFileSystem fs)
-            ShowIfError(fs.LocalShellHandler.OpenFile(entry.PathToEntry));
+        else if (fs.IsLocal())
+            ShowIfError(_localFs.LocalShellHandler.OpenFile(entry.PathToEntry));
     }
 
     private async Task OpenSideBarEntryAsync(SideBarEntryViewModel entry)
     {
         if (entry.IsDirectory)
             await SetLocationAsync(_localFs.GetLocation(entry.PathToEntry));
-        else if (CurrentFs.FileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir))
+        else if (
+            _localFs.LocalFileInfoProvider.IsLinkedToDirectory(entry.PathToEntry, out string? dir)
+        )
             await SetLocationAsync(_localFs.GetLocation(dir));
         else
             ShowIfError(_localFs.LocalShellHandler.OpenFile(entry.PathToEntry));
@@ -162,40 +166,44 @@ public sealed partial class MainWindowViewModel
             await SetLocationAsync(new Location(fs, connection.InitialDirectory));
     }
 
-    private async Task CloseSftpConnectionAsync(SftpConnectionViewModel connectionVm)
+    private Task CloseSftpConnection(SftpConnectionViewModel connectionVm)
     {
         if (connectionVm.FileSystem is null)
         {
             ShowError("Connection is not active.");
-            return;
+            return Task.CompletedTask;
         }
 
-        SftpFileSystem fileSystem = connectionVm.FileSystem;
-        fileSystem.Dispose();
+        SftpFileSystem remoteFs = connectionVm.FileSystem;
+        remoteFs.Dispose();
         connectionVm.FileSystem = null;
-        if (ReferenceEquals(fileSystem, CurrentFs))
-            await SetLocationAsync(
+
+        if (ReferenceEquals(remoteFs, CurrentLocation.FileSystem))
+            return SetLocationAsync(
                 new Location(_localFs, _localFs.LocalFileInfoProvider.GetRoot())
             );
+
+        return Task.CompletedTask;
     }
 
     private void OpenAs(FileSystemEntryViewModel entry)
     {
         if (!entry.IsDirectory)
-            ShowIfError(CurrentFs.FileProperties.ShowOpenAsDialog(entry.FileSystemEntry));
+            ShowIfError(
+                CurrentLocation.FileSystem.FileProperties.ShowOpenAsDialog(entry.FileSystemEntry)
+            );
     }
 
     private Task OpenEntries()
     {
+        IFileSystem fs = CurrentLocation.FileSystem;
         FileSystemEntryViewModel[] entries = SelectedFiles.ConvertToArray();
-        if (CurrentFs is not LocalFileSystem || entries.Length == 0)
+
+        if (!fs.IsLocal() || entries.Length == 0)
             return Task.CompletedTask;
 
         foreach (FileSystemEntryViewModel e in entries)
-            if (
-                e.IsDirectory
-                || CurrentFs.FileInfoProvider.IsLinkedToDirectory(e.PathToEntry, out _)
-            )
+            if (e.IsDirectory || fs.FileInfoProvider.IsLinkedToDirectory(e.PathToEntry, out _))
                 return Task.CompletedTask;
 
         foreach (FileSystemEntryViewModel entry in entries)
@@ -206,18 +214,21 @@ public sealed partial class MainWindowViewModel
 
     private void OpenInNotepad()
     {
-        if (CurrentFs is not LocalFileSystem fs)
+        IFileSystem fs = CurrentLocation.FileSystem;
+        if (!fs.IsLocal())
             return;
 
-        foreach (FileSystemEntryViewModel entry in SelectedFiles)
-            if (!entry.IsDirectory)
-                ShowIfError(fs.LocalShellHandler.OpenInNotepad(entry.PathToEntry));
+        foreach (FileSystemEntryViewModel e in SelectedFiles)
+            if (!e.IsDirectory)
+                ShowIfError(_localFs.LocalShellHandler.OpenInNotepad(e.PathToEntry));
     }
 
     private Task GoUpAsync()
     {
-        IPathTools pathTools = CurrentFs.FileInfoProvider.PathTools;
-        string parent = pathTools.GetParentDir(pathTools.NormalizePath(CurrentDir));
+        Location current = CurrentLocation;
+        IPathTools pathTools = current.PathTools();
+
+        string parent = pathTools.GetParentDir(pathTools.NormalizePath(current.Path));
 
         if (!string.IsNullOrWhiteSpace(parent))
             return SetNewLocationAsync(parent);
@@ -225,23 +236,30 @@ public sealed partial class MainWindowViewModel
         return Task.CompletedTask;
     }
 
-    private void AddToQuickAccess(FileSystemEntryViewModel? entry) =>
-        QuickAccess.Add(
-            entry is not null
-                ? new SideBarEntryViewModel(_localFs, entry.FileSystemEntry)
-                : new SideBarEntryViewModel(
-                    _localFs,
-                    new DirectoryEntry(CurrentDir, LocalPathTools.Instance)
-                )
-        );
+    private void AddToQuickAccess(FileSystemEntryViewModel? entry)
+    {
+        Location current = CurrentLocation;
+        if (!current.FileSystem.IsLocal())
+        {
+            ShowError("Cannot add remote directories to Quick Access.");
+            return;
+        }
+
+        IFileSystemEntry fsEntry =
+            entry?.FileSystemEntry ?? new DirectoryEntry(current.Path, LocalPathTools.Instance);
+
+        QuickAccess.Add(new SideBarEntryViewModel(_localFs, fsEntry));
+    }
 
     private async Task<IResult> UpdateEntriesAsync(bool forceHardReload)
     {
-        if (!forceHardReload && !await CompareSetLastWriteTimeAsync())
+        Location current = CurrentLocation;
+
+        if (!forceHardReload && !await CompareSetLastWriteTimeAsync(current))
             return SimpleResult.Ok();
 
         ValueResult<DirectoryContents> contentsR =
-            await CurrentFs.FileInfoProvider.GetPathEntriesAsync(
+            await current.FileSystem.FileInfoProvider.GetPathEntriesAsync(
                 CurrentLocation.Path,
                 FileSurferSettings.ShowHiddenFiles,
                 FileSurferSettings.ShowProtectedFiles,
@@ -339,7 +357,7 @@ public sealed partial class MainWindowViewModel
         if (IsVersionControlled)
         {
             LoadBranches(location);
-            LoadRepoStateInfo();
+            LoadRepoStateInfo(location);
             await SetGitStatusesAsync(location);
         }
     }
@@ -363,7 +381,11 @@ public sealed partial class MainWindowViewModel
     {
         string currentBranch = location.FileSystem.GitIntegration.GetCurrentBranchName();
         string[] branches = location.FileSystem.GitIntegration.GetBranches();
-        if (CurrentBranch == currentBranch && Branches.EqualsUnordered(branches))
+
+        if (
+            string.Equals(CurrentBranch, currentBranch, StringComparison.Ordinal)
+            && Branches.EqualsUnordered(branches)
+        )
             return;
 
         Branches.Clear();
@@ -371,45 +393,48 @@ public sealed partial class MainWindowViewModel
         {
             Branches.Add(branch);
 
-            if (string.Equals(currentBranch, branch, StringComparison.Ordinal))
-                currentBranch = branch; // Object references must match
+            if (string.Equals(currentBranch, branch, StringComparison.Ordinal)) // References must match
+                currentBranch = branch;
         }
         CurrentBranch = currentBranch;
     }
 
-    private void LoadRepoStateInfo() =>
-        RepoStateInfo = CurrentFs.GitIntegration.GetRepositoryState() is RepoDetails info
+    private void LoadRepoStateInfo(Location location) =>
+        RepoStateInfo = location.FileSystem.GitIntegration.GetRepositoryState() is RepoDetails info
             ? new RepoStateInfo(
                 info.CommitsToPull.ToString(NumberFormatInfo.InvariantInfo),
                 info.CommitsToPush.ToString(NumberFormatInfo.InvariantInfo)
             )
             : new RepoStateInfo(NoRemoteMark, NoRemoteMark);
 
+    private async Task<ValueResult<DirectoryContents>> GetEntriesAsync(Location location)
+    {
+        if (!await location.ExistsAsync())
+            return ValueResult<DirectoryContents>.Error(
+                $"Location {location.FileSystem.GetLabel()}:{location.Path} does not exist."
+            );
+
+        return await location.FileSystem.FileInfoProvider.GetPathEntriesAsync(
+            location.Path,
+            FileSurferSettings.ShowHiddenFiles,
+            FileSurferSettings.ShowProtectedFiles,
+            CancellationToken.None
+        );
+    }
+
     private async Task<IResult> SetLocationInternalAsync(Location location)
     {
-        string dirName = location.FileSystem.FileInfoProvider.PathTools.GetFileName(location.Path);
+        string dirName = location.PathTools().GetFileName(location.Path);
+
         ValueResult<DirectoryContents> contentsR = await _dialogService.BlockingDialogAsync(
             $"Loading contents of \"{location.FileSystem.GetLabel()} : {dirName}\"",
-            async () =>
-            {
-                if (!await location.ExistsAsync())
-                    return ValueResult<DirectoryContents>.Error(
-                        $"Location {location.FileSystem.GetLabel()}:{location.Path} does not exist."
-                    );
-
-                if (Searching)
-                    await CancelSearchAsync();
-
-                return await location.FileSystem.FileInfoProvider.GetPathEntriesAsync(
-                    location.Path,
-                    FileSurferSettings.ShowHiddenFiles,
-                    FileSurferSettings.ShowProtectedFiles,
-                    CancellationToken.None
-                );
-            }
+            () => GetEntriesAsync(location)
         );
         if (!contentsR.IsOk)
             return contentsR;
+
+        if (Searching)
+            await CancelSearchAsync();
 
         LoadDirEntries(location, contentsR.Value);
         await CheckVersionControlAsync(location);
@@ -443,7 +468,7 @@ public sealed partial class MainWindowViewModel
 
     private Task SetNewLocationAsync(string path)
     {
-        Location location = CurrentFs.GetLocation(path);
+        Location location = CurrentLocation.FileSystem.GetLocation(path);
         return SetLocationAsync(location);
     }
 
@@ -527,12 +552,20 @@ public sealed partial class MainWindowViewModel
 
     private void OpenTerminal()
     {
-        if (CurrentFs is LocalFileSystem fs && fs.LocalFileInfoProvider.Exists(CurrentDir).AsDir)
-            ShowIfError(fs.LocalShellHandler.OpenTerminalAt(CurrentDir));
+        Location current = CurrentLocation;
+
+        if (
+            current.FileSystem.IsLocal()
+            && _localFs.LocalFileInfoProvider.Exists(current.Path).AsDir
+        )
+            ShowIfError(_localFs.LocalShellHandler.OpenTerminalAt(current.Path));
     }
 
     private async Task SearchAsync(string searchQuery)
     {
+        IFileSystem fs = CurrentLocation.FileSystem;
+        string currentDir = CurrentLocation.Path;
+
         CurrentQuery = searchQuery;
         if (Searching)
         {
@@ -542,7 +575,7 @@ public sealed partial class MainWindowViewModel
         Searching = true;
         FileEntries.Clear();
 
-        int? foundEntries = await _searchManager.SearchAsync(CurrentFs, searchQuery, CurrentDir);
+        int? foundEntries = await _searchManager.SearchAsync(fs, searchQuery, currentDir);
         if (foundEntries is 0)
             CurrentInfoMessage = EmptySearchMessage;
     }
@@ -568,6 +601,10 @@ public sealed partial class MainWindowViewModel
 
     private async Task NewFileAsync()
     {
+        Location current = CurrentLocation;
+        IFileSystem fs = current.FileSystem;
+        IPathTools pathTools = current.PathTools();
+
         string newFileName = null!;
         NewFileAt op = null!;
         IResult result = await _dialogService.BackgroundDialogAsync(
@@ -575,11 +612,11 @@ public sealed partial class MainWindowViewModel
             async (r, ct) =>
             {
                 newFileName = await FileNameGenerator.GetAvailableNameAsync(
-                    CurrentFs.FileInfoProvider,
-                    CurrentDir,
+                    fs.FileInfoProvider,
+                    current.Path,
                     FileSurferSettings.NewFileName
                 );
-                op = new NewFileAt(PathTools, CurrentFs.FileIoHandler, CurrentDir, newFileName);
+                op = new NewFileAt(pathTools, fs.FileIoHandler, current.Path, newFileName);
                 return await op.InvokeAsync(r, ct);
             }
         );
@@ -596,6 +633,10 @@ public sealed partial class MainWindowViewModel
 
     private async Task NewDirAsync()
     {
+        Location current = CurrentLocation;
+        IFileSystem fs = current.FileSystem;
+        IPathTools pathTools = current.PathTools();
+
         string newDirName = null!;
         NewDirAt op = null!;
         IResult result = await _dialogService.BackgroundDialogAsync(
@@ -603,11 +644,11 @@ public sealed partial class MainWindowViewModel
             async (r, ct) =>
             {
                 newDirName = await FileNameGenerator.GetAvailableNameAsync(
-                    CurrentFs.FileInfoProvider,
-                    CurrentDir,
+                    fs.FileInfoProvider,
+                    current.Path,
                     FileSurferSettings.NewDirectoryName
                 );
-                op = new NewDirAt(PathTools, CurrentFs.FileIoHandler, CurrentDir, newDirName);
+                op = new NewDirAt(pathTools, fs.FileIoHandler, current.Path, newDirName);
                 return await op.InvokeAsync(r, ct);
             }
         );
@@ -624,9 +665,16 @@ public sealed partial class MainWindowViewModel
 
     private async Task AddToArchiveAsync()
     {
-        string cwd = CurrentDir;
+        Location current = CurrentLocation;
+        IFileSystem fs = current.FileSystem;
+        string cd = current.Path;
+
         IFileSystemEntry[] selected = SelectedFiles.ConvertToArray(e => e.FileSystemEntry);
-        if (!(await CurrentFs.FileInfoProvider.ExistsAsync(cwd)).AsDir || selected.Length == 0)
+        if (
+            !fs.IsLocal()
+            || !(await fs.FileInfoProvider.ExistsAsync(cd)).AsDir
+            || selected.Length == 0
+        )
             return;
 
         string archName =
@@ -634,7 +682,7 @@ public sealed partial class MainWindowViewModel
 
         IResult result = await _dialogService.BackgroundDialogAsync<IResult>(
             "Archiving files",
-            (r, ct) => CurrentFs.ArchiveManager.ArchiveEntriesAsync(selected, cwd, archName, r, ct)
+            (r, ct) => fs.ArchiveManager.ArchiveEntriesAsync(selected, cd, archName, r, ct)
         );
 
         ShowIfError(result);
@@ -643,13 +691,16 @@ public sealed partial class MainWindowViewModel
 
     private async Task ExtractArchiveAsync()
     {
-        string cwd = CurrentDir;
-        if (!(await CurrentFs.FileInfoProvider.ExistsAsync(cwd)).AsDir)
+        Location current = CurrentLocation;
+        IFileSystem fs = current.FileSystem;
+        string cd = current.Path;
+
+        if (!fs.IsLocal() || !(await fs.FileInfoProvider.ExistsAsync(cd)).AsDir)
             return;
 
         IFileSystemEntry[] selected = SelectedFiles.ConvertToArray(e => e.FileSystemEntry);
         foreach (IFileSystemEntry entry in selected)
-            if (!CurrentFs.ArchiveManager.IsArchived(entry.PathToEntry))
+            if (!fs.ArchiveManager.IsArchived(entry.PathToEntry))
             {
                 ShowError($"Entry \"{entry.Name}\" is not an archive.");
                 return;
@@ -659,8 +710,7 @@ public sealed partial class MainWindowViewModel
             .Select(e =>
                 _dialogService.BackgroundDialogAsync<IResult>(
                     "Extracting archive",
-                    (r, ct) =>
-                        CurrentFs.ArchiveManager.ExtractArchiveAsync(e.PathToEntry, cwd, r, ct)
+                    (r, ct) => fs.ArchiveManager.ExtractArchiveAsync(e.PathToEntry, cd, r, ct)
                 )
             )
             .ToList();
@@ -674,7 +724,7 @@ public sealed partial class MainWindowViewModel
     private async Task CopyPathAsync(FileSystemEntryViewModel? entry) =>
         ShowIfError(
             await ClipboardManager.CopyPathToFileAsync(
-                entry is null ? CurrentDir : entry.PathToEntry
+                entry is null ? CurrentLocation.Path : entry.PathToEntry
             )
         );
 
@@ -718,28 +768,29 @@ public sealed partial class MainWindowViewModel
 
     private void CreateShortcut(FileSystemEntryViewModel entry)
     {
+        IFileSystem fs = CurrentLocation.FileSystem;
+
         IResult result = entry.IsDirectory
-            ? CurrentFs.ShellHandler.CreateDirectoryLink(entry.PathToEntry)
-            : CurrentFs.ShellHandler.CreateFileLink(entry.PathToEntry);
+            ? fs.ShellHandler.CreateDirectoryLink(entry.PathToEntry)
+            : fs.ShellHandler.CreateFileLink(entry.PathToEntry);
 
         ShowIfError(result);
         HardReload();
     }
 
     private void ShowProperties(FileSystemEntryViewModel entry) =>
-        ShowIfError(CurrentFs.FileProperties.ShowFileProperties(entry));
+        ShowIfError(CurrentLocation.FileSystem.FileProperties.ShowFileProperties(entry));
 
     private async Task SynchronizeDirAsync(FileSystemEntryViewModel? entry)
     {
-        if (CurrentFs is not SftpFileSystem sftpFs)
+        Location current = CurrentLocation;
+        if (current.FileSystem is not SftpFileSystem sftpFs)
         {
             ShowError("Cannot synchronize with a local directory.");
             return;
         }
 
-        Location remoteLocation = entry is null
-            ? CurrentLocation
-            : sftpFs.GetLocation(entry.PathToEntry);
+        Location remoteLocation = entry is null ? current : sftpFs.GetLocation(entry.PathToEntry);
 
         ValueResult<string> localPathResult = await SftpSynchronizerViewModel.GetLocalPath(
             remoteLocation,
@@ -773,11 +824,15 @@ public sealed partial class MainWindowViewModel
 
     private async Task RenameOneAsync(string newName)
     {
-        FileSystemEntryViewModel entry = SelectedFiles[0];
-        if (string.Equals(newName, entry.Name, StringComparison.Ordinal))
+        Location current = CurrentLocation;
+        IFileSystem fs = current.FileSystem;
+        IPathTools pathTools = current.PathTools();
+
+        FileSystemEntryViewModel? entry = SelectedFiles.FirstOrDefault();
+        if (entry is null || string.Equals(newName, entry.Name, StringComparison.Ordinal))
             return;
 
-        RenameOne op = new(PathTools, CurrentFs.FileIoHandler, entry.FileSystemEntry, newName);
+        RenameOne op = new(pathTools, fs.FileIoHandler, entry.FileSystemEntry, newName);
 
         IResult result = await _dialogService.BackgroundDialogAsync(
             $"Renaming {entry.Name}",
@@ -790,7 +845,7 @@ public sealed partial class MainWindowViewModel
             await WaitForHardReloadAsync();
 
             FileSystemEntryViewModel? newEntry = FileEntries.FirstOrDefault(e =>
-                CurrentFs.FileInfoProvider.PathTools.NamesAreEqual(e.Name, newName)
+                pathTools.NamesAreEqual(e.Name, newName)
             );
             if (newEntry is not null)
                 SelectedFiles.Add(newEntry);
@@ -800,6 +855,10 @@ public sealed partial class MainWindowViewModel
 
     private async Task RenameMultipleAsync(string namingPattern)
     {
+        Location current = CurrentLocation;
+        IFileSystem fs = current.FileSystem;
+        IPathTools pathTools = current.PathTools();
+
         IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry);
         int dirCount = entries.OfType<DirectoryEntry>().Count();
         if (dirCount != 0 && dirCount != entries.Length)
@@ -809,11 +868,11 @@ public sealed partial class MainWindowViewModel
         }
 
         string[] availableNames = FileNameGenerator.GetAvailableNames(
-            CurrentFs.FileInfoProvider,
+            fs.FileInfoProvider,
             entries,
             namingPattern
         );
-        RenameMultiple op = new(PathTools, CurrentFs.FileIoHandler, entries, availableNames);
+        RenameMultiple op = new(pathTools, fs.FileIoHandler, entries, availableNames);
         IResult result = await _dialogService.BackgroundDialogAsync(
             "Renaming multiple files",
             op.InvokeAsync
@@ -833,14 +892,17 @@ public sealed partial class MainWindowViewModel
         if (!IsVersionControlled)
             return;
 
+        IFileSystem fs = CurrentLocation.FileSystem;
         foreach (IFileSystemEntry entry in entries)
-            _ = CurrentFs.GitIntegration.StagePath(entry.PathToEntry);
+            _ = fs.GitIntegration.StagePath(entry.PathToEntry);
     }
 
     private async Task MoveToTrashAsync()
     {
+        IFileSystem fs = CurrentLocation.FileSystem;
+
         IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(entry => entry.FileSystemEntry);
-        MoveFilesToTrash op = new(CurrentFs.BinInteraction, CurrentFs.FileIoHandler, entries);
+        MoveFilesToTrash op = new(fs.BinInteraction, fs.FileIoHandler, entries);
 
         IResult result = await _dialogService.BackgroundDialogAsync(
             "Moving to Trash",
@@ -856,17 +918,15 @@ public sealed partial class MainWindowViewModel
 
     private async Task FlattenFolderAsync(FileSystemEntryViewModel entry)
     {
+        IFileSystem fs = CurrentLocation.FileSystem;
+
         if (!entry.IsDirectory)
         {
             ShowError($"Cannot flatten a file: \"{entry.Name}\".");
             return;
         }
 
-        FlattenFolder op = new(
-            CurrentFs.FileIoHandler,
-            CurrentFs.FileInfoProvider,
-            entry.PathToEntry
-        );
+        FlattenFolder op = new(fs.FileIoHandler, fs.FileInfoProvider, entry.PathToEntry);
         IResult result = await _dialogService.BackgroundDialogAsync(
             $"Flattening \"{entry.Name}\"",
             op.InvokeAsync
@@ -880,9 +940,10 @@ public sealed partial class MainWindowViewModel
 
     private async Task Delete()
     {
+        IFileSystem fs = CurrentLocation.FileSystem;
         IFileSystemEntry[] entries = SelectedFiles.ConvertToArray(e => e.FileSystemEntry);
 
-        DeleteFiles op = new(CurrentFs.FileIoHandler, entries);
+        DeleteFiles op = new(fs.FileIoHandler, entries);
         IResult result = await _dialogService.BackgroundDialogAsync(
             "Deleting files",
             op.InvokeAsync
@@ -978,21 +1039,30 @@ public sealed partial class MainWindowViewModel
 
     private void GitStage(FileSystemEntryViewModel? entry)
     {
+        Location current = CurrentLocation;
+        IFileSystem fs = current.FileSystem;
+
         if (IsVersionControlled)
-            ShowIfError(CurrentFs.GitIntegration.StagePath(entry?.PathToEntry ?? CurrentDir));
+            ShowIfError(fs.GitIntegration.StagePath(entry?.PathToEntry ?? current.Path));
     }
 
     private void GitUnstage(FileSystemEntryViewModel? entry)
     {
+        Location current = CurrentLocation;
+        IFileSystem fs = current.FileSystem;
+
         if (IsVersionControlled)
-            ShowIfError(CurrentFs.GitIntegration.UnstagePath(entry?.PathToEntry ?? CurrentDir));
+            ShowIfError(fs.GitIntegration.UnstagePath(entry?.PathToEntry ?? current.Path));
     }
 
     private void GitRestore(FileSystemEntryViewModel? entry)
     {
+        Location current = CurrentLocation;
+        IFileSystem fs = current.FileSystem;
+
         if (IsVersionControlled)
         {
-            ShowIfError(CurrentFs.GitIntegration.RestorePath(entry?.PathToEntry ?? CurrentDir));
+            ShowIfError(fs.GitIntegration.RestorePath(entry?.PathToEntry ?? current.Path));
             HardReload();
         }
     }
@@ -1005,7 +1075,7 @@ public sealed partial class MainWindowViewModel
         string prevBranch = CurrentBranch;
         CurrentBranch = branchName;
 
-        IResult result = CurrentFs.GitIntegration.SwitchBranches(branchName);
+        IResult result = CurrentLocation.FileSystem.GitIntegration.SwitchBranches(branchName);
         ShowIfError(result);
         if (result.IsOk)
             HardReload();
@@ -1015,30 +1085,36 @@ public sealed partial class MainWindowViewModel
 
     private void GitStash()
     {
+        IFileSystem fs = CurrentLocation.FileSystem;
+
         if (IsVersionControlled)
         {
-            ShowIfError(CurrentFs.GitIntegration.StashChanges());
+            ShowIfError(fs.GitIntegration.StashChanges());
             HardReload();
         }
     }
 
     private void GitStashPop()
     {
+        IFileSystem fs = CurrentLocation.FileSystem;
+
         if (IsVersionControlled)
         {
-            ShowIfError(CurrentFs.GitIntegration.PopChanges());
+            ShowIfError(fs.GitIntegration.PopChanges());
             HardReload();
         }
     }
 
     private async Task GitFetchAsync()
     {
+        IFileSystem fs = CurrentLocation.FileSystem;
+
         if (!IsVersionControlled)
             return;
 
         IResult result = await _dialogService.BackgroundDialogAsync(
             "Fetching changes",
-            () => CurrentFs.GitIntegration.FetchChangesAsync()
+            () => fs.GitIntegration.FetchChangesAsync()
         );
         ShowIfError(result);
         SoftReload();
@@ -1046,12 +1122,14 @@ public sealed partial class MainWindowViewModel
 
     private async Task GitPullAsync()
     {
+        IFileSystem fs = CurrentLocation.FileSystem;
+
         if (!IsVersionControlled)
             return;
 
         ValueResult<string> result = await _dialogService.BackgroundDialogAsync(
             "Pulling changes",
-            () => CurrentFs.GitIntegration.PullChangesAsync()
+            () => fs.GitIntegration.PullChangesAsync()
         );
         if (result.IsOk)
             ShowInfo(result.Value);
@@ -1063,12 +1141,14 @@ public sealed partial class MainWindowViewModel
 
     private async Task GitCommitAsync(string commitMessage)
     {
+        IFileSystem fs = CurrentLocation.FileSystem;
+
         if (!IsVersionControlled)
             return;
 
         ValueResult<string> result = await _dialogService.BackgroundDialogAsync(
             "Commiting changes",
-            () => CurrentFs.GitIntegration.CommitChangesAsync(commitMessage)
+            () => fs.GitIntegration.CommitChangesAsync(commitMessage)
         );
         if (result.IsOk)
             ShowInfo(result.Value);
@@ -1080,12 +1160,14 @@ public sealed partial class MainWindowViewModel
 
     private async Task GitPushAsync()
     {
+        IFileSystem fs = CurrentLocation.FileSystem;
+
         if (!IsVersionControlled)
             return;
 
         ValueResult<string> result = await _dialogService.BackgroundDialogAsync(
             "Pushing changes",
-            () => CurrentFs.GitIntegration.PushChangesAsync()
+            () => fs.GitIntegration.PushChangesAsync()
         );
         if (result.IsOk)
             ShowInfo(result.Value);

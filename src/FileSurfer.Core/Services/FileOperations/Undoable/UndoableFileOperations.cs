@@ -14,27 +14,27 @@ namespace FileSurfer.Core.Services.FileOperations.Undoable;
 /// </summary>
 public sealed class MoveFilesToTrash : UndoableFileOperation
 {
-    private readonly IBinInteraction _fileRestorer;
+    private readonly IBinInteraction _binInteraction;
 
     protected override string InvokeVerb => "Trashing";
     protected override string UndoVerb => "Restoring";
 
     public MoveFilesToTrash(
-        IBinInteraction fileRestorer,
+        IBinInteraction binInteraction,
         IFileIoHandler fileIoHandler,
         IFileSystemEntry[] entries
     )
-        : base(fileIoHandler, entries) => _fileRestorer = fileRestorer;
+        : base(fileIoHandler, entries) => _binInteraction = binInteraction;
 
     protected override IResult InvokeAction(IFileSystemEntry entry, int index) =>
         entry is DirectoryEntry
-            ? _fileRestorer.MoveDirToTrash(entry.PathToEntry)
-            : _fileRestorer.MoveFileToTrash(entry.PathToEntry);
+            ? _binInteraction.MoveDirToTrash(entry.PathToEntry)
+            : _binInteraction.MoveFileToTrash(entry.PathToEntry);
 
     protected override IResult UndoAction(IFileSystemEntry entry, int index) =>
         entry is DirectoryEntry
-            ? _fileRestorer.RestoreDir(entry.PathToEntry)
-            : _fileRestorer.RestoreFile(entry.PathToEntry);
+            ? _binInteraction.RestoreDir(entry.PathToEntry)
+            : _binInteraction.RestoreFile(entry.PathToEntry);
 }
 
 /// <summary>

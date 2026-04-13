@@ -13,6 +13,9 @@ public static class FileSystemExtensions
 {
     public static Location GetLocation(this IFileSystem fileSystem, string path) =>
         new(fileSystem, path);
+
+    public static IPathTools PathTools(this Location location) =>
+        location.FileSystem.FileInfoProvider.PathTools;
 }
 
 public static class ResultExtensions
