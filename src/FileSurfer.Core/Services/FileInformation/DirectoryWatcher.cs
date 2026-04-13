@@ -26,7 +26,7 @@ public sealed record FileSystemEvent(
 
 public interface IDirectoryWatcher
 {
-    public event Func<object?, FileSystemEvent, Task>? ChangeDetected;
+    public event Func<FileSystemEvent, Task>? ChangeDetected;
 
     public Task<IResult> StartAsync(
         TimeSpan pollingInterval,
@@ -42,7 +42,7 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
     private readonly Location _root;
     private Dictionary<string, FsEntryMeta> _snapshot = new();
 
-    public event Func<object?, FileSystemEvent, Task>? ChangeDetected;
+    public event Func<FileSystemEvent, Task>? ChangeDetected;
 
     public DirectoryWatcher(Location root) => _root = root;
 
@@ -65,7 +65,7 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
             {
                 await Task.Delay(pollingInterval, token);
             }
-            catch (TaskCanceledException)
+            catch
             {
                 break; // The task has been canceled.
             }
@@ -75,7 +75,7 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
                 if (!comparisonTask.Result.IsOk)
                     return comparisonTask.Result;
 
-                comparisonTask = Task.Run(() => DiffOnceAsync(syncHidden), token);
+                comparisonTask = Task.Run(() => DiffOnceAsync(syncHidden));
             }
         }
         return await comparisonTask;
@@ -171,11 +171,11 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
 
     private Task RaiseAsync(FileSystemEvent fsEvent)
     {
-        Func<object?, FileSystemEvent, Task>? eventMethod = ChangeDetected;
+        Func<FileSystemEvent, Task>? eventMethod = ChangeDetected;
 
         if (eventMethod is null)
             return Task.CompletedTask;
 
-        return eventMethod(this, fsEvent);
+        return eventMethod(fsEvent);
     }
 }

@@ -186,7 +186,7 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         }
     }
 
-    private async Task OnFsEventAsync(object? sender, FileSystemEvent fsEvent)
+    private async Task OnFsEventAsync(FileSystemEvent fsEvent)
     {
         string remotePath = ToRemotePath(fsEvent.OriginalPath);
 
@@ -210,9 +210,8 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
         if (!fileStreamR.IsOk)
             return fileStreamR;
 
-        string remoteParent = _remoteRoot.FileSystem.FileInfoProvider.PathTools.GetParentDir(
-            remotePath
-        );
+        fileStreamR.Value.Dispose();
+        string remoteParent = _remoteRoot.PathTools().GetParentDir(remotePath);
         try
         {
             return await _remoteRoot.FileSystem.FileIoHandler.WriteFileStreamAsync(
