@@ -201,21 +201,21 @@ public sealed class LocalToSftpSynchronizer : IAsyncDisposable
             await eventMethod(fsEvent, remotePath, result);
     }
 
-    private Task<IResult> UploadFile(string localPath, string remotePath)
+    private async Task<IResult> UploadFile(string localPath, string remotePath)
     {
         ValueResult<FileTransferStream> fileStreamR = FileTransferStream.FromInfoProvider(
             _localRoot.FileSystem.FileInfoProvider,
             localPath
         );
         if (!fileStreamR.IsOk)
-            return fileStreamR.ToTask();
+            return fileStreamR;
 
         string remoteParent = _remoteRoot.FileSystem.FileInfoProvider.PathTools.GetParentDir(
             remotePath
         );
         try
         {
-            return _remoteRoot.FileSystem.FileIoHandler.WriteFileStreamAsync(
+            return await _remoteRoot.FileSystem.FileIoHandler.WriteFileStreamAsync(
                 fileStreamR.Value,
                 remoteParent,
                 ProgressReporter.None,
