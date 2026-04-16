@@ -598,7 +598,11 @@
                                         <!--  ReSharper disable Xaml.PossibleNullReferenceException  -->
                                         <ContextMenu x:DataType="vm:FileSystemEntryViewModel" Classes="FileContextMenu">
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).OpenEntriesCommand}" Header="Open" />
-                                            <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).OpenAsCommand}" Header="Open as" IsVisible="{Binding SupportsOpenAs}" />
+                                            <MenuItem Classes="ContextMenuItem"
+                                                      Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).OpenAsCommand}"
+                                                      CommandParameter="{Binding}"
+                                                      Header="Open as"
+                                                      IsVisible="{Binding SupportsOpenAs}" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).OpenInNotepadCommand}" Header="Open in Notepad" IsVisible="{Binding !IsDirectory}" />
                                             <MenuItem Classes="ContextMenuItem" Command="{Binding #FileDisplay.((vm:MainWindowViewModel)DataContext).AddToQuickAccessCommand}" CommandParameter="{Binding}" Header="Add to quick access" />
 
