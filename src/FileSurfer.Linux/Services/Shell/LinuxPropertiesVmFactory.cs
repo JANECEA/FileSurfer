@@ -24,6 +24,9 @@ public interface IPropertiesVmFactory
     );
 }
 
+/// <summary>
+/// Linux implementation of <see cref="IPropertiesVmFactory"/>.
+/// </summary>
 public sealed class LinuxPropertiesVmFactory : IPropertiesVmFactory
 {
     private static string GetSize(FileSystemEntryViewModel entry, FileSystemInfo fsInfo)

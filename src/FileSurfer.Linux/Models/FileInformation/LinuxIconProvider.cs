@@ -14,6 +14,9 @@ using MimeDetective.Engine;
 
 namespace FileSurfer.Linux.Models.FileInformation;
 
+/// <summary>
+/// Provides Linux file icons by resolving MIME types and loading themed icon assets.
+/// </summary>
 public sealed class LinuxIconProvider : BaseIconProvider
 {
     private const string GenericMimeType = "unknown";
@@ -36,6 +39,9 @@ public sealed class LinuxIconProvider : BaseIconProvider
 
     private static string NormalizeMime(string mime) => mime.ToLowerInvariant().Replace('/', '-');
 
+    /// <summary>
+    /// Creates a Linux icon provider that uses the shell for MIME and icon path integration.
+    /// </summary>
     public LinuxIconProvider(IShellHandler shellHandler)
     {
         _shellHandler = shellHandler;

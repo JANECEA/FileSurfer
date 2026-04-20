@@ -7,10 +7,16 @@ using FileSurfer.Core.Services.Shell;
 
 namespace FileSurfer.Linux.Models.FileInformation;
 
+/// <summary>
+/// Compares icon search directories to prioritize theme, density, and size quality.
+/// </summary>
 internal sealed class IconPathComparer : IComparer<IconPath>
 {
     private readonly string? _theme;
 
+    /// <summary>
+    /// Creates a comparer that prefers paths matching the specified icon theme.
+    /// </summary>
     internal IconPathComparer(string? theme) => _theme = theme;
 
     public int Compare(IconPath? a, IconPath? b)
@@ -58,6 +64,9 @@ internal sealed class IconPathComparer : IComparer<IconPath>
     }
 }
 
+/// <summary>
+/// Represents a discovered icon directory with metadata used for ranking.
+/// </summary>
 internal sealed record IconPath(
     int Size,
     int IconCount,
@@ -66,6 +75,9 @@ internal sealed record IconPath(
     string PathToIcons
 );
 
+/// <summary>
+/// Discovers and ranks Linux icon theme directories for MIME icon lookup.
+/// </summary>
 internal static class IconPathResolver
 {
     private const string RequiredIcon = "text-plain";
@@ -104,6 +116,9 @@ internal static class IconPathResolver
         return result.Value.Trim('\'');
     }
 
+    /// <summary>
+    /// Returns ordered icon search paths based on the active desktop theme and path quality.
+    /// </summary>
     internal static List<string> GetSearchPaths(IShellHandler shellHandler)
     {
         string? theme = GetCurrentTheme(shellHandler);

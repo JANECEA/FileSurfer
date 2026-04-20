@@ -5,8 +5,14 @@ using Avalonia.Media.Imaging;
 
 namespace FileSurfer.Linux.Models.FileInformation;
 
+/// <summary>
+/// Provides Linux helpers for rendering SVG files into bitmaps.
+/// </summary>
 internal static class SvgHelper
 {
+    /// <summary>
+    /// Renders the SVG at the given path to a square bitmap using the requested size.
+    /// </summary>
     internal static Bitmap? RenderSvg(string svgPath, int size)
     {
         string sizeStr = size.ToString(CultureInfo.InvariantCulture);

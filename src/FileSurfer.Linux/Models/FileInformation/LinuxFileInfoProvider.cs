@@ -10,7 +10,7 @@ using FileSurfer.Core.Services.Shell;
 namespace FileSurfer.Linux.Models.FileInformation;
 
 /// <summary>
-/// Optimizes icon delivery on Linux using the mime-type.
+/// Provides Linux-specific file system metadata such as drives, folders, and hidden-state checks.
 /// </summary>
 public class LinuxFileInfoProvider : LocalFileInfoProvider
 {
@@ -22,6 +22,9 @@ public class LinuxFileInfoProvider : LocalFileInfoProvider
         PropertyNameCaseInsensitive = true,
     };
 
+    /// <summary>
+    /// Creates a Linux file info provider that queries shell tools for platform data.
+    /// </summary>
     public LinuxFileInfoProvider(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]

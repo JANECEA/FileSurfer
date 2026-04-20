@@ -8,6 +8,9 @@ using FileSurfer.Core.Services.Shell;
 
 namespace FileSurfer.Linux.Services.Shell;
 
+/// <summary>
+/// Extends <see cref="ILocalShellHandler"/> with support for shell commands.
+/// </summary>
 public interface IShellCommandHandler : ILocalShellHandler
 {
     /// <summary>

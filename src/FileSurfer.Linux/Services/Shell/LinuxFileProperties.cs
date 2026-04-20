@@ -9,10 +9,16 @@ using Mono.Unix;
 
 namespace FileSurfer.Linux.Services.Shell;
 
+/// <summary>
+/// Displays Linux file properties using Unix metadata and a platform-specific properties view model.
+/// </summary>
 public class LinuxFileProperties : IFileProperties
 {
     private readonly IPropertiesVmFactory _vmFactory;
 
+    /// <summary>
+    /// Creates a Linux file properties handler with the provided properties view model factory.
+    /// </summary>
     public LinuxFileProperties(IPropertiesVmFactory vmFactory) => _vmFactory = vmFactory;
 
     public IResult ShowFileProperties(FileSystemEntryViewModel entry)

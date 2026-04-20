@@ -5,6 +5,9 @@ using FileSurfer.Core.Services.Shell;
 
 namespace FileSurfer.Linux;
 
+/// <summary>
+/// Resolves Linux defaults for terminal and text editor settings.
+/// </summary>
 public class LinuxDefaultSettingsProvider : IDefaultSettingsProvider
 {
     private static readonly (string Executable, string TerminalArgs)[] CommonTerminals =
@@ -41,6 +44,9 @@ public class LinuxDefaultSettingsProvider : IDefaultSettingsProvider
     private (string Executable, string TerminalArgs)? _terminal;
     private string? _textEditor;
 
+    /// <summary>
+    /// Creates a provider that queries available applications through the shell.
+    /// </summary>
     public LinuxDefaultSettingsProvider(IShellHandler shellHandler) => _shellHandler = shellHandler;
 
     private (string Executable, string TerminalArgs) GetTerminal()

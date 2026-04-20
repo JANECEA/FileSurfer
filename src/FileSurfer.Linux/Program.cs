@@ -17,6 +17,9 @@ using ReactiveUI.Avalonia;
 
 namespace FileSurfer.Linux;
 
+/// <summary>
+/// Starts the Linux Avalonia application and configures the app builder.
+/// </summary>
 internal static class Program
 {
     // Initialization code. Don't use any Avalonia, third-party APIs or any
@@ -39,6 +42,9 @@ internal static class Program
             .UseReactiveUI();
 }
 
+/// <summary>
+/// Wires Linux-specific services and dependencies into the main application view model.
+/// </summary>
 public class LinuxPlatformBootstrap : IPlatformBootstrap
 {
     private static readonly LinuxShellHandler LinuxShellHandler = new();

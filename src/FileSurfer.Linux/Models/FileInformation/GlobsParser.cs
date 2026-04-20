@@ -3,10 +3,19 @@ using System.IO;
 
 namespace FileSurfer.Linux.Models.FileInformation;
 
+/// <summary>
+/// Parses Linux MIME glob mappings from the shared globs database file.
+/// </summary>
 internal static class GlobsParser
 {
+    /// <summary>
+    /// Gets the default path to the system MIME globs file.
+    /// </summary>
     internal const string GlobsPath = "/usr/share/mime/globs";
 
+    /// <summary>
+    /// Reads MIME glob lines and returns extension-to-MIME mappings.
+    /// </summary>
     internal static Dictionary<string, string> Parse(StreamReader reader)
     {
         Dictionary<string, string> result = new();
