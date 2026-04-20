@@ -4,20 +4,30 @@ using FileSurfer.Core.Models;
 namespace FileSurfer.Core.Services.Shell;
 
 /// <summary>
-/// Provides methods for interacting with the system shell
+/// Provides operations for invoking shell commands and shell-backed file-system actions.
 /// </summary>
 public interface IShellHandler
 {
     /// <summary>
-    /// Creates a symbolic link to the specified file path.
+    /// Creates a symbolic link for the specified file path.
     /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    /// <param name="filePath">
+    /// The full path to the source file that should be linked.
+    /// </param>
+    /// <returns>
+    /// The operation result, including any error details if link creation fails.
+    /// </returns>
     public IResult CreateFileLink(string filePath);
 
     /// <summary>
-    /// Creates a symbolic link to the specified directory path.
+    /// Creates a symbolic link for the specified directory path.
     /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    /// <param name="dirPath">
+    /// The full path to the source directory that should be linked.
+    /// </param>
+    /// <returns>
+    /// The operation result, including any error details if link creation fails.
+    /// </returns>
     public IResult CreateDirectoryLink(string dirPath);
 
     /// <summary>
@@ -25,9 +35,15 @@ public interface IShellHandler
     /// <br/>
     /// If <c>stdout</c> is empty, <c>stderr</c> is returned instead.
     /// </summary>
-    /// <param name="programName">Program to execute</param>
-    /// <param name="args">Arguments for the command's $variables</param>
-    /// <returns>A <see cref="ValueResult{string}"/> representing the result of the operation and potential errors.</returns>
+    /// <param name="programName">
+    /// The executable or command name to run.
+    /// </param>
+    /// <param name="args">
+    /// Arguments passed to the command in execution order.
+    /// </param>
+    /// <returns>
+    /// A command result containing output text on success or error details on failure.
+    /// </returns>
     public ValueResult<string> ExecuteCommand(string programName, params string[] args);
 
     /// <summary>
@@ -35,32 +51,53 @@ public interface IShellHandler
     /// <br/>
     /// If <c>stdout</c> is empty, <c>stderr</c> is returned instead.
     /// </summary>
-    /// <param name="programName">Program to execute</param>
-    /// <param name="args">Arguments for the command's $variables</param>
-    /// <returns>A <see cref="ValueResult{string}"/> representing the result of the operation and potential errors.</returns>
+    /// <param name="programName">
+    /// The executable or command name to run.
+    /// </param>
+    /// <param name="args">
+    /// Arguments passed to the command in execution order.
+    /// </param>
+    /// <returns>
+    /// A task that returns command output on success or error details on failure.
+    /// </returns>
     public Task<ValueResult<string>> ExecuteCommandAsync(string programName, params string[] args);
 }
 
 /// <summary>
-/// Provides methods for interacting with the local system shell
+/// Extends <see cref="IShellHandler"/> with local desktop shell integration features.
 /// </summary>
 public interface ILocalShellHandler : IShellHandler
 {
     /// <summary>
-    /// Opens terminal at the specified directory path.
+    /// Opens a terminal window rooted at the specified directory path.
     /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    /// <param name="dirPath">
+    /// The directory path that the opened terminal should use as its working directory.
+    /// </param>
+    /// <returns>
+    /// The operation result, including any launch error details.
+    /// </returns>
     public IResult OpenTerminalAt(string dirPath);
 
     /// <summary>
-    /// Opens a file at the specified path in the application preferred by the OS.
+    /// Opens the specified file using the operating system's default associated application.
     /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    /// <param name="filePath">
+    /// The full path to the file that should be opened.
+    /// </param>
+    /// <returns>
+    /// The operation result, including any launch error details.
+    /// </returns>
     public IResult OpenFile(string filePath);
 
     /// <summary>
-    /// Opens a file in the Notepad app at the path specified.
+    /// Opens the specified file in the configured text editor (referred to as Notepad in settings).
     /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    /// <param name="filePath">
+    /// The full path to the file that should be opened in the configured editor.
+    /// </param>
+    /// <returns>
+    /// The operation result, including any launch error details.
+    /// </returns>
     public IResult OpenInNotepad(string filePath);
 }

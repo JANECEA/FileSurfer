@@ -19,6 +19,18 @@ public sealed class MoveFilesToTrash : UndoableFileOperation
     protected override string InvokeVerb => "Trashing";
     protected override string UndoVerb => "Restoring";
 
+    /// <summary>
+    /// Initializes an undoable operation that moves entries to trash and restores them on undo.
+    /// </summary>
+    /// <param name="binInteraction">
+    /// Trash integration used to move and restore files and directories.
+    /// </param>
+    /// <param name="fileIoHandler">
+    /// File I/O handler used by the operation base type.
+    /// </param>
+    /// <param name="entries">
+    /// Entries targeted by the operation.
+    /// </param>
     public MoveFilesToTrash(
         IBinInteraction binInteraction,
         IFileIoHandler fileIoHandler,
@@ -48,6 +60,21 @@ public sealed class MoveFilesTo : UndoableFileOperation
     protected override string InvokeVerb => "Moving";
     protected override string UndoVerb => "Moving back";
 
+    /// <summary>
+    /// Initializes an undoable move operation for a batch of entries.
+    /// </summary>
+    /// <param name="pathTools">
+    /// Path helper used to compose source and destination paths.
+    /// </param>
+    /// <param name="fileIoHandler">
+    /// File I/O handler used to execute move operations.
+    /// </param>
+    /// <param name="entries">
+    /// Entries to move.
+    /// </param>
+    /// <param name="destinationDir">
+    /// Destination directory path.
+    /// </param>
     public MoveFilesTo(
         IPathTools pathTools,
         IFileIoHandler fileIoHandler,
@@ -86,6 +113,21 @@ public sealed class CopyFilesTo : UndoableFileOperation
     protected override string InvokeVerb => "Copying";
     protected override string UndoVerb => "Deleting";
 
+    /// <summary>
+    /// Initializes an undoable copy operation for a batch of entries.
+    /// </summary>
+    /// <param name="pathTools">
+    /// Path helper used to compose copied entry paths.
+    /// </param>
+    /// <param name="fileIoHandler">
+    /// File I/O handler used to execute copy and undo-delete operations.
+    /// </param>
+    /// <param name="entries">
+    /// Entries to copy.
+    /// </param>
+    /// <param name="destinationDir">
+    /// Destination directory path.
+    /// </param>
     public CopyFilesTo(
         IPathTools pathTools,
         IFileIoHandler fileIoHandler,
@@ -124,6 +166,21 @@ public sealed class DuplicateFiles : UndoableFileOperation
     protected override string InvokeVerb => "Duplicating";
     protected override string UndoVerb => "Deleting";
 
+    /// <summary>
+    /// Initializes an undoable duplicate operation for a batch of entries.
+    /// </summary>
+    /// <param name="pathTools">
+    /// Path helper used to compose duplicate output paths.
+    /// </param>
+    /// <param name="fileIoHandler">
+    /// File I/O handler used for duplication and undo-delete operations.
+    /// </param>
+    /// <param name="entries">
+    /// Entries to duplicate.
+    /// </param>
+    /// <param name="copyNames">
+    /// Target names for duplicates, aligned by index with <paramref name="entries"/>.
+    /// </param>
     public DuplicateFiles(
         IPathTools pathTools,
         IFileIoHandler fileIoHandler,
@@ -161,6 +218,21 @@ public sealed class RenameMultiple : UndoableFileOperation
     protected override string InvokeVerb => "Renaming";
     protected override string UndoVerb => "Renaming";
 
+    /// <summary>
+    /// Initializes an undoable multi-entry rename operation.
+    /// </summary>
+    /// <param name="pathTools">
+    /// Path helper used to compose renamed entry paths.
+    /// </param>
+    /// <param name="fileIoHandler">
+    /// File I/O handler used to execute rename operations.
+    /// </param>
+    /// <param name="entries">
+    /// Entries to rename.
+    /// </param>
+    /// <param name="newNames">
+    /// Target names aligned by index with <paramref name="entries"/>.
+    /// </param>
     public RenameMultiple(
         IPathTools pathTools,
         IFileIoHandler fileIoHandler,
@@ -202,6 +274,18 @@ public sealed class FlattenFolder : IUndoableFileOperation
 
     private IFileSystemEntry[] _movedEntries = [];
 
+    /// <summary>
+    /// Initializes an undoable operation that moves a directory's contents into its parent directory.
+    /// </summary>
+    /// <param name="fileIoHandler">
+    /// File I/O handler used to move, create, rename, and delete entries.
+    /// </param>
+    /// <param name="infoProvider">
+    /// File information provider used to enumerate directory contents and check path existence.
+    /// </param>
+    /// <param name="dirPath">
+    /// Path of the directory to flatten.
+    /// </param>
     public FlattenFolder(
         IFileIoHandler fileIoHandler,
         IFileInfoProvider infoProvider,
@@ -327,6 +411,21 @@ public sealed class RenameOne : IUndoableFileOperation
     private readonly string _newName;
     private readonly string _newPath;
 
+    /// <summary>
+    /// Initializes an undoable rename operation for a single file-system entry.
+    /// </summary>
+    /// <param name="pathTools">
+    /// Path helper used to compose the renamed entry path.
+    /// </param>
+    /// <param name="fileHandler">
+    /// File I/O handler used to execute rename operations.
+    /// </param>
+    /// <param name="entry">
+    /// Entry to rename.
+    /// </param>
+    /// <param name="newName">
+    /// Target name for <paramref name="entry"/>.
+    /// </param>
     public RenameOne(
         IPathTools pathTools,
         IFileIoHandler fileHandler,
@@ -362,6 +461,21 @@ public sealed class NewFileAt : IUndoableFileOperation
     private readonly string _fileName;
     private readonly string _filePath;
 
+    /// <summary>
+    /// Initializes an undoable operation that creates a file and deletes it on undo.
+    /// </summary>
+    /// <param name="pathTools">
+    /// Path helper used to compose the created file path.
+    /// </param>
+    /// <param name="fileHandler">
+    /// File I/O handler used to create and delete the file.
+    /// </param>
+    /// <param name="path">
+    /// Directory where the file should be created.
+    /// </param>
+    /// <param name="fileName">
+    /// Name of the file to create.
+    /// </param>
     public NewFileAt(IPathTools pathTools, IFileIoHandler fileHandler, string path, string fileName)
     {
         _fileIoHandler = fileHandler;
@@ -387,6 +501,21 @@ public sealed class NewDirAt : IUndoableFileOperation
     private readonly string _dirName;
     private readonly string _dirPath;
 
+    /// <summary>
+    /// Initializes an undoable operation that creates a directory and deletes it on undo.
+    /// </summary>
+    /// <param name="pathTools">
+    /// Path helper used to compose the created directory path.
+    /// </param>
+    /// <param name="fileHandler">
+    /// File I/O handler used to create and delete the directory.
+    /// </param>
+    /// <param name="path">
+    /// Parent directory where the new directory should be created.
+    /// </param>
+    /// <param name="dirName">
+    /// Name of the directory to create.
+    /// </param>
     public NewDirAt(IPathTools pathTools, IFileIoHandler fileHandler, string path, string dirName)
     {
         _fileIoHandler = fileHandler;

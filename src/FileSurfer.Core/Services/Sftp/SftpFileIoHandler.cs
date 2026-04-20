@@ -11,11 +11,24 @@ using Renci.SshNet.Sftp;
 
 namespace FileSurfer.Core.Services.Sftp;
 
+/// <summary>
+/// Implements file and directory I/O operations for remote SFTP locations using SSH-backed commands
+/// and direct SFTP stream uploads.
+/// </summary>
 public sealed class SftpFileIoHandler : IFileIoHandler
 {
     private readonly SshShellHandler _sshShellHandler;
     private readonly SftpClient _client;
 
+    /// <summary>
+    /// Initializes an SFTP I/O handler with the clients required for file transfers and shell commands.
+    /// </summary>
+    /// <param name="client">
+    /// Connected SFTP client used for directory creation and stream upload operations.
+    /// </param>
+    /// <param name="sshShellHandler">
+    /// SSH shell handler used for command-based copy, move, rename, and delete operations.
+    /// </param>
     public SftpFileIoHandler(SftpClient client, SshShellHandler sshShellHandler)
     {
         _client = client;

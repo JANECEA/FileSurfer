@@ -11,13 +11,28 @@ using FileSurfer.Core.Services.FileOperations;
 namespace FileSurfer.Core.Services.Sftp;
 
 /// <summary>
+/// Represents a callback invoked after each synchronized file-system event is processed.
+/// </summary>
+/// <param name="fsEvent">
+/// The original local file-system event received from the watcher.
+/// </param>
+/// <param name="remotePath">
+/// The mapped remote path targeted by the synchronization operation.
+/// </param>
+/// <param name="result">
+/// The operation result produced while handling the event.
+/// </param>
+/// <returns>
+/// A task that completes when event handling notifications have finished.
+/// </returns>
+public delegate Task SyncEvent(FileSystemEvent fsEvent, string remotePath, IResult result);
+
+/// <summary>
 /// Synchronizes a local directory to a remote one in real-time by reacting to
 /// <see cref="DirectoryWatcher"/> events and replaying them on the remote filesystem.
 /// </summary>
 public sealed class LocalToSftpSynchronizer : IDisposable
 {
-    public delegate Task SyncEvent(FileSystemEvent fsEvent, string remotePath, IResult result);
-
     private readonly IDirectoryWatcher _watcher;
     private readonly IFileIoHandler _remoteHandler;
     private readonly Location _localRoot;
@@ -28,8 +43,23 @@ public sealed class LocalToSftpSynchronizer : IDisposable
     private Task _syncTask = Task.CompletedTask;
     private CancellationToken _runningToken = CancellationToken.None;
 
+    /// <summary>
+    /// Occurs after a local event is applied (or fails to apply) on the remote side.
+    /// </summary>
     public event SyncEvent? OnSyncEvent;
 
+    /// <summary>
+    /// Initializes a synchronizer that mirrors changes between the specified local and remote roots.
+    /// </summary>
+    /// <param name="localRoot">
+    /// The local root location to watch for changes.
+    /// </param>
+    /// <param name="remoteRoot">
+    /// The remote SFTP root location to update in response to local changes.
+    /// </param>
+    /// <param name="watcher">
+    /// The directory watcher responsible for raising local file-system events.
+    /// </param>
     public LocalToSftpSynchronizer(
         Location localRoot,
         Location remoteRoot,
@@ -47,6 +77,15 @@ public sealed class LocalToSftpSynchronizer : IDisposable
         _watcher.ChangeDetected += OnFsEventAsync;
     }
 
+    /// <summary>
+    /// Starts continuous synchronization by running the directory watcher loop.
+    /// </summary>
+    /// <param name="ct">
+    /// Cancellation token used to stop synchronization.
+    /// </param>
+    /// <returns>
+    /// A task that returns the watcher/synchronization result when the loop ends.
+    /// </returns>
     public async Task<IResult> SynchronizeAsync(CancellationToken ct)
     {
         if (!_syncTask.IsCompleted)
@@ -70,6 +109,22 @@ public sealed class LocalToSftpSynchronizer : IDisposable
         }
     }
 
+    /// <summary>
+    /// Performs one-time initial synchronization from one side to the other before live syncing starts.
+    /// </summary>
+    /// <param name="initFromRemote">
+    /// When <see langword="true"/>, initializes local data from the remote root; otherwise initializes
+    /// remote data from the local root.
+    /// </param>
+    /// <param name="reporter">
+    /// Progress reporter used for long-running transfer operations.
+    /// </param>
+    /// <param name="ct">
+    /// Cancellation token used to abort initialization.
+    /// </param>
+    /// <returns>
+    /// A task that returns the combined initialization result.
+    /// </returns>
     public Task<IResult> Initialize(
         bool initFromRemote,
         ProgressReporter reporter,

@@ -16,12 +16,16 @@ using SharpCompress.Writers;
 namespace FileSurfer.Core.Services.FileOperations;
 
 /// <summary>
-/// Handles interactions with archives using the <see cref="SharpCompress"/> package.
+/// Handles archive detection, creation, and extraction for local file-system entries using
+/// <see cref="SharpCompress"/> readers and writers.
 /// </summary>
 public class LocalArchiveManager : IArchiveManager
 {
     private sealed record ArchiveType(string Extension, Func<Stream, IReader>? FactoryFn);
 
+    /// <summary>
+    /// Gets the default extension used when creating new archives.
+    /// </summary>
     public const string ArchiveTypeExtension = ".zip";
     private static readonly ExtractionOptions ExtractionOptions = new()
     {
@@ -42,6 +46,15 @@ public class LocalArchiveManager : IArchiveManager
     private readonly IFileInfoProvider _fileInfoProvider;
     private readonly IFileIoHandler _fileIoHandler;
 
+    /// <summary>
+    /// Initializes a local archive manager with file metadata and file I/O services.
+    /// </summary>
+    /// <param name="fileInfoProvider">
+    /// File information provider used for name availability checks and path-entry queries.
+    /// </param>
+    /// <param name="fileIoHandler">
+    /// File I/O handler used for cleanup operations such as deleting failed archive outputs.
+    /// </param>
     public LocalArchiveManager(IFileInfoProvider fileInfoProvider, IFileIoHandler fileIoHandler)
     {
         _fileInfoProvider = fileInfoProvider;

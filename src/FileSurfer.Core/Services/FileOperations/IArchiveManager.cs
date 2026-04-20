@@ -6,6 +6,10 @@ using FileSurfer.Core.Services.Dialogs;
 
 namespace FileSurfer.Core.Services.FileOperations;
 
+/// <summary>
+/// Defines archive-related operations used to detect archive files, create new archives from entries,
+/// and extract archive contents to a destination path.
+/// </summary>
 public interface IArchiveManager
 {
     /// <summary>
@@ -18,7 +22,24 @@ public interface IArchiveManager
     /// <summary>
     /// Compresses specified file paths into a new archive.
     /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    /// <param name="entries">
+    /// The files and directories to include in the archive.
+    /// </param>
+    /// <param name="destinationDir">
+    /// The destination directory where the archive should be created.
+    /// </param>
+    /// <param name="archiveName">
+    /// The base name to use for the created archive file.
+    /// </param>
+    /// <param name="reporter">
+    /// Progress reporter used to publish archive creation progress.
+    /// </param>
+    /// <param name="ct">
+    /// Cancellation token used to stop the archive operation.
+    /// </param>
+    /// <returns>
+    /// A task that returns the operation result, including any error details if archive creation fails.
+    /// </returns>
     Task<IResult> ArchiveEntriesAsync(
         IList<IFileSystemEntry> entries,
         string destinationDir,
@@ -30,7 +51,21 @@ public interface IArchiveManager
     /// <summary>
     /// Extracts the archive, overwriting already existing files.
     /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    /// <param name="archivePath">
+    /// The full path to the archive file to extract.
+    /// </param>
+    /// <param name="destinationPath">
+    /// The destination directory where archive contents should be extracted.
+    /// </param>
+    /// <param name="reporter">
+    /// Progress reporter used to publish extraction progress.
+    /// </param>
+    /// <param name="ct">
+    /// Cancellation token used to stop the extraction operation.
+    /// </param>
+    /// <returns>
+    /// A task that returns the operation result, including any error details if extraction fails.
+    /// </returns>
     Task<IResult> ExtractArchiveAsync(
         string archivePath,
         string destinationPath,

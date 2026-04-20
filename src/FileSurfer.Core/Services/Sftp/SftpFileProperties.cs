@@ -11,11 +11,23 @@ using Renci.SshNet.Sftp;
 
 namespace FileSurfer.Core.Services.Sftp;
 
+/// <summary>
+/// Provides SFTP-specific file property resolution and displays the properties dialog for remote entries.
+/// </summary>
 public class SftpFileProperties : IFileProperties
 {
     private readonly SftpClient _sftpClient;
     private readonly SshShellHandler _shellHandler;
 
+    /// <summary>
+    /// Initializes a properties provider that uses SFTP metadata and SSH shell lookups.
+    /// </summary>
+    /// <param name="sftpClient">
+    /// The connected SFTP client used to query remote entry metadata.
+    /// </param>
+    /// <param name="shellHandler">
+    /// The SSH shell handler used for owner/group and creation-date command lookups.
+    /// </param>
     public SftpFileProperties(SftpClient sftpClient, SshShellHandler shellHandler)
     {
         _sftpClient = sftpClient;

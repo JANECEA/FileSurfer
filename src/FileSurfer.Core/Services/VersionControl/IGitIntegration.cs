@@ -25,10 +25,19 @@ public enum GitStatus
     Unstaged,
 }
 
+/// <summary>
+/// Represents ahead/behind commit counts for the current branch relative to its upstream branch.
+/// </summary>
+/// <param name="CommitsToPull">
+/// Number of commits available on the upstream branch that have not been pulled locally.
+/// </param>
+/// <param name="CommitsToPush">
+/// Number of local commits that have not yet been pushed to the upstream branch.
+/// </param>
 public record struct RepoDetails(int CommitsToPull, int CommitsToPush);
 
 /// <summary>
-/// Defines methods for interacting with the Git version control system withing the <see cref="FileSurfer"/> app.
+/// Defines methods for interacting with the Git version control system within the <see cref="FileSurfer"/> app.
 /// </summary>
 public interface IGitIntegration : IDisposable
 {
@@ -63,6 +72,10 @@ public interface IGitIntegration : IDisposable
     /// <br/>
     /// Returns null in case there is no upstream configuration or the upstream branch does not exist.
     /// </summary>
+    /// <returns>
+    /// A <see cref="RepoDetails"/> value with ahead/behind counts, or <see langword="null"/> when
+    /// repository state cannot be determined from upstream tracking information.
+    /// </returns>
     public RepoDetails? GetRepositoryState();
 
     /// <summary>

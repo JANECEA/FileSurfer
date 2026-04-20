@@ -4,24 +4,41 @@ using FileSurfer.Core.ViewModels;
 namespace FileSurfer.Core.Services.Shell;
 
 /// <summary>
-/// Provides methods to interact with file properties and dialogs
+/// Provides operations for showing platform-specific file property and "Open With" dialogs.
 /// </summary>
 public interface IFileProperties
 {
     /// <summary>
-    /// Shows the file properties dialog
+    /// Shows the file properties dialog for the specified entry.
     /// </summary>
-    /// <returns><see langword="true"/> if the properties dialog was successfully shown, otherwise <see langword="false"/>.</returns>
+    /// <param name="entry">
+    /// The file-system entry whose properties should be displayed.
+    /// </param>
+    /// <returns>
+    /// The operation result, including any error details if the dialog could not be shown.
+    /// </returns>
     public IResult ShowFileProperties(FileSystemEntryViewModel entry);
 
     /// <summary>
-    /// Displays the "Open With" dialog for a specified file
+    /// Determines whether the specified entry supports an "Open With" action.
     /// </summary>
+    /// <param name="entry">
+    /// The file-system entry to evaluate.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> when the platform can present an "Open With" dialog for the entry;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
     public bool SupportsOpenAs(IFileSystemEntry entry);
 
     /// <summary>
-    /// Displays the "Open With" dialog for a specified file
+    /// Shows the "Open With" dialog for the specified entry.
     /// </summary>
-    /// <returns><see langword="true"/> if the "Open With" dialog was successfully shown; otherwise, <see langword="false"/>.</returns>
+    /// <param name="entry">
+    /// The file-system entry to open through a selected application.
+    /// </param>
+    /// <returns>
+    /// The operation result, including any error details if the dialog could not be shown.
+    /// </returns>
     public IResult ShowOpenAsDialog(IFileSystemEntry entry);
 }

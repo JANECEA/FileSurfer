@@ -15,25 +15,68 @@ public interface IFileOperation
     /// Invokes the file operation.
     /// Implementations of this method should apply the effects of the operation.
     /// </summary>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    /// <param name="reporter">
+    /// Progress reporter used to publish operation progress updates.
+    /// </param>
+    /// <param name="ct">
+    /// Cancellation token used to stop the operation.
+    /// </param>
+    /// <returns>
+    /// A task that returns the operation result, including any error details if execution fails.
+    /// </returns>
     public Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct);
 }
 
+/// <summary>
+/// Provides a shared execution pipeline for batched file operations with progress reporting and
+/// cancellation handling.
+/// </summary>
 public abstract class FileOperation : IFileOperation
 {
     private const int WaitBetweenMs = 5;
 
+    /// <summary>
+    /// Gets the file I/O handler used by derived operations to perform entry-level actions.
+    /// </summary>
     protected IFileIoHandler FileIoHandler { get; }
+
+    /// <summary>
+    /// Gets the entries targeted by this operation, in the order they are processed.
+    /// </summary>
     protected IFileSystemEntry[] Entries { get; }
 
+    /// <summary>
+    /// Gets the operation verb used in progress messages (for example, "Deleting").
+    /// </summary>
     protected abstract string InvokeVerb { get; }
 
+    /// <summary>
+    /// Initializes a file operation with the I/O handler and target entries.
+    /// </summary>
+    /// <param name="fileIoHandler">
+    /// File I/O handler used to perform concrete entry operations.
+    /// </param>
+    /// <param name="entries">
+    /// Entries the operation should process.
+    /// </param>
     protected FileOperation(IFileIoHandler fileIoHandler, IFileSystemEntry[] entries)
     {
         FileIoHandler = fileIoHandler;
         Entries = entries;
     }
 
+    /// <summary>
+    /// Runs the operation for all entries using the configured action implementation.
+    /// </summary>
+    /// <param name="reporter">
+    /// Progress reporter used to publish operation progress updates.
+    /// </param>
+    /// <param name="ct">
+    /// Cancellation token used to stop execution.
+    /// </param>
+    /// <returns>
+    /// A task that returns the aggregated operation result for all processed entries.
+    /// </returns>
     public Task<IResult> InvokeAsync(ProgressReporter reporter, CancellationToken ct) =>
         Task.Run(() => InvokeInternal(InvokeAction, InvokeVerb, reporter, ct), ct);
 
@@ -70,8 +113,14 @@ public abstract class FileOperation : IFileOperation
     /// <summary>
     /// Represents an invoke-action invoked on <see cref="IFileSystemEntry"/> from <see cref="Entries"/>.
     /// </summary>
-    /// <param name="entry"><see cref="IFileSystemEntry"/> for the invoke-action.</param>
-    /// <param name="index">Entry's index in <see cref="Entries"/>, in case it is useful.</param>
-    /// <returns>A <see cref="IResult"/> representing the result of the operation and potential errors.</returns>
+    /// <param name="entry">
+    /// The entry currently being processed.
+    /// </param>
+    /// <param name="index">
+    /// Zero-based index of <paramref name="entry"/> in <see cref="Entries"/>.
+    /// </param>
+    /// <returns>
+    /// The operation result for the single processed entry.
+    /// </returns>
     protected abstract IResult InvokeAction(IFileSystemEntry entry, int index);
 }

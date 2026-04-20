@@ -20,7 +20,8 @@ namespace FileSurfer.Core.Services.FileOperations;
 using OpResult = ValueResult<IUndoableFileOperation?>;
 
 /// <summary>
-/// Interacts with the program and system clipboards using <see cref="Avalonia.Input.Platform.IClipboard"/>.
+/// Coordinates FileSurfer clipboard behavior across internal selection state and the operating
+/// system clipboard, including cross-file-system paste workflows for files, directories, text, and images.
 /// </summary>
 public class ClipboardManager : IClipboardManager
 {
@@ -44,6 +45,19 @@ public class ClipboardManager : IClipboardManager
     private readonly List<IFileSystemEntry> _programClipboard = [];
     private PasteType _pasteType = PasteType.Copy;
 
+    /// <summary>
+    /// Initializes a clipboard manager that bridges FileSurfer clipboard operations with platform
+    /// clipboard and storage-provider services.
+    /// </summary>
+    /// <param name="clipboard">
+    /// Platform clipboard used for text, file, and bitmap clipboard interactions.
+    /// </param>
+    /// <param name="storageProvider">
+    /// Storage provider used to convert local paths into OS storage items for clipboard file transfer.
+    /// </param>
+    /// <param name="localFs">
+    /// Local file-system services used when clipboard contents originate from or are mapped to local paths.
+    /// </param>
     public ClipboardManager(
         IClipboard clipboard,
         IStorageProvider storageProvider,

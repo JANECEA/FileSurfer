@@ -8,18 +8,39 @@ using Renci.SshNet;
 
 namespace FileSurfer.Core.Services.Sftp;
 
+/// <summary>
+/// Executes shell operations against a remote host over SSH and SFTP.
+/// </summary>
 public sealed class SshShellHandler : IShellHandler
 {
     private const char QuoteChar = '\'';
     private readonly SshClient _sshClient;
     private readonly SftpClient _sftpClient;
 
+    /// <summary>
+    /// Initializes a shell handler that uses the provided SSH and SFTP clients.
+    /// </summary>
+    /// <param name="sshClient">
+    /// Connected SSH client used to execute remote shell commands.
+    /// </param>
+    /// <param name="sftpClient">
+    /// Connected SFTP client used for link-related file-system operations.
+    /// </param>
     public SshShellHandler(SshClient sshClient, SftpClient sftpClient)
     {
         _sshClient = sshClient;
         _sftpClient = sftpClient;
     }
 
+    /// <summary>
+    /// Wraps a string in single quotes and escapes embedded single quotes for safe shell usage.
+    /// </summary>
+    /// <param name="str">
+    /// The raw argument text to quote for remote shell command composition.
+    /// </param>
+    /// <returns>
+    /// A shell-quoted argument string that preserves the original value.
+    /// </returns>
     public static string Quote(string str)
     {
         StringBuilder sb = new(str.Length + 2);
@@ -62,6 +83,15 @@ public sealed class SshShellHandler : IShellHandler
         params string[] args
     ) => ExecuteSshCommandAsync($"{Quote(programName)} {string.Join(' ', args.Select(Quote))}");
 
+    /// <summary>
+    /// Executes a raw command string on the remote SSH session and captures command output.
+    /// </summary>
+    /// <param name="command">
+    /// The fully composed command line to execute remotely.
+    /// </param>
+    /// <returns>
+    /// A command result containing output text on success or error details on failure.
+    /// </returns>
     public ValueResult<string> ExecuteSshCommand(string command)
     {
         try
