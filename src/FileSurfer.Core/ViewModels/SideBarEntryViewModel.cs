@@ -50,6 +50,9 @@ public class SideBarEntryViewModel : ReactiveObject
     /// </summary>
     public bool IsDirectory { get; }
 
+    /// <summary>
+    /// Creates a sidebar entry from a file system entry and resolves its icon asynchronously.
+    /// </summary>
     public SideBarEntryViewModel(IFileSystem fileSystem, IFileSystemEntry fileSystemEntry)
     {
         Name = fileSystemEntry.Name;
@@ -72,6 +75,9 @@ public class SideBarEntryViewModel : ReactiveObject
             _ => throw new NotSupportedException(),
         };
 
+    /// <summary>
+    /// Creates a sidebar entry from drive metadata and resolves its icon asynchronously.
+    /// </summary>
     public SideBarEntryViewModel(IFileSystem fileSystem, DriveEntryInfo driveEntryInfo)
     {
         Name = driveEntryInfo.Name;

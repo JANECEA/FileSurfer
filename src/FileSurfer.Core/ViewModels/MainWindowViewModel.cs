@@ -36,9 +36,23 @@ public record struct RepoStateInfo(string CommitsToPull, string CommitsToPush);
 public record LocationDisplay
 {
     private readonly Location _location;
+
+    /// <summary>
+    /// Gets the file system label displayed for this location in history menus.
+    /// </summary>
     public string Label { get; init; }
+
+    /// <summary>
+    /// Gets the full path displayed for this location in history menus.
+    /// </summary>
     public string Path { get; init; }
 
+    /// <summary>
+    /// Initializes a display wrapper for a concrete navigation location.
+    /// </summary>
+    /// <param name="location">
+    /// The underlying navigation location to expose in UI-friendly form.
+    /// </param>
     public LocationDisplay(Location location)
     {
         _location = location;
@@ -46,6 +60,12 @@ public record LocationDisplay
         Path = location.Path;
     }
 
+    /// <summary>
+    /// Returns the underlying navigation location represented by this display entry.
+    /// </summary>
+    /// <returns>
+    /// The wrapped <see cref="Location"/> instance.
+    /// </returns>
     public Location GetLocation() => _location;
 
     public virtual bool Equals(LocationDisplay? other) =>
@@ -86,12 +106,14 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     private readonly HashSet<string> _localPaths = new();
 
     /// <summary>
-    /// TODO
+    /// Gets or initializes the factory used to create SFTP-backed file system instances.
+    /// This is provided by the platform bootstrap during startup.
     /// </summary>
     public required SftpFileSystemFactory SftpFsFactory { private get; init; }
 
     /// <summary>
-    /// TODO
+    /// Gets or initializes the clipboard manager used for copy, cut, paste, and path-copy operations.
+    /// This is provided by the platform bootstrap during startup.
     /// </summary>
     public required IClipboardManager ClipboardManager { private get; init; }
 
@@ -99,7 +121,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     private DispatcherTimer? _refreshTimer;
 
     /// <summary>
-    /// TODO
+    /// Gets the currently active sorting mode and direction.
     /// </summary>
     public SortInfo SortInfo =>
         new(FileSurferSettings.SortingMode, FileSurferSettings.SortReversed);
@@ -189,7 +211,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     private Location? _currentLocation;
 
     /// <summary>
-    /// TODO
+    /// Gets or sets the status/info message displayed in the main window.
     /// </summary>
     public string? CurrentInfoMessage
     {
@@ -291,85 +313,276 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     }
     private RepoStateInfo _repoStateInfo = new(string.Empty, string.Empty);
 
+    /// <summary>
+    /// Gets the command that opens the currently selected entry or entries.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> OpenEntriesCommand { get; }
+
+    /// <summary>
+    /// Gets the command that opens a specific file-system entry.
+    /// </summary>
     public ReactiveCommand<FileSystemEntryViewModel, Unit> OpenEntryCommand { get; }
+
+    /// <summary>
+    /// Gets the command that navigates to a selected sidebar entry.
+    /// </summary>
     public ReactiveCommand<SideBarEntryViewModel, Unit> OpenSideBarEntryCommand { get; }
+
+    /// <summary>
+    /// Gets the command that opens a file entry with a user-selected application.
+    /// </summary>
     public ReactiveCommand<FileSystemEntryViewModel, Unit> OpenAsCommand { get; }
+
+    /// <summary>
+    /// Gets the command that navigates to a user-specified location path.
+    /// </summary>
     public ReactiveCommand<string, Unit> SetNewLocationCommand { get; }
+
+    /// <summary>
+    /// Gets the command that opens the current context in the configured text editor.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> OpenInNotepadCommand { get; }
+
+    /// <summary>
+    /// Gets the command that adds an entry to Quick Access.
+    /// </summary>
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> AddToQuickAccessCommand { get; }
+
+    /// <summary>
+    /// Gets the command that archives the selected entries.
+    /// </summary>
     public ReactiveCommand<Unit, Task> AddToArchiveCommand { get; }
+
+    /// <summary>
+    /// Gets the command that extracts selected archive entries.
+    /// </summary>
     public ReactiveCommand<Unit, Task> ExtractArchiveCommand { get; }
+
+    /// <summary>
+    /// Gets the command that navigates backward in location history.
+    /// </summary>
     public ReactiveCommand<LocationDisplay?, Unit> GoBackCommand { get; }
+
+    /// <summary>
+    /// Gets the command that navigates forward in location history.
+    /// </summary>
     public ReactiveCommand<LocationDisplay?, Unit> GoForwardCommand { get; }
+
+    /// <summary>
+    /// Gets the command that navigates to the parent directory.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> GoUpCommand { get; }
+
+    /// <summary>
+    /// Gets the command that reloads the current location contents.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> ReloadCommand { get; }
+
+    /// <summary>
+    /// Gets the command that opens a terminal rooted at the current location.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> OpenTerminalCommand { get; }
+
+    /// <summary>
+    /// Gets the command that performs a recursive search for matching entry names.
+    /// </summary>
     public ReactiveCommand<string, Task> SearchCommand { get; }
+
+    /// <summary>
+    /// Gets the command that cancels the active search and restores normal view state.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
+
+    /// <summary>
+    /// Gets the command that creates a new file.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> NewFileCommand { get; }
+
+    /// <summary>
+    /// Gets the command that creates a new directory.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> NewDirCommand { get; }
+
+    /// <summary>
+    /// Gets the command that renames selected entries.
+    /// </summary>
     public ReactiveCommand<string, Unit> RenameCommand { get; }
+
+    /// <summary>
+    /// Gets the command that cuts selected entries to the clipboard.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> CutCommand { get; }
+
+    /// <summary>
+    /// Gets the command that copies selected entries to the clipboard.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> CopyCommand { get; }
+
+    /// <summary>
+    /// Gets the command that copies the selected entry path (or current path) to the clipboard.
+    /// </summary>
     public ReactiveCommand<FileSystemEntryViewModel?, Task> CopyPathCommand { get; }
+
+    /// <summary>
+    /// Gets the command that creates a shortcut for the given entry.
+    /// </summary>
     public ReactiveCommand<FileSystemEntryViewModel, Unit> CreateShortcutCommand { get; }
+
+    /// <summary>
+    /// Gets the command that flattens a selected folder into the current directory.
+    /// </summary>
     public ReactiveCommand<FileSystemEntryViewModel, Task> FlattenFolderCommand { get; }
+
+    /// <summary>
+    /// Gets the command that shows the properties dialog for a selected entry.
+    /// </summary>
     public ReactiveCommand<FileSystemEntryViewModel, Unit> ShowPropertiesCommand { get; }
+
+    /// <summary>
+    /// Gets the command that starts synchronization between local and remote directories.
+    /// </summary>
     public ReactiveCommand<FileSystemEntryViewModel?, Task> SyncDirCommand { get; }
+
+    /// <summary>
+    /// Gets the command that pastes clipboard entries into the current location.
+    /// </summary>
     public ReactiveCommand<Unit, Task> PasteCommand { get; }
+
+    /// <summary>
+    /// Gets the command that moves selected entries to trash.
+    /// </summary>
     public ReactiveCommand<Unit, Task> MoveToTrashCommand { get; }
+
+    /// <summary>
+    /// Gets the command that permanently deletes selected entries.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
+
+    /// <summary>
+    /// Gets the command that changes the active sort key.
+    /// </summary>
     public ReactiveCommand<SortBy, Unit> SetSortByCommand { get; }
+
+    /// <summary>
+    /// Gets the command that undoes the most recent undoable file operation.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> UndoCommand { get; }
+
+    /// <summary>
+    /// Gets the command that redoes the most recently undone file operation.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> RedoCommand { get; }
+
+    /// <summary>
+    /// Gets the command that selects all visible entries.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> SelectAllCommand { get; }
+
+    /// <summary>
+    /// Gets the command that clears the current selection.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> SelectNoneCommand { get; }
+
+    /// <summary>
+    /// Gets the command that inverts the current selection.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> InvertSelectionCommand { get; }
+
+    /// <summary>
+    /// Gets the command that opens a configured SFTP connection.
+    /// </summary>
     public ReactiveCommand<SftpConnectionViewModel, Unit> OpenSftpCommand { get; }
+
+    /// <summary>
+    /// Gets the command that closes an opened SFTP connection.
+    /// </summary>
     public ReactiveCommand<SftpConnectionViewModel, Unit> CloseSftpCommand { get; }
+
+    /// <summary>
+    /// Gets the command that stages a file for Git commit.
+    /// </summary>
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitStageCommand { get; }
+
+    /// <summary>
+    /// Gets the command that unstages a file from Git commit.
+    /// </summary>
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitUnstageCommand { get; }
+
+    /// <summary>
+    /// Gets the command that restores file changes from Git.
+    /// </summary>
     public ReactiveCommand<FileSystemEntryViewModel?, Unit> GitRestoreCommand { get; }
+
+    /// <summary>
+    /// Gets the command that creates a Git stash from local changes.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> GitStashCommand { get; }
+
+    /// <summary>
+    /// Gets the command that reapplies and drops the latest Git stash.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> GitStashPopCommand { get; }
+
+    /// <summary>
+    /// Gets the command that fetches remote Git changes.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> GitFetchCommand { get; }
+
+    /// <summary>
+    /// Gets the command that pulls remote Git changes.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> GitPullCommand { get; }
+
+    /// <summary>
+    /// Gets the command that creates a Git commit with the specified message.
+    /// </summary>
     public ReactiveCommand<string, Unit> GitCommitCommand { get; }
+
+    /// <summary>
+    /// Gets the command that pushes commits to the configured remote.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> GitPushCommand { get; }
 
     /// <summary>
-    /// TODO
+    /// Gets whether at least one file-system entry is currently selected.
     /// </summary>
     public bool SelectionNotEmpty => SelectedFiles.Count > 0;
 
     /// <summary>
-    /// TODO
+    /// Gets whether backward navigation is currently possible.
     /// </summary>
     public bool CanGoBack => _locationHistory.GetPrevious() is not null;
 
     /// <summary>
-    /// TODO
+    /// Gets whether forward navigation is currently possible.
     /// </summary>
     public bool CanGoForward => _locationHistory.GetNext() is not null;
 
     /// <summary>
-    /// TODO
+    /// Gets whether the currently displayed file system is local.
     /// </summary>
     public bool IsLocal => CurrentLocation.FileSystem.IsLocal();
 
     /// <summary>
-    /// TODO
+    /// Gets whether the view model is currently not in search mode.
     /// </summary>
     public bool NotSearching => !Searching;
 
     /// <summary>
-    /// TODO
+    /// Initializes the main window view model with required services and the initial location.
     /// </summary>
-    /// <param name="initialDir"></param>
-    /// <param name="localFs"></param>
-    /// <param name="dialogService"></param>
-    /// <param name="setDarkMode"></param>
+    /// <param name="initialDir">
+    /// The initial local directory path to open when the window starts.
+    /// </param>
+    /// <param name="localFs">
+    /// The local file-system integration used for browsing and file operations.
+    /// </param>
+    /// <param name="dialogService">
+    /// The dialog service used to present input, confirmation, info, and progress dialogs.
+    /// </param>
+    /// <param name="setDarkMode">
+    /// Callback that applies theme changes at the application level.
+    /// </param>
     public MainWindowViewModel(
         string initialDir,
         LocalFileSystem localFs,
@@ -638,7 +851,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject, IDisposable
     }
 
     /// <summary>
-    /// TODO
+    /// Saves the settings and disposes all owned resources.
     /// </summary>
     public void Dispose()
     {

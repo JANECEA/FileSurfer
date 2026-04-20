@@ -12,9 +12,19 @@ public sealed class SftpConnectionViewModel : ReactiveObject
 {
     private Action<SftpConnectionViewModel>? _addSelf = null;
 
+    /// <summary>
+    /// Gets the underlying SFTP connection model.
+    /// </summary>
     public SftpConnection SftpConnection { get; }
+
+    /// <summary>
+    /// Gets whether this view model should be added as a new connection when saved.
+    /// </summary>
     public bool CreateOnSave => _addSelf is not null;
 
+    /// <summary>
+    /// Gets or sets the active SFTP file system instance for this connection.
+    /// </summary>
     public SftpFileSystem? FileSystem
     {
         get => _fileSystem;
@@ -22,48 +32,69 @@ public sealed class SftpConnectionViewModel : ReactiveObject
     }
     private SftpFileSystem? _fileSystem;
 
-    private string _hostnameOrIpAddress = string.Empty;
+    /// <summary>
+    /// Gets or sets the remote host name or IP address.
+    /// </summary>
     public string HostnameOrIpAddress
     {
         get => _hostnameOrIpAddress;
         set => this.RaiseAndSetIfChanged(ref _hostnameOrIpAddress, value);
     }
+    private string _hostnameOrIpAddress = string.Empty;
 
-    private ushort _port = 22;
+    /// <summary>
+    /// Gets or sets the remote SSH port.
+    /// </summary>
     public ushort Port
     {
         get => _port;
         set => this.RaiseAndSetIfChanged(ref _port, value);
     }
+    private ushort _port = 22;
 
-    private string _username = string.Empty;
+    /// <summary>
+    /// Gets or sets the SSH username.
+    /// </summary>
     public string Username
     {
         get => _username;
         set => this.RaiseAndSetIfChanged(ref _username, value);
     }
+    private string _username = string.Empty;
 
-    private string _keyPath = string.Empty;
+    /// <summary>
+    /// Gets or sets the private key file path.
+    /// </summary>
     public string KeyPath
     {
         get => _keyPath;
         set { this.RaiseAndSetIfChanged(ref _keyPath, value); }
     }
+    private string _keyPath = string.Empty;
 
-    private bool? _needsPassphrase = false;
+    /// <summary>
+    /// Gets or sets whether the private key requires a passphrase.
+    /// </summary>
     public bool? NeedsPassphrase
     {
         get => _needsPassphrase;
         set => this.RaiseAndSetIfChanged(ref _needsPassphrase, value);
     }
+    private bool? _needsPassphrase = false;
 
-    private string? _initialDirectory = null;
+    /// <summary>
+    /// Gets or sets the initial remote directory after connecting.
+    /// </summary>
     public string? InitialDirectory
     {
         get => _initialDirectory;
         set => this.RaiseAndSetIfChanged(ref _initialDirectory, value);
     }
+    private string? _initialDirectory = null;
 
+    /// <summary>
+    /// Creates a connection view model from an existing SFTP connection model.
+    /// </summary>
     public SftpConnectionViewModel(SftpConnection sftpConnection)
     {
         SftpConnection = sftpConnection;
@@ -76,14 +107,23 @@ public sealed class SftpConnectionViewModel : ReactiveObject
         InitialDirectory = sftpConnection.InitialDirectory;
     }
 
+    /// <summary>
+    /// Creates a new connection view model that adds itself to a target collection on save.
+    /// </summary>
     public SftpConnectionViewModel(Action<SftpConnectionViewModel> addSelf)
     {
         SftpConnection = new SftpConnection();
         _addSelf = addSelf;
     }
 
+    /// <summary>
+    /// Creates a new empty connection view model.
+    /// </summary>
     public SftpConnectionViewModel() => SftpConnection = new SftpConnection();
 
+    /// <summary>
+    /// Creates a detached copy of the editable connection fields.
+    /// </summary>
     public SftpConnectionViewModel Copy() =>
         new()
         {
@@ -95,6 +135,9 @@ public sealed class SftpConnectionViewModel : ReactiveObject
             InitialDirectory = InitialDirectory,
         };
 
+    /// <summary>
+    /// Applies values from another view model, updates the model, and finalizes creation when needed.
+    /// </summary>
     public void Save(SftpConnectionViewModel saveFrom)
     {
         HostnameOrIpAddress = saveFrom.HostnameOrIpAddress.Trim();

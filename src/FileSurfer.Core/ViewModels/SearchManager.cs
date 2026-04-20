@@ -10,6 +10,10 @@ using FileSurfer.Core.Models.FileInformation;
 
 namespace FileSurfer.Core.ViewModels;
 
+/// <summary>
+/// Coordinates cancellable recursive searches across a file system and pushes matching entries to
+/// the UI in buffered batches while maintaining a simple animated search status label.
+/// </summary>
 public class SearchManager : IDisposable
 {
     private const int ChunkSize = 50;
@@ -31,6 +35,17 @@ public class SearchManager : IDisposable
     private CancellationTokenSource _searchCts = new();
     private Task<int?>? _activeSearchTask = null;
 
+    /// <summary>
+    /// Creates a new <see cref="SearchManager"/> instance.
+    /// </summary>
+    /// <param name="updateAnimation">
+    /// Callback invoked whenever the search status label should be updated (for example
+    /// <c>Searching...</c> and <c>Searching finished</c>).
+    /// </param>
+    /// <param name="putEntry">
+    /// Callback invoked for each matching <see cref="FileSystemEntryViewModel"/> discovered during
+    /// search result streaming.
+    /// </param>
     public SearchManager(Action<string> updateAnimation, Action<FileSystemEntryViewModel> putEntry)
     {
         _updateAnimation = updateAnimation;
@@ -56,6 +71,14 @@ public class SearchManager : IDisposable
         }
     }
 
+    /// <summary>
+    /// Requests cancellation for the currently running search, if any, and waits until the active
+    /// search task has fully completed.
+    /// </summary>
+    /// <returns>
+    /// A task that completes once cancellation has been requested and the active search has
+    /// stopped processing.
+    /// </returns>
     public async Task CancelSearchAsync()
     {
         await _searchLock.WaitAsync();
@@ -92,6 +115,23 @@ public class SearchManager : IDisposable
         return _searchCts.Token;
     }
 
+    /// <summary>
+    /// Starts a new recursive search from the given directory. If another search is already
+    /// running, it is canceled and awaited before the new one begins.
+    /// </summary>
+    /// <param name="fileSystem">
+    /// File system abstraction used to enumerate directories and files.
+    /// </param>
+    /// <param name="searchQuery">
+    /// Case-insensitive query string matched against entry names.
+    /// </param>
+    /// <param name="dirToSearch">
+    /// Absolute path of the root directory where traversal starts.
+    /// </param>
+    /// <returns>
+    /// A task that resolves to the number of entries found, or <see langword="null"/> if the
+    /// search was canceled before completion.
+    /// </returns>
     public async Task<int?> SearchAsync(
         IFileSystem fileSystem,
         string searchQuery,

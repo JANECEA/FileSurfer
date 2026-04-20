@@ -132,8 +132,12 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     /// the provided path and version control status.
     /// </para>
     /// </summary>
-    /// <param name="fileSystem">Current fileSystem</param>
-    /// <param name="entry">The file or directory entry.</param>
+    /// <param name="fileSystem">
+    /// The file-system services used to resolve icon data, archive capabilities, and visibility state.
+    /// </param>
+    /// <param name="entry">
+    /// The file entry model used to initialize metadata such as size, extension, and timestamps.
+    /// </param>
     public FileSystemEntryViewModel(IFileSystem fileSystem, FileEntryInfo entry)
     {
         FileSystemEntry = entry;
@@ -156,6 +160,18 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     private async Task LoadIconAsync(FileEntryInfo entry, IIconProvider iconProvider) =>
         Icon = await Task.Run(() => iconProvider.GetFileIconAsync(entry.PathToEntry));
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FileSystemEntryViewModel"/> class for a directory.
+    /// <para>
+    /// Sets up directory-specific display data and asynchronously resolves the directory icon.
+    /// </para>
+    /// </summary>
+    /// <param name="fileSystem">
+    /// The file-system services used to resolve icon data, archive capabilities, and visibility state.
+    /// </param>
+    /// <param name="entry">
+    /// The directory entry model used to initialize metadata such as name and timestamps.
+    /// </param>
     public FileSystemEntryViewModel(IFileSystem fileSystem, DirectoryEntryInfo entry)
     {
         FileSystemEntry = entry;
@@ -177,6 +193,12 @@ public sealed class FileSystemEntryViewModel : ReactiveObject
     private async Task LoadIconAsync(DirectoryEntryInfo entry, IIconProvider iconProvider) =>
         Icon = await Task.Run(() => iconProvider.GetDirectoryIconAsync(entry.PathToEntry));
 
+    /// <summary>
+    /// Updates version-control flags shown for this entry based on a new Git status value.
+    /// </summary>
+    /// <param name="newStatus">
+    /// The Git status to apply when determining whether the entry is tracked and staged.
+    /// </param>
     internal void UpdateGitStatus(GitStatus newStatus)
     {
         VersionControlled = newStatus is not GitStatus.NotVersionControlled;

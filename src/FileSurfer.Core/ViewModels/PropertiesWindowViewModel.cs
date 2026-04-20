@@ -7,12 +7,12 @@ using FileSurfer.Core.Views;
 namespace FileSurfer.Core.ViewModels;
 
 /// <summary>
-/// Represents an object that can be displayed
+/// Represents an object that can present its own UI.
 /// </summary>
 public interface IDisplayable
 {
     /// <summary>
-    /// Display the object
+    /// Opens or shows the underlying visual representation.
     /// </summary>
     public void Show();
 }
@@ -23,32 +23,85 @@ public interface IDisplayable
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public sealed class PropertiesWindowViewModel : IDisplayable
 {
+    /// <summary>
+    /// Gets the file-system entry view model displayed by the properties window.
+    /// </summary>
     public FileSystemEntryViewModel EntryVm { get; }
+
+    /// <summary>
+    /// Gets the formatted size string shown in the properties window.
+    /// </summary>
     public required string Size { get; init; }
 
+    /// <summary>
+    /// Gets the formatted creation timestamp string.
+    /// </summary>
     public string? DateCreatedStr { get; private set; } = null;
+
+    /// <summary>
+    /// Sets the raw creation date used to populate <see cref="DateCreatedStr"/>.
+    /// </summary>
     public required DateTime DateCreated
     {
         init => DateCreatedStr = GetDateString(value);
     }
 
+    /// <summary>
+    /// Gets the formatted last-access timestamp string.
+    /// </summary>
     public string? DateAccessedStr { get; private set; } = null;
+
+    /// <summary>
+    /// Sets the raw last-access date used to populate <see cref="DateAccessedStr"/>.
+    /// </summary>
     public required DateTime DateAccessed
     {
         init => DateAccessedStr = GetDateString(value);
     }
 
+    /// <summary>
+    /// Gets the formatted last-modified timestamp string.
+    /// </summary>
     public string? DateModifiedStr { get; private set; } = null;
+
+    /// <summary>
+    /// Sets the raw last-modified date used to populate <see cref="DateModifiedStr"/>.
+    /// </summary>
     public required DateTime DateModified
     {
         init => DateModifiedStr = GetDateString(value);
     }
 
+    /// <summary>
+    /// Gets the owner string displayed in the properties window.
+    /// </summary>
     public required string Owner { get; init; }
+
+    /// <summary>
+    /// Gets the human-readable permission description for the owner.
+    /// </summary>
     public string PermissionsOwner { get; }
+
+    /// <summary>
+    /// Gets the human-readable permission description for the group.
+    /// </summary>
     public string PermissionsGroup { get; }
+
+    /// <summary>
+    /// Gets the human-readable permission description for others.
+    /// </summary>
     public string PermissionsOther { get; }
 
+    /// <summary>
+    /// Creates a properties window view model and translates raw POSIX-style permission bits into
+    /// user-facing permission descriptions.
+    /// </summary>
+    /// <param name="entry">
+    /// The file-system entry the properties view model represents.
+    /// </param>
+    /// <param name="permissions">
+    /// A nine-character permission string in rwx form (for owner, group, and others).
+    /// </param>
     public PropertiesWindowViewModel(FileSystemEntryViewModel entry, string permissions)
     {
         EntryVm = entry;
