@@ -8,15 +8,52 @@ using FileSurfer.Core.Models;
 
 namespace FileSurfer.Core.Services.FileInformation;
 
+/// <summary>
+/// Describes the kind of change detected for a file-system entry.
+/// </summary>
 public enum FileSystemEventType
 {
+    /// <summary>
+    /// A new entry was created.
+    /// </summary>
     Created,
+
+    /// <summary>
+    /// An existing entry was deleted.
+    /// </summary>
     Deleted,
+
+    /// <summary>
+    /// An existing entry content or metadata changed.
+    /// </summary>
     Updated,
+
+    /// <summary>
+    /// An entry was moved to a different path.
+    /// </summary>
     Moved,
+
+    /// <summary>
+    /// An entry was copied to a different path.
+    /// </summary>
     Copied,
 }
 
+/// <summary>
+/// Represents a file-system change event raised by <see cref="IDirectoryWatcher"/>.
+/// </summary>
+/// <param name="OriginalPath">
+/// Path of the entry where the change was detected.
+/// </param>
+/// <param name="IsDirectory">
+/// Indicates whether the changed entry is a directory.
+/// </param>
+/// <param name="EventType">
+/// The detected change type.
+/// </param>
+/// <param name="NewPath">
+/// Optional destination path for move/copy events.
+/// </param>
 public sealed record FileSystemEvent(
     string OriginalPath,
     bool IsDirectory,
@@ -24,10 +61,31 @@ public sealed record FileSystemEvent(
     string? NewPath = null
 );
 
+/// <summary>
+/// Defines polling-based directory change detection and notification behavior.
+/// </summary>
 public interface IDirectoryWatcher
 {
+    /// <summary>
+    /// Occurs when a file-system change is detected.
+    /// </summary>
     public event Func<FileSystemEvent, Task>? ChangeDetected;
 
+    /// <summary>
+    /// Starts watching for changes and keeps polling until cancellation is requested.
+    /// </summary>
+    /// <param name="pollingInterval">
+    /// Delay between snapshot comparisons.
+    /// </param>
+    /// <param name="syncHidden">
+    /// Indicates whether hidden entries should be included when building snapshots.
+    /// </param>
+    /// <param name="token">
+    /// Cancellation token used to stop the watcher loop.
+    /// </param>
+    /// <returns>
+    /// A task that returns the watcher result, including any polling or snapshot errors.
+    /// </returns>
     public Task<IResult> StartAsync(
         TimeSpan pollingInterval,
         bool syncHidden,
@@ -35,6 +93,9 @@ public interface IDirectoryWatcher
     );
 }
 
+/// <summary>
+/// Polls a root directory, compares snapshots, and raises normalized change events.
+/// </summary>
 public sealed class DirectoryWatcher : IDirectoryWatcher
 {
     private sealed record FsEntryMeta(bool IsDirectory, DateTime LastWriteTimeUtc, long Length);
@@ -44,6 +105,12 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
 
     public event Func<FileSystemEvent, Task>? ChangeDetected;
 
+    /// <summary>
+    /// Initializes a directory watcher rooted at the provided location.
+    /// </summary>
+    /// <param name="root">
+    /// Root location to monitor for recursive file-system changes.
+    /// </param>
     public DirectoryWatcher(Location root) => _root = root;
 
     public async Task<IResult> StartAsync(
