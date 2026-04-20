@@ -6,25 +6,40 @@ using Avalonia.Media;
 
 namespace FileSurfer.Core.Views.Helpers;
 
+/// <summary>
+/// A text block that highlights occurrences of a query string within its text.
+/// </summary>
 public class HighlightTextBlock : TextBlock
 {
+    /// <summary>
+    /// Identifies the query text used to find highlight matches.
+    /// </summary>
     public static readonly StyledProperty<string?> QueryProperty = AvaloniaProperty.Register<
         HighlightTextBlock,
         string?
     >(nameof(Query));
 
+    /// <summary>
+    /// Identifies the brush used to render highlighted matches.
+    /// </summary>
     public static readonly StyledProperty<IBrush?> HighlightBrushProperty =
         AvaloniaProperty.Register<HighlightTextBlock, IBrush?>(
             nameof(HighlightBrush),
             defaultValue: Brushes.Goldenrod
         );
 
+    /// <summary>
+    /// Gets or sets the query text to highlight in the displayed text.
+    /// </summary>
     public string? Query
     {
         get => GetValue(QueryProperty);
         set => SetValue(QueryProperty, value);
     }
 
+    /// <summary>
+    /// Gets or sets the background brush applied to highlighted text runs.
+    /// </summary>
     public IBrush? HighlightBrush
     {
         get => GetValue(HighlightBrushProperty);

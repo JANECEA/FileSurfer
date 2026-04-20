@@ -31,7 +31,9 @@ public interface IDefaultSettingsProvider
 ]
 public record SettingsRecord
 {
-    private static readonly string RootDir;
+    /// <summary>
+    /// Provides JSON serialization settings used for reading and writing the settings file.
+    /// </summary>
     public static readonly JsonSerializerOptions SerializerOptions = new()
     {
         Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
@@ -40,7 +42,7 @@ public record SettingsRecord
         AllowTrailingCommas = true,
         PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate,
     };
-
+    private static readonly string RootDir;
     private static IDefaultSettingsProvider? DefaultSettingsProvider;
 
     public string newImageName { get; set; } = "New Image";
@@ -83,6 +85,9 @@ public record SettingsRecord
         }
     }
 
+    /// <summary>
+    /// Creates a settings record and applies defaults from the initialized provider.
+    /// </summary>
     public SettingsRecord()
     {
         if (DefaultSettingsProvider is null)
@@ -91,6 +96,9 @@ public record SettingsRecord
         DefaultSettingsProvider.PopulateDefaults(this);
     }
 
+    /// <summary>
+    /// Sets the platform-specific provider used to populate default setting values.
+    /// </summary>
     public static void Initialize(IDefaultSettingsProvider defaultSettingsProvider) =>
         DefaultSettingsProvider = defaultSettingsProvider;
 }

@@ -10,13 +10,16 @@ namespace FileSurfer.Core.Views.Dialogs;
 /// </summary>
 public partial class InfoDialogWindow : Window
 {
+    /// <summary>
+    /// Gets the message text shown in the information dialog.
+    /// </summary>
     public string Message { get; init; } = string.Empty;
 
+    /// <summary>
+    /// Initializes the information dialog window and loads its XAML components.
+    /// </summary>
     public InfoDialogWindow() => InitializeComponent();
 
-    /// <summary>
-    /// Assigns <see cref="Message"/> to <see cref="InfoDialogWindow.InfoBlock"/> before opening.
-    /// </summary>
     protected override void OnOpened(EventArgs e)
     {
         InfoBlock.Text = Message;

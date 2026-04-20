@@ -5,10 +5,19 @@ using Avalonia.Interactivity;
 
 namespace FileSurfer.Core.Views.Dialogs;
 
+/// <summary>
+/// Displays a confirmation prompt and returns a yes/no decision.
+/// </summary>
 public partial class ConfirmationDialogWindow : Window
 {
+    /// <summary>
+    /// Gets the question text shown in the confirmation dialog.
+    /// </summary>
     public string Question { get; init; } = string.Empty;
 
+    /// <summary>
+    /// Initializes the confirmation dialog window and loads its XAML components.
+    /// </summary>
     public ConfirmationDialogWindow() => InitializeComponent();
 
     protected override void OnOpened(EventArgs e)

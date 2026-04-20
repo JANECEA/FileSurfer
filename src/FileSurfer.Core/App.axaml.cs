@@ -14,12 +14,18 @@ namespace FileSurfer.Core;
 /// </summary>
 public interface IPlatformBootstrap
 {
+    /// <summary>
+    /// Creates the main window view model using platform-specific services and startup context.
+    /// </summary>
     public MainWindowViewModel GetViewModel(
         string initialDir,
         MainWindow mainWindow,
         Action<bool> setDarkMode
     );
 
+    /// <summary>
+    /// Returns the platform-specific provider used to initialize default application settings.
+    /// </summary>
     public IDefaultSettingsProvider GetDefaultSettingsProvider();
 }
 

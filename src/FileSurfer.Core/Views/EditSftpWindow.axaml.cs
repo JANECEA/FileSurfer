@@ -17,6 +17,9 @@ public partial class EditSftpWindow : Window
     private readonly SftpConnectionViewModel? _vmCopy;
     private readonly SftpConnectionViewModel? _vmOriginal;
 
+    /// <summary>
+    /// Sets the connection view model to edit and initializes the window state.
+    /// </summary>
     public SftpConnectionViewModel ViewModel
     {
         init
@@ -28,6 +31,9 @@ public partial class EditSftpWindow : Window
         }
     }
 
+    /// <summary>
+    /// Initializes the SFTP edit window and loads its XAML components.
+    /// </summary>
     public EditSftpWindow() => InitializeComponent();
 
     private void CloseWindow(object? sender = null, RoutedEventArgs? args = null) => Close();

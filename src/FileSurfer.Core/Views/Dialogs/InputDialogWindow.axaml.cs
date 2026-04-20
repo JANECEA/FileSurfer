@@ -5,13 +5,22 @@ using Avalonia.Interactivity;
 
 namespace FileSurfer.Core.Views.Dialogs;
 
+/// <summary>
+/// Displays a text input dialog with optional input masking.
+/// </summary>
 public partial class InputDialogWindow : Window
 {
     private const char HideChar = '*';
     private const char NoHideChar = '\0';
 
+    /// <summary>
+    /// Gets the contextual message displayed above the input field.
+    /// </summary>
     public string Context { get; init; } = string.Empty;
 
+    /// <summary>
+    /// Initializes the input dialog window and loads its XAML components.
+    /// </summary>
     public InputDialogWindow() => InitializeComponent();
 
     protected override void OnOpened(EventArgs e)
@@ -20,6 +29,9 @@ public partial class InputDialogWindow : Window
         base.OnOpened(e);
     }
 
+    /// <summary>
+    /// Enables or disables masking of typed input.
+    /// </summary>
     public void HideInput(bool hide) => InputBox.PasswordChar = hide ? HideChar : NoHideChar;
 
     private void CancelClicked(object? sender, RoutedEventArgs? e) => Close(null);

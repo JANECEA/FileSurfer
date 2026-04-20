@@ -17,9 +17,8 @@ namespace FileSurfer.Core.Views;
 
 /// <summary>
 /// Represents the main <see cref="FileSurfer"/> window.
-/// <para>
+/// <para/>
 /// Handles various tasks such as resolving key presses and element focus withing the <see cref="FileSurfer"/> app.
-/// </para>
 /// </summary>
 public partial class MainWindow : Window
 {
@@ -38,6 +37,9 @@ public partial class MainWindow : Window
     private DataTemplate _previousTemplate;
     private ItemsPanelTemplate _previousPanel;
 
+    /// <summary>
+    /// Initializes the main window, resolves required templates, and wires global key handling.
+    /// </summary>
     public MainWindow()
     {
         InitializeComponent();
@@ -65,6 +67,9 @@ public partial class MainWindow : Window
         AddHandler(KeyDownEvent, TunnelKeyDown, RoutingStrategies.Tunnel);
     }
 
+    /// <summary>
+    /// Caches the typed view model after the window data context is assigned.
+    /// </summary>
     private void ViewModelLoaded(object? sender, EventArgs e)
     {
         if (DataContext is MainWindowViewModel viewModel && _viewModel is null)
@@ -73,6 +78,9 @@ public partial class MainWindow : Window
         ClearFocus();
     }
 
+    /// <summary>
+    /// Subscribes to property-change notifications when a new data context is assigned.
+    /// </summary>
     protected override void OnDataContextChanged(EventArgs e)
     {
         base.OnDataContextChanged(e);
@@ -107,6 +115,9 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Performs initial UI setup after the window is loaded.
+    /// </summary>
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
@@ -147,6 +158,9 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Navigates to the selected previous location from the back history flyout.
+    /// </summary>
     private void GoBackTapped(object? sender, SelectionChangedEventArgs e)
     {
         GoBackButton.ContextFlyout?.Hide();
@@ -155,6 +169,9 @@ public partial class MainWindow : Window
             _viewModel?.GoBackCommand.Execute(location).Subscribe();
     }
 
+    /// <summary>
+    /// Navigates to the selected location from the forward history flyout.
+    /// </summary>
     private void GoForwardTapped(object? sender, SelectionChangedEventArgs e)
     {
         GoBackButton.ContextFlyout?.Hide();
@@ -186,24 +203,45 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Moves the selected quick-access entry one position up.
+    /// </summary>
     private void MoveUpQuickAccess(object sender, RoutedEventArgs e) =>
         ListBoxHelper.MoveUp(QuickAccessListBox, _viewModel!.QuickAccess);
 
+    /// <summary>
+    /// Moves the selected quick-access entry one position down.
+    /// </summary>
     private void MoveDownQuickAccess(object sender, RoutedEventArgs e) =>
         ListBoxHelper.MoveDown(QuickAccessListBox, _viewModel!.QuickAccess);
 
+    /// <summary>
+    /// Removes the selected item from quick access.
+    /// </summary>
     private void RemoveFromQuickAccess(object sender, RoutedEventArgs e) =>
         ListBoxHelper.Remove(QuickAccessListBox, _viewModel!.QuickAccess);
 
+    /// <summary>
+    /// Moves the selected SFTP connection one position up.
+    /// </summary>
     private void MoveUpSftp(object sender, RoutedEventArgs e) =>
         ListBoxHelper.MoveUp(SftpListBox, _viewModel!.SftpConnectionsVms);
 
+    /// <summary>
+    /// Moves the selected SFTP connection one position down.
+    /// </summary>
     private void MoveDownSftp(object sender, RoutedEventArgs e) =>
         ListBoxHelper.MoveDown(SftpListBox, _viewModel!.SftpConnectionsVms);
 
+    /// <summary>
+    /// Removes the selected SFTP connection from the saved list.
+    /// </summary>
     private void RemoveSftp(object sender, RoutedEventArgs e) =>
         ListBoxHelper.Remove(SftpListBox, _viewModel!.SftpConnectionsVms);
 
+    /// <summary>
+    /// Opens the edit dialog for the currently selected SFTP connection.
+    /// </summary>
     private void EditSftpConnection(object sender, RoutedEventArgs e)
     {
         if (SftpListBox.SelectedItem is not SftpConnectionViewModel connectionVm)
@@ -213,12 +251,18 @@ public partial class MainWindow : Window
         window.ShowDialog(this);
     }
 
+    /// <summary>
+    /// Closes the selected active SFTP connection.
+    /// </summary>
     private void CloseSftp(object sender, RoutedEventArgs e)
     {
         if (SftpListBox.SelectedItem is SftpConnectionViewModel connectionVm)
             _viewModel?.CloseSftpCommand.Execute(connectionVm).Subscribe();
     }
 
+    /// <summary>
+    /// Opens the dialog used to create and add a new SFTP connection.
+    /// </summary>
     private void OnAddSftpButtonClicked(object sender, RoutedEventArgs e)
     {
         SftpConnectionViewModel viewModel = new(vm => _viewModel?.SftpConnectionsVms.Add(vm));
@@ -247,6 +291,9 @@ public partial class MainWindow : Window
         CommitMessageBar.IsVisible = false;
     }
 
+    /// <summary>
+    /// Opens the selected sidebar location and clears transient selection focus.
+    /// </summary>
     private void SideBarEntryClicked(object sender, TappedEventArgs e)
     {
         if (sender is ListBox { SelectedItem: SideBarEntryViewModel entry })
@@ -255,6 +302,9 @@ public partial class MainWindow : Window
         ClearFocus();
     }
 
+    /// <summary>
+    /// Opens the selected SFTP connection and clears transient selection focus.
+    /// </summary>
     private void SftpEntryClicked(object sender, TappedEventArgs e)
     {
         if (sender is ListBox { SelectedItem: SftpConnectionViewModel connectionVm })
@@ -360,6 +410,9 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Switches file display to list mode and persists the selected mode.
+    /// </summary>
     private void ListView(object? sender = null, RoutedEventArgs? e = null)
     {
         FileDisplay.ItemsPanel = _previousPanel = _listViewPanel;
@@ -367,6 +420,9 @@ public partial class MainWindow : Window
         FileSurferSettings.DisplayMode = DisplayMode.ListView;
     }
 
+    /// <summary>
+    /// Switches file display to icon mode and persists the selected mode.
+    /// </summary>
     private void IconView(object? sender = null, RoutedEventArgs? e = null)
     {
         FileDisplay.ItemsPanel = _previousPanel = _iconViewPanel;
@@ -374,6 +430,9 @@ public partial class MainWindow : Window
         FileSurferSettings.DisplayMode = DisplayMode.IconView;
     }
 
+    /// <summary>
+    /// Opens the application settings window.
+    /// </summary>
     private void OpenSettings(object sender, RoutedEventArgs e)
     {
         SettingsWindow settingsWindow = new();
@@ -387,6 +446,9 @@ public partial class MainWindow : Window
             button.HotKey = null;
     }
 
+    /// <summary>
+    /// Temporarily suppresses hotkeys when focus enters a text input.
+    /// </summary>
     protected override void OnGotFocus(GotFocusEventArgs e)
     {
         base.OnGotFocus(e);
@@ -401,6 +463,9 @@ public partial class MainWindow : Window
             button.HotKey = gesture;
     }
 
+    /// <summary>
+    /// Restores hotkeys when focus leaves a text input.
+    /// </summary>
     protected override void OnLostFocus(RoutedEventArgs e)
     {
         base.OnLostFocus(e);
@@ -501,6 +566,9 @@ public partial class MainWindow : Window
         ClearFocus();
     }
 
+    /// <summary>
+    /// Disposes the view model and saves settings when the window is closing.
+    /// </summary>
     private void OnClosing(object? sender, WindowClosingEventArgs? e)
     {
         _viewModel?.Dispose();
