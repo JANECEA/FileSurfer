@@ -8,6 +8,9 @@ using FileSurfer.Core.Models.FileInformation;
 
 namespace FileSurfer.Windows.Models.FileInformation;
 
+/// <summary>
+/// Provides Windows-specific local file-system information.
+/// </summary>
 public class WindowsFileInfoProvider : LocalFileInfoProvider
 {
     public override DriveEntryInfo[] GetDrives() =>

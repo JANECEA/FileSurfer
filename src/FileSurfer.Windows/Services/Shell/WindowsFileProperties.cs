@@ -8,6 +8,9 @@ using FileSurfer.Core.ViewModels;
 
 namespace FileSurfer.Windows.Services.Shell;
 
+/// <summary>
+/// Provides Windows shell dialogs for file properties and "Open with" operations.
+/// </summary>
 public class WindowsFileProperties : IFileProperties
 {
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]

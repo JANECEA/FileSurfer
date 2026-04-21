@@ -4,11 +4,18 @@ using System.Threading;
 
 namespace FileSurfer.Windows.Services.Shell;
 
+/// <summary>
+/// Executes queued work synchronously on a dedicated STA background thread.
+/// </summary>
 public sealed class StaWorkerSync : IDisposable
 {
     private readonly BlockingCollection<Action> _queue = new();
     private readonly Thread _thread;
 
+    /// <summary>
+    /// Initializes a new STA worker thread with the provided thread name.
+    /// </summary>
+    /// <param name="name">The worker thread name.</param>
     public StaWorkerSync(string name)
     {
         _thread = new Thread(ThreadLoop) { IsBackground = true, Name = name };
@@ -23,6 +30,11 @@ public sealed class StaWorkerSync : IDisposable
             work();
     }
 
+    /// <summary>
+    /// Invokes work on the STA worker thread and returns its result.
+    /// </summary>
+    /// <param name="func">The function to execute.</param>
+    /// <returns>The function result.</returns>
     public T Invoke<T>(Func<T> func)
     {
         T result = default!;

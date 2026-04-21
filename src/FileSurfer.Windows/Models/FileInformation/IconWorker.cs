@@ -7,6 +7,9 @@ using Avalonia.Media.Imaging;
 
 namespace FileSurfer.Windows.Models.FileInformation;
 
+/// <summary>
+/// Processes icon extraction requests on a dedicated STA worker thread.
+/// </summary>
 internal sealed class IconWorker : IDisposable
 {
     private sealed class IconRequest
@@ -27,6 +30,9 @@ internal sealed class IconWorker : IDisposable
     private readonly Thread _thread;
     private bool _disposing = false;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="IconWorker"/> class.
+    /// </summary>
     public IconWorker()
     {
         Thread thread = new(ThreadMain) { IsBackground = true };
@@ -35,6 +41,11 @@ internal sealed class IconWorker : IDisposable
         _thread = thread;
     }
 
+    /// <summary>
+    /// Queues a file path for icon extraction.
+    /// </summary>
+    /// <param name="path">The file path to extract an icon for.</param>
+    /// <returns>A task that resolves to the extracted icon, or <see langword="null"/> when unavailable.</returns>
     public Task<Bitmap?> Enqueue(string path)
     {
         if (_disposing || _queue.IsAddingCompleted)

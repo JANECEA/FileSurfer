@@ -17,6 +17,9 @@ using ReactiveUI.Avalonia;
 
 namespace FileSurfer.Windows;
 
+/// <summary>
+/// Application entry point for the Windows platform.
+/// </summary>
 internal static class Program
 {
     // Initialization code. Don't use any Avalonia, third-party APIs or any
@@ -39,6 +42,9 @@ internal static class Program
             .UseReactiveUI();
 }
 
+/// <summary>
+/// Provides Windows-specific platform wiring for the application.
+/// </summary>
 public class WindowsPlatformBootstrap : IPlatformBootstrap
 {
     public MainWindowViewModel GetViewModel(

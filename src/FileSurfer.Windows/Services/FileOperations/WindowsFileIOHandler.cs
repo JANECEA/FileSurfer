@@ -19,6 +19,10 @@ public class WindowsFileIoHandler : IFileIoHandler
 {
     private readonly IFileInfoProvider _fileInfoProvider;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="WindowsFileIoHandler"/> class.
+    /// </summary>
+    /// <param name="fileInfoProvider">The file info provider used for name collision checks.</param>
     public WindowsFileIoHandler(IFileInfoProvider fileInfoProvider) =>
         _fileInfoProvider = fileInfoProvider;
 

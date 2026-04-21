@@ -2,6 +2,9 @@ using FileSurfer.Core;
 
 namespace FileSurfer.Windows;
 
+/// <summary>
+/// Provides Windows-specific default settings.
+/// </summary>
 public class WindowsDefaultSettingsProvider : IDefaultSettingsProvider
 {
     public void PopulateDefaults(SettingsRecord settingsRecord)
