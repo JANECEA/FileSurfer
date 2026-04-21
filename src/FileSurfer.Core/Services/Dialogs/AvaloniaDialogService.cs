@@ -7,12 +7,22 @@ using FileSurfer.Core.Views.Dialogs;
 
 namespace FileSurfer.Core.Services.Dialogs;
 
+/// <summary>
+/// Avalonia-based implementation of <see cref="IDialogService"/> that presents informational,
+/// confirmation, and input dialogs, and wraps long-running operations in progress dialogs.
+/// </summary>
 public sealed class AvaloniaDialogService : IDialogService
 {
     private const int ShowOpDialogDelayMs = 750;
 
     private readonly Window _parentWindow;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AvaloniaDialogService"/> class.
+    /// </summary>
+    /// <param name="parentWindow">
+    /// Parent window used as the owner for modal dialogs and as the lock target for blocking flows.
+    /// </param>
     public AvaloniaDialogService(Window parentWindow) => _parentWindow = parentWindow;
 
     public void InfoDialog(string title, string info) =>

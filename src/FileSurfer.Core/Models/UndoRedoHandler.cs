@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace FileSurfer.Core.Models;
 
 /// <summary>
-/// Generic class for browsing <see cref="FileSurfer"/>'s history, such as file operations and visited directories.
+/// Represents a generic undo/redo history chain that supports navigation, insertion, removal,
+/// and enumeration around the current position.
 /// </summary>
 internal sealed class UndoRedoHandler<T>
 {
@@ -15,10 +16,33 @@ internal sealed class UndoRedoHandler<T>
     /// </summary>
     private sealed class UndoRedoNode
     {
+        /// <summary>
+        /// Value stored by this node.
+        /// </summary>
         internal readonly T? Data;
+
+        /// <summary>
+        /// Previous node in the chain.
+        /// </summary>
         internal UndoRedoNode? Previous;
+
+        /// <summary>
+        /// Next node in the chain.
+        /// </summary>
         internal UndoRedoNode? Next;
 
+        /// <summary>
+        /// Initializes a new node and optionally links it between previous and next nodes.
+        /// </summary>
+        /// <param name="data">
+        /// Value to store in the node.
+        /// </param>
+        /// <param name="previous">
+        /// Previous node to link from.
+        /// </param>
+        /// <param name="next">
+        /// Next node to link to.
+        /// </param>
         internal UndoRedoNode(T? data, UndoRedoNode? previous = null, UndoRedoNode? next = null)
         {
             Data = data;
@@ -43,8 +67,11 @@ internal sealed class UndoRedoHandler<T>
     public T? Current => _current.Data;
 
     /// <summary>
-    /// Constructs a new <see cref="UndoRedoHandler{T}"/> chain.
+    /// Initializes a new <see cref="UndoRedoHandler{T}"/> chain.
     /// </summary>
+    /// <param name="onCollectionChanged">
+    /// Optional callback invoked whenever the current position or chain structure changes.
+    /// </param>
     public UndoRedoHandler(Action? onCollectionChanged = null)
     {
         _onCollectionChanged = onCollectionChanged;
@@ -54,8 +81,11 @@ internal sealed class UndoRedoHandler<T>
     }
 
     /// <summary>
-    /// Adds a new node at the current position in the chain and cuts of following nodes.
+    /// Inserts a new node after the current position and discards any forward history.
     /// </summary>
+    /// <param name="data">
+    /// Value to store in the newly inserted node.
+    /// </param>
     public void AddNewNode(T data)
     {
         if (_current == _tail)
@@ -112,7 +142,9 @@ internal sealed class UndoRedoHandler<T>
     /// <summary>
     /// Enumerates items from the current position forward.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// A forward sequence of non-null values after the current node.
+    /// </returns>
     public IEnumerable<T> EnumerateFromCurrentForward()
     {
         UndoRedoNode? current = _current.Next;
@@ -127,9 +159,11 @@ internal sealed class UndoRedoHandler<T>
     }
 
     /// <summary>
-    /// Enumerates items from the current position back.
+    /// Enumerates items from the current position backward.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// A backward sequence of non-null values before the current node.
+    /// </returns>
     public IEnumerable<T> EnumerateFromCurrentBack()
     {
         UndoRedoNode? current = _current.Previous;
@@ -149,8 +183,12 @@ internal sealed class UndoRedoHandler<T>
     /// Throws <see cref="InvalidOperationException"/> if <see cref="_current"/> is either <see cref="_head"/> or <see cref="_tail"/>.
     /// </para>
     /// </summary>
-    /// <param name="goToPrevious"></param>
-    /// <exception cref="InvalidOperationException">Throws exception if <see cref="_current"/> is either <see cref="_head"/> or <see cref="_tail"/>.</exception>
+    /// <param name="goToPrevious">
+    /// When <see langword="true"/>, moves to the previous node after removal; otherwise moves to the next node.
+    /// </param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <see cref="_current"/> is <see cref="_head"/> or <see cref="_tail"/>.
+    /// </exception>
     public void RemoveCurrent(bool goToPrevious)
     {
         if (
