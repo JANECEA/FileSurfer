@@ -9,6 +9,9 @@ using Renci.SshNet.Common;
 
 namespace FileSurfer.Core.Models.Sftp;
 
+/// <summary>
+/// Creates and initializes <see cref="SftpFileSystem"/> instances from <see cref="SftpConnection"/> settings.
+/// </summary>
 public class SftpFileSystemFactory
 {
     private enum HostKeyTrustState
@@ -27,6 +30,10 @@ public class SftpFileSystemFactory
 
     private readonly IDialogService _dialogService;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SftpFileSystemFactory"/> class.
+    /// </summary>
+    /// <param name="dialogService">The dialog service used for authentication and host-key prompts.</param>
     public SftpFileSystemFactory(IDialogService dialogService) => _dialogService = dialogService;
 
     private Task<string?> RequestPasswordAsync(SftpConnection connection)
@@ -79,6 +86,13 @@ public class SftpFileSystemFactory
         );
     }
 
+    /// <summary>
+    /// Attempts to establish an SFTP and SSH connection and create a corresponding file system.
+    /// </summary>
+    /// <param name="connection">The connection settings to use.</param>
+    /// <returns>
+    /// A successful result containing the created <see cref="SftpFileSystem"/>; otherwise an error result.
+    /// </returns>
     public async Task<ValueResult<SftpFileSystem>> TryConnectAsync(SftpConnection connection)
     {
         if (string.IsNullOrWhiteSpace(connection.HostnameOrIpAddress))

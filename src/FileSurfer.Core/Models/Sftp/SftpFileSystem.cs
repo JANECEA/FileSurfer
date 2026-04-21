@@ -8,6 +8,9 @@ using Renci.SshNet;
 
 namespace FileSurfer.Core.Models.Sftp;
 
+/// <summary>
+/// Represents an SFTP-backed implementation of <see cref="IFileSystem"/>.
+/// </summary>
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public sealed class SftpFileSystem : IFileSystem
 {
@@ -37,6 +40,12 @@ public sealed class SftpFileSystem : IFileSystem
     public StubGitIntegration GitIntegration { get; } =
         new("Git is not supported on SFTP file systems.");
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SftpFileSystem"/> class.
+    /// </summary>
+    /// <param name="label">The display label for this file system.</param>
+    /// <param name="sftpClient">The connected SFTP client.</param>
+    /// <param name="sshClient">The connected SSH client.</param>
     public SftpFileSystem(string label, SftpClient sftpClient, SshClient sshClient)
     {
         _sftpClient = sftpClient;

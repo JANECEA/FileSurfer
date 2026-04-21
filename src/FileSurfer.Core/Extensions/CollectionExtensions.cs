@@ -3,8 +3,17 @@ using System.Collections.Generic;
 
 namespace FileSurfer.Core.Extensions;
 
+/// <summary>
+/// Provides helper extension methods for working with collections.
+/// </summary>
 public static class CollectionExtensions
 {
+    /// <summary>
+    /// Converts a read-only collection into an array by projecting each item.
+    /// </summary>
+    /// <param name="collection">The source collection.</param>
+    /// <param name="action">The projection function applied to each source item.</param>
+    /// <returns>An array containing projected items in source order.</returns>
     public static TOut[] ConvertToArray<TIn, TOut>(
         this IReadOnlyCollection<TIn> collection,
         Func<TIn, TOut> action
@@ -19,6 +28,11 @@ public static class CollectionExtensions
         return array;
     }
 
+    /// <summary>
+    /// Copies a read-only collection into a new array.
+    /// </summary>
+    /// <param name="collection">The source collection.</param>
+    /// <returns>An array containing source items in source order.</returns>
     public static T[] ConvertToArray<T>(this IReadOnlyCollection<T> collection)
     {
         T[] array = new T[collection.Count];
@@ -30,6 +44,12 @@ public static class CollectionExtensions
         return array;
     }
 
+    /// <summary>
+    /// Enumerates chunk sizes while filling a reusable buffer from a source sequence.
+    /// </summary>
+    /// <param name="source">The source sequence to chunk.</param>
+    /// <param name="buffer">The reusable destination buffer.</param>
+    /// <returns>A sequence of chunk lengths written into <paramref name="buffer"/>.</returns>
     public static IEnumerable<int> EfficientChunk<T>(this IEnumerable<T> source, T[] buffer)
     {
         int index = 0;
@@ -47,6 +67,12 @@ public static class CollectionExtensions
             yield return index;
     }
 
+    /// <summary>
+    /// Determines whether two collections contain the same items with the same multiplicities, regardless of order.
+    /// </summary>
+    /// <param name="collectionA">The first collection.</param>
+    /// <param name="collectionB">The second collection.</param>
+    /// <returns><see langword="true"/> when both collections are equivalent as multisets; otherwise, <see langword="false"/>.</returns>
     public static bool EqualsUnordered<T>(
         this IReadOnlyCollection<T> collectionA,
         IReadOnlyCollection<T> collectionB

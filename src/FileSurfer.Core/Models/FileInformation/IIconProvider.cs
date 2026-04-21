@@ -13,21 +13,26 @@ public interface IIconProvider : IDisposable
     /// <summary>
     /// Retrieves the associated icon based on the supplied file path.
     /// </summary>
-    /// <param name="filePath"></param>
+    /// <param name="filePath">The file path used to determine the icon.</param>
     /// <returns>The associated icon.</returns>
     public Task<Bitmap> GetFileIconAsync(string filePath);
 
     /// <summary>
     /// Retrieves the icon associated with directories.
     /// </summary>
+    /// <param name="dirPath">The directory path used to determine the icon.</param>
     public Task<Bitmap> GetDirectoryIconAsync(string dirPath);
 
     /// <summary>
     /// Retrieves the icon associated with drives.
     /// </summary>
+    /// <param name="driveEntryInfo">The drive information used to determine the icon.</param>
     public Task<Bitmap> GetDriveIconAsync(DriveEntryInfo driveEntryInfo);
 }
 
+/// <summary>
+/// Provides generic fallback icons for files, directories, and drives.
+/// </summary>
 public class BaseIconProvider : IIconProvider
 {
     private static readonly Bitmap GenericFileIcon = new(

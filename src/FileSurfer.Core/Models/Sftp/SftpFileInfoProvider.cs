@@ -13,6 +13,9 @@ using Renci.SshNet.Sftp;
 
 namespace FileSurfer.Core.Models.Sftp;
 
+/// <summary>
+/// Provides file and directory metadata operations for an SFTP-backed file system.
+/// </summary>
 public sealed class SftpFileInfoProvider : IFileInfoProvider
 {
     private readonly SshShellHandler _sshShellHandler;
@@ -20,6 +23,11 @@ public sealed class SftpFileInfoProvider : IFileInfoProvider
 
     public IPathTools PathTools => RemoteUnixPathTools.Instance;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SftpFileInfoProvider"/> class.
+    /// </summary>
+    /// <param name="client">The SFTP client used for file system queries.</param>
+    /// <param name="sshShellHandler">The SSH shell handler used for shell-based checks.</param>
     public SftpFileInfoProvider(SftpClient client, SshShellHandler sshShellHandler)
     {
         _client = client;

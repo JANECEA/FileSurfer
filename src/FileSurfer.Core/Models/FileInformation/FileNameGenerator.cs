@@ -14,6 +14,9 @@ public static class FileNameGenerator
     /// <summary>
     /// Finds a name available to use in <paramref name="directory"/> based on <paramref name="newName"/>.
     /// </summary>
+    /// <param name="fileInfoProvider">The file info provider used to check path existence.</param>
+    /// <param name="directory">The target directory where the name must be available.</param>
+    /// <param name="newName">The preferred base name to use.</param>
     /// <returns><see cref="string"/> name available to use in <paramref name="directory"/>.</returns>
     public static string GetAvailableName(
         IFileInfoProvider fileInfoProvider,
@@ -39,6 +42,9 @@ public static class FileNameGenerator
     /// <summary>
     /// Finds a name available to use in <paramref name="directory"/> based on <paramref name="newName"/>.
     /// </summary>
+    /// <param name="fileInfoProvider">The file info provider used to check path existence.</param>
+    /// <param name="directory">The target directory where the name must be available.</param>
+    /// <param name="newName">The preferred base name to use.</param>
     /// <returns><see cref="string"/> name available to use in <paramref name="directory"/>.</returns>
     public static async Task<string> GetAvailableNameAsync(
         IFileInfoProvider fileInfoProvider,
@@ -65,6 +71,9 @@ public static class FileNameGenerator
     /// <summary>
     /// Finds a name available to use in all <paramref name="dirPaths"/> based on <paramref name="newName"/>.
     /// </summary>
+    /// <param name="fileInfoProvider">The file info provider used to check path existence.</param>
+    /// <param name="newName">The preferred base name to use.</param>
+    /// <param name="dirPaths">The set of directories where the name must be available.</param>
     /// <returns><see cref="string"/> name available to use in all <paramref name="dirPaths"/>.</returns>
     public static string GetNameMultipleDirs(
         IFileInfoProvider fileInfoProvider,
@@ -94,6 +103,9 @@ public static class FileNameGenerator
     /// <summary>
     /// Finds a name available for a copy.
     /// </summary>
+    /// <param name="fileInfoProvider">The file info provider used to check path existence.</param>
+    /// <param name="directory">The target directory for the copied entry.</param>
+    /// <param name="entry">The source entry being copied.</param>
     /// <returns>Name of a copy, available to use in the path specified in: <paramref name="directory"/>.</returns>
     public static string GetCopyName(
         IFileInfoProvider fileInfoProvider,
@@ -109,8 +121,11 @@ public static class FileNameGenerator
         );
 
     /// <summary>
-    /// Gets new available name for the files represented by <paramref name="entries"/> accoring to <paramref name="namingPattern"/>.
+    /// Gets new available names for files represented by <paramref name="entries"/> according to <paramref name="namingPattern"/>.
     /// </summary>
+    /// <param name="fileInfoProvider">The file info provider used to check path existence.</param>
+    /// <param name="entries">The file entries that require new names.</param>
+    /// <param name="namingPattern">The naming pattern used as the base for generated names.</param>
     /// <returns>An array of names available for <paramref name="entries"/>.</returns>
     public static string[] GetAvailableNames(
         IFileInfoProvider fileInfoProvider,

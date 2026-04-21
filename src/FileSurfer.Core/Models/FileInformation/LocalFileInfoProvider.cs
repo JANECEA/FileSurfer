@@ -148,6 +148,12 @@ public abstract class LocalFileInfoProvider : ILocalFileInfoProvider
     public virtual Task<DateTime?> GetDirLastWriteUtcAsync(string dirPath) =>
         Task.FromResult(GetDirLastWriteUtc(dirPath));
 
+    /// <summary>
+    /// Determines whether a local path is protected by the operating system.
+    /// </summary>
+    /// <param name="path">The file system path to evaluate.</param>
+    /// <param name="isDirectory"><see langword="true"/> when <paramref name="path"/> is a directory; otherwise it is treated as a file.</param>
+    /// <returns><see langword="true"/> when the path is considered OS-protected; otherwise, <see langword="false"/>.</returns>
     protected virtual bool IsOsProtected(string path, bool isDirectory)
     {
         try
