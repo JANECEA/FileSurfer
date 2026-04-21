@@ -22,8 +22,7 @@ public class SftpFileSystemFactory
     }
 
     private sealed record HostKeyDecision(
-        string Algorithm,
-        string Hash,
+        FingerPrint NewFingerprint,
         HostKeyTrustState TrustState,
         FingerPrint? ExistingFingerprint
     );
@@ -267,7 +266,11 @@ public class SftpFileSystemFactory
     )
     {
         int index = decisions.FindIndex(d =>
-            string.Equals(d.Algorithm, decision.Algorithm, StringComparison.Ordinal)
+            string.Equals(
+                d.NewFingerprint.Algorithm,
+                decision.NewFingerprint.Algorithm,
+                StringComparison.Ordinal
+            )
         );
         if (index == -1)
             decisions.Add(decision);
@@ -296,13 +299,14 @@ public class SftpFileSystemFactory
             .Replace("-", string.Empty)
             .ToLowerInvariant();
 
+        FingerPrint newFp = new(algorithm, fingerprintHex);
         FingerPrint? oldFp = connection.FingerPrints.Find(fp => fp.Algorithm == algorithm);
         if (oldFp is null)
-            return new HostKeyDecision(algorithm, fingerprintHex, HostKeyTrustState.New, null);
+            return new HostKeyDecision(newFp, HostKeyTrustState.New, null);
 
-        return string.Equals(oldFp.Hash, fingerprintHex, StringComparison.OrdinalIgnoreCase)
-            ? new HostKeyDecision(algorithm, fingerprintHex, HostKeyTrustState.Trusted, oldFp)
-            : new HostKeyDecision(algorithm, fingerprintHex, HostKeyTrustState.Mismatch, oldFp);
+        return newFp.IsSame(oldFp)
+            ? new HostKeyDecision(newFp, HostKeyTrustState.Trusted, oldFp)
+            : new HostKeyDecision(newFp, HostKeyTrustState.Mismatch, oldFp);
     }
 
     private async Task<bool> ProcessHostKeyDecisionAsync(
@@ -310,27 +314,24 @@ public class SftpFileSystemFactory
         SftpConnection connection
     )
     {
-        FingerPrint newFp = new(decision.Algorithm, decision.Hash);
-
         switch (decision.TrustState)
         {
             case HostKeyTrustState.Trusted:
                 return true;
 
             case HostKeyTrustState.New:
-                AddedNewFpAsync(connection, newFp);
-                connection.FingerPrints.Add(newFp);
+                AddedNewFpAsync(connection, decision.NewFingerprint);
+                connection.FingerPrints.Add(decision.NewFingerprint);
                 return true;
 
             case HostKeyTrustState.Mismatch when decision.ExistingFingerprint is not null:
                 bool trust = await ConfirmNewFpAsync(
                     connection,
                     decision.ExistingFingerprint,
-                    newFp
+                    decision.NewFingerprint
                 );
                 if (trust)
-                    decision.ExistingFingerprint.Hash = newFp.Hash;
-
+                    decision.ExistingFingerprint.Hash = decision.NewFingerprint.Hash;
                 return trust;
 
             case HostKeyTrustState.Mismatch:
