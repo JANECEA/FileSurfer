@@ -17,7 +17,7 @@ public interface IFileSystem : IDisposable
     public IFileInfoProvider FileInfoProvider { get; }
 
     /// <summary>
-    /// Gets the provider used to resolve file and directory icons.
+    /// Gets the provider used to resolve file, drive, and directory icons.
     /// </summary>
     public IIconProvider IconProvider { get; }
 

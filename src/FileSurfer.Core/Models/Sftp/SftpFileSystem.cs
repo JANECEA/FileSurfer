@@ -17,28 +17,32 @@ public sealed class SftpFileSystem : IFileSystem
     private readonly SftpClient _sftpClient;
     private readonly SshClient _sshClient;
     private readonly string _label;
+
+    private readonly SftpFileInfoProvider _fileInfoProvider;
+    private readonly BaseIconProvider _iconProvider = new();
+    private readonly StubArchiveManager _archiveManager = new(
+        "Archivation is not supported on SFTP file systems."
+    );
+    private readonly SftpFileIoHandler _fileIoHandler;
+    private readonly StubBinInteraction _binInteraction = new(
+        "Trash is not supported on SFTP file systems."
+    );
+    private readonly SftpFileProperties _fileProperties;
+    private readonly SshShellHandler _shellHandler;
+    private readonly StubGitIntegration _gitIntegration = new(
+        "Git is not supported on SFTP file systems."
+    );
+
     private bool _disposed = false;
 
-    IFileInfoProvider IFileSystem.FileInfoProvider => FileInfoProvider;
-    IIconProvider IFileSystem.IconProvider => IconProvider;
-    IArchiveManager IFileSystem.ArchiveManager => ArchiveManager;
-    IFileIoHandler IFileSystem.FileIoHandler => FileIoHandler;
-    IBinInteraction IFileSystem.BinInteraction => BinInteraction;
-    IFileProperties IFileSystem.FileProperties => FileProperties;
-    IShellHandler IFileSystem.ShellHandler => ShellHandler;
-    IGitIntegration IFileSystem.GitIntegration => GitIntegration;
-
-    public SftpFileInfoProvider FileInfoProvider { get; }
-    public BaseIconProvider IconProvider { get; } = new();
-    public StubArchiveManager ArchiveManager { get; } =
-        new("Archivation is not supported on SFTP file systems.");
-    public SftpFileIoHandler FileIoHandler { get; }
-    public StubBinInteraction BinInteraction { get; } =
-        new("Trash is not supported on SFTP file systems.");
-    public SftpFileProperties FileProperties { get; }
-    public SshShellHandler ShellHandler { get; }
-    public StubGitIntegration GitIntegration { get; } =
-        new("Git is not supported on SFTP file systems.");
+    public IFileInfoProvider FileInfoProvider => _fileInfoProvider;
+    public IIconProvider IconProvider => _iconProvider;
+    public IArchiveManager ArchiveManager => _archiveManager;
+    public IFileIoHandler FileIoHandler => _fileIoHandler;
+    public IBinInteraction BinInteraction => _binInteraction;
+    public IFileProperties FileProperties => _fileProperties;
+    public IShellHandler ShellHandler => _shellHandler;
+    public IGitIntegration GitIntegration => _gitIntegration;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SftpFileSystem"/> class.
@@ -52,10 +56,10 @@ public sealed class SftpFileSystem : IFileSystem
         _sshClient = sshClient;
         _label = label;
 
-        ShellHandler = new SshShellHandler(_sshClient, _sftpClient);
-        FileInfoProvider = new SftpFileInfoProvider(_sftpClient, ShellHandler);
-        FileIoHandler = new SftpFileIoHandler(_sftpClient, ShellHandler);
-        FileProperties = new SftpFileProperties(sftpClient, ShellHandler);
+        _shellHandler = new SshShellHandler(_sshClient, _sftpClient);
+        _fileInfoProvider = new SftpFileInfoProvider(_sftpClient, _shellHandler);
+        _fileIoHandler = new SftpFileIoHandler(_sftpClient, _shellHandler);
+        _fileProperties = new SftpFileProperties(sftpClient, _shellHandler);
     }
 
     public bool IsReady() => !_disposed;
@@ -68,8 +72,8 @@ public sealed class SftpFileSystem : IFileSystem
     {
         _sftpClient.Dispose();
         _sshClient.Dispose();
-        IconProvider.Dispose();
-        GitIntegration.Dispose();
+        _iconProvider.Dispose();
+        _gitIntegration.Dispose();
         _disposed = true;
     }
 }
