@@ -27,6 +27,8 @@ public class SftpFileSystemFactory
         FingerPrint? ExistingFingerprint
     );
 
+    private static readonly TimeSpan KeepAliveFor = TimeSpan.FromSeconds(15);
+
     private readonly IDialogService _dialogService;
 
     /// <summary>
@@ -179,8 +181,8 @@ public class SftpFileSystemFactory
         Exception? ConnectException
     )> ConnectOnceAsync(ConnectionInfo connectionInfo, SftpConnection connection)
     {
-        SftpClient sftpClient = new(connectionInfo);
-        SshClient sshClient = new(connectionInfo);
+        SftpClient sftpClient = new(connectionInfo) { KeepAliveInterval = KeepAliveFor };
+        SshClient sshClient = new(connectionInfo) { KeepAliveInterval = KeepAliveFor };
         List<HostKeyDecision> decisions = new();
 
         sftpClient.HostKeyReceived += (_, e) =>
