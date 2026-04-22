@@ -68,7 +68,7 @@ public sealed class Location
         if (other is null)
             return false;
 
-        if (FileSystem is LocalFileSystem && other.FileSystem.IsLocal())
+        if (FileSystem.IsLocal() && other.FileSystem.IsLocal())
             return LocalPathTools.PathsAreEqual(Path, other.Path);
 
         return FileSystem == other.FileSystem

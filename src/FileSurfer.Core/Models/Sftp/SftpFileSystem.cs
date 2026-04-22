@@ -62,7 +62,7 @@ public sealed class SftpFileSystem : IFileSystem
         _fileProperties = new SftpFileProperties(sftpClient, _shellHandler);
     }
 
-    public bool IsReady() => !_disposed;
+    public bool IsReady() => !_disposed && _sftpClient.IsConnected && _sshClient.IsConnected;
 
     public bool IsLocal() => false;
 

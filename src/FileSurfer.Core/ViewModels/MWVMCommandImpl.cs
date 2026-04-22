@@ -424,8 +424,18 @@ public sealed partial class MainWindowViewModel
 
     private async Task<IResult> SetLocationInternalAsync(Location location)
     {
-        string dirName = location.PathTools().GetFileName(location.Path);
+        if (!location.FileSystem.IsReady() && location.FileSystem is SftpFileSystem)
+        {
+            SftpConnectionViewModel? vm = SftpConnectionsVms.FirstOrDefault(v =>
+                ReferenceEquals(v.FileSystem, location.FileSystem)
+            );
+            if (vm is not null)
+                await CloseSftpConnection(vm);
 
+            return SimpleResult.Error($"'{location.FileSystem.GetLabel()}' has disconnected.");
+        }
+
+        string dirName = location.PathTools().GetFileName(location.Path);
         ValueResult<DirectoryContents> contentsR = await _dialogService.BlockingDialogAsync(
             $"Loading contents of \"{location.FileSystem.GetLabel()} : {dirName}\"",
             () => GetEntriesAsync(location)
