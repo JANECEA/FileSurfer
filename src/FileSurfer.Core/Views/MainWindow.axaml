@@ -688,18 +688,20 @@
                         </ListBox.Styles>
                     </ListBox>
 
-                    <Border x:Name="NewNameBar" Grid.Row="3" Classes="InputBorder">
-                        <DockPanel>
-                            <Label Classes="InputLabel" Content="New name: " DockPanel.Dock="Left" />
-                            <TextBox x:Name="NameInputBox" Classes="InputBox" DockPanel.Dock="Left" LostFocus="InputBoxLostFocus" />
-                        </DockPanel>
+                    <Border x:Name="NewNameBar" Grid.Row="3" Classes="InputBorder" LostFocus="InputBarLostFocus">
+                        <Grid ColumnDefinitions="Auto * Auto">
+                            <Label Grid.Column="0" Classes="InputLabel" Content="New name: " />
+                            <TextBox x:Name="NameInputBox" Grid.Column="1" Classes="InputBox" />
+                            <Button Grid.Column="2" Classes="InputBarButton" Click="NameEntered" Content="Rename" />
+                        </Grid>
                     </Border>
 
-                    <Border x:Name="CommitMessageBar" Grid.Row="4" Classes="InputBorder">
-                        <DockPanel>
-                            <Label Classes="InputLabel" Content="Commit message: " DockPanel.Dock="Left" />
-                            <TextBox x:Name="CommitInputBox" Classes="InputBox" DockPanel.Dock="Left" LostFocus="InputBoxLostFocus" />
-                        </DockPanel>
+                    <Border x:Name="CommitMessageBar" Grid.Row="4" Classes="InputBorder" LostFocus="InputBarLostFocus">
+                        <Grid ColumnDefinitions="Auto * Auto">
+                            <Label Grid.Column="0" Classes="InputLabel" Content="Commit message: " />
+                            <TextBox x:Name="CommitInputBox" Grid.Column="1" Classes="InputBox" />
+                            <Button Grid.Column="2" Classes="InputBarButton" Click="CommitMessageEntered" Content="Commit" />
+                        </Grid>
                     </Border>
                 </Grid>
             </Grid>

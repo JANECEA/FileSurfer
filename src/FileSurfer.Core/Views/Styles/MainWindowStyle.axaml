@@ -434,6 +434,16 @@
         <Setter Property="BorderThickness" Value="1" />
     </Style>
 
+    <Style Selector="Button.InputBarButton">
+        <Setter Property="Margin" Value="0 0 5 0" />
+        <Setter Property="Background" Value="{DynamicResource TextBoxColor}" />
+        <Setter Property="Foreground" Value="{DynamicResource AcceptColor}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
     <Style Selector="TextBlock.IconViewInfo">
         <Setter Property="FontFamily" Value="Arial, Segoe UI, sans-serif" />
         <Setter Property="TextWrapping" Value="WrapWithOverflow" />

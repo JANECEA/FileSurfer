@@ -9,6 +9,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml.Templates;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using FileSurfer.Core.ViewModels;
 using FileSurfer.Core.Views.Helpers;
@@ -359,38 +360,49 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// Hides <see cref="NewNameBar"/> and <see cref="CommitMessageBar"/> when either loose focus.
-    /// <para>
-    /// </para>
     /// </summary>
-    private void InputBoxLostFocus(object sender, RoutedEventArgs e)
-    {
-        NewNameBar.IsVisible = false;
-        CommitMessageBar.IsVisible = false;
-    }
+    private void InputBarLostFocus(object sender, RoutedEventArgs e) =>
+        Dispatcher.UIThread.Post(() =>
+        {
+            for (
+                Visual? current = FocusManager?.GetFocusedElement() as Visual;
+                current is not null;
+                current = current.GetVisualParent()
+            )
+                if (ReferenceEquals(current, sender))
+                    return;
+
+            NewNameBar.IsVisible = false;
+            CommitMessageBar.IsVisible = false;
+        });
 
     /// <summary>
     /// Resets text in <see cref="PathBox"/>.
-    /// <para>
-    /// </para>
     /// </summary>
     private void PathBoxLostFocus(object sender, RoutedEventArgs e) =>
         PathBox.Text = _viewModel?.PathBoxText ?? string.Empty;
 
-    private void NameEntered()
+    /// <summary>
+    /// Executes <see cref="MainWindowViewModel.RenameCommand"/> and hides the new name bar.
+    /// </summary>
+    private void NameEntered(object? sender = null, RoutedEventArgs? e = null)
     {
         if (NameInputBox.Text is string newName)
         {
-            _viewModel?.RenameCommand.Execute(newName.Trim()).Subscribe();
+            _viewModel?.RenameCommand.Execute(newName).Subscribe();
             NewNameBar.IsVisible = false;
             NameInputBox.Text = string.Empty;
         }
     }
 
-    private void CommitMessageEntered()
+    /// <summary>
+    /// Executes <see cref="MainWindowViewModel.GitCommitCommand"/> and hides the commit message bar.
+    /// </summary>
+    private void CommitMessageEntered(object? sender = null, RoutedEventArgs? e = null)
     {
         if (CommitInputBox.Text is string commitMessage)
         {
-            _viewModel?.GitCommitCommand.Execute(commitMessage.Trim()).Subscribe();
+            _viewModel?.GitCommitCommand.Execute(commitMessage).Subscribe();
             CommitMessageBar.IsVisible = false;
             CommitInputBox.Text = string.Empty;
         }

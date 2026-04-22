@@ -1139,6 +1139,7 @@ public sealed partial class MainWindowViewModel
 
     private async Task GitCommitAsync(string commitMessage)
     {
+        commitMessage = commitMessage.Trim();
         IFileSystem fs = CurrentLocation.FileSystem;
 
         if (!IsVersionControlled)
