@@ -92,7 +92,7 @@ public class ClipboardManager : IClipboardManager
             }
         }
         else
-            await _osClipboard.ExecuteAsync(c => c.ClearAsync());
+            await _osClipboard.ClearAsync();
 
         _pasteType = pasteType;
         _originFs = location.FileSystem;
@@ -261,7 +261,7 @@ public class ClipboardManager : IClipboardManager
 
         if (result.IsOk && _pasteType is PasteType.Cut)
         {
-            await _osClipboard.ExecuteAsync(c => c.ClearAsync());
+            await _osClipboard.ClearAsync();
             _programClipboard.Clear();
             _originFs = null;
             _originPath = null;

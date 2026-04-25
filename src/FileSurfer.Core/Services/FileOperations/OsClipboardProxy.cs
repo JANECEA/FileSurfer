@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
@@ -15,6 +16,11 @@ namespace FileSurfer.Core.Services.FileOperations;
 /// </summary>
 internal class OsClipboardProxy
 {
+    private static readonly DataTransferItem ClearedMarkItem = DataTransferItem.Create(
+        DataFormat.CreateBytesApplicationFormat("filesurfer-clipboard-empty"),
+        new byte[] { 1, 2, 3 }
+    );
+
     private readonly IStorageProvider _storageProvider;
 
     private IClipboard Clipboard { get; }
@@ -60,6 +66,20 @@ internal class OsClipboardProxy
     /// </returns>
     internal Task ExecuteAsync(Func<IClipboard, Task> operation) =>
         Dispatcher.UIThread.InvokeAsync(() => operation(Clipboard));
+
+    /// <summary>
+    /// Asynchronously clears the OS clipboard on the UI thread by setting a marker object.
+    /// </summary>
+    /// <returns>
+    /// A task that completes when the clearing operation has finished.
+    /// </returns>
+    internal Task ClearAsync() =>
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            DataTransfer data = new();
+            data.Add(ClearedMarkItem);
+            await Clipboard.SetDataAsync(data);
+        });
 
     /// <summary>
     /// Compares OS clipboard storage items with FileSurfer clipboard entries by normalized paths and item type.
