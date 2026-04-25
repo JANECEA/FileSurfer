@@ -30,12 +30,26 @@
         <Setter Property="Margin" Value="15" />
     </Style>
 
-    <Style Selector="TextBlock.InfoBlock">
+    <Style Selector="TextBox.InfoBlock">
         <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+        <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="TextWrapping" Value="WrapWithOverflow" />
+        <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="Margin" Value="10" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="IsReadOnly" Value="True" />
+        <Setter Property="CaretBrush" Value="Transparent" />
+    </Style>
+
+    <Style Selector="TextBox.InfoBlock:focus">
+        <Setter Property="FocusAdorner" Value="{x:Null}" />
+    </Style>
+
+    <Style Selector="TextBox.InfoBlock:focus-within /template/ Border, TextBox.InfoBlock:pointerover /template/ Border">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
     </Style>
 
     <Style Selector="Rectangle.BottomRectangle">
@@ -62,7 +76,7 @@
         <Setter Property="Margin" Value="15 -5 15 10" />
     </Style>
 
-    <Style Selector="TextBox:focus-within /template/ Border,TextBox:pointerover /template/ Border">
+    <Style Selector="TextBox.InputBox:focus-within /template/ Border, TextBox.InputBox:pointerover /template/ Border">
         <Setter Property="Background" Value="{DynamicResource TextBoxColor}" />
         <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}" />
     </Style>

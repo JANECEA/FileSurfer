@@ -18,7 +18,7 @@
     <Grid Classes="MainGrid" RowDefinitions="* 45">
         <Border Classes="InfoBlockBorder">
             <ScrollViewer>
-                <TextBlock x:Name="QuestionBlock" Classes="InfoBlock" />
+                <TextBox x:Name="QuestionBlock" Classes="InfoBlock" />
             </ScrollViewer>
         </Border>
 

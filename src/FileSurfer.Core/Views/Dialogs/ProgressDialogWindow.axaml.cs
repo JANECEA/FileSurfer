@@ -33,8 +33,13 @@ public partial class ProgressDialogWindow : Window
 
     protected override void OnClosing(WindowClosingEventArgs e)
     {
-        base.OnClosing(e);
-        Cancel();
+        if (!e.IsProgrammatic && Cts is null)
+            e.Cancel = true;
+        else
+        {
+            base.OnClosing(e);
+            Cancel();
+        }
     }
 
     private void Cancel()
