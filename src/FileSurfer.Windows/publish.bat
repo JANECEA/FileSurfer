@@ -33,9 +33,9 @@ for %%R in (win-x64 win-arm64) do (
     echo [INFO] Publishing %%R...
 
     "%MSBUILD%" "%PROJECT%" ^
+        /restore ^
         /t:Publish ^
         /p:Configuration=Release ^
-        /p:TargetFramework=net8.0-windows ^
         /p:RuntimeIdentifier=%%R ^
         /p:SelfContained=true ^
         /p:PublishReadyToRun=true ^
