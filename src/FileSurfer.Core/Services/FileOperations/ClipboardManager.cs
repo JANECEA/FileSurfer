@@ -70,8 +70,15 @@ public class ClipboardManager : IClipboardManager
 
     public async Task<IResult> CopyPathToFileAsync(string filePath)
     {
-        await _osClipboard.ExecuteAsync(c => c.SetTextAsync(filePath));
-        return SimpleResult.Ok();
+        try
+        {
+            await _osClipboard.ExecuteAsync(c => c.SetTextAsync(filePath));
+            return SimpleResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return SimpleResult.Error(ex.Message);
+        }
     }
 
     private async Task<IResult> SetClipboardInternal(
@@ -80,19 +87,17 @@ public class ClipboardManager : IClipboardManager
         PasteType pasteType
     )
     {
-        if (location.FileSystem.IsLocal())
+        IResult result = location.FileSystem.IsLocal()
+            ? await _osClipboard.CopyToOsClipboardAsync(entries)
+            : await _osClipboard.ClearAsync();
+
+        if (!result.IsOk)
         {
-            IResult result = await _osClipboard.CopyToOsClipboardAsync(entries);
-            if (!result.IsOk)
-            {
-                _programClipboard.Clear();
-                _originFs = null;
-                _originPath = null;
-                return result;
-            }
+            _programClipboard.Clear();
+            _originFs = null;
+            _originPath = null;
+            return result;
         }
-        else
-            await _osClipboard.ClearAsync();
 
         _pasteType = pasteType;
         _originFs = location.FileSystem;
@@ -261,7 +266,7 @@ public class ClipboardManager : IClipboardManager
 
         if (result.IsOk && _pasteType is PasteType.Cut)
         {
-            await _osClipboard.ClearAsync();
+            _ = await _osClipboard.ClearAsync();
             _programClipboard.Clear();
             _originFs = null;
             _originPath = null;

@@ -73,12 +73,20 @@ internal class OsClipboardProxy
     /// <returns>
     /// A task that completes when the clearing operation has finished.
     /// </returns>
-    internal Task ClearAsync() =>
-        Dispatcher.UIThread.InvokeAsync(async () =>
+    internal Task<IResult> ClearAsync() =>
+        Dispatcher.UIThread.InvokeAsync<IResult>(async () =>
         {
-            DataTransfer data = new();
-            data.Add(ClearedMarkItem);
-            await Clipboard.SetDataAsync(data);
+            try
+            {
+                DataTransfer data = new();
+                data.Add(ClearedMarkItem);
+                await Clipboard.SetDataAsync(data);
+                return SimpleResult.Ok();
+            }
+            catch (Exception ex)
+            {
+                return SimpleResult.Error(ex.Message);
+            }
         });
 
     /// <summary>
