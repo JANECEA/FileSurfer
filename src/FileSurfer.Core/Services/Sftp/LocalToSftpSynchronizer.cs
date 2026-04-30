@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileInformation;
 using FileSurfer.Core.Services.FileOperations;
@@ -148,16 +149,21 @@ public sealed class LocalToSftpSynchronizer : IDisposable
         result.MergeResult(await InitializeFrom(from, to, syncHidden, reporter, ct));
 
         if (!result.IsOk)
-            result.MergeResult(ResetDir(to, syncHidden));
+            result.MergeResult(await ResetDir(to, syncHidden));
 
         return result;
     }
 
-    private static IResult ResetDir(Location dir, bool syncHidden)
+    private static async Task<IResult> ResetDir(Location dir, bool syncHidden)
     {
         IFileSystem fs = dir.FileSystem;
 
-        var entriesR = fs.FileInfoProvider.GetPathEntries(dir.Path, syncHidden, false);
+        ValueResult<DirectoryContents> entriesR = await fs.FileInfoProvider.GetPathEntriesAsync(
+            dir.Path,
+            syncHidden,
+            false,
+            CancellationToken.None
+        );
         if (!entriesR.IsOk)
             return entriesR;
 
@@ -181,7 +187,7 @@ public sealed class LocalToSftpSynchronizer : IDisposable
     {
         IFileIoHandler toIo = rootTo.FileSystem.FileIoHandler;
 
-        IResult resetResult = ResetDir(rootTo, syncHidden);
+        IResult resetResult = await ResetDir(rootTo, syncHidden);
         if (!resetResult.IsOk)
             return resetResult;
 
