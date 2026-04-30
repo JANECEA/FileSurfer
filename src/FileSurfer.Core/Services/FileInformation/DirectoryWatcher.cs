@@ -102,6 +102,7 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
     private sealed record FsEntryMeta(bool IsDirectory, DateTime LastWriteTimeUtc, long Length);
 
     private readonly Location _root;
+    private readonly Func<TimeSpan, CancellationToken, Task> _delayEngine;
     private Dictionary<string, FsEntryMeta> _snapshot = new();
 
     public event Func<FileSystemEvent, Task>? ChangeDetected;
@@ -112,7 +113,14 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
     /// <param name="root">
     /// Root location to monitor for recursive file-system changes.
     /// </param>
-    public DirectoryWatcher(Location root) => _root = root;
+    /// <param name="delayEngine">
+    /// Delay engine to abstract delay implementation.
+    /// </param>
+    public DirectoryWatcher(Location root, Func<TimeSpan, CancellationToken, Task> delayEngine)
+    {
+        _root = root;
+        _delayEngine = delayEngine;
+    }
 
     public async Task<IResult> StartAsync(
         TimeSpan pollingInterval,
@@ -131,7 +139,7 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
         {
             try
             {
-                await Task.Delay(pollingInterval, token);
+                await _delayEngine(pollingInterval, token);
             }
             catch
             {

@@ -209,7 +209,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
         _synchronizer = new LocalToSftpSynchronizer(
             localDir,
             remoteDir,
-            new DirectoryWatcher(localDir)
+            new DirectoryWatcher(localDir, Task.Delay)
         );
         _synchronizer.OnSyncEvent += ShowEventAsync;
 
