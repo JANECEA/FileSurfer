@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Avalonia;
 using Avalonia.Input.Platform;
@@ -49,6 +50,27 @@ public class LinuxPlatformBootstrap : IPlatformBootstrap
 {
     private static readonly LinuxShellHandler LinuxShellHandler = new();
 
+    private static LinuxIconProvider GetIconProvider()
+    {
+        Dictionary<string, string> extToMime;
+        try
+        {
+            using StreamReader reader = File.OpenText(GlobsParser.GlobsPath);
+            extToMime = GlobsParser.Parse(reader);
+        }
+        catch
+        {
+            // Parsing failed, continuing without _extToMime
+            extToMime = new Dictionary<string, string>();
+        }
+
+        return new LinuxIconProvider(
+            LinuxShellHandler,
+            IconPathResolver.GetSearchPaths(LinuxShellHandler),
+            extToMime
+        );
+    }
+
     public MainWindowViewModel GetViewModel(
         string initialDir,
         MainWindow mainWindow,
@@ -60,7 +82,7 @@ public class LinuxPlatformBootstrap : IPlatformBootstrap
         LocalFileSystem localFileSystem = new()
         {
             LocalFileInfoProvider = fileInfoProvider,
-            IconProvider = new LinuxIconProvider(LinuxShellHandler),
+            IconProvider = GetIconProvider(),
             ArchiveManager = new LocalArchiveManager(fileInfoProvider, fileIoHandler),
             FileIoHandler = fileIoHandler,
             BinInteraction = new LinuxBinInteraction(LinuxShellHandler),

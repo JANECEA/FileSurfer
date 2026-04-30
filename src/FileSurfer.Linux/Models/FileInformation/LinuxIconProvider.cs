@@ -33,34 +33,28 @@ public sealed class LinuxIconProvider : BaseIconProvider
 
     private readonly IShellHandler _shellHandler;
     private readonly IReadOnlyList<string> _searchPaths;
-    private readonly ConcurrentDictionary<string, string> _extToMime = new();
+    private readonly ConcurrentDictionary<string, string> _extToMime;
     private readonly ConcurrentDictionary<string, Lazy<Task<Bitmap>>> _mimeToIcon = new();
     private readonly Bitmap _themedGenericFileIcon;
-
-    private static string NormalizeMime(string mime) => mime.ToLowerInvariant().Replace('/', '-');
 
     /// <summary>
     /// Creates a Linux icon provider that uses the shell for MIME and icon path integration.
     /// </summary>
-    public LinuxIconProvider(IShellHandler shellHandler)
+    public LinuxIconProvider(
+        IShellHandler shellHandler,
+        IReadOnlyList<string> searchPaths,
+        Dictionary<string, string> extToMime
+    )
     {
         _shellHandler = shellHandler;
-        _searchPaths = IconPathResolver.GetSearchPaths(shellHandler);
+        _searchPaths = searchPaths;
+        _extToMime = new ConcurrentDictionary<string, string>(extToMime);
         _themedGenericFileIcon =
             ExtractIcon(GenericMimeType) ?? base.GetFileIconAsync(string.Empty).Result;
-
-        if (!File.Exists(GlobsParser.GlobsPath))
-            return;
-        try
-        {
-            using StreamReader reader = File.OpenText(GlobsParser.GlobsPath);
-            _extToMime = new ConcurrentDictionary<string, string>(GlobsParser.Parse(reader));
-        }
-        catch
-        {
-            // Parsing failed, continuing without _extToMime
-        }
     }
+
+    private static string NormalizeMime(string mime) =>
+        mime.Trim().ToLowerInvariant().Replace('/', '-');
 
     public override async Task<Bitmap> GetFileIconAsync(string filePath)
     {
