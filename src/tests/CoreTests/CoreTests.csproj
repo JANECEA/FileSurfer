@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -24,8 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FileSurfer.Windows\FileSurfer.Windows.csproj" />
-    <ProjectReference Include="..\FileSurfer.Linux\FileSurfer.Linux.csproj" />
+    <ProjectReference Include="..\..\FileSurfer.Core\FileSurfer.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
