@@ -255,6 +255,11 @@ public sealed class SettingsWindowViewModel : ReactiveObject
         FileSurferSettings.SynchronizerPollingIntervalUpperBound;
 
     /// <summary>
+    /// Initializes the settings view model with the provided settings.
+    /// </summary>
+    public SettingsWindowViewModel(SettingsRecord settings) => SetValues(settings);
+
+    /// <summary>
     /// Initializes the settings view model with the current persisted settings.
     /// </summary>
     public SettingsWindowViewModel() => SetValues(FileSurferSettings.CurrentSettings);

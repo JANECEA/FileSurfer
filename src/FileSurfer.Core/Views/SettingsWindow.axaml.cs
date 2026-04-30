@@ -16,7 +16,7 @@ public partial class SettingsWindow : Window
     public SettingsWindow()
     {
         InitializeComponent();
-        DataContext = new SettingsWindowViewModel();
+        DataContext = new SettingsWindowViewModel(FileSurferSettings.CurrentSettings);
     }
 
     private void ResetToDefaults(object sender, RoutedEventArgs args)
