@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
+using FileSurfer.Core.Models.FileInformation;
 
 namespace FileSurfer.Core.Services.FileInformation;
 
@@ -119,7 +120,7 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
         CancellationToken token
     )
     {
-        ValueResult<Dictionary<string, FsEntryMeta>> firstSnapshotResult = TakeSnapshot(syncHidden);
+        var firstSnapshotResult = await TakeSnapshot(syncHidden);
         if (!firstSnapshotResult.IsOk)
             return firstSnapshotResult;
 
@@ -150,7 +151,7 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
 
     private async Task<IResult> DiffOnceAsync(bool syncHidden)
     {
-        ValueResult<Dictionary<string, FsEntryMeta>> snapshotResult = TakeSnapshot(syncHidden);
+        var snapshotResult = await TakeSnapshot(syncHidden);
         if (!snapshotResult.IsOk)
             return snapshotResult;
 
@@ -159,7 +160,7 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
         return SimpleResult.Ok();
     }
 
-    private ValueResult<Dictionary<string, FsEntryMeta>> TakeSnapshot(bool syncHidden)
+    private async Task<ValueResult<Dictionary<string, FsEntryMeta>>> TakeSnapshot(bool syncHidden)
     {
         IFileSystem fs = _root.FileSystem;
         Dictionary<string, FsEntryMeta> snapshot = new();
@@ -171,7 +172,12 @@ public sealed class DirectoryWatcher : IDirectoryWatcher
         {
             string path = queue.Dequeue();
 
-            var entriesR = fs.FileInfoProvider.GetPathEntries(path, syncHidden, false);
+            ValueResult<DirectoryContents> entriesR = await fs.FileInfoProvider.GetPathEntriesAsync(
+                path,
+                syncHidden,
+                false,
+                CancellationToken.None
+            );
             if (!entriesR.IsOk)
                 return ValueResult<Dictionary<string, FsEntryMeta>>.Error(entriesR);
 
