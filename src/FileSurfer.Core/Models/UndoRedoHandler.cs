@@ -7,7 +7,7 @@ namespace FileSurfer.Core.Models;
 /// Represents a generic undo/redo history chain that supports navigation, insertion, removal,
 /// and enumeration around the current position.
 /// </summary>
-internal sealed class UndoRedoHandler<T>
+public sealed class UndoRedoHandler<T>
 {
     private readonly Action? _onCollectionChanged;
 
