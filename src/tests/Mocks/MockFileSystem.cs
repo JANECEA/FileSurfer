@@ -6,7 +6,7 @@ using FileSurfer.Core.Services.VersionControl;
 
 namespace Mocks;
 
-public record MethodCall(string MethodName, params object[] Args);
+public record MethodCall(string Method, params object[] Args);
 
 public abstract class ServiceMock
 {
