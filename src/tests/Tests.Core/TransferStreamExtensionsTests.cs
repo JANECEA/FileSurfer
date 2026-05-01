@@ -1,6 +1,3 @@
 namespace Tests.Core;
 
-public class TransferStreamExtensionsTests
-{
-    
-}
+public class TransferStreamExtensionsTests { }

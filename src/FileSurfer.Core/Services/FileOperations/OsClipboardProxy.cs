@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using FileSurfer.Core.Models;
@@ -21,30 +22,21 @@ public class OsClipboardProxy : IOsClipboardProxy
         new byte[] { 1, 2, 3 }
     );
 
+    private readonly IClipboard _clipboard;
     private readonly IStorageProvider _storageProvider;
-
-    private IClipboard Clipboard { get; }
 
     public OsClipboardProxy(IClipboard clipboard, IStorageProvider storageProvider)
     {
-        Clipboard = clipboard;
+        _clipboard = clipboard;
         _storageProvider = storageProvider;
     }
 
-    public Task<T> ExecuteAsync<T>(Func<IClipboard, Task<T>> operation) =>
-        Dispatcher.UIThread.InvokeAsync(() => operation(Clipboard));
-
-    public Task ExecuteAsync(Func<IClipboard, Task> operation) =>
-        Dispatcher.UIThread.InvokeAsync(() => operation(Clipboard));
-
-    public Task<IResult> ClearAsync() =>
+    public Task<IResult> SetTextAsync(string text) =>
         Dispatcher.UIThread.InvokeAsync<IResult>(async () =>
         {
             try
             {
-                DataTransfer data = new();
-                data.Add(ClearedMarkItem);
-                await Clipboard.SetDataAsync(data);
+                await _clipboard.SetTextAsync(text);
                 return SimpleResult.Ok();
             }
             catch (Exception ex)
@@ -53,37 +45,75 @@ public class OsClipboardProxy : IOsClipboardProxy
             }
         });
 
-    public static bool CompareClipboards(
-        IStorageItem[] osItems,
-        IList<IFileSystemEntry> programItems
-    )
-    {
-        if (osItems.Length != programItems.Count)
-            return false;
-
-        HashSet<string> files = programItems
-            .Where(entry => entry is FileEntry)
-            .Select(file => LocalPathTools.NormalizePath(file.PathToEntry))
-            .ToHashSet();
-        HashSet<string> directories = programItems
-            .Where(entry => entry is DirectoryEntry)
-            .Select(directory => LocalPathTools.NormalizePath(directory.PathToEntry))
-            .ToHashSet();
-
-        foreach (IStorageItem item in osItems)
-            if (item is IStorageFile)
+    public Task<Bitmap?> TryGetBitmapAsync() =>
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            try
             {
-                if (!files.Contains(LocalPathTools.NormalizePath(item.Path.LocalPath)))
-                    return false;
+                return await _clipboard.TryGetBitmapAsync();
             }
-            else if (item is IStorageFolder)
+            catch
             {
-                if (!directories.Contains(LocalPathTools.NormalizePath(item.Path.LocalPath)))
-                    return false;
+                return null;
             }
+        });
 
-        return true;
-    }
+    public Task<string?> TryGetTextAsync() =>
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            try
+            {
+                return await _clipboard.TryGetTextAsync();
+            }
+            catch
+            {
+                return null;
+            }
+        });
+
+    private IFileSystemEntry? FromStorageItem(IStorageItem item) =>
+        item switch
+        {
+            IStorageFolder folder => new DirectoryEntry(
+                LocalPathTools.NormalizePath(folder.Path.LocalPath),
+                LocalPathTools.Instance
+            ),
+            IStorageFile file => new FileEntry(
+                LocalPathTools.NormalizePath(file.Path.LocalPath),
+                LocalPathTools.Instance
+            ),
+            _ => null,
+        };
+
+    public Task<IFileSystemEntry[]?> TryGetFilesAsync() =>
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            try
+            {
+                IStorageItem[]? files = await _clipboard.TryGetFilesAsync();
+                return files?.Select(FromStorageItem).OfType<IFileSystemEntry>().ToArray();
+            }
+            catch
+            {
+                return null;
+            }
+        });
+
+    public Task<IResult> ClearAsync() =>
+        Dispatcher.UIThread.InvokeAsync<IResult>(async () =>
+        {
+            try
+            {
+                DataTransfer data = new();
+                data.Add(ClearedMarkItem);
+                await _clipboard.SetDataAsync(data);
+                return SimpleResult.Ok();
+            }
+            catch (Exception ex)
+            {
+                return SimpleResult.Error(ex.Message);
+            }
+        });
 
     public Task<IResult> CopyToOsClipboardAsync(IFileSystemEntry[] entries) =>
         Dispatcher.UIThread.InvokeAsync(() => CopyToOsClipboardInternal(entries));
@@ -108,12 +138,12 @@ public class OsClipboardProxy : IOsClipboardProxy
                 .Cast<IStorageItem>();
 
             IEnumerable<IStorageItem> storageItems = files.Concat(folders);
-            await Clipboard.SetFilesAsync(storageItems);
+            await _clipboard.SetFilesAsync(storageItems);
             return SimpleResult.Ok();
         }
         catch (Exception ex)
         {
-            await Clipboard.ClearAsync();
+            _ = await ClearAsync();
             return SimpleResult.Error(ex.Message);
         }
     }

@@ -1,6 +1,3 @@
 namespace Tests.Core;
 
-public class ClipboardManagerTests
-{
-    
-}
+public class ClipboardManagerTests { }

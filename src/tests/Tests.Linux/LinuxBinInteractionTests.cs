@@ -1,6 +1,3 @@
 namespace Tests.Linux;
 
-public class LinuxBinInteractionTests
-{
-    
-}
+public class LinuxBinInteractionTests { }

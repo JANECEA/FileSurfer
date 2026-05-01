@@ -1,39 +1,48 @@
-using System;
 using System.Threading.Tasks;
-using Avalonia.Input.Platform;
+using Avalonia.Media.Imaging;
 using FileSurfer.Core.Models;
 
 namespace FileSurfer.Core.Services.FileOperations;
 
 /// <summary>
-/// Represents an abstraction for the operating system clipboard.
+/// Provides abstracted access to the operating system clipboard with support for text, images, and file-system entries.
 /// </summary>
 public interface IOsClipboardProxy
 {
     /// <summary>
-    /// Executes an asynchronous clipboard operation on the UI thread and returns its result.
+    /// Asynchronously sets the specified text to the OS clipboard.
     /// </summary>
-    /// <typeparam name="T">
-    /// The result type produced by the provided operation.
-    /// </typeparam>
-    /// <param name="operation">
-    /// The asynchronous clipboard operation to run against the current clipboard instance.
+    /// <param name="text">
+    /// The text to place on the clipboard.
     /// </param>
     /// <returns>
-    /// A task that resolves to the value returned by <paramref name="operation"/>.
+    /// A task that returns the operation result, including error details if the clipboard set operation fails.
     /// </returns>
-    Task<T> ExecuteAsync<T>(Func<IClipboard, Task<T>> operation);
+    Task<IResult> SetTextAsync(string text);
 
     /// <summary>
-    /// Executes an asynchronous clipboard operation on the UI thread.
+    /// Asynchronously attempts to retrieve a bitmap image from the OS clipboard.
     /// </summary>
-    /// <param name="operation">
-    /// The asynchronous clipboard operation to run against the current clipboard instance.
-    /// </param>
     /// <returns>
-    /// A task that completes when the provided operation has finished.
+    /// A task that returns the bitmap if available on the clipboard; otherwise <see langword="null"/>.
     /// </returns>
-    Task ExecuteAsync(Func<IClipboard, Task> operation);
+    Task<Bitmap?> TryGetBitmapAsync();
+
+    /// <summary>
+    /// Asynchronously attempts to retrieve text from the OS clipboard.
+    /// </summary>
+    /// <returns>
+    /// A task that returns the text if available on the clipboard; otherwise <see langword="null"/>.
+    /// </returns>
+    Task<string?> TryGetTextAsync();
+
+    /// <summary>
+    /// Asynchronously attempts to retrieve file-system entries from the OS clipboard.
+    /// </summary>
+    /// <returns>
+    /// A task that returns an array of file-system entries if available on the clipboard; otherwise <see langword="null"/>.
+    /// </returns>
+    Task<IFileSystemEntry[]?> TryGetFilesAsync();
 
     /// <summary>
     /// Asynchronously clears the OS clipboard on the UI thread by setting a marker object.

@@ -6,9 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Input.Platform;
 using Avalonia.Media.Imaging;
-using Avalonia.Platform.Storage;
 using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
@@ -61,18 +59,8 @@ public class ClipboardManager : IClipboardManager
         _localFs = localFs;
     }
 
-    public async Task<IResult> CopyPathToFileAsync(string filePath)
-    {
-        try
-        {
-            await _osClipboard.ExecuteAsync(c => c.SetTextAsync(filePath));
-            return SimpleResult.Ok();
-        }
-        catch (Exception ex)
-        {
-            return SimpleResult.Error(ex.Message);
-        }
-    }
+    public async Task<IResult> CopyPathToFileAsync(string filePath) =>
+        await _osClipboard.SetTextAsync(filePath);
 
     private async Task<IResult> SetClipboardInternal(
         IFileSystemEntry[] entries,
@@ -182,24 +170,32 @@ public class ClipboardManager : IClipboardManager
             : null;
     }
 
-    private void PlaceInProgramClipboard(IStorageItem[] items)
+    private static bool CompareClipboards(
+        IFileSystemEntry[] osItems,
+        List<IFileSystemEntry> programItems
+    )
     {
-        _programClipboard.Clear();
-        foreach (IStorageItem item in items)
-            if (item is IStorageFolder)
-                _programClipboard.Add(
-                    new DirectoryEntry(
-                        LocalPathTools.NormalizePath(item.Path.LocalPath),
-                        LocalPathTools.Instance
-                    )
-                );
-            else if (item is IStorageFile)
-                _programClipboard.Add(
-                    new FileEntry(
-                        LocalPathTools.NormalizePath(item.Path.LocalPath),
-                        LocalPathTools.Instance
-                    )
-                );
+        if (osItems.Length != programItems.Count)
+            return false;
+
+        HashSet<string> files = programItems
+            .OfType<FileEntry>()
+            .Select(file => LocalPathTools.NormalizePath(file.PathToEntry))
+            .ToHashSet();
+        HashSet<string> directories = programItems
+            .OfType<DirectoryEntry>()
+            .Select(directory => LocalPathTools.NormalizePath(directory.PathToEntry))
+            .ToHashSet();
+
+        foreach (IFileSystemEntry e in osItems.OfType<FileEntry>())
+            if (!files.Contains(LocalPathTools.NormalizePath(e.PathToEntry)))
+                return false;
+
+        foreach (IFileSystemEntry e in osItems.OfType<DirectoryEntry>())
+            if (!directories.Contains(LocalPathTools.NormalizePath(e.PathToEntry)))
+                return false;
+
+        return true;
     }
 
     public async Task<OpResult> PasteAsync(
@@ -208,19 +204,20 @@ public class ClipboardManager : IClipboardManager
         CancellationToken ct
     )
     {
-        if (await _osClipboard.ExecuteAsync(c => c.TryGetBitmapAsync()) is Bitmap bitmap)
+        if (await _osClipboard.TryGetBitmapAsync() is Bitmap bitmap)
             return await SaveImageToPath(destination, bitmap);
 
-        if (await _osClipboard.ExecuteAsync(c => c.TryGetTextAsync()) is string text)
+        if (await _osClipboard.TryGetTextAsync() is string text)
             return await SaveTextToPath(destination, text);
 
         if (
-            await _osClipboard.ExecuteAsync(c => c.TryGetFilesAsync()) is IStorageItem[] items
-            && !OsClipboardProxy.CompareClipboards(items, _programClipboard)
+            await _osClipboard.TryGetFilesAsync() is IFileSystemEntry[] items
+            && !CompareClipboards(items, _programClipboard)
         )
         {
             _pasteType = PasteType.Copy;
-            PlaceInProgramClipboard(items);
+            _programClipboard.Clear();
+            _programClipboard.AddRange(items);
             _originFs = _localFs;
             _originPath = DetermineBaseLocation();
         }

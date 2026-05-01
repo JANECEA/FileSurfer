@@ -1,6 +1,3 @@
 namespace Tests.Core;
 
-public class IResultTests
-{
-    
-}
+public class IResultTests { }

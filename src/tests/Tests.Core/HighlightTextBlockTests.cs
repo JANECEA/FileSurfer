@@ -1,6 +1,3 @@
 namespace Tests.Core;
 
-public class HighlightTextBlockTests
-{
-    
-}
+public class HighlightTextBlockTests { }

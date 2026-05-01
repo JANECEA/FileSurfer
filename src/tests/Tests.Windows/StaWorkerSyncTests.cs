@@ -1,6 +1,3 @@
 namespace Tests.Windows;
 
-public class StaWorkerSyncTests
-{
-    
-}
+public class StaWorkerSyncTests { }
