@@ -1,6 +1,3 @@
-namespace CoreTests;
+namespace Tests.Core;
 
-public class DirectoryWatcherTests
-{
-    
-}
+public class DirectoryWatcherTests { }

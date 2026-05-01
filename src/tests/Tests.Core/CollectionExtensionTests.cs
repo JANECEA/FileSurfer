@@ -1,6 +1,6 @@
 using FileSurfer.Core.Extensions;
 
-namespace CoreTests;
+namespace Tests.Core;
 
 public class CollectionExtensionTests
 {
@@ -52,7 +52,11 @@ public class CollectionExtensionTests
 
     [Theory]
     [MemberData(nameof(EfficientChunkCountData))]
-    public void EfficientChunk_Yields_Correct_Chunk_Sizes(int[] source, int bufferSize, int[] expectedChunkSizes)
+    public void EfficientChunk_Yields_Correct_Chunk_Sizes(
+        int[] source,
+        int bufferSize,
+        int[] expectedChunkSizes
+    )
     {
         int[] buffer = new int[bufferSize];
         int[] chunkSizes = source.EfficientChunk(buffer).ToArray();

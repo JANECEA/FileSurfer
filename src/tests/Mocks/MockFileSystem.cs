@@ -4,7 +4,7 @@ using FileSurfer.Core.Services.FileOperations;
 using FileSurfer.Core.Services.Shell;
 using FileSurfer.Core.Services.VersionControl;
 
-namespace TestMocks;
+namespace Mocks;
 
 public class MockFileSystem : IFileSystem
 {
