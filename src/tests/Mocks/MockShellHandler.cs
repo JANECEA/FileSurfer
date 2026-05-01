@@ -3,7 +3,7 @@ using FileSurfer.Core.Services.Shell;
 
 namespace Mocks;
 
-public class MockShellHandler : ServiceMock, IShellHandler
+public class MockShellHandler : ServiceMock, ILocalShellHandler
 {
     public virtual IResult CreateFileLink(string filePath)
     {
@@ -30,5 +30,23 @@ public class MockShellHandler : ServiceMock, IShellHandler
     {
         RecordCall(nameof(ExecuteCommandAsync), programName, args);
         return Task.FromResult(ValueResult<string>.Ok(string.Empty));
+    }
+
+    public IResult OpenTerminalAt(string dirPath)
+    {
+        RecordCall(nameof(OpenTerminalAt), dirPath);
+        return SimpleResult.Ok();
+    }
+
+    public IResult OpenFile(string filePath)
+    {
+        RecordCall(nameof(OpenFile), filePath);
+        return SimpleResult.Ok();
+    }
+
+    public IResult OpenInNotepad(string filePath)
+    {
+        RecordCall(nameof(OpenInNotepad), filePath);
+        return SimpleResult.Ok();
     }
 }

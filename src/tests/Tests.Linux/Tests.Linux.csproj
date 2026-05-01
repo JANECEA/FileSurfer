@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\FileSurfer.Linux\FileSurfer.Linux.csproj" />
+    <ProjectReference Include="..\Mocks\Mocks.csproj" />
   </ItemGroup>
 
   <ItemGroup>
