@@ -119,10 +119,10 @@ internal sealed class TransferStreamFileInfoProviderMock : MockFileInfoProvider
     }
 }
 
-public class TransferStreamTests
+public class DirTransferStreamTests
 {
     [Fact]
-    public void DirTransferStream_FromInfoProvider_BuildsTreeFromProvider()
+    public void FromInfoProvider_BuildsTreeFromProvider()
     {
         const string root = "/root";
         TransferStreamFileInfoProviderMock provider =
@@ -183,7 +183,7 @@ public class TransferStreamTests
 
     [Theory]
     [MemberData(nameof(BuildFailureCases))]
-    public void DirTransferStream_FromInfoProvider_DisposesOpenedStreams_WhenBuildFails(
+    public void FromInfoProvider_DisposesOpenedStreams_WhenBuildFails(
         string failureCase,
         int expectedOpenedStreams
     )
@@ -216,10 +216,7 @@ public class TransferStreamTests
 
     [Theory]
     [MemberData(nameof(DisposeShapeCases))]
-    public void DirTransferStream_Dispose_DisposesAllNestedFileStreams(
-        int depth,
-        int filesPerDirectory
-    )
+    public void Dispose_DisposesAllNestedFileStreams(int depth, int filesPerDirectory)
     {
         const string root = "/root";
         var provider = TransferStreamFileInfoProviderMock.BuildGeneratedProvider(
