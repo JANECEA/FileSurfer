@@ -3,17 +3,31 @@ using FileSurfer.Core.Services.Shell;
 
 namespace Mocks;
 
-public class MockBinInteraction : IBinInteraction
+public class MockBinInteraction : ServiceMock, IBinInteraction
 {
-    public virtual IResult MoveFileToTrash(string filePath) => throw new NotImplementedException();
+    public virtual IResult MoveFileToTrash(string filePath)
+    {
+        RecordCall(nameof(MoveFileToTrash), filePath);
+        return SimpleResult.Ok();
+    }
 
-    public virtual IResult MoveDirToTrash(string dirPath) => throw new NotImplementedException();
+    public virtual IResult MoveDirToTrash(string dirPath)
+    {
+        RecordCall(nameof(MoveDirToTrash), dirPath);
+        return SimpleResult.Ok();
+    }
 
-    public virtual IResult RestoreFile(string originalFilePath) =>
-        throw new NotImplementedException();
+    public virtual IResult RestoreFile(string originalFilePath)
+    {
+        RecordCall(nameof(RestoreFile), originalFilePath);
+        return SimpleResult.Ok();
+    }
 
-    public virtual IResult RestoreDir(string originalDirPath) =>
-        throw new NotImplementedException();
+    public virtual IResult RestoreDir(string originalDirPath)
+    {
+        RecordCall(nameof(RestoreDir), originalDirPath);
+        return SimpleResult.Ok();
+    }
 
-    public virtual void Dispose() { }
+    public virtual void Dispose() => RecordCall(nameof(Dispose));
 }

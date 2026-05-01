@@ -6,11 +6,16 @@ using FileSurfer.Core.Services.VersionControl;
 
 namespace Mocks;
 
-public struct MethodCall(string MethodName, params object[] Args);
+public record MethodCall(string MethodName, params object[] Args);
 
-public interface IServiceMock
+public abstract class ServiceMock
 {
-    public List<MethodCall> Calls { get; }
+    private readonly List<MethodCall> _calls = [];
+
+    public IReadOnlyList<MethodCall> Calls => _calls;
+
+    protected void RecordCall(string methodName, params object[] args) =>
+        _calls.Add(new MethodCall(methodName, args));
 }
 
 public class MockFileSystem : IFileSystem
