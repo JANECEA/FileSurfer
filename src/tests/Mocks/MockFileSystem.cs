@@ -10,14 +10,14 @@ public class MockFileSystem : IFileSystem
 {
     private readonly bool _isLocal;
 
-    public IFileInfoProvider FileInfoProvider { get; set; }
-    public IIconProvider IconProvider { get; set; }
-    public IArchiveManager ArchiveManager { get; set; }
-    public IFileIoHandler FileIoHandler { get; set; }
-    public IBinInteraction BinInteraction { get; set; }
-    public IFileProperties FileProperties { get; set; }
-    public IShellHandler ShellHandler { get; set; }
-    public IGitIntegration GitIntegration { get; set; }
+    public IFileInfoProvider FileInfoProvider { get; set; } = new MockFileInfoProvider();
+    public IIconProvider IconProvider { get; set; } = new MockIconProvider();
+    public IArchiveManager ArchiveManager { get; set; } = new MockArchiveManager();
+    public IFileIoHandler FileIoHandler { get; set; } = new MockFileIoHandler();
+    public IBinInteraction BinInteraction { get; set; } = new MockBinInteraction();
+    public IFileProperties FileProperties { get; set; } = new MockFileProperties();
+    public IShellHandler ShellHandler { get; set; } = new MockShellHandler();
+    public IGitIntegration GitIntegration { get; set; } = new MockGitIntegration();
 
     public MockFileSystem(bool isLocal) => _isLocal = isLocal;
 
