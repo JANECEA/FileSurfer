@@ -245,13 +245,17 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
             return;
 
         SyncEvents.Clear();
+        bool syncHidden = FileSurferSettings.SyncHiddenFiles;
+        TimeSpan pollingInterval = TimeSpan.FromMilliseconds(
+            FileSurferSettings.SynchronizerPollingInterval
+        );
 
         Synchronizing = true;
         Initializing = true;
 
         IResult result = await _dialogService.BlockingDialogAsync(
             "Initial synchronization",
-            (r, ct) => _synchronizer.Initialize(InitFromRemote, r, ct)
+            (r, ct) => _synchronizer.Initialize(InitFromRemote, syncHidden, r, ct)
         );
 
         Initializing = false;
@@ -261,7 +265,7 @@ public class SftpSynchronizerViewModel : ReactiveObject, IAsyncDisposable
             CancellationTokenSource cts = new();
             _syncCts = cts;
 
-            result = await _synchronizer.SynchronizeAsync(cts.Token);
+            result = await _synchronizer.SynchronizeAsync(pollingInterval, syncHidden, cts.Token);
 
             _syncCts = null;
             cts.Dispose();
