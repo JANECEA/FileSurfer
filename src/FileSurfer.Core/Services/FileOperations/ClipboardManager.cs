@@ -36,7 +36,7 @@ public class ClipboardManager : IClipboardManager
     );
 
     private readonly IOsClipboardProxy _osClipboard;
-    private readonly LocalFileSystem _localFs;
+    private readonly IFileSystem _localFs;
 
     private IFileSystem? _originFs;
     private string? _originPath;
@@ -53,7 +53,7 @@ public class ClipboardManager : IClipboardManager
     /// <param name="localFs">
     /// Local file-system services used when clipboard contents originate from or are mapped to local paths.
     /// </param>
-    public ClipboardManager(IOsClipboardProxy osClipboard, LocalFileSystem localFs)
+    public ClipboardManager(IOsClipboardProxy osClipboard, IFileSystem localFs)
     {
         _osClipboard = osClipboard;
         _localFs = localFs;
