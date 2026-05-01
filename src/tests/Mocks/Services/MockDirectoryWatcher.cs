@@ -1,7 +1,7 @@
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.FileInformation;
 
-namespace Mocks;
+namespace Mocks.Services;
 
 public class MockDirectoryWatcher : IDirectoryWatcher
 {

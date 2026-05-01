@@ -2,6 +2,8 @@ using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.FileInformation;
 using FileSurfer.Core.Services.Sftp;
 using Mocks;
+using Mocks.Models;
+using Mocks.Services;
 
 namespace Tests.Core;
 

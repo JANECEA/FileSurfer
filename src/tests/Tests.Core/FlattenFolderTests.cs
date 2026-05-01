@@ -3,6 +3,8 @@ using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileOperations.Undoable;
 using Mocks;
+using Mocks.Models;
+using Mocks.Services;
 
 namespace Tests.Core;
 

@@ -3,6 +3,12 @@ using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.FileOperations;
 using FileSurfer.Core.Services.Shell;
 using FileSurfer.Core.Services.VersionControl;
+using Mocks.Models;
+using Mocks.Services;
+
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
 
 namespace Mocks;
 
@@ -40,4 +46,13 @@ public class MockFileSystem : IFileSystem
     public string GetLabel() => Label;
 
     public void Dispose() { }
+}
+
+public static class MockHelper
+{
+    public static DirectoryEntryInfo Dir(string path, DateTime utc) =>
+        new(path, Path.GetFileName(path), utc.ToLocalTime(), utc);
+
+    public static FileEntryInfo File(string path, long sizeB, DateTime utc) =>
+        new(path, Path.GetFileName(path), Path.GetExtension(path), sizeB, utc.ToLocalTime(), utc);
 }

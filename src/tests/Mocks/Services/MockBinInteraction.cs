@@ -1,7 +1,7 @@
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Shell;
 
-namespace Mocks;
+namespace Mocks.Services;
 
 public class MockBinInteraction : ServiceMock, IBinInteraction
 {

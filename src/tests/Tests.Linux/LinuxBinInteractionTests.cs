@@ -2,6 +2,7 @@ using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Linux.Services.Shell;
 using Mocks;
+using Mocks.Services;
 
 namespace Tests.Linux;
 
@@ -41,11 +42,7 @@ public sealed class TestShellCommandHandler : MockShellHandler, IShellCommandHan
 public class LinuxBinInteractionTests
 {
     public static TheoryData<bool, string> EntryPaths =>
-        new()
-        {
-            { false, "/tmp/a.txt" },
-            { true, "/tmp/a-dir" },
-        };
+        new() { { false, "/tmp/a.txt" }, { true, "/tmp/a-dir" } };
 
     [Theory]
     [MemberData(nameof(EntryPaths))]
@@ -111,16 +108,19 @@ public class LinuxBinInteractionTests
 
     [Theory]
     [MemberData(nameof(EntryPaths))]
-    public void RestoreEntry_WhenPathExistsMultipleTimes_RestoresNewestMatch(bool isDir, string path)
+    public void RestoreEntry_WhenPathExistsMultipleTimes_RestoresNewestMatch(
+        bool isDir,
+        string path
+    )
     {
         TestShellCommandHandler shell = new()
         {
             TrashListResult = ValueResult<string>.Ok(
                 $"""
-                 2026-05-01 10:00:00 /tmp/other.txt
-                 2026-05-01 11:00:00 {path}
-                 2026-05-01 12:00:00 {path}
-                 """
+                2026-05-01 10:00:00 /tmp/other.txt
+                2026-05-01 11:00:00 {path}
+                2026-05-01 12:00:00 {path}
+                """
             ),
             TrashRestoreResult = ValueResult<string>.Ok("restored"),
         };

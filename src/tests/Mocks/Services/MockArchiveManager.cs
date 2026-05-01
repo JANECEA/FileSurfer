@@ -2,7 +2,7 @@ using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Dialogs;
 using FileSurfer.Core.Services.FileOperations;
 
-namespace Mocks;
+namespace Mocks.Services;
 
 public class MockArchiveManager : ServiceMock, IArchiveManager
 {

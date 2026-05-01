@@ -2,7 +2,7 @@ using Avalonia.Media.Imaging;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.FileOperations;
 
-namespace Mocks;
+namespace Mocks.Services;
 
 public class MockClipboardProxy : ServiceMock, IOsClipboardProxy
 {

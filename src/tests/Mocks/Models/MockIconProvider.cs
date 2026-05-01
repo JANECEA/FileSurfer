@@ -4,7 +4,7 @@ using Avalonia.Platform;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 
-namespace Mocks;
+namespace Mocks.Models;
 
 public class MockIconProvider : ServiceMock, IIconProvider
 {

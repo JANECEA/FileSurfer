@@ -1,6 +1,7 @@
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using Mocks;
+using Mocks.Models;
 
 namespace Tests.Core;
 

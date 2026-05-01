@@ -3,6 +3,7 @@ using FileSurfer.Core.Extensions;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Dialogs;
 using Mocks;
+using Mocks.Services;
 
 namespace Tests.Core;
 

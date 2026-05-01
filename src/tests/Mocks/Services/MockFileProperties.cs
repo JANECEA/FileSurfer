@@ -2,7 +2,7 @@ using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Shell;
 using FileSurfer.Core.ViewModels;
 
-namespace Mocks;
+namespace Mocks.Services;
 
 public class MockFileProperties : ServiceMock, IFileProperties
 {

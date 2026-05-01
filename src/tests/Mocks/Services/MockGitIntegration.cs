@@ -1,7 +1,7 @@
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.VersionControl;
 
-namespace Mocks;
+namespace Mocks.Services;
 
 public class MockGitIntegration : ServiceMock, IGitIntegration
 {

@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 
-namespace Mocks;
+namespace Mocks.Models;
 
 public class MockFileInfoProvider : ServiceMock, IFileInfoProvider
 {

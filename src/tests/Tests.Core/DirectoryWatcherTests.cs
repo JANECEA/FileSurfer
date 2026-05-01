@@ -2,6 +2,7 @@ using FileSurfer.Core.Models;
 using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.FileInformation;
 using Mocks;
+using Mocks.Models;
 
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 
