@@ -5,6 +5,8 @@ namespace Tests.Core;
 
 public class LocalPathToolsTests
 {
+    private static readonly char S = LocalPathTools.DirSeparator;
+
     public static TheoryData<string, string> NormalizePathCases =>
         new()
         {
@@ -12,36 +14,31 @@ public class LocalPathToolsTests
             { "   ", "   " },
             {
                 new StringBuilder()
-                    .Append(LocalPathTools.DirSeparator)
+                    .Append(S)
                     .Append("tmp")
-                    .Append(LocalPathTools.DirSeparator)
+                    .Append(S)
                     .Append('a')
-                    .Append(LocalPathTools.DirSeparator)
+                    .Append(S)
                     .ToString(),
-                new StringBuilder()
-                    .Append(LocalPathTools.DirSeparator)
-                    .Append("tmp")
-                    .Append(LocalPathTools.DirSeparator)
-                    .Append('a')
-                    .ToString()
+                new StringBuilder().Append(S).Append("tmp").Append(S).Append('a').ToString()
             },
             {
                 new StringBuilder()
-                    .Append(LocalPathTools.DirSeparator)
+                    .Append(S)
                     .Append("tmp")
-                    .Append(LocalPathTools.DirSeparator)
-                    .Append(LocalPathTools.DirSeparator)
+                    .Append(S)
+                    .Append(S)
                     .Append('a')
-                    .Append(LocalPathTools.DirSeparator)
-                    .Append(LocalPathTools.DirSeparator)
+                    .Append(S)
+                    .Append(S)
                     .Append('a')
                     .ToString(),
                 new StringBuilder()
-                    .Append(LocalPathTools.DirSeparator)
+                    .Append(S)
                     .Append("tmp")
-                    .Append(LocalPathTools.DirSeparator)
+                    .Append(S)
                     .Append('a')
-                    .Append(LocalPathTools.DirSeparator)
+                    .Append(S)
                     .Append('a')
                     .ToString()
             },
@@ -54,20 +51,14 @@ public class LocalPathToolsTests
         Assert.Equal(expected, LocalPathTools.NormalizePath(input));
     }
 
-    public static TheoryData<string, string, string> CombineCases
-    {
-        get
+    public static TheoryData<string, string, string> CombineCases =>
+        new()
         {
-            char s = LocalPathTools.DirSeparator;
-            return new TheoryData<string, string, string>
-            {
-                { $"{s}a", "b", $"{s}a{s}b" },
-                { $"{s}a{s}", "b", $"{s}a{s}b" },
-                { $"{s}a", $"{s}b", $"{s}a{s}b" },
-                { $"{s}a{s}{s}", $"{s}{s}b{s}{s}", $"{s}a{s}b" },
-            };
-        }
-    }
+            { $"{S}a", "b", $"{S}a{S}b" },
+            { $"{S}a{S}", "b", $"{S}a{S}b" },
+            { $"{S}a", $"{S}b", $"{S}a{S}b" },
+            { $"{S}a{S}{S}", $"{S}{S}b{S}{S}", $"{S}a{S}b" },
+        };
 
     [Theory]
     [MemberData(nameof(CombineCases))]
@@ -80,20 +71,14 @@ public class LocalPathToolsTests
         Assert.Equal(expected, LocalPathTools.Combine(pathBase, pathSuffix));
     }
 
-    public static TheoryData<string, string, string> NameAndExtensionCases
-    {
-        get
+    public static TheoryData<string, string, string> NameAndExtensionCases =>
+        new()
         {
-            char s = LocalPathTools.DirSeparator;
-            return new TheoryData<string, string, string>
-            {
-                { $"{s}x{s}file.txt", "file.txt", ".txt" },
-                { $"{s}x{s}archive.tar.gz", "archive.tar.gz", ".gz" },
-                { $"{s}x{s}noext", "noext", "" },
-                { $"{s}x{s}dir{s}", "dir", "" },
-            };
-        }
-    }
+            { $"{S}x{S}file.txt", "file.txt", ".txt" },
+            { $"{S}x{S}archive.tar.gz", "archive.tar.gz", ".gz" },
+            { $"{S}x{S}noext", "noext", "" },
+            { $"{S}x{S}dir{S}", "dir", "" },
+        };
 
     [Theory]
     [MemberData(nameof(NameAndExtensionCases))]
@@ -111,7 +96,7 @@ public class LocalPathToolsTests
     {
         get
         {
-            char s = LocalPathTools.DirSeparator;
+            char s = S;
             return new TheoryData<string, string>
             {
                 { $"{s}a{s}b{s}c.txt", $"{s}a{s}b" },
@@ -131,29 +116,19 @@ public class LocalPathToolsTests
     [Fact]
     public void EnumerateExtensions_ReturnsAllExtensionSegments()
     {
-        string[] result = LocalPathTools
-            .EnumerateExtensions(
-                $"{LocalPathTools.DirSeparator}x{LocalPathTools.DirSeparator}archive.tar.gz"
-            )
-            .ToArray();
+        string[] result = LocalPathTools.EnumerateExtensions($"{S}x{S}archive.tar.gz").ToArray();
 
         Assert.Equal(["tar.gz", "gz"], result);
     }
 
-    public static TheoryData<string?, string?, bool> PathEqualityCases
-    {
-        get
+    public static TheoryData<string?, string?, bool> PathEqualityCases =>
+        new()
         {
-            char s = LocalPathTools.DirSeparator;
-            return new TheoryData<string?, string?, bool>
-            {
-                { null, $"{s}a", false },
-                { $"{s}a", null, false },
-                { $"{s}a{s}b", $"{s}a{s}{s}b{s}", true },
-                { $"{s}a{s}b", $"{s}a{s}c", false },
-            };
-        }
-    }
+            { null, $"{S}a", false },
+            { $"{S}a", null, false },
+            { $"{S}a{S}b", $"{S}a{S}{S}b{S}", true },
+            { $"{S}a{S}b", $"{S}a{S}c", false },
+        };
 
     [Theory]
     [MemberData(nameof(PathEqualityCases))]
