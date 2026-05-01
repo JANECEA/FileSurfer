@@ -14,7 +14,7 @@ namespace FileSurfer.Core.Services.FileOperations;
 /// Provides UI-thread-safe clipboard and storage-provider helpers used by
 /// <see cref="ClipboardManager"/> when synchronizing FileSurfer selections with the OS clipboard.
 /// </summary>
-internal class OsClipboardProxy
+public class OsClipboardProxy : IOsClipboardProxy
 {
     private static readonly DataTransferItem ClearedMarkItem = DataTransferItem.Create(
         DataFormat.CreateBytesApplicationFormat("filesurfer-clipboard-empty"),
@@ -25,55 +25,19 @@ internal class OsClipboardProxy
 
     private IClipboard Clipboard { get; }
 
-    /// <summary>
-    /// Initializes a clipboard proxy with the platform clipboard and storage provider abstractions.
-    /// </summary>
-    /// <param name="clipboard">
-    /// The OS clipboard abstraction used for read/write clipboard operations.
-    /// </param>
-    /// <param name="storageProvider">
-    /// The storage provider used to resolve application paths into OS storage items.
-    /// </param>
-    internal OsClipboardProxy(IClipboard clipboard, IStorageProvider storageProvider)
+    public OsClipboardProxy(IClipboard clipboard, IStorageProvider storageProvider)
     {
         Clipboard = clipboard;
         _storageProvider = storageProvider;
     }
 
-    /// <summary>
-    /// Executes an asynchronous clipboard operation on the UI thread and returns its result.
-    /// </summary>
-    /// <typeparam name="T">
-    /// The result type produced by the provided operation.
-    /// </typeparam>
-    /// <param name="operation">
-    /// The asynchronous clipboard operation to run against the current clipboard instance.
-    /// </param>
-    /// <returns>
-    /// A task that resolves to the value returned by <paramref name="operation"/>.
-    /// </returns>
-    internal Task<T> ExecuteAsync<T>(Func<IClipboard, Task<T>> operation) =>
+    public Task<T> ExecuteAsync<T>(Func<IClipboard, Task<T>> operation) =>
         Dispatcher.UIThread.InvokeAsync(() => operation(Clipboard));
 
-    /// <summary>
-    /// Executes an asynchronous clipboard operation on the UI thread.
-    /// </summary>
-    /// <param name="operation">
-    /// The asynchronous clipboard operation to run against the current clipboard instance.
-    /// </param>
-    /// <returns>
-    /// A task that completes when the provided operation has finished.
-    /// </returns>
-    internal Task ExecuteAsync(Func<IClipboard, Task> operation) =>
+    public Task ExecuteAsync(Func<IClipboard, Task> operation) =>
         Dispatcher.UIThread.InvokeAsync(() => operation(Clipboard));
 
-    /// <summary>
-    /// Asynchronously clears the OS clipboard on the UI thread by setting a marker object.
-    /// </summary>
-    /// <returns>
-    /// A task that completes when the clearing operation has finished.
-    /// </returns>
-    internal Task<IResult> ClearAsync() =>
+    public Task<IResult> ClearAsync() =>
         Dispatcher.UIThread.InvokeAsync<IResult>(async () =>
         {
             try
@@ -89,20 +53,7 @@ internal class OsClipboardProxy
             }
         });
 
-    /// <summary>
-    /// Compares OS clipboard storage items with FileSurfer clipboard entries by normalized paths and item type.
-    /// </summary>
-    /// <param name="osItems">
-    /// The storage items currently present in the OS clipboard.
-    /// </param>
-    /// <param name="programItems">
-    /// The entries tracked by FileSurfer's internal clipboard state.
-    /// </param>
-    /// <returns>
-    /// <see langword="true"/> when both collections represent the same files/directories; otherwise,
-    /// <see langword="false"/>.
-    /// </returns>
-    internal static bool CompareClipboards(
+    public static bool CompareClipboards(
         IStorageItem[] osItems,
         IList<IFileSystemEntry> programItems
     )
@@ -134,16 +85,7 @@ internal class OsClipboardProxy
         return true;
     }
 
-    /// <summary>
-    /// Copies FileSurfer entries to the OS clipboard as storage items.
-    /// </summary>
-    /// <param name="entries">
-    /// The file-system entries to place on the OS clipboard.
-    /// </param>
-    /// <returns>
-    /// A task that returns the operation result, including error details when clipboard population fails.
-    /// </returns>
-    internal Task<IResult> CopyToOsClipboardAsync(IFileSystemEntry[] entries) =>
+    public Task<IResult> CopyToOsClipboardAsync(IFileSystemEntry[] entries) =>
         Dispatcher.UIThread.InvokeAsync(() => CopyToOsClipboardInternal(entries));
 
     private async Task<IResult> CopyToOsClipboardInternal(IFileSystemEntry[] entries)

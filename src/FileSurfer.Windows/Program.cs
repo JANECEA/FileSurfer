@@ -72,11 +72,9 @@ public class WindowsPlatformBootstrap : IPlatformBootstrap
         AvaloniaDialogService dialogService = new(mainWindow);
         IClipboard clipboard = mainWindow.Clipboard ?? throw new InvalidDataException();
         ClipboardManager clipboardManager = new(
-            clipboard,
-            mainWindow.StorageProvider,
+            new OsClipboardProxy(clipboard, mainWindow.StorageProvider),
             localFileSystem
         );
-
         return new MainWindowViewModel(initialDir, localFileSystem, dialogService, setDarkMode)
         {
             SftpFsFactory = new SftpFileSystemFactory(dialogService),
