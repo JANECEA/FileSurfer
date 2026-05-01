@@ -6,9 +6,18 @@ using FileSurfer.Core.Services.VersionControl;
 
 namespace Mocks;
 
+public struct MethodCall(string MethodName, params object[] Args);
+
+public interface IServiceMock
+{
+    public List<MethodCall> Calls { get; }
+}
+
 public class MockFileSystem : IFileSystem
 {
-    private readonly bool _isLocal;
+    public bool Ready { get; set; } = true;
+    public bool Local { get; set; } = true;
+    public string Label { get; set; } = "mock";
 
     public IFileInfoProvider FileInfoProvider { get; set; } = new MockFileInfoProvider();
     public IIconProvider IconProvider { get; set; } = new MockIconProvider();
@@ -19,13 +28,11 @@ public class MockFileSystem : IFileSystem
     public IShellHandler ShellHandler { get; set; } = new MockShellHandler();
     public IGitIntegration GitIntegration { get; set; } = new MockGitIntegration();
 
-    public MockFileSystem(bool isLocal) => _isLocal = isLocal;
+    public bool IsReady() => Ready;
 
-    public bool IsReady() => true;
+    public bool IsLocal() => Local;
 
-    public bool IsLocal() => _isLocal;
-
-    public string GetLabel() => "mock";
+    public string GetLabel() => Label;
 
     public void Dispose() { }
 }

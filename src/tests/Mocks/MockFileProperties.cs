@@ -6,10 +6,12 @@ namespace Mocks;
 
 public class MockFileProperties : IFileProperties
 {
-    public IResult ShowFileProperties(FileSystemEntryViewModel entry) =>
+    public virtual IResult ShowFileProperties(FileSystemEntryViewModel entry) =>
         throw new NotImplementedException();
 
-    public bool SupportsOpenAs(IFileSystemEntry entry) => throw new NotImplementedException();
+    public virtual bool SupportsOpenAs(IFileSystemEntry entry) =>
+        throw new NotImplementedException();
 
-    public IResult ShowOpenAsDialog(IFileSystemEntry entry) => throw new NotImplementedException();
+    public virtual IResult ShowOpenAsDialog(IFileSystemEntry entry) =>
+        throw new NotImplementedException();
 }

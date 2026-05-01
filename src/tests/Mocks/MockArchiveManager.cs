@@ -6,9 +6,9 @@ namespace Mocks;
 
 public class MockArchiveManager : IArchiveManager
 {
-    public bool IsArchived(string filePath) => throw new NotImplementedException();
+    public virtual bool IsArchived(string filePath) => throw new NotImplementedException();
 
-    public Task<IResult> ArchiveEntriesAsync(
+    public virtual Task<IResult> ArchiveEntriesAsync(
         IList<IFileSystemEntry> entries,
         string destinationDir,
         string archiveName,
@@ -16,7 +16,7 @@ public class MockArchiveManager : IArchiveManager
         CancellationToken ct
     ) => throw new NotImplementedException();
 
-    public Task<IResult> ExtractArchiveAsync(
+    public virtual Task<IResult> ExtractArchiveAsync(
         string archivePath,
         string destinationPath,
         ProgressReporter reporter,
