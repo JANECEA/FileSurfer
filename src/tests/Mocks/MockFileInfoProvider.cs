@@ -32,13 +32,7 @@ public class MockFileInfoProvider : ServiceMock, IFileInfoProvider
     )
     {
         RecordCall(nameof(GetPathEntries), path, includeHidden, includeOs);
-        return ValueResult<DirectoryContents>.Ok(
-            new DirectoryContents
-            {
-                Dirs = [],
-                Files = [],
-            }
-        );
+        return ValueResult<DirectoryContents>.Ok(new DirectoryContents { Dirs = [], Files = [] });
     }
 
     public virtual Task<ValueResult<DirectoryContents>> GetPathEntriesAsync(

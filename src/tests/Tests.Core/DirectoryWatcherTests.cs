@@ -3,6 +3,8 @@ using FileSurfer.Core.Models.FileInformation;
 using FileSurfer.Core.Services.FileInformation;
 using Mocks;
 
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
+
 namespace Tests.Core;
 
 internal sealed class DirectoryWatcherFileInfoProviderMock : MockFileInfoProvider
@@ -100,21 +102,25 @@ public class DirectoryWatcherTests
         {
             [rootPath] = new DirectoryContents
             {
-                Dirs = [Dir("/root/dirA", t1)],
-                Files = [File("/root/old.txt", 10, t1)],
+                Dirs = [MockHelper.Dir("/root/dirA", t1)],
+                Files = [MockHelper.File("/root/old.txt", 10, t1)],
             },
             ["/root/dirA"] = new DirectoryContents
             {
                 Dirs = [],
-                Files = [File("/root/dirA/nested.txt", 1, t1)],
+                Files = [MockHelper.File("/root/dirA/nested.txt", 1, t1)],
             },
         };
         Dictionary<string, DirectoryContents> snapshotB = new()
         {
             [rootPath] = new DirectoryContents
             {
-                Dirs = [Dir("/root/dirB", t2)],
-                Files = [File("/root/old.txt", 20, t2), File("/root/new.txt", 2, t2)],
+                Dirs = [MockHelper.Dir("/root/dirB", t2)],
+                Files =
+                [
+                    MockHelper.File("/root/old.txt", 20, t2),
+                    MockHelper.File("/root/new.txt", 2, t2),
+                ],
             },
             ["/root/dirB"] = new DirectoryContents { Dirs = [], Files = [] },
         };
@@ -245,10 +251,4 @@ public class DirectoryWatcherTests
             throw new TaskCanceledException();
         };
     }
-
-    private static DirectoryEntryInfo Dir(string path, DateTime utc) =>
-        new(path, Path.GetFileName(path), utc.ToLocalTime(), utc);
-
-    private static FileEntryInfo File(string path, long sizeB, DateTime utc) =>
-        new(path, Path.GetFileName(path), Path.GetExtension(path), sizeB, utc.ToLocalTime(), utc);
 }
