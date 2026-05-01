@@ -293,39 +293,43 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     }
 
     /// <summary>
+    /// Extracts the current settings saved in this view model.
+    /// </summary>
+    /// <returns>The extracted settings.</returns>
+    public SettingsRecord ExtractSettings() =>
+        new()
+        {
+            newImageName = NewImageName.Trim(),
+            newTextFileName = NewTextFileName.Trim(),
+            newFileName = NewFileName.Trim(),
+            newDirectoryName = NewDirectoryName.Trim(),
+            notepadApp = NotepadApp.Trim(),
+            notepadAppArgs = NotepadAppArgs.Trim(),
+            terminal = Terminal.Trim(),
+            terminalArgs = TerminalArgs.Trim(),
+            openInLastLocation = OpenInLastLocation,
+            openIn = OpenIn.Trim(),
+            useDarkMode = UseDarkMode,
+            displayMode = DisplayMode,
+            defaultSort = DefaultSort,
+            fileSizeUnitLimit = FileSizeUnitLimit,
+            sortReversed = SortReversed,
+            showSpecialFolders = ShowSpecialFolders,
+            showProtectedFiles = ShowProtectedFiles,
+            showHiddenFiles = ShowHiddenFiles,
+            treatDotFilesAsHidden = TreatDotFilesAsHidden,
+            gitIntegration = GitIntegration,
+            showUndoRedoErrorDialogs = ShowUndoRedoErrorDialogs,
+            automaticRefresh = AutomaticRefresh,
+            automaticRefreshInterval = AutomaticRefreshInterval,
+            synchronizerPollingInterval = SynchronizerPollingInterval,
+            quickAccess = FileSurferSettings.QuickAccess,
+        };
+
+    /// <summary>
     /// Saves current values using <see cref="FileSurferSettings.ImportSettings(SettingsRecord)"/>
     /// </summary>
-    public void Save() =>
-        FileSurferSettings.ImportSettings(
-            new SettingsRecord
-            {
-                newImageName = NewImageName.Trim(),
-                newTextFileName = NewTextFileName.Trim(),
-                newFileName = NewFileName.Trim(),
-                newDirectoryName = NewDirectoryName.Trim(),
-                notepadApp = NotepadApp.Trim(),
-                notepadAppArgs = NotepadAppArgs.Trim(),
-                terminal = Terminal.Trim(),
-                terminalArgs = TerminalArgs.Trim(),
-                openInLastLocation = OpenInLastLocation,
-                openIn = OpenIn.Trim(),
-                useDarkMode = UseDarkMode,
-                displayMode = DisplayMode,
-                defaultSort = DefaultSort,
-                fileSizeUnitLimit = FileSizeUnitLimit,
-                sortReversed = SortReversed,
-                showSpecialFolders = ShowSpecialFolders,
-                showProtectedFiles = ShowProtectedFiles,
-                showHiddenFiles = ShowHiddenFiles,
-                treatDotFilesAsHidden = TreatDotFilesAsHidden,
-                gitIntegration = GitIntegration,
-                showUndoRedoErrorDialogs = ShowUndoRedoErrorDialogs,
-                automaticRefresh = AutomaticRefresh,
-                automaticRefreshInterval = AutomaticRefreshInterval,
-                synchronizerPollingInterval = SynchronizerPollingInterval,
-                quickAccess = FileSurferSettings.QuickAccess,
-            }
-        );
+    public void Save(SettingsRecord settings) => FileSurferSettings.ImportSettings(settings);
 
     /// <summary>
     /// Resets current values to default
