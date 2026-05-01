@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\FileSurfer.Core\FileSurfer.Core.csproj" />
+    <ProjectReference Include="..\Mocks\Mocks.csproj" />
   </ItemGroup>
 
   <ItemGroup>
