@@ -75,12 +75,25 @@ public sealed class FlattenInfoProviderMock : MockFileInfoProvider
 
 public class FlattenFolderTests
 {
+    private static readonly string Root =
+        Path.GetPathRoot(Path.GetFullPath($"{LocalPathTools.DirSeparator}"))
+        ?? $"{LocalPathTools.DirSeparator}";
+
+    private static string Abs(params string[] parts)
+    {
+        string path = Root;
+        foreach (string part in parts)
+            path = LocalPathTools.Combine(path, part);
+
+        return path;
+    }
+
     [Fact]
     public async Task InvokeAsync_ReturnsError_ForTopLevelDirectory()
     {
         FlattenFileIoMock io = new();
         FlattenInfoProviderMock info = new();
-        FlattenFolder operation = new(io, info, "/");
+        FlattenFolder operation = new(io, info, Root);
 
         IResult result = await operation.InvokeAsync(ProgressReporter.None, CancellationToken.None);
 
@@ -93,9 +106,9 @@ public class FlattenFolderTests
     [MemberData(nameof(InvokeFailureStages))]
     public async Task InvokeAsync_StopsOnExpectedFailureStage(string stage)
     {
-        const string dirPath = "/parent/child";
+        string dirPath = Abs("parent", "child");
         FlattenFileIoMock io = new();
-        FlattenInfoProviderMock info = BuildBaseInfoProvider();
+        FlattenInfoProviderMock info = BuildBaseInfoProvider(dirPath);
         ConfigureInvokeFailure(stage, io, info, dirPath);
         FlattenFolder operation = new(io, info, dirPath);
 
@@ -108,9 +121,10 @@ public class FlattenFolderTests
     [Fact]
     public async Task InvokeAsync_MovesEntriesAndDeletesSource_WhenSuccessful()
     {
-        const string dirPath = "/parent/child";
+        string parentDir = Abs("parent");
+        string dirPath = Abs("parent", "child");
         FlattenFileIoMock io = new();
-        FlattenInfoProviderMock info = BuildBaseInfoProvider();
+        FlattenInfoProviderMock info = BuildBaseInfoProvider(dirPath);
         FlattenFolder operation = new(io, info, dirPath);
 
         IResult result = await operation.InvokeAsync(ProgressReporter.None, CancellationToken.None);
@@ -118,26 +132,25 @@ public class FlattenFolderTests
         Assert.True(result.IsOk);
         Assert.Contains(
             io.Calls.Where(call => call.Method == nameof(FlattenFileIoMock.MoveFileTo)),
-            call =>
-                (string)call.Args[0] == "/parent/child/a.txt" && (string)call.Args[1] == "/parent"
+            call => (string)call.Args[0] == Abs("parent", "child", "a.txt") && (string)call.Args[1] == parentDir
         );
         Assert.Contains(
             io.Calls.Where(call => call.Method == nameof(FlattenFileIoMock.MoveDirTo)),
-            call => (string)call.Args[0] == "/parent/child/sub" && (string)call.Args[1] == "/parent"
+            call => (string)call.Args[0] == Abs("parent", "child", "sub") && (string)call.Args[1] == parentDir
         );
         MethodCall deleteCall = Assert.Single(
             io.Calls,
             call => call.Method == nameof(FlattenFileIoMock.DeleteDir)
         );
-        Assert.Equal("/parent/child", (string)deleteCall.Args[0]);
+        Assert.Equal(dirPath, (string)deleteCall.Args[0]);
     }
 
     [Fact]
     public async Task UndoAsync_ReturnsError_WhenOriginalPathExistsAndNameNotInMovedEntries()
     {
-        const string dirPath = "/parent/child";
+        string dirPath = Abs("parent", "child");
         FlattenFileIoMock io = new();
-        FlattenInfoProviderMock info = BuildBaseInfoProvider();
+        FlattenInfoProviderMock info = BuildBaseInfoProvider(dirPath);
         FlattenFolder operation = new(io, info, dirPath);
 
         IResult invokeResult = await operation.InvokeAsync(
@@ -160,18 +173,21 @@ public class FlattenFolderTests
     [Fact]
     public async Task UndoAsync_CreatesTempDirAndRenamesBack_WhenNameConflictCanBeResolved()
     {
-        const string originalDirPath = "/parent/child";
-        const string renamedDirPath = "/parent/child (1)";
+        string parentDir = Abs("parent");
+        string originalDirPath = Abs("parent", "child");
+        string renamedDirPath = Abs("parent", "child (1)");
+        string nestedOriginalDirPath = Abs("parent", "child", "child");
+        string nestedRenamedDirPath = Abs("parent", "child (1)", "child");
 
         FlattenFileIoMock io = new();
         FlattenInfoProviderMock info = new();
-        info.SetExists("/parent/child/child", true);
-        info.SetExists("/parent/child", true);
-        info.SetExists("/parent/child (1)", false);
+        info.SetExists(nestedOriginalDirPath, true);
+        info.SetExists(originalDirPath, true);
+        info.SetExists(renamedDirPath, false);
         info.SetPathEntries(
             renamedDirPath,
-            dirs: [Dir("/parent/child (1)/child")],
-            files: [File("/parent/child (1)/a.txt")]
+            dirs: [Dir(nestedRenamedDirPath)],
+            files: [File(Abs("parent", "child (1)", "a.txt"))]
         );
 
         FlattenFolder operation = new(io, info, originalDirPath);
@@ -182,7 +198,7 @@ public class FlattenFolderTests
         Assert.True(invokeResult.IsOk);
 
         info.SetExists(originalDirPath, true);
-        info.SetExists("/parent/child (1)", false);
+        info.SetExists(renamedDirPath, false);
 
         IResult undoResult = await operation.UndoAsync(
             ProgressReporter.None,
@@ -192,23 +208,19 @@ public class FlattenFolderTests
         Assert.True(undoResult.IsOk);
         Assert.Contains(
             io.Calls.Where(call => call.Method == nameof(FlattenFileIoMock.NewDirAt)),
-            call => (string)call.Args[0] == "/parent" && (string)call.Args[1] == "child (1)"
+            call => (string)call.Args[0] == parentDir && (string)call.Args[1] == "child (1)"
         );
         Assert.Contains(
             io.Calls.Where(call => call.Method == nameof(FlattenFileIoMock.MoveDirTo)),
-            call =>
-                (string)call.Args[0] == "/parent/child"
-                && (string)call.Args[1] == "/parent/child (1)"
+            call => (string)call.Args[0] == originalDirPath && (string)call.Args[1] == renamedDirPath
         );
         Assert.Contains(
             io.Calls.Where(call => call.Method == nameof(FlattenFileIoMock.MoveFileTo)),
-            call =>
-                (string)call.Args[0] == "/parent/a.txt"
-                && (string)call.Args[1] == "/parent/child (1)"
+            call => (string)call.Args[0] == Abs("parent", "a.txt") && (string)call.Args[1] == renamedDirPath
         );
         Assert.Contains(
             io.Calls.Where(call => call.Method == nameof(FlattenFileIoMock.RenameDirAt)),
-            call => (string)call.Args[0] == "/parent/child (1)" && (string)call.Args[1] == "child"
+            call => (string)call.Args[0] == renamedDirPath && (string)call.Args[1] == "child"
         );
     }
 
@@ -219,20 +231,25 @@ public class FlattenFolderTests
         string dirPath
     )
     {
+        string dirName = LocalPathTools.GetFileName(dirPath);
+        string parentDir = LocalPathTools.GetParentDir(dirPath);
+        string nestedDirPath = LocalPathTools.Combine(dirPath, dirName);
+        string renamedDirPath = LocalPathTools.Combine(parentDir, $"{dirName} (1)");
+
         switch (stage)
         {
             case "rename":
-                info.SetExists("/parent/child/child", true);
-                info.SetExists("/parent/child", true);
-                info.SetExists("/parent/child (1)", false);
+                info.SetExists(nestedDirPath, true);
+                info.SetExists(dirPath, true);
+                info.SetExists(renamedDirPath, false);
                 io.RenameDirAtResult = SimpleResult.Error("rename failed");
                 break;
             case "entries":
-                info.SetExists("/parent/child/child", false);
+                info.SetExists(nestedDirPath, false);
                 info.PathEntryErrors.Add(dirPath);
                 break;
             case "move":
-                info.SetExists("/parent/child/child", false);
+                info.SetExists(nestedDirPath, false);
                 io.MoveFileToResult = SimpleResult.Error("move failed");
                 break;
             default:
@@ -240,14 +257,15 @@ public class FlattenFolderTests
         }
     }
 
-    private static FlattenInfoProviderMock BuildBaseInfoProvider()
+    private static FlattenInfoProviderMock BuildBaseInfoProvider(string dirPath)
     {
+        string dirName = LocalPathTools.GetFileName(dirPath);
         FlattenInfoProviderMock info = new();
-        info.SetExists("/parent/child/child", false);
+        info.SetExists(LocalPathTools.Combine(dirPath, dirName), false);
         info.SetPathEntries(
-            "/parent/child",
-            dirs: [Dir("/parent/child/sub")],
-            files: [File("/parent/child/a.txt")]
+            dirPath,
+            dirs: [Dir(LocalPathTools.Combine(dirPath, "sub"))],
+            files: [File(LocalPathTools.Combine(dirPath, "a.txt"))]
         );
         return info;
     }

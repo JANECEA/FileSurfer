@@ -1,4 +1,3 @@
-using System.Text;
 using FileSurfer.Core.Models;
 
 namespace Tests.Core.PathToolsTests;
@@ -7,42 +6,23 @@ public class LocalPathToolsTests
 {
     private static readonly char S = LocalPathTools.DirSeparator;
 
-    public static TheoryData<string, string> NormalizePathCases =>
-        new()
+    public static TheoryData<string, string> NormalizePathCases
+    {
+        get
         {
-            { "", "" },
-            { "   ", "   " },
+            string root = Path.GetPathRoot(Path.GetFullPath($"{S}")) ?? $"{S}";
+            string tmpA = Path.Join(root, "tmp", "a");
+            string tmpAA = Path.Join(root, "tmp", "a", "a");
+
+            return new TheoryData<string, string>
             {
-                new StringBuilder()
-                    .Append(S)
-                    .Append("tmp")
-                    .Append(S)
-                    .Append('a')
-                    .Append(S)
-                    .ToString(),
-                new StringBuilder().Append(S).Append("tmp").Append(S).Append('a').ToString()
-            },
-            {
-                new StringBuilder()
-                    .Append(S)
-                    .Append("tmp")
-                    .Append(S)
-                    .Append(S)
-                    .Append('a')
-                    .Append(S)
-                    .Append(S)
-                    .Append('a')
-                    .ToString(),
-                new StringBuilder()
-                    .Append(S)
-                    .Append("tmp")
-                    .Append(S)
-                    .Append('a')
-                    .Append(S)
-                    .Append('a')
-                    .ToString()
-            },
-        };
+                { "", "" },
+                { "   ", "   " },
+                { $"{S}tmp{S}a{S}", tmpA },
+                { $"{S}tmp{S}{S}a{S}{S}a", tmpAA },
+            };
+        }
+    }
 
     [Theory]
     [MemberData(nameof(NormalizePathCases))]
