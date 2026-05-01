@@ -94,7 +94,7 @@ public class LinuxPlatformBootstrap : IPlatformBootstrap
         IClipboard clipboard = mainWindow.Clipboard ?? throw new InvalidDataException();
         AvaloniaDialogService dialogService = new(mainWindow);
         ClipboardManager clipboardManager = new(
-            new OsClipboardProxy(clipboard, mainWindow.StorageProvider),
+            new AvaloniaClipboardProxy(clipboard, mainWindow.StorageProvider),
             localFileSystem
         );
         return new MainWindowViewModel(initialDir, localFileSystem, dialogService, setDarkMode)

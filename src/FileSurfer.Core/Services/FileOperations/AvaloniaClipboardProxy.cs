@@ -15,7 +15,7 @@ namespace FileSurfer.Core.Services.FileOperations;
 /// Provides UI-thread-safe clipboard and storage-provider helpers used by
 /// <see cref="ClipboardManager"/> when synchronizing FileSurfer selections with the OS clipboard.
 /// </summary>
-public class OsClipboardProxy : IOsClipboardProxy
+public class AvaloniaClipboardProxy : IOsClipboardProxy
 {
     private static readonly DataTransferItem ClearedMarkItem = DataTransferItem.Create(
         DataFormat.CreateBytesApplicationFormat("filesurfer-clipboard-empty"),
@@ -25,7 +25,7 @@ public class OsClipboardProxy : IOsClipboardProxy
     private readonly IClipboard _clipboard;
     private readonly IStorageProvider _storageProvider;
 
-    public OsClipboardProxy(IClipboard clipboard, IStorageProvider storageProvider)
+    public AvaloniaClipboardProxy(IClipboard clipboard, IStorageProvider storageProvider)
     {
         _clipboard = clipboard;
         _storageProvider = storageProvider;
