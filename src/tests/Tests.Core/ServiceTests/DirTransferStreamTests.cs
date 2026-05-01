@@ -5,7 +5,7 @@ using Mocks.Models;
 
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 
-namespace Tests.Core;
+namespace Tests.Core.ServiceTests;
 
 internal sealed class TrackingStream : MemoryStream
 {

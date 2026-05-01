@@ -1,6 +1,6 @@
 using FileSurfer.Core.Extensions;
 
-namespace Tests.Core;
+namespace Tests.Core.ExtensionsTests;
 
 public class CollectionExtensionTests
 {

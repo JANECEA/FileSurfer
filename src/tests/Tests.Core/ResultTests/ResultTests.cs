@@ -1,6 +1,6 @@
 using FileSurfer.Core.Models;
 
-namespace Tests.Core;
+namespace Tests.Core.ResultTests;
 
 public class ResultTests
 {

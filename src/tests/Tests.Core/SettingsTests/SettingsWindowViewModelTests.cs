@@ -3,7 +3,7 @@ using FileSurfer.Core;
 using FileSurfer.Core.ViewModels;
 using Mocks;
 
-namespace Tests.Core;
+namespace Tests.Core.SettingsTests;
 
 public class SettingsWindowViewModelTests
 {

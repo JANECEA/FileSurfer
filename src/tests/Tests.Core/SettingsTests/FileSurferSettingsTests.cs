@@ -2,7 +2,7 @@ using System.Reflection;
 using FileSurfer.Core;
 using Mocks;
 
-namespace Tests.Core;
+namespace Tests.Core.SettingsTests;
 
 public class FileSurferSettingsTests
 {

@@ -4,8 +4,9 @@ using FileSurfer.Core.Models;
 using FileSurfer.Core.Services.Dialogs;
 using Mocks;
 using Mocks.Services;
+using Tests.Core.ServiceTests;
 
-namespace Tests.Core;
+namespace Tests.Core.ExtensionsTests;
 
 internal sealed class ThrowingWriteStream : MemoryStream
 {

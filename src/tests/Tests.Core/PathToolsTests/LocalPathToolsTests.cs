@@ -1,7 +1,7 @@
 using System.Text;
 using FileSurfer.Core.Models;
 
-namespace Tests.Core;
+namespace Tests.Core.PathToolsTests;
 
 public class LocalPathToolsTests
 {

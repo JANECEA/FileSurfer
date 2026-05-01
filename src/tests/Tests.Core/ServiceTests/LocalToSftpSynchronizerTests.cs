@@ -5,7 +5,7 @@ using Mocks;
 using Mocks.Models;
 using Mocks.Services;
 
-namespace Tests.Core;
+namespace Tests.Core.ServiceTests;
 
 public sealed class SyncRemoteIoMock : MockFileIoHandler
 {
