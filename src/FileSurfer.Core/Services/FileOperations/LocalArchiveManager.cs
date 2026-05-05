@@ -39,6 +39,7 @@ public class LocalArchiveManager : IArchiveManager
         new(".7z", stream => SevenZipArchive.Open(stream).ExtractAllEntries()),
         new(".gzip", null),
         new(".tar.gz", null),
+        new(".tgz", null),
         new(".tar", null),
         new(".gz", null),
     ];
