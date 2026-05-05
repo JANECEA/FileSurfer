@@ -81,21 +81,26 @@ public sealed class LocalToSftpSynchronizer : IDisposable
     /// <summary>
     /// Starts continuous synchronization by running the directory watcher loop.
     /// </summary>
+    /// <param name="syncHidden">
+    /// Whether hidden files should be included in the synchronization.
+    /// </param>
     /// <param name="ct">
     /// Cancellation token used to stop synchronization.
+    /// </param>
+    /// <param name="pollingInterval">
+    /// Specifies how often should the synchronizer check for changes.
     /// </param>
     /// <returns>
     /// A task that returns the watcher/synchronization result when the loop ends.
     /// </returns>
-    public async Task<IResult> SynchronizeAsync(CancellationToken ct)
+    public async Task<IResult> SynchronizeAsync(
+        TimeSpan pollingInterval,
+        bool syncHidden,
+        CancellationToken ct
+    )
     {
         if (!_syncTask.IsCompleted)
             return SimpleResult.Error("Synchronizer is already running.");
-
-        bool syncHidden = FileSurferSettings.SyncHiddenFiles;
-        TimeSpan pollingInterval = TimeSpan.FromMilliseconds(
-            FileSurferSettings.SynchronizerPollingInterval
-        );
 
         _runningToken = ct;
         Task<IResult> task = _watcher.StartAsync(pollingInterval, syncHidden, ct);
@@ -117,6 +122,9 @@ public sealed class LocalToSftpSynchronizer : IDisposable
     /// When <see langword="true"/>, initializes local data from the remote root; otherwise initializes
     /// remote data from the local root.
     /// </param>
+    /// <param name="includeHidden">
+    /// Whether hidden files should be included in the initialization.
+    /// </param>
     /// <param name="reporter">
     /// Progress reporter used for long-running transfer operations.
     /// </param>
@@ -128,12 +136,10 @@ public sealed class LocalToSftpSynchronizer : IDisposable
     /// </returns>
     public Task<IResult> Initialize(
         bool initFromRemote,
+        bool includeHidden,
         ProgressReporter reporter,
         CancellationToken ct
-    ) =>
-        Task.Run(() =>
-            InitInternal(initFromRemote, FileSurferSettings.SyncHiddenFiles, reporter, ct)
-        );
+    ) => Task.Run(() => InitInternal(initFromRemote, includeHidden, reporter, ct));
 
     private async Task<IResult> InitInternal(
         bool initFromRemote,

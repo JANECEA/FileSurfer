@@ -204,8 +204,8 @@ public static class FileSurferSettings
     /// Numerical limit before FileSurfer uses the next byte unit.
     /// </summary>
     public static int FileSizeUnitLimit { get; set; }
-    internal const int FileSizeUnitLimitLowerBound = 512;
-    internal const int FileSizeUnitLimitUpperBound = 9999;
+    public const int FileSizeUnitLimitLowerBound = 512;
+    public const int FileSizeUnitLimitUpperBound = 9999;
 
     /// <summary>
     /// Indicates whether file and folder sorting should be reversed.
@@ -251,15 +251,15 @@ public static class FileSurferSettings
     /// Sets the interval (in milliseconds) for automatic refreshing of the file explorer.
     /// </summary>
     public static int AutomaticRefreshInterval { get; set; }
-    internal const int AutomaticRefreshIntervalLowerBound = 100;
-    internal const int AutomaticRefreshIntervalUpperBound = 60 * 1000;
+    public const int AutomaticRefreshIntervalLowerBound = 100;
+    public const int AutomaticRefreshIntervalUpperBound = 60 * 1000;
 
     /// <summary>
     /// Defines the polling refresh rate for directory synchronization
     /// </summary>
     public static int SynchronizerPollingInterval { get; set; }
-    internal const int SynchronizerPollingIntervalLowerBound = 250;
-    internal const int SynchronizerPollingIntervalUpperBound = 5 * 60 * 1000;
+    public const int SynchronizerPollingIntervalLowerBound = 250;
+    public const int SynchronizerPollingIntervalUpperBound = 5 * 60 * 1000;
 
     /// <summary>
     /// List of directories and files added by the user for quick access.

@@ -34,7 +34,7 @@ public partial class SettingsWindow : Window
     private void SaveAndClose(object? sender = null, RoutedEventArgs? args = null)
     {
         if (DataContext is SettingsWindowViewModel viewModel)
-            viewModel.Save();
+            viewModel.Save(viewModel.ExtractSettings());
 
         CloseWindow();
     }

@@ -1,0 +1,58 @@
+﻿using FileSurfer.Core.Models;
+using FileSurfer.Core.Models.FileInformation;
+using FileSurfer.Core.Services.FileOperations;
+using FileSurfer.Core.Services.Shell;
+using FileSurfer.Core.Services.VersionControl;
+using Mocks.Models;
+using Mocks.Services;
+
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
+
+namespace Mocks;
+
+public record MethodCall(string Method, params object[] Args);
+
+public abstract class ServiceMock
+{
+    private readonly List<MethodCall> _calls = [];
+
+    public IReadOnlyList<MethodCall> Calls => _calls;
+
+    protected void RecordCall(string methodName, params object[] args) =>
+        _calls.Add(new MethodCall(methodName, args));
+}
+
+public class MockFileSystem : IFileSystem
+{
+    public bool Ready { get; set; } = true;
+    public bool Local { get; set; } = true;
+    public string Label { get; set; } = "mock";
+
+    public IFileInfoProvider FileInfoProvider { get; set; } = new MockFileInfoProvider();
+    public IIconProvider IconProvider { get; set; } = new MockIconProvider();
+    public IArchiveManager ArchiveManager { get; set; } = new MockArchiveManager();
+    public IFileIoHandler FileIoHandler { get; set; } = new MockFileIoHandler();
+    public IBinInteraction BinInteraction { get; set; } = new MockBinInteraction();
+    public IFileProperties FileProperties { get; set; } = new MockFileProperties();
+    public IShellHandler ShellHandler { get; set; } = new MockShellHandler();
+    public IGitIntegration GitIntegration { get; set; } = new MockGitIntegration();
+
+    public bool IsReady() => Ready;
+
+    public bool IsLocal() => Local;
+
+    public string GetLabel() => Label;
+
+    public void Dispose() { }
+}
+
+public static class MockHelper
+{
+    public static DirectoryEntryInfo Dir(string path, DateTime utc) =>
+        new(path, Path.GetFileName(path), utc.ToLocalTime(), utc);
+
+    public static FileEntryInfo File(string path, long sizeB, DateTime utc) =>
+        new(path, Path.GetFileName(path), Path.GetExtension(path), sizeB, utc.ToLocalTime(), utc);
+}

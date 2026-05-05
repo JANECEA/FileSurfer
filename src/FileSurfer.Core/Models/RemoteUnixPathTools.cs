@@ -8,7 +8,7 @@ namespace FileSurfer.Core.Models;
 /// <summary>
 /// Provides Unix-style path operations for remote paths using forward slash separators.
 /// </summary>
-internal class RemoteUnixPathTools : IPathTools
+public class RemoteUnixPathTools : IPathTools
 {
     /// <summary>
     /// Gets the singleton instance of <see cref="RemoteUnixPathTools"/>.

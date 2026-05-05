@@ -8,16 +8,27 @@ using FileSurfer.Core.Services.Shell;
 namespace FileSurfer.Linux.Models.FileInformation;
 
 /// <summary>
+/// Represents a discovered icon directory with metadata used for ranking.
+/// </summary>
+public sealed record IconPath(
+    int Size,
+    int IconCount,
+    string RestOfPath,
+    string BaseDir,
+    string PathToIcons
+);
+
+/// <summary>
 /// Compares icon search directories to prioritize theme, density, and size quality.
 /// </summary>
-internal sealed class IconPathComparer : IComparer<IconPath>
+public sealed class IconPathComparer : IComparer<IconPath>
 {
     private readonly string? _theme;
 
     /// <summary>
     /// Creates a comparer that prefers paths matching the specified icon theme.
     /// </summary>
-    internal IconPathComparer(string? theme) => _theme = theme;
+    public IconPathComparer(string? theme) => _theme = theme;
 
     public int Compare(IconPath? a, IconPath? b)
     {
@@ -63,17 +74,6 @@ internal sealed class IconPathComparer : IComparer<IconPath>
         return 0;
     }
 }
-
-/// <summary>
-/// Represents a discovered icon directory with metadata used for ranking.
-/// </summary>
-internal sealed record IconPath(
-    int Size,
-    int IconCount,
-    string RestOfPath,
-    string BaseDir,
-    string PathToIcons
-);
 
 /// <summary>
 /// Discovers and ranks Linux icon theme directories for MIME icon lookup.
