@@ -204,25 +204,17 @@
     </Style>
 
     <Style Selector="Button.GitIcon">
-        <Setter Property="Padding" Value="3 -4 0 0" />
+        <Setter Property="Padding" Value="2 -5 0 0" />
         <Setter Property="Margin" Value="0" />
-        <Setter Property="Height" Value="27" />
-        <Setter Property="Width" Value="27" />
+        <Setter Property="Height" Value="25" />
+        <Setter Property="Width" Value="25" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="FontFamily" Value="{DynamicResource IconFont}" />
         <Setter Property="FontSize" Value="29" />
         <Setter Property="Foreground" Value="{DynamicResource GitColor}" />
         <Setter Property="Background" Value="{DynamicResource TextBoxColor}" />
         <Setter Property="Opacity" Value="1.0" />
         <Setter Property="BorderThickness" Value="0" />
-    </Style>
-
-    <Style Selector="Button.GitIcon /template/ Border">
-        <Setter Property="Opacity" Value="1.0" />
-    </Style>
-
-    <Style Selector="Button.GitIcon /template/ ContentPresenter">
-        <Setter Property="Opacity" Value="1.0" />
-        <Setter Property="Background" Value="{DynamicResource TextBoxColor}" />
     </Style>
 
     <Style Selector="Button.GitIcon:pointerover /template/ ContentPresenter">

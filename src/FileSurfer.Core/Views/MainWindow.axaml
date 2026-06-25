@@ -384,7 +384,7 @@
                 </Button>
 
                 <StackPanel DockPanel.Dock="Right" IsVisible="{Binding IsVersionControlled}" Orientation="Horizontal">
-                    <Canvas Width="22" Margin="15 6 15 -5" Background="Transparent">
+                    <StackPanel Margin="15 7 10 -4" Background="Transparent" Spacing="2">
                         <ToolTip.Tip>
                             <Grid ColumnDefinitions="Auto Auto" RowDefinitions="Auto Auto">
                                 <TextBlock Grid.Row="0" Grid.Column="0" Classes="GitTooltipNumber" Text="{Binding RepoStateInfo.CommitsToPull}" />
@@ -394,19 +394,14 @@
                             </Grid>
                         </ToolTip.Tip>
 
-                        <Button Canvas.Left="0"
-                                Canvas.Top="1"
-                                Classes="GitIcon"
-                                Command="{Binding GitFetchCommand}"
-                                Content="&#xE702;"
-                                ToolTip.Tip="Fetch commits from remote" />
+                        <Button Classes="GitIcon" Command="{Binding GitFetchCommand}" Content="&#xE702;" ToolTip.Tip="Fetch commits from remote" />
 
-                        <StackPanel Canvas.Left="2.1" Canvas.Bottom="10" Orientation="Horizontal">
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
                             <TextBlock Classes="GitStateText" Text="{Binding RepoStateInfo.CommitsToPull}" />
                             <TextBlock Classes="GitStateText" Text=" / " />
                             <TextBlock Classes="GitStateText" Text="{Binding RepoStateInfo.CommitsToPush}" />
                         </StackPanel>
-                    </Canvas>
+                    </StackPanel>
 
                     <ComboBox Classes="BranchComboBox" ItemsSource="{Binding Branches}" SelectedItem="{Binding CurrentBranch, Mode=TwoWay}" ToolTip.Tip="Local branches" />
                     <Button Classes="GitButton" Command="{Binding GitPullCommand}" Content="PULL" ToolTip.Tip="Pull commits from remote" />
