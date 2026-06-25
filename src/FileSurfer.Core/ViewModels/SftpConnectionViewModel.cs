@@ -10,6 +10,8 @@ namespace FileSurfer.Core.ViewModels;
 /// </summary>
 public sealed class SftpConnectionViewModel : ReactiveObject
 {
+    private const ushort DefaultPort = 22;
+
     private Action<SftpConnectionViewModel>? _addSelf = null;
 
     /// <summary>
@@ -45,12 +47,12 @@ public sealed class SftpConnectionViewModel : ReactiveObject
     /// <summary>
     /// Gets or sets the remote SSH port.
     /// </summary>
-    public ushort Port
+    public ushort? Port
     {
         get => _port;
-        set => this.RaiseAndSetIfChanged(ref _port, value);
+        set => this.RaiseAndSetIfChanged(ref _port, value ?? DefaultPort);
     }
-    private ushort _port = 22;
+    private ushort _port = DefaultPort;
 
     /// <summary>
     /// Gets or sets the SSH username.
@@ -151,7 +153,7 @@ public sealed class SftpConnectionViewModel : ReactiveObject
         InitialDirectory = saveFrom.InitialDirectory?.Trim();
 
         SftpConnection.HostnameOrIpAddress = HostnameOrIpAddress;
-        SftpConnection.Port = Port;
+        SftpConnection.Port = Port ?? DefaultPort;
         SftpConnection.Username = Username;
         SftpConnection.KeyPath = KeyPath;
         SftpConnection.NeedsPassphrase = NeedsPassphrase ?? false;

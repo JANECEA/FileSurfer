@@ -168,7 +168,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     /// <summary>
     /// Gets or sets the file-size threshold used for unit formatting.
     /// </summary>
-    public int FileSizeUnitLimit { get; set; }
+    public int? FileSizeUnitLimit { get; set; }
 
     /// <summary>
     /// Gets the minimum allowed value for <see cref="FileSizeUnitLimit"/>.
@@ -223,7 +223,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     /// <summary>
     /// Gets or sets the automatic refresh interval in milliseconds.
     /// </summary>
-    public int AutomaticRefreshInterval { get; set; }
+    public int? AutomaticRefreshInterval { get; set; }
 
     /// <summary>
     /// Gets the minimum allowed value for <see cref="AutomaticRefreshInterval"/>.
@@ -240,7 +240,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
     /// <summary>
     /// Gets or sets the polling interval for SFTP synchronization in milliseconds.
     /// </summary>
-    public int SynchronizerPollingInterval { get; set; }
+    public int? SynchronizerPollingInterval { get; set; }
 
     /// <summary>
     /// Gets the minimum allowed value for <see cref="SynchronizerPollingInterval"/>.
@@ -312,7 +312,7 @@ public sealed class SettingsWindowViewModel : ReactiveObject
             useDarkMode = UseDarkMode,
             displayMode = DisplayMode,
             defaultSort = DefaultSort,
-            fileSizeUnitLimit = FileSizeUnitLimit,
+            fileSizeUnitLimit = FileSizeUnitLimit ?? FileSizeUnitLimitLowerBound,
             sortReversed = SortReversed,
             showSpecialFolders = ShowSpecialFolders,
             showProtectedFiles = ShowProtectedFiles,
@@ -321,8 +321,10 @@ public sealed class SettingsWindowViewModel : ReactiveObject
             gitIntegration = GitIntegration,
             showUndoRedoErrorDialogs = ShowUndoRedoErrorDialogs,
             automaticRefresh = AutomaticRefresh,
-            automaticRefreshInterval = AutomaticRefreshInterval,
-            synchronizerPollingInterval = SynchronizerPollingInterval,
+            automaticRefreshInterval =
+                AutomaticRefreshInterval ?? AutomaticRefreshIntervalLowerBound,
+            synchronizerPollingInterval =
+                SynchronizerPollingInterval ?? SynchronizerPollingIntervalLowerBound,
             quickAccess = FileSurferSettings.QuickAccess,
         };
 
