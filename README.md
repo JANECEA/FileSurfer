@@ -99,8 +99,6 @@ To build FileSurfer from source on Windows, you'll need the following:
 ## 📚 **Documentation (WIP)**  
 
 - **[User Guide](docs/UserGuide/UserGuide.md)**: Learn how to use FileSurfer's features.  
-- **[Specification](docs/Specification/)**: Check out the [technical](docs/Specification/TechnicalSpecification.md) and [functional](docs/Specification/FunctionalSpecification.md) specification of the project.  
-- **[Technical Documentation](docs/Documentation/Overview.md)**: Take a look at the technical details of the project.
 - **[Doxygen](https://janecea.github.io/FileSurfer/)**: Look around the generated doxygen documentation.
 
 ---
