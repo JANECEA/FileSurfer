@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Models.Sftp.SftpFileInfoProvider.IsLinkedToDirectory" name="FileSurfer.Core.Models.Sftp.SftpFileInfoProvider.IsLinkedToDirectory">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,209,64"/>
+<area shape="rect" id="Node000002" href="$d4/d0b/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1SshShellHandler.html#ac8daed99cbeaedfd9a22c7eae599705f" title="Wraps a string in single quotes and escapes embedded single quotes for safe shell usage." alt="" coords="257,13,442,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,32,244,34,238,35,209,37"/>
+</map>

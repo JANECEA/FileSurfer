@@ -1,0 +1,5 @@
+<map id="FileSurfer.Windows.Services.Shell.WindowsFileProperties" name="FileSurfer.Windows.Services.Shell.WindowsFileProperties">
+<area shape="rect" id="Node000001" title="Provides Windows shell dialogs for file properties and &quot;Open with&quot; operations." alt="" coords="5,96,200,139"/>
+<area shape="rect" id="Node000002" href="$d2/d08/interfaceFileSurfer_1_1Core_1_1Services_1_1Shell_1_1IFileProperties.html" title="Provides operations for showing platform&#45;specific file property and &quot;Open With&quot; dialogs." alt="" coords="18,5,187,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,62,105,97,100,95,101,66"/>
+</map>

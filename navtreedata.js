@@ -26,26 +26,13 @@ var NAVTREE =
 [
   [ "FileSurfer", "index.html", [
     [ "Overview", "index.html", "index" ],
-    [ "Technical specification", "d9/d02/md__d_1_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html", [
-      [ "Namespaces, Classes, and Interfaces", "d9/d02/md__d_1_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md1", [
-        [ "FileSurfer", "d9/d02/md__d_1_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md2", null ],
-        [ "FileSurfer.Models", "d9/d02/md__d_1_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md3", [
-          [ "FileSurfer.Models.FileInformation", "d9/d02/md__d_1_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md4", null ],
-          [ "FileSurfer.Models.VersionControl", "d9/d02/md__d_1_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md5", null ],
-          [ "FileSurfer.Models.Shell", "d9/d02/md__d_1_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md6", null ],
-          [ "FileSurfer.Models.FileOperations", "d9/d02/md__d_1_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md7", [
-            [ "FileSurfer.Models.FileOperations.Undoable", "d9/d02/md__d_1_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md8", null ]
-          ] ]
-        ] ],
-        [ "FileSurfer.ViewModels", "d9/d02/md__d_1_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md9", null ],
-        [ "FileSurfer.Views", "d9/d02/md__d_1_2_p_r_o_j_e_c_t_s_2_file_surfer_2docs_2_specification_2_technical_specification.html#autotoc_md10", null ]
-      ] ]
-    ] ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
       [ "Namespace Members", "namespacemembers.html", [
         [ "All", "namespacemembers.html", null ],
         [ "Functions", "namespacemembers_func.html", null ],
+        [ "Variables", "namespacemembers_vars.html", null ],
+        [ "Typedefs", "namespacemembers_type.html", null ],
         [ "Enumerations", "namespacemembers_enum.html", null ]
       ] ]
     ] ],
@@ -57,11 +44,16 @@ var NAVTREE =
         [ "All", "functions.html", "functions_dup" ],
         [ "Functions", "functions_func.html", "functions_func" ],
         [ "Variables", "functions_vars.html", null ],
-        [ "Properties", "functions_prop.html", null ]
+        [ "Properties", "functions_prop.html", "functions_prop" ],
+        [ "Events", "functions_evnt.html", null ]
       ] ]
     ] ],
     [ "Files", "files.html", [
-      [ "File List", "files.html", "files_dup" ]
+      [ "File List", "files.html", "files_dup" ],
+      [ "File Members", "globals.html", [
+        [ "All", "globals.html", null ],
+        [ "Typedefs", "globals_type.html", null ]
+      ] ]
     ] ]
   ] ]
 ];
@@ -69,12 +61,15 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a4deaa07eb80712808e9f87909d2e5038",
-"d4/d04/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_move_files_to.html#a4593b8e4860afef11f84b9146e56453f",
-"d8/d00/class_file_surfer_1_1_view_models_1_1_settings_window_view_model.html#ae0a55b1416b066906ed1516afdd06874",
-"db/d05/class_file_surfer_1_1_file_surfer_settings.html",
-"de/d07/class_file_surfer_1_1_models_1_1_file_operations_1_1_undoable_1_1_new_file_at.html",
-"functions_h.html"
+"d1/d01/classFileSurfer_1_1Windows_1_1Models_1_1FileInformation_1_1WindowsFileInfoProvider.html#a14a633b9657851e8bc41a0c923a1c2fe",
+"d2/d09/classFileSurfer_1_1Core_1_1Models_1_1DirTransferStream.html#ab56d0679a827141daac21a9822178370",
+"d4/d01/interfaceFileSurfer_1_1Core_1_1Services_1_1Dialogs_1_1IDialogService.html#aa2dea87cefae51d6ff9ad65c630ab2c0",
+"d6/d09/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1RenameMultiple.html#af0aa63ebfb84a4923564a12f9f63d17f",
+"d7/d0a/interfaceFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1IFileIoHandler.html#a1fff4557a8ddfb34f717a8a173eb21d7",
+"da/d05/classFileSurfer_1_1Core_1_1Views_1_1Helpers_1_1OneWayConverter.html#a398c4018c8d2dc18d4000b1ae2244251",
+"dc/d02/classFileSurfer_1_1Windows_1_1Models_1_1FileInformation_1_1WindowsIconProvider.html#abb3af68ec50af70d876812f2f8145229",
+"de/d0f/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1CopyFilesTo.html#aeb4d00d849b068de25d299e977ccdf2b",
+"index.html#autotoc_md3"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronization';

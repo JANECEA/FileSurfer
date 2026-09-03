@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.ViewModels.SftpSynchronizerViewModel.SftpSynchronizerViewModel" name="FileSurfer.Core.ViewModels.SftpSynchronizerViewModel.SftpSynchronizerViewModel">
+<area shape="rect" id="Node000001" title="Creates a synchronizer view model for the given local and remote locations." alt="" coords="5,5,295,64"/>
+<area shape="rect" id="Node000002" href="$d8/d07/interfaceFileSurfer_1_1Core_1_1Models_1_1IFileSystem.html#a5cb6e4bd7abfb9e1f62e1e22819353b5" title="Gets a label that identifies this file system." alt="" coords="343,13,527,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="295,32,330,35,324,35,295,37"/>
+</map>

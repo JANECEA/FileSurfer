@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.FileOperations.Undoable.NewDirAt.NewDirAt" name="FileSurfer.Core.Services.FileOperations.Undoable.NewDirAt.NewDirAt">
+<area shape="rect" id="Node000001" title="Initializes an undoable operation that creates a directory and deletes it on undo." alt="" coords="5,5,218,64"/>
+<area shape="rect" id="Node000002" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html#af36b2e49695ad8aeeaffd20494e4be9c" title="Combines two paths Returns the combined path without trailing separators." alt="" coords="266,13,456,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,32,252,34,247,35,218,37"/>
+</map>

@@ -1,0 +1,63 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d8/d08/classIAsyncDisposable.html" title=" " alt="" coords="5,13,133,40"/>
+<area shape="rect" id="Node000001" href="$d7/d08/classFileSurfer_1_1Core_1_1ViewModels_1_1SftpSynchronizerViewModel.html" title="Coordinates initialization and continuous synchronization between local and SFTP locations." alt="" coords="187,5,376,48"/>
+<area shape="poly" id="edge53_Node000000_Node000001" title=" " alt="" coords="147,25,188,25,185,28,150,29"/>
+<area shape="rect" id="Node000006" href="$d0/d07/classIDisposable.html" title=" " alt="" coords="24,813,114,840"/>
+<area shape="rect" id="Node000007" href="$d2/d09/classFileSurfer_1_1Core_1_1Models_1_1DirTransferStream.html" title="Defines a tree of FileTransferStream used for directory transfer." alt="" coords="193,539,370,581"/>
+<area shape="poly" id="edge54_Node000006_Node000007" title=" " alt="" coords="74,798,86,753,107,698,137,641,156,615,179,591,198,580,195,584,182,595,161,618,142,644,111,700,91,754,79,799"/>
+<area shape="rect" id="Node000008" href="$d6/d0d/interfaceFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1IIconProvider.html" title="Optimizes icon delivery based on relevant criteria." alt="" coords="191,605,372,648"/>
+<area shape="poly" id="edge55_Node000006_Node000008" title=" " alt="" coords="79,798,117,728,145,690,179,658,201,646,197,651,182,662,149,694,122,731,84,800"/>
+<area shape="rect" id="Node000012" href="$d9/d0b/classFileSurfer_1_1Core_1_1Models_1_1FileTransferStream.html" title="Defines a named stream used for file transfer." alt="" coords="191,672,372,715"/>
+<area shape="poly" id="edge59_Node000006_Node000012" title=" " alt="" coords="90,800,130,761,179,724,205,713,202,717,182,729,133,765,95,803"/>
+<area shape="rect" id="Node000013" href="$d8/d07/interfaceFileSurfer_1_1Core_1_1Models_1_1IFileSystem.html" title="Represents a generic file system and provides its functionality." alt="" coords="189,739,374,781"/>
+<area shape="poly" id="edge60_Node000006_Node000013" title=" " alt="" coords="127,806,213,780,209,784,130,810"/>
+<area shape="rect" id="Node000016" href="$dc/d08/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1LocalToSftpSynchronizer.html" title="Synchronizes a local directory to a remote one in real&#45;time by reacting to DirectoryWatcher events an..." alt="" coords="184,805,378,848"/>
+<area shape="poly" id="edge63_Node000006_Node000016" title=" " alt="" coords="128,824,186,825,182,828,131,829"/>
+<area shape="rect" id="Node000017" href="$d5/d00/interfaceFileSurfer_1_1Core_1_1Services_1_1Shell_1_1IBinInteraction.html" title="Provides operations for moving entries to trash and restoring them by original path." alt="" coords="197,872,366,915"/>
+<area shape="poly" id="edge64_Node000006_Node000017" title=" " alt="" coords="128,843,213,870,209,873,129,848"/>
+<area shape="rect" id="Node000021" href="$d8/d08/interfaceFileSurfer_1_1Core_1_1Services_1_1VersionControl_1_1IGitIntegration.html" title="Defines methods for interacting with the Git version control system within the FileSurfer app." alt="" coords="185,939,378,981"/>
+<area shape="poly" id="edge68_Node000006_Node000021" title=" " alt="" coords="92,849,133,888,182,924,206,937,201,939,179,929,130,892,93,855"/>
+<area shape="rect" id="Node000005" href="$db/d01/classFileSurfer_1_1Core_1_1ViewModels_1_1MainWindowViewModel.html" title="The MainWindowViewModel is the ViewModel for the main window of the application." alt="" coords="187,472,376,515"/>
+<area shape="poly" id="edge71_Node000006_Node000005" title=" " alt="" coords="70,797,79,740,97,668,112,629,129,591,152,556,179,525,197,513,194,517,182,529,156,559,134,594,116,631,102,669,84,741,75,798"/>
+<area shape="rect" id="Node000024" href="$d7/d0b/classFileSurfer_1_1Core_1_1ViewModels_1_1SearchManager.html" title="Coordinates cancellable recursive searches across a file system and pushes matching entries to the UI..." alt="" coords="187,1005,376,1048"/>
+<area shape="poly" id="edge72_Node000006_Node000024" title=" " alt="" coords="82,852,122,922,149,959,182,991,202,1004,196,1005,179,995,145,963,117,925,82,857"/>
+<area shape="rect" id="Node000025" href="$d2/d0a/classFileSurfer_1_1Windows_1_1Models_1_1FileInformation_1_1IconWorker.html" title="Processes icon extraction requests on a dedicated STA worker thread." alt="" coords="189,1072,374,1115"/>
+<area shape="poly" id="edge73_Node000006_Node000025" title=" " alt="" coords="76,852,91,899,111,954,142,1010,161,1035,182,1058,200,1071,194,1072,179,1062,156,1039,137,1013,107,956,86,900,76,858"/>
+<area shape="rect" id="Node000026" href="$da/d04/classFileSurfer_1_1Windows_1_1Services_1_1Shell_1_1StaWorkerSync.html" title="Executes queued work synchronously on a dedicated STA background thread." alt="" coords="184,1139,378,1181"/>
+<area shape="poly" id="edge74_Node000006_Node000026" title=" " alt="" coords="73,853,84,912,102,984,116,1022,134,1059,156,1094,182,1125,199,1139,193,1138,179,1129,152,1097,129,1062,112,1024,97,986,79,913,73,858"/>
+<area shape="rect" id="Node000009" href="$dd/d0a/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1BaseIconProvider.html" title="Provides generic fallback icons for files, directories, and drives." alt="" coords="443,605,636,648"/>
+<area shape="poly" id="edge56_Node000008_Node000009" title=" " alt="" coords="386,624,445,625,440,628,388,629"/>
+<area shape="rect" id="Node000010" href="$de/d0c/classFileSurfer_1_1Linux_1_1Models_1_1FileInformation_1_1LinuxIconProvider.html" title="Provides Linux file icons by resolving MIME types and loading themed icon assets." alt="" coords="709,572,924,615"/>
+<area shape="poly" id="edge57_Node000009_Node000010" title=" " alt="" coords="651,611,711,605,706,607,653,616"/>
+<area shape="rect" id="Node000011" href="$dc/d02/classFileSurfer_1_1Windows_1_1Models_1_1FileInformation_1_1WindowsIconProvider.html" title="Optimizes Windows icon delivery based on the file extension." alt="" coords="697,639,936,681"/>
+<area shape="poly" id="edge58_Node000009_Node000011" title=" " alt="" coords="651,638,700,645,695,646,652,643"/>
+<area shape="rect" id="Node000014" href="$d2/d02/classFileSurfer_1_1Core_1_1Models_1_1LocalFileSystem.html" title="Represents a local file system with more specialized versions of IFileSystem&#39;s models." alt="" coords="444,672,635,715"/>
+<area shape="poly" id="edge61_Node000013_Node000014" title=" " alt="" coords="380,732,456,714,452,717,383,737"/>
+<area shape="rect" id="Node000015" href="$d0/d03/classFileSurfer_1_1Core_1_1Models_1_1Sftp_1_1SftpFileSystem.html" title="Represents an SFTP&#45;backed implementation of IFileSystem." alt="" coords="446,739,633,781"/>
+<area shape="poly" id="edge62_Node000013_Node000015" title=" " alt="" coords="388,757,448,759,443,761,390,763"/>
+<area shape="rect" id="Node000018" href="$d6/d0d/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1StubBinInteraction.html" title=" " alt="" coords="456,805,624,848"/>
+<area shape="poly" id="edge65_Node000017_Node000018" title=" " alt="" coords="380,865,457,847,453,850,382,870"/>
+<area shape="rect" id="Node000019" href="$d5/d04/classFileSurfer_1_1Linux_1_1Services_1_1Shell_1_1LinuxBinInteraction.html" title="Interacts with the gio trash cli utility in order to move/restore files and directories to/from the s..." alt="" coords="454,872,625,915"/>
+<area shape="poly" id="edge66_Node000017_Node000019" title=" " alt="" coords="380,891,456,892,451,894,382,896"/>
+<area shape="rect" id="Node000020" href="$d5/d03/classFileSurfer_1_1Windows_1_1Services_1_1Shell_1_1WindowsBinInteraction.html" title="Interacts with the Windows Shell and System.Runtime.InteropServices in order to restore files and dir..." alt="" coords="442,939,637,981"/>
+<area shape="poly" id="edge67_Node000017_Node000020" title=" " alt="" coords="381,916,457,937,452,939,381,922"/>
+<area shape="rect" id="Node000022" href="$d5/d09/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1StubGitIntegration.html" title=" " alt="" coords="456,1005,624,1048"/>
+<area shape="poly" id="edge69_Node000021_Node000022" title=" " alt="" coords="381,983,458,1004,452,1005,381,988"/>
+<area shape="rect" id="Node000023" href="$d3/d0d/classFileSurfer_1_1Core_1_1Services_1_1VersionControl_1_1LocalGitIntegration.html" title="Handles git integration within the FileSurfer app." alt="" coords="430,1072,649,1115"/>
+<area shape="poly" id="edge70_Node000021_Node000023" title=" " alt="" coords="377,987,384,991,400,1008,408,1026,416,1042,432,1058,452,1072,447,1071,428,1062,412,1045,403,1028,396,1011,380,995,376,992"/>
+<area shape="rect" id="Node000002" href="$d7/d01/classReactiveObject.html" title=" " alt="" coords="13,247,125,273"/>
+<area shape="poly" id="edge80_Node000002_Node000001" title=" " alt="" coords="76,231,90,192,112,146,141,99,179,58,199,46,196,51,182,62,145,102,116,148,95,194,81,232"/>
+<area shape="poly" id="edge77_Node000002_Node000005" title=" " alt="" coords="78,286,95,326,116,372,145,418,182,458,200,470,195,472,179,462,141,421,112,374,90,328,79,291"/>
+<area shape="rect" id="Node000003" href="$d4/d06/classFileSurfer_1_1Core_1_1Services_1_1Dialogs_1_1ProgressReporter.html" title="Reports operation progress information to the UI." alt="" coords="196,72,367,115"/>
+<area shape="poly" id="edge75_Node000002_Node000003" title=" " alt="" coords="83,232,123,178,149,149,179,124,203,113,200,117,182,129,153,153,127,181,88,234"/>
+<area shape="rect" id="Node000004" href="$d7/d07/classFileSurfer_1_1Core_1_1ViewModels_1_1FileSystemEntryViewModel.html" title="Represents a displayable file system entry (file, or directory) in the FileSurfer application." alt="" coords="187,139,376,181"/>
+<area shape="poly" id="edge76_Node000002_Node000004" title=" " alt="" coords="100,236,179,191,210,180,207,184,182,196,105,240"/>
+<area shape="rect" id="Node000027" href="$d0/d00/classFileSurfer_1_1Core_1_1ViewModels_1_1SettingsWindowViewModel.html" title="The SettingsWindowViewModel is the ViewModel for the Views.SettingsWindow." alt="" coords="187,205,376,248"/>
+<area shape="poly" id="edge78_Node000002_Node000027" title=" " alt="" coords="138,247,189,240,185,243,142,251"/>
+<area shape="rect" id="Node000028" href="$d7/d09/classFileSurfer_1_1Core_1_1ViewModels_1_1SftpConnectionViewModel.html" title="The SftpConnectionViewModel is the ViewModel for the Views.EditSftpWindow." alt="" coords="187,272,376,315"/>
+<area shape="poly" id="edge79_Node000002_Node000028" title=" " alt="" coords="139,269,189,277,185,280,141,273"/>
+<area shape="rect" id="Node000029" href="$d5/d03/classFileSurfer_1_1Core_1_1ViewModels_1_1SideBarEntryViewModel.html" title="Represents a local, displayable sidebar entry (file, directory, or drive) in the FileSurfer applicati..." alt="" coords="187,339,376,381"/>
+<area shape="poly" id="edge81_Node000002_Node000029" title=" " alt="" coords="102,280,182,324,211,337,206,339,179,329,104,285"/>
+<area shape="rect" id="Node000030" href="$d2/d08/classFileSurfer_1_1Core_1_1Views_1_1Dialogs_1_1ProgressReporterVm.html" title="View model wrapper that exposes progress and cancellation state for dialog binding." alt="" coords="181,405,382,448"/>
+<area shape="poly" id="edge82_Node000002_Node000030" title=" " alt="" coords="85,284,127,339,153,367,182,391,203,404,199,406,179,396,149,371,123,342,86,289"/>
+</map>

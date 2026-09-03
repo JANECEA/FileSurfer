@@ -1,0 +1,9 @@
+<map id="FileSurfer.Core.Models.FileInformation.IFileInfoProvider.IsHidden" name="FileSurfer.Core.Models.FileInformation.IFileInfoProvider.IsHidden">
+<area shape="rect" id="Node000001" title="Checks if a path is hidden." alt="" coords="306,88,506,147"/>
+<area shape="rect" id="Node000002" href="$d7/d07/classFileSurfer_1_1Core_1_1ViewModels_1_1FileSystemEntryViewModel.html#ae8649b631c8c6c163100b24051842841" title="Initializes a new instance of the FileSystemEntryViewModel class for a directory." alt="" coords="5,5,258,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="289,84,231,67,231,62,294,82"/>
+<area shape="rect" id="Node000003" href="$d7/d07/classFileSurfer_1_1Core_1_1ViewModels_1_1FileSystemEntryViewModel.html#aa9ba42198822fae9d126d51826ddd93b" title="Initializes a new instance of the FileSystemEntryViewModel class for a file or directory." alt="" coords="5,88,258,147"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="287,118,259,120,258,115,293,117"/>
+<area shape="rect" id="Node000004" href="$d5/d03/classFileSurfer_1_1Core_1_1ViewModels_1_1SideBarEntryViewModel.html#aa0102e4ef865c300d3463833ba1b4864" title="Creates a sidebar entry from a file system entry and resolves its icon asynchronously." alt="" coords="10,171,253,229"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="294,151,232,173,231,167,289,152"/>
+</map>

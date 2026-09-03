@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Models.FileInformation.FileNameGenerator.GetAvailableName" name="FileSurfer.Core.Models.FileInformation.FileNameGenerator.GetAvailableName">
+<area shape="rect" id="Node000001" title="Finds a name available to use in directory &#160;based on newName ." alt="" coords="5,31,234,89"/>
+<area shape="rect" id="Node000002" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html#af36b2e49695ad8aeeaffd20494e4be9c" title="Combines two paths Returns the combined path without trailing separators." alt="" coords="300,5,490,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,44,287,39,282,41,235,49"/>
+<area shape="rect" id="Node000003" href="$d8/d04/interfaceFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1IFileInfoProvider.html#a32109e7cd611129aa55e4c30d412f1f9" title="Determines if the file or directory exists within the containing file system." alt="" coords="282,72,508,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,71,269,78,263,78,234,77"/>
+</map>

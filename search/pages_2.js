@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['directoryentry_0',['DirectoryEntry',['../index.html#autotoc_md29',1,'']]],
-  ['driveentry_1',['DriveEntry',['../index.html#autotoc_md30',1,'']]],
-  ['duplicatefiles_2',['DuplicateFiles',['../index.html#autotoc_md61',1,'']]]
+  ['central_20abstractions_0',['Central Abstractions',['../index.html#central-abstractions',1,'']]],
+  ['clipboard_20interaction_1',['Clipboard Interaction',['../index.html#autotoc_md9',1,'']]],
+  ['control_20integration_2',['Version Control Integration',['../index.html#autotoc_md11',1,'']]],
+  ['core_20subsystems_3',['Core Subsystems',['../index.html#autotoc_md7',1,'']]]
 ];

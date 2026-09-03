@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.ViewModels.FileSystemEntryViewModel.FileSystemEntryViewModel" name="FileSurfer.Core.ViewModels.FileSystemEntryViewModel.FileSystemEntryViewModel">
+<area shape="rect" id="Node000001" title="Initializes a new instance of the FileSystemEntryViewModel class for a file or directory." alt="" coords="5,47,258,105"/>
+<area shape="rect" id="Node000002" href="$d7/d07/classFileSurfer_1_1Core_1_1ViewModels_1_1FileSystemEntryViewModel.html#a0e0e2706e41e8e2690fbeba64c92e430" title="Converts file size in bytes to a human&#45;readable format." alt="" coords="306,5,539,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="257,55,293,53,287,54,259,61"/>
+<area shape="rect" id="Node000003" href="$d8/d04/interfaceFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1IFileInfoProvider.html#a8e2a91c1e41fcaeac56dded7baca6936" title="Checks if a path is hidden." alt="" coords="322,88,522,147"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,91,309,101,304,101,258,97"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Views.EditSftpWindow" name="FileSurfer.Core.Views.EditSftpWindow">
+<area shape="rect" id="Node000001" title="Represents the window to edit or create new SftpConnectionViewModel." alt="" coords="5,80,182,123"/>
+<area shape="rect" id="Node000002" href="$dc/d04/classWindow.html" title=" " alt="" coords="59,5,128,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,46,96,81,91,79,92,50"/>
+</map>

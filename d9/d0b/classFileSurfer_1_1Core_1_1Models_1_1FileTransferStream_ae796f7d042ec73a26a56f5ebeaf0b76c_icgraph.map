@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Models.FileTransferStream.FileTransferStream" name="FileSurfer.Core.Models.FileTransferStream.FileTransferStream">
+<area shape="rect" id="Node000001" title="Initializes a new instance of the FileTransferStream class." alt="" coords="269,5,495,48"/>
+<area shape="rect" id="Node000002" href="$d9/d0b/classFileSurfer_1_1Core_1_1Models_1_1FileTransferStream.html#a2937e5bc32509463bbbe2675d5b6223e" title="Creates a FileTransferStream from a file path using the provided file information provider." alt="" coords="5,5,221,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="250,27,221,29,221,24,256,27"/>
+</map>

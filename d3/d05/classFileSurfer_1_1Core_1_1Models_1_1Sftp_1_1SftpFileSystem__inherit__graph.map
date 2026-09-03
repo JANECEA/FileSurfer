@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Models.Sftp.SftpFileSystem" name="FileSurfer.Core.Models.Sftp.SftpFileSystem">
+<area shape="rect" id="Node000001" title="Represents an SFTP&#45;backed implementation of IFileSystem." alt="" coords="5,171,193,213"/>
+<area shape="rect" id="Node000002" href="$d8/d07/interfaceFileSurfer_1_1Core_1_1Models_1_1IFileSystem.html" title="Represents a generic file system and provides its functionality." alt="" coords="7,80,191,123"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="101,136,101,171,97,169,97,140"/>
+<area shape="rect" id="Node000003" href="$d0/d07/classIDisposable.html" title=" " alt="" coords="54,5,144,32"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="100,45,102,80,96,79,98,50"/>
+</map>

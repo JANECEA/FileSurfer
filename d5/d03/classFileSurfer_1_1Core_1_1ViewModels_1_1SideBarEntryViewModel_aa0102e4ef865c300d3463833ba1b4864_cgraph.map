@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.ViewModels.SideBarEntryViewModel.SideBarEntryViewModel" name="FileSurfer.Core.ViewModels.SideBarEntryViewModel.SideBarEntryViewModel">
+<area shape="rect" id="Node000001" title="Creates a sidebar entry from a file system entry and resolves its icon asynchronously." alt="" coords="5,5,249,64"/>
+<area shape="rect" id="Node000002" href="$d8/d04/interfaceFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1IFileInfoProvider.html#a8e2a91c1e41fcaeac56dded7baca6936" title="Checks if a path is hidden." alt="" coords="297,5,497,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="249,32,284,34,278,35,249,37"/>
+</map>

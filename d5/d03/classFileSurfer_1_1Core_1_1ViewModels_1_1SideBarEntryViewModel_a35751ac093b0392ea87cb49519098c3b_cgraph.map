@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.ViewModels.SideBarEntryViewModel.SideBarEntryViewModel" name="FileSurfer.Core.ViewModels.SideBarEntryViewModel.SideBarEntryViewModel">
+<area shape="rect" id="Node000001" title="Creates a sidebar entry from drive metadata and resolves its icon asynchronously." alt="" coords="5,5,249,64"/>
+<area shape="rect" id="Node000002" href="$d6/d0d/interfaceFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1IIconProvider.html#a16f298b3bf9ebf77d982893d669375b0" title="Retrieves the icon associated with drives." alt="" coords="297,5,520,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="249,32,284,34,279,35,249,37"/>
+</map>

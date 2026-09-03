@@ -1,0 +1,13 @@
+<map id="FileSurfer.Core.Models.FileInformation.IFileInfoProvider" name="FileSurfer.Core.Models.FileInformation.IFileInfoProvider">
+<area shape="rect" id="Node000001" title="Defines methods for retrieving file and directory information." alt="" coords="5,88,191,131"/>
+<area shape="rect" id="Node000002" href="$d9/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1ILocalFileInfoProvider.html" title="Defines methods for retrieving information specific to local file systems." alt="" coords="239,55,455,97"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,92,241,90,236,91,207,97"/>
+<area shape="rect" id="Node000006" href="$de/d0f/classFileSurfer_1_1Core_1_1Models_1_1Sftp_1_1SftpFileInfoProvider.html" title="Provides file and directory metadata operations for an SFTP&#45;backed file system." alt="" coords="253,121,440,164"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="206,121,255,130,250,130,206,126"/>
+<area shape="rect" id="Node000003" href="$d7/d03/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1LocalFileInfoProvider.html" title="Implements cross&#45;platform methods for local Linux and Windows file systems." alt="" coords="503,55,715,97"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="470,73,505,76,500,76,471,79"/>
+<area shape="rect" id="Node000004" href="$d2/d0d/classFileSurfer_1_1Linux_1_1Models_1_1FileInformation_1_1LinuxFileInfoProvider.html" title="Provides Linux&#45;specific file system metadata such as drives, folders, and hidden&#45;state checks." alt="" coords="775,5,960,64"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="731,54,772,50,777,49,731,59"/>
+<area shape="rect" id="Node000005" href="$d1/d01/classFileSurfer_1_1Windows_1_1Models_1_1FileInformation_1_1WindowsFileInfoProvider.html" title="Provides Windows&#45;specific local file&#45;system information." alt="" coords="763,88,972,147"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="731,93,766,101,760,101,731,98"/>
+</map>

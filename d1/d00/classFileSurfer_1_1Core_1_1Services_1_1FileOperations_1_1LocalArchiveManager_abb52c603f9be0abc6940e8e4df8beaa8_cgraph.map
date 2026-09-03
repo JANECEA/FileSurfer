@@ -1,0 +1,11 @@
+<map id="FileSurfer.Core.Services.FileOperations.LocalArchiveManager.ExtractArchiveAsync" name="FileSurfer.Core.Services.FileOperations.LocalArchiveManager.ExtractArchiveAsync">
+<area shape="rect" id="Node000001" title="Extracts the archive, overwriting already existing files." alt="" coords="5,35,244,93"/>
+<area shape="rect" id="Node000002" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#ab0a706a9fa910e36591b5848a33c5a8e" title="Gets a cached failed result with no error message." alt="" coords="306,5,506,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,46,294,41,289,43,245,51"/>
+<area shape="rect" id="Node000003" href="$d1/d01/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1FileNameGenerator.html#a4c0e0bd650c01fd9f869c887282f2aaa" title="Finds a name available to use in directory &#160;based on newName ." alt="" coords="292,72,520,131"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="244,77,279,84,273,84,244,82"/>
+<area shape="rect" id="Node000004" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html#af36b2e49695ad8aeeaffd20494e4be9c" title="Combines two paths Returns the combined path without trailing separators." alt="" coords="604,47,795,89"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="520,86,591,80,586,81,521,91"/>
+<area shape="rect" id="Node000005" href="$d8/d04/interfaceFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1IFileInfoProvider.html#af7d4d934f81735bc1ad40e0b62bc38d9" title="Asynchronously determines if the file or directory exists within the containing file system." alt="" coords="568,113,831,156"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="521,112,555,118,550,118,521,117"/>
+</map>

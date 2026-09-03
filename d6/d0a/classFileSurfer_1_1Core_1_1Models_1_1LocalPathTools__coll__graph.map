@@ -1,0 +1,9 @@
+<map id="FileSurfer.Core.Models.LocalPathTools" name="FileSurfer.Core.Models.LocalPathTools">
+<area shape="rect" id="Node000001" title="Provides local file&#45;system path operations using platform&#45;specific separator and comparison rules." alt="" coords="11,212,201,255"/>
+<area shape="rect" id="Node000002" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html" title="Provides methods for manipulating paths for specific filesystems." alt="" coords="5,5,196,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,62,108,212,103,211,99,64"/>
+<area shape="rect" id="Node000003" href="$d0/d0b/classFileSurfer_1_1Core_1_1Models_1_1LocalPathTools.html" title="Provides local file&#45;system path operations using platform&#45;specific separator and comparison rules." alt="" coords="121,97,312,140"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="139,55,192,96,187,98,138,60"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,151,128,214,124,210,183,152"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="327,110,338,119,330,126,313,129,311,124,328,121,333,119,327,116"/>
+</map>

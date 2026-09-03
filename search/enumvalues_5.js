@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['type_0',['Type',['../d0/d06/namespace_file_surfer.html#a7d93fd9e0886998da504a63742727e69aa1fa27779242b4902f7ae3bdd5c6d508',1,'FileSurfer']]]
+  ['name_0',['Name',['../d2/d05/namespaceFileSurfer_1_1Core.html#ab8e5fe63d38fae809c4607f46949b416a49ee3087348e8d44e1feda1917443987',1,'FileSurfer::Core']]],
+  ['notversioncontrolled_1',['NotVersionControlled',['../d6/d09/namespaceFileSurfer_1_1Core_1_1Services_1_1VersionControl.html#a89d713e92199c68f61772c3ca9078e14ac26158fd1d189f902f25e986b13c0ce0',1,'FileSurfer::Core::Services::VersionControl']]]
 ];

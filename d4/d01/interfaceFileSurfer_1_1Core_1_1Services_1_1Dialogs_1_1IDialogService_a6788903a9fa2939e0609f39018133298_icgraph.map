@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.Dialogs.IDialogService.InputDialogAsync" name="FileSurfer.Core.Services.Dialogs.IDialogService.InputDialogAsync">
+<area shape="rect" id="Node000001" title="Shows an input dialog and returns user&#45;entered text." alt="" coords="302,13,563,56"/>
+<area shape="rect" id="Node000002" href="$dc/d0e/classFileSurfer_1_1Core_1_1Models_1_1Sftp_1_1SftpFileSystemFactory.html#aacd564cc3ec1722fd9ec0f65a6c7a5eb" title="Initializes a new instance of the SftpFileSystemFactory class." alt="" coords="5,5,254,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="283,35,254,37,254,32,289,34"/>
+</map>

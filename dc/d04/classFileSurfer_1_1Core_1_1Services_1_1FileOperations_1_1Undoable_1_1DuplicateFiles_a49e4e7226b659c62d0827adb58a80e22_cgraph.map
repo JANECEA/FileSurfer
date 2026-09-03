@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.FileOperations.Undoable.DuplicateFiles.DuplicateFiles" name="FileSurfer.Core.Services.FileOperations.Undoable.DuplicateFiles.DuplicateFiles">
+<area shape="rect" id="Node000001" title="Initializes an undoable duplicate operation for a batch of entries." alt="" coords="5,5,229,64"/>
+<area shape="rect" id="Node000002" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html#a79c67989e64cfe8a5bdb1933a8b49999" title="Returns the parent directory of the given path." alt="" coords="277,13,467,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="229,32,264,34,258,35,229,37"/>
+</map>

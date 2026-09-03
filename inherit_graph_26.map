@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d7/d0a/interfaceFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1IFileIoHandler.html" title="Defines file and directory I/O operations used by local and remote file&#45;system implementations." alt="" coords="5,72,196,115"/>
+<area shape="rect" id="Node000001" href="$df/d0a/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1SftpFileIoHandler.html" title="Implements file and directory I/O operations for remote SFTP locations using SSH&#45;backed commands and ..." alt="" coords="280,5,448,48"/>
+<area shape="poly" id="edge25_Node000000_Node000001" title=" " alt="" coords="201,65,282,47,277,49,203,70"/>
+<area shape="rect" id="Node000002" href="$d3/d0a/classFileSurfer_1_1Linux_1_1Services_1_1FileOperations_1_1LinuxFileIoHandler.html" title="Handles file IO operations in the Linux environment." alt="" coords="255,72,472,115"/>
+<area shape="poly" id="edge26_Node000000_Node000002" title=" " alt="" coords="211,91,257,93,252,94,212,96"/>
+<area shape="rect" id="Node000003" href="$d2/d06/classFileSurfer_1_1Windows_1_1Services_1_1FileOperations_1_1WindowsFileIoHandler.html" title="Handles file IO operations in the Windows environment within the context of the FileSurfer app." alt="" coords="244,139,484,181"/>
+<area shape="poly" id="edge27_Node000000_Node000003" title=" " alt="" coords="202,116,279,138,274,139,202,122"/>
+</map>

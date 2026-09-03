@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Models.IFileSystem.GetLabel" name="FileSurfer.Core.Models.IFileSystem.GetLabel">
+<area shape="rect" id="Node000001" title="Gets a label that identifies this file system." alt="" coords="343,43,527,85"/>
+<area shape="rect" id="Node000002" href="$d7/d08/classFileSurfer_1_1Core_1_1ViewModels_1_1SftpSynchronizerViewModel.html#a59df8aa03de3f7e5e434bf0dd058540c" title="Prompts for and validates the local path to pair with a remote synchronization target." alt="" coords="16,5,284,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="325,50,285,47,285,42,330,50"/>
+<area shape="rect" id="Node000003" href="$d7/d08/classFileSurfer_1_1Core_1_1ViewModels_1_1SftpSynchronizerViewModel.html#aead853945e694921e5f5e59d0b5a2ad0" title="Creates a synchronizer view model for the given local and remote locations." alt="" coords="5,72,295,131"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="324,78,295,85,295,80,330,78"/>
+</map>

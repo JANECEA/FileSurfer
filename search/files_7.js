@@ -1,5 +1,22 @@
 var searchData=
 [
-  ['mainwindow_2eaxaml_2ecs_0',['MainWindow.axaml.cs',['../dc/d0a/_main_window_8axaml_8cs.html',1,'']]],
-  ['mainwindowviewmodel_2ecs_1',['MainWindowViewModel.cs',['../d5/d0e/_main_window_view_model_8cs.html',1,'']]]
+  ['iarchivemanager_2ecs_0',['IArchiveManager.cs',['../d1/d0e/IArchiveManager_8cs.html',1,'']]],
+  ['ibininteraction_2ecs_1',['IBinInteraction.cs',['../df/d0e/IBinInteraction_8cs.html',1,'']]],
+  ['iclipboardmanager_2ecs_2',['IClipboardManager.cs',['../d1/d01/IClipboardManager_8cs.html',1,'']]],
+  ['iconpathresolver_2ecs_3',['IconPathResolver.cs',['../d7/d0b/IconPathResolver_8cs.html',1,'']]],
+  ['iconworker_2ecs_4',['IconWorker.cs',['../d1/d0d/IconWorker_8cs.html',1,'']]],
+  ['idialogservice_2ecs_5',['IDialogService.cs',['../d5/d05/IDialogService_8cs.html',1,'']]],
+  ['ifileinfoprovider_2ecs_6',['IFileInfoProvider.cs',['../d7/d07/IFileInfoProvider_8cs.html',1,'']]],
+  ['ifileiohandler_2ecs_7',['IFileIOHandler.cs',['../db/d06/IFileIOHandler_8cs.html',1,'']]],
+  ['ifileproperties_2ecs_8',['IFileProperties.cs',['../d2/d0c/IFileProperties_8cs.html',1,'']]],
+  ['ifilesystem_2ecs_9',['IFileSystem.cs',['../d5/d0e/IFileSystem_8cs.html',1,'']]],
+  ['ifilesystementry_2ecs_10',['IFileSystemEntry.cs',['../d8/d06/IFileSystemEntry_8cs.html',1,'']]],
+  ['igitintegration_2ecs_11',['IGitIntegration.cs',['../d4/d0b/IGitIntegration_8cs.html',1,'']]],
+  ['iiconprovider_2ecs_12',['IIconProvider.cs',['../dc/d0b/IIconProvider_8cs.html',1,'']]],
+  ['infodialogwindow_2eaxaml_2ecs_13',['InfoDialogWindow.axaml.cs',['../dc/d04/InfoDialogWindow_8axaml_8cs.html',1,'']]],
+  ['inputdialogwindow_2eaxaml_2ecs_14',['InputDialogWindow.axaml.cs',['../d3/d00/InputDialogWindow_8axaml_8cs.html',1,'']]],
+  ['iosclipboardproxy_2ecs_15',['IOsClipboardProxy.cs',['../dd/d0b/IOsClipboardProxy_8cs.html',1,'']]],
+  ['ipathtools_2ecs_16',['IPathTools.cs',['../dd/d0c/IPathTools_8cs.html',1,'']]],
+  ['iresult_2ecs_17',['IResult.cs',['../d1/d0d/IResult_8cs.html',1,'']]],
+  ['ishellhandler_2ecs_18',['IShellHandler.cs',['../dc/d08/IShellHandler_8cs.html',1,'']]]
 ];

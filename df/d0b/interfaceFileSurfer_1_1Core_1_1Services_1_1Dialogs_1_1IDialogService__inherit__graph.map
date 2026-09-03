@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.Dialogs.IDialogService" name="FileSurfer.Core.Services.Dialogs.IDialogService">
+<area shape="rect" id="Node000001" title="Defines dialog workflows for informational prompts, confirmations, input collection,..." alt="" coords="21,5,190,48"/>
+<area shape="rect" id="Node000002" href="$d3/d00/classFileSurfer_1_1Core_1_1Services_1_1Dialogs_1_1AvaloniaDialogService.html" title="Avalonia&#45;based implementation of IDialogService that presents informational, confirmation,..." alt="" coords="5,96,206,139"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,62,108,97,103,95,104,66"/>
+</map>

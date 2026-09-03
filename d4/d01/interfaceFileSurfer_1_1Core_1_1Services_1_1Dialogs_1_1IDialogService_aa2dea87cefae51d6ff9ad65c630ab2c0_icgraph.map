@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.Dialogs.IDialogService.SuggestInputDialogAsync" name="FileSurfer.Core.Services.Dialogs.IDialogService.SuggestInputDialogAsync">
+<area shape="rect" id="Node000001" title="Shows an input dialog with suggested options and returns user&#45;entered or selected text." alt="" coords="322,5,528,64"/>
+<area shape="rect" id="Node000002" href="$d7/d08/classFileSurfer_1_1Core_1_1ViewModels_1_1SftpSynchronizerViewModel.html#a59df8aa03de3f7e5e434bf0dd058540c" title="Prompts for and validates the local path to pair with a remote synchronization target." alt="" coords="5,13,274,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="303,35,274,37,274,32,308,35"/>
+</map>

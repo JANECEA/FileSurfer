@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.Sftp.SftpFileIoHandler.DeleteDir" name="FileSurfer.Core.Services.Sftp.SftpFileIoHandler.DeleteDir">
+<area shape="rect" id="Node000001" title="Deletes a directory permanently." alt="" coords="5,5,215,48"/>
+<area shape="rect" id="Node000002" href="$d4/d0b/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1SshShellHandler.html#ac8daed99cbeaedfd9a22c7eae599705f" title="Wraps a string in single quotes and escapes embedded single quotes for safe shell usage." alt="" coords="263,5,448,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,24,250,27,244,27,215,29"/>
+</map>

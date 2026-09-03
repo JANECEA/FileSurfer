@@ -1,0 +1,15 @@
+<map id="FileSurfer.Core.Models.RemoteUnixPathTools" name="FileSurfer.Core.Models.RemoteUnixPathTools">
+<area shape="rect" id="Node000001" title="Provides Unix&#45;style path operations for remote paths using forward slash separators." alt="" coords="636,124,841,167"/>
+<area shape="rect" id="Node000002" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html" title="Provides methods for manipulating paths for specific filesystems." alt="" coords="5,31,196,73"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,24,274,12,357,4,445,5,488,11,531,20,584,40,635,67,714,124,709,123,632,72,582,45,529,25,487,16,444,11,357,9,274,17,202,29"/>
+<area shape="rect" id="Node000003" href="$d0/d0a/classFileSurfer_1_1Core_1_1Models_1_1RemoteUnixPathTools.html" title="Provides Unix&#45;style path operations for remote paths using forward slash separators." alt="" coords="325,83,530,125"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="211,67,327,86,322,89,211,72"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="545,117,638,131,633,132,545,122"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="400,65,410,58,427,56,443,58,454,64,459,73,457,84,453,80,454,74,450,68,442,63,427,61,412,63,403,69"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="59,112,142,139"/>
+<area shape="poly" id="edge7_Node000001_Node000004" title=" " alt="" coords="157,134,237,148,325,159,427,163,530,159,638,154,633,155,530,164,427,168,324,164,236,153,157,139"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="157,119,326,109,322,113,158,124"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="56,225,145,252"/>
+<area shape="poly" id="edge8_Node000001_Node000005" title=" " alt="" coords="160,232,327,218,530,192,653,168,659,167,530,197,327,224,161,238"/>
+<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="146,216,324,141,367,127,372,125,326,146,148,221"/>
+</map>

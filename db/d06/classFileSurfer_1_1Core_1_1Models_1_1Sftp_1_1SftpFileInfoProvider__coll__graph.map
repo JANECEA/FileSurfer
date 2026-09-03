@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Models.Sftp.SftpFileInfoProvider" name="FileSurfer.Core.Models.Sftp.SftpFileInfoProvider">
+<area shape="rect" id="Node000001" title="Provides file and directory metadata operations for an SFTP&#45;backed file system." alt="" coords="5,96,193,139"/>
+<area shape="rect" id="Node000002" href="$d8/d04/interfaceFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1IFileInfoProvider.html" title="Defines methods for retrieving file and directory information." alt="" coords="6,5,192,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="101,62,101,97,97,95,97,66"/>
+</map>

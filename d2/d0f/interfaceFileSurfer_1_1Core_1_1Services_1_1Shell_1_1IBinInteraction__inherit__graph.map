@@ -1,0 +1,11 @@
+<map id="FileSurfer.Core.Services.Shell.IBinInteraction" name="FileSurfer.Core.Services.Shell.IBinInteraction">
+<area shape="rect" id="Node000001" title="Provides operations for moving entries to trash and restoring them by original path." alt="" coords="144,72,312,115"/>
+<area shape="rect" id="Node000003" href="$d6/d0d/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1StubBinInteraction.html" title=" " alt="" coords="373,5,541,48"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="317,65,384,48,379,50,318,70"/>
+<area shape="rect" id="Node000004" href="$d5/d04/classFileSurfer_1_1Linux_1_1Services_1_1Shell_1_1LinuxBinInteraction.html" title="Interacts with the gio trash cli utility in order to move/restore files and directories to/from the s..." alt="" coords="372,72,543,115"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="327,91,374,93,369,94,328,96"/>
+<area shape="rect" id="Node000005" href="$d5/d03/classFileSurfer_1_1Windows_1_1Services_1_1Shell_1_1WindowsBinInteraction.html" title="Interacts with the Windows Shell and System.Runtime.InteropServices in order to restore files and dir..." alt="" coords="360,139,554,181"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="318,117,384,138,378,138,317,122"/>
+<area shape="rect" id="Node000002" href="$d0/d07/classIDisposable.html" title=" " alt="" coords="5,80,96,107"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="110,91,146,92,141,94,112,96"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Models.IPathTools" name="FileSurfer.Core.Models.IPathTools">
+<area shape="rect" id="Node000001" title="Provides methods for manipulating paths for specific filesystems." alt="" coords="116,5,306,48"/>
+<area shape="rect" id="Node000002" href="$d0/d0b/classFileSurfer_1_1Core_1_1Models_1_1LocalPathTools.html" title="Provides local file&#45;system path operations using platform&#45;specific separator and comparison rules." alt="" coords="5,96,196,139"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,57,128,98,125,93,171,59"/>
+<area shape="rect" id="Node000003" href="$d0/d0a/classFileSurfer_1_1Core_1_1Models_1_1RemoteUnixPathTools.html" title="Provides Unix&#45;style path operations for remote paths using forward slash separators." alt="" coords="219,96,424,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="250,55,299,96,293,95,248,60"/>
+</map>

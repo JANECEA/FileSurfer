@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Models.UndoRedoHandler&#45;1&#45;g.MoveToPrevious" name="FileSurfer.Core.Models.UndoRedoHandler&#45;1&#45;g.MoveToPrevious">
+<area shape="rect" id="Node000001" title="Moves to the previous UndoRedoNode in the UndoRedoHandler&lt;T&gt; chain." alt="" coords="258,5,478,48"/>
+<area shape="rect" id="Node000002" href="$d9/d0c/classFileSurfer_1_1Core_1_1Models_1_1UndoRedoHandler-1-g.html#a42681df10545d3fb7548cf6d3dcd1dce" title="Inserts a new node after the current position and discards any forward history." alt="" coords="5,5,210,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="239,27,210,29,210,24,245,27"/>
+</map>

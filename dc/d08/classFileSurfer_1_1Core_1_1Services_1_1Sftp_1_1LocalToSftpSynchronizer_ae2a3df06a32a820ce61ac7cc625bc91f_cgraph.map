@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.Sftp.LocalToSftpSynchronizer.SynchronizeAsync" name="FileSurfer.Core.Services.Sftp.LocalToSftpSynchronizer.SynchronizeAsync">
+<area shape="rect" id="Node000001" title="Starts continuous synchronization by running the directory watcher loop." alt="" coords="5,5,313,48"/>
+<area shape="rect" id="Node000002" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#ab0a706a9fa910e36591b5848a33c5a8e" title="Gets a cached failed result with no error message." alt="" coords="361,5,560,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="313,24,348,27,342,27,313,29"/>
+</map>

@@ -1,11 +1,23 @@
 var searchData=
 [
-  ['cancelsearchcommand_0',['CancelSearchCommand',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#aee9172ba80e7ac97a30458834fc000c1',1,'FileSurfer::ViewModels::MainWindowViewModel']]],
-  ['copycommand_1',['CopyCommand',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a0bdc5fc984d6e3fcaef6b445b76890e3',1,'FileSurfer::ViewModels::MainWindowViewModel']]],
-  ['current_2',['Current',['../d9/d09/class_file_surfer_1_1_models_1_1_undo_redo_handler-1-g.html#a18e4c18db6c30fe9fb56c69862f76e2d',1,'FileSurfer::Models::UndoRedoHandler-1-g']]],
-  ['currentbranch_3',['CurrentBranch',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#adb09e6f00702c0b96f532aac6a68bb44',1,'FileSurfer::ViewModels::MainWindowViewModel']]],
-  ['currentdir_4',['CurrentDir',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a7323f197b0d0c9126c0d5cdec9cee1a7',1,'FileSurfer::ViewModels::MainWindowViewModel']]],
-  ['currentinfomessage_5',['CurrentInfoMessage',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a8d54c9e34cf35a969387e8ad63724e33',1,'FileSurfer::ViewModels::MainWindowViewModel']]],
-  ['currentsettings_6',['CurrentSettings',['../db/d05/class_file_surfer_1_1_file_surfer_settings.html#a8d8bef776ac63f44f796838b6e750407',1,'FileSurfer::FileSurferSettings']]],
-  ['cutcommand_7',['CutCommand',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a9c9c6a576f79d7a3418889224d2dde27',1,'FileSurfer::ViewModels::MainWindowViewModel']]]
+  ['cancelsearchcommand_0',['CancelSearchCommand',['../db/d01/classFileSurfer_1_1Core_1_1ViewModels_1_1MainWindowViewModel.html#a2b94686af830e0e40178e7e117a19504',1,'FileSurfer::Core::ViewModels::MainWindowViewModel']]],
+  ['cangoback_1',['CanGoBack',['../db/d01/classFileSurfer_1_1Core_1_1ViewModels_1_1MainWindowViewModel.html#a8de668aa7f616f3e3e7044dc5591e01e',1,'FileSurfer::Core::ViewModels::MainWindowViewModel']]],
+  ['cangoforward_2',['CanGoForward',['../db/d01/classFileSurfer_1_1Core_1_1ViewModels_1_1MainWindowViewModel.html#aefdb7e497fbbece8fbbbd691d8ff8b9a',1,'FileSurfer::Core::ViewModels::MainWindowViewModel']]],
+  ['clipboardmanager_3',['ClipboardManager',['../db/d01/classFileSurfer_1_1Core_1_1ViewModels_1_1MainWindowViewModel.html#a069f9f26b2e38ad37cfd44fb74a9f359',1,'FileSurfer::Core::ViewModels::MainWindowViewModel']]],
+  ['closesftpcommand_4',['CloseSftpCommand',['../db/d01/classFileSurfer_1_1Core_1_1ViewModels_1_1MainWindowViewModel.html#a2bcfb4d9fa40796f221b2066e7651c10',1,'FileSurfer::Core::ViewModels::MainWindowViewModel']]],
+  ['comparison_5',['Comparison',['../d0/d0b/classFileSurfer_1_1Core_1_1Models_1_1LocalPathTools.html#a581d067f9f3a62f3c83cfcd8fb37e60b',1,'FileSurfer::Core::Models::LocalPathTools']]],
+  ['context_6',['Context',['../dd/d0e/classFileSurfer_1_1Core_1_1Views_1_1Dialogs_1_1InputDialogWindow.html#a996cb15c144bed18b0d13dfc0ae459f6',1,'FileSurfer.Core.Views.Dialogs.InputDialogWindow.Context'],['../d6/d0c/classFileSurfer_1_1Core_1_1Views_1_1Dialogs_1_1SuggestInputDialogWindow.html#a6f71d4578d83ff9b74bfe592e2956582',1,'FileSurfer.Core.Views.Dialogs.SuggestInputDialogWindow.Context']]],
+  ['copycommand_7',['CopyCommand',['../db/d01/classFileSurfer_1_1Core_1_1ViewModels_1_1MainWindowViewModel.html#ab2b76518ee85e9b93fdd8d7f7e8387bb',1,'FileSurfer::Core::ViewModels::MainWindowViewModel']]],
+  ['copypathcommand_8',['CopyPathCommand',['../db/d01/classFileSurfer_1_1Core_1_1ViewModels_1_1MainWindowViewModel.html#a3ba07701e4894970c200b5036a823c04',1,'FileSurfer::Core::ViewModels::MainWindowViewModel']]],
+  ['createonsave_9',['CreateOnSave',['../d7/d09/classFileSurfer_1_1Core_1_1ViewModels_1_1SftpConnectionViewModel.html#adcd87a2ab1bc2f14e7942c0008295190',1,'FileSurfer::Core::ViewModels::SftpConnectionViewModel']]],
+  ['createshortcutcommand_10',['CreateShortcutCommand',['../db/d01/classFileSurfer_1_1Core_1_1ViewModels_1_1MainWindowViewModel.html#a8093734e49f58f52eb7a12f8ce2a31fb',1,'FileSurfer::Core::ViewModels::MainWindowViewModel']]],
+  ['cts_11',['Cts',['../de/d00/classFileSurfer_1_1Core_1_1Views_1_1Dialogs_1_1ProgressDialogWindow.html#aaf3d9f7ddafd3bc072f75730ed268cdb',1,'FileSurfer.Core.Views.Dialogs.ProgressDialogWindow.Cts'],['../d2/d08/classFileSurfer_1_1Core_1_1Views_1_1Dialogs_1_1ProgressReporterVm.html#aa6cdae212647b851c99a1abd67eb68dd',1,'FileSurfer.Core.Views.Dialogs.ProgressReporterVm.Cts']]],
+  ['current_12',['Current',['../d9/d0c/classFileSurfer_1_1Core_1_1Models_1_1UndoRedoHandler-1-g.html#aa4919e07b2a78501d3155da659c7bd26',1,'FileSurfer::Core::Models::UndoRedoHandler-1-g']]],
+  ['currentbranch_13',['CurrentBranch',['../db/d01/classFileSurfer_1_1Core_1_1ViewModels_1_1MainWindowViewModel.html#a2c41674e6bbf28ee2e4e3ce7a3586d79',1,'FileSurfer::Core::ViewModels::MainWindowViewModel']]],
+  ['currentfslabel_14',['CurrentFsLabel',['../db/d01/classFileSurfer_1_1Core_1_1ViewModels_1_1MainWindowViewModel.html#ab44f095d54772aefff748d76d022bbba',1,'FileSurfer::Core::ViewModels::MainWindowViewModel']]],
+  ['currentinfomessage_15',['CurrentInfoMessage',['../db/d01/classFileSurfer_1_1Core_1_1ViewModels_1_1MainWindowViewModel.html#a1b91936276e8c30af6b953baec295a89',1,'FileSurfer::Core::ViewModels::MainWindowViewModel']]],
+  ['currentitem_16',['CurrentItem',['../d4/d06/classFileSurfer_1_1Core_1_1Services_1_1Dialogs_1_1ProgressReporter.html#ae235f94205b2c3348cb3de962e1dfd2c',1,'FileSurfer::Core::Services::Dialogs::ProgressReporter']]],
+  ['currentquery_17',['CurrentQuery',['../db/d01/classFileSurfer_1_1Core_1_1ViewModels_1_1MainWindowViewModel.html#a6f5fc83533828baf7443690c3c7a2a7a',1,'FileSurfer::Core::ViewModels::MainWindowViewModel']]],
+  ['currentsettings_18',['CurrentSettings',['../d1/d0c/classFileSurfer_1_1Core_1_1FileSurferSettings.html#aeb485825b18b01d065ee56c505a9370b',1,'FileSurfer::Core::FileSurferSettings']]],
+  ['cutcommand_19',['CutCommand',['../db/d01/classFileSurfer_1_1Core_1_1ViewModels_1_1MainWindowViewModel.html#a8df24f04e75660f4b44f1a29584145c9',1,'FileSurfer::Core::ViewModels::MainWindowViewModel']]]
 ];

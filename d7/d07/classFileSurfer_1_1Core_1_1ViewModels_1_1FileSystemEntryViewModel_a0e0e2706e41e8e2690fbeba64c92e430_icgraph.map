@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.ViewModels.FileSystemEntryViewModel.GetSizeString" name="FileSurfer.Core.ViewModels.FileSystemEntryViewModel.GetSizeString">
+<area shape="rect" id="Node000001" title="Converts file size in bytes to a human&#45;readable format." alt="" coords="306,5,539,64"/>
+<area shape="rect" id="Node000002" href="$d7/d07/classFileSurfer_1_1Core_1_1ViewModels_1_1FileSystemEntryViewModel.html#aa9ba42198822fae9d126d51826ddd93b" title="Initializes a new instance of the FileSystemEntryViewModel class for a file or directory." alt="" coords="5,5,258,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="287,35,258,37,258,32,293,34"/>
+</map>

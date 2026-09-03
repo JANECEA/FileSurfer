@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Views.Dialogs.InputDialogWindow.HideInput" name="FileSurfer.Core.Views.Dialogs.InputDialogWindow.HideInput">
+<area shape="rect" id="Node000001" title="Enables or disables masking of typed input." alt="" coords="258,13,459,56"/>
+<area shape="rect" id="Node000002" href="$d3/d00/classFileSurfer_1_1Core_1_1Services_1_1Dialogs_1_1AvaloniaDialogService.html#a9a24094dcb1f6200799248bf70741ebf" title="Shows an input dialog and returns user&#45;entered text." alt="" coords="5,5,210,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="239,35,210,37,210,32,245,34"/>
+</map>

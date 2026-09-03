@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d2/d0b/interfaceFileSurfer_1_1Core_1_1Services_1_1FileInformation_1_1IDirectoryWatcher.html" title="Defines polling&#45;based directory change detection and notification behavior." alt="" coords="5,5,222,48"/>
+<area shape="rect" id="Node000001" href="$d3/d02/classFileSurfer_1_1Core_1_1Services_1_1FileInformation_1_1DirectoryWatcher.html" title="Polls a root directory, compares snapshots, and raises normalized change events." alt="" coords="270,5,482,48"/>
+<area shape="poly" id="edge21_Node000000_Node000001" title=" " alt="" coords="237,24,272,27,267,27,237,29"/>
+</map>

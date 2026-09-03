@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Models.LocalFileSystem" name="FileSurfer.Core.Models.LocalFileSystem">
+<area shape="rect" id="Node000001" title="Represents a local file system with more specialized versions of IFileSystem&#39;s models." alt="" coords="5,171,196,213"/>
+<area shape="rect" id="Node000002" href="$d8/d07/interfaceFileSurfer_1_1Core_1_1Models_1_1IFileSystem.html" title="Represents a generic file system and provides its functionality." alt="" coords="8,80,193,123"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,136,103,171,98,169,99,140"/>
+<area shape="rect" id="Node000003" href="$d0/d07/classIDisposable.html" title=" " alt="" coords="55,5,146,32"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="101,45,103,80,98,79,100,50"/>
+</map>

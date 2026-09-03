@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$de/d0e/interfaceFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1IOsClipboardProxy.html" title="Provides abstracted access to the operating system clipboard with support for text,..." alt="" coords="5,5,225,48"/>
+<area shape="rect" id="Node000001" href="$d0/d0b/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1AvaloniaClipboardProxy.html" title="Provides UI&#45;thread&#45;safe clipboard and storage&#45;provider helpers used by ClipboardManager when synchron..." alt="" coords="273,5,521,48"/>
+<area shape="poly" id="edge42_Node000000_Node000001" title=" " alt="" coords="240,24,275,27,270,27,240,29"/>
+</map>

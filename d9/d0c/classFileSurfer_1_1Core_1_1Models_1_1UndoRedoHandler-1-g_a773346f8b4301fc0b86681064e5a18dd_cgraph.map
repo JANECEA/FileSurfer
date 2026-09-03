@@ -1,0 +1,6 @@
+<map id="FileSurfer.Core.Models.UndoRedoHandler&#45;1&#45;g.UndoRedoHandler" name="FileSurfer.Core.Models.UndoRedoHandler&#45;1&#45;g.UndoRedoHandler">
+<area shape="rect" id="Node000001" title="Initializes a new UndoRedoHandler&lt;T&gt; chain." alt="" coords="5,29,236,72"/>
+<area shape="rect" id="Node000002" href="$d9/d0c/classFileSurfer_1_1Core_1_1Models_1_1UndoRedoHandler-1-g.html#ae191ef365981967cca33b673722e817e" title="Initializes a new node and optionally links it between previous and next nodes." alt="" coords="284,29,500,72"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="236,48,270,51,265,51,236,53"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="341,27,339,19,347,10,365,5,392,3,421,5,440,14,435,14,420,10,392,8,366,10,350,15,344,21,346,30"/>
+</map>

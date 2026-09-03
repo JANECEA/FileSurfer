@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Models.DirectoryEntry.DirectoryEntry" name="FileSurfer.Core.Models.DirectoryEntry.DirectoryEntry">
+<area shape="rect" id="Node000001" title="Initializes a new DirectoryEntry from a path using path&#45;tool name parsing." alt="" coords="5,5,218,48"/>
+<area shape="rect" id="Node000002" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html#a924f3678bb4295e1036a5b0dd8362782" title="Returns the name and extension parts of the given path." alt="" coords="266,5,456,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,24,252,27,247,27,218,29"/>
+</map>

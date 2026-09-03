@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.FileOperations.FileOperation.InvokeAsync" name="FileSurfer.Core.Services.FileOperations.FileOperation.InvokeAsync">
+<area shape="rect" id="Node000001" title="Runs the operation for all entries using the configured action implementation." alt="" coords="5,13,272,56"/>
+<area shape="rect" id="Node000002" href="$df/d0a/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1FileOperation.html#ac5d48851160bfd151bcf3e50af697daa" title="Represents an invoke&#45;action invoked on IFileSystemEntry from Entries." alt="" coords="320,5,549,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="272,32,307,35,301,35,272,37"/>
+</map>

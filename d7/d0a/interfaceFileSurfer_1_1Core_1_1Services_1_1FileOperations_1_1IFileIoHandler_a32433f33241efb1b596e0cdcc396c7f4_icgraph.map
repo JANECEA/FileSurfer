@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.FileOperations.IFileIoHandler.DeleteDir" name="FileSurfer.Core.Services.FileOperations.IFileIoHandler.DeleteDir">
+<area shape="rect" id="Node000001" title="Deletes a directory permanently." alt="" coords="291,5,485,64"/>
+<area shape="rect" id="Node000002" href="$dd/d0a/classFileSurfer_1_1Core_1_1Extensions_1_1TransferStreamExtensions.html#af4059e49fb2af6e1b789ff64da51e402" title="Writes a directory transfer stream using file I/O operations." alt="" coords="5,5,243,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="273,35,243,37,243,32,278,34"/>
+</map>

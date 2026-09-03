@@ -1,0 +1,5 @@
+<map id="FileSurfer.Windows.Services.FileOperations.WindowsFileIoHandler.DeleteFile" name="FileSurfer.Windows.Services.FileOperations.WindowsFileIoHandler.DeleteFile">
+<area shape="rect" id="Node000001" title="Deletes a file permanently." alt="" coords="298,5,542,64"/>
+<area shape="rect" id="Node000002" href="$d2/d06/classFileSurfer_1_1Windows_1_1Services_1_1FileOperations_1_1WindowsFileIoHandler.html#a5dcbce7b4bd8451463b6508396873208" title="Writes the filestream into a file with name specified in FileTransferStream.Name." alt="" coords="5,5,250,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="280,35,250,37,250,32,285,34"/>
+</map>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['cbsize_0',['cbSize',['../d9/d0e/struct_file_surfer_1_1_models_1_1_shell_1_1_windows_file_properties_1_1_shell_execute_info.html#a790c513869fbda234b1ef8363c54a52d',1,'FileSurfer::Models::Shell::WindowsFileProperties::ShellExecuteInfo']]]
+  ['globspath_0',['GlobsPath',['../da/d06/classFileSurfer_1_1Linux_1_1Models_1_1FileInformation_1_1GlobsParser.html#a6027416618ebc2af090c279045e80b22',1,'FileSurfer::Linux::Models::FileInformation::GlobsParser']]]
 ];

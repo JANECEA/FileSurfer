@@ -1,0 +1,5 @@
+<map id="FileSurfer.Linux.Models.FileInformation.GlobsParser" name="FileSurfer.Linux.Models.FileInformation.GlobsParser">
+<area shape="rect" id="Node000001" title="Parses Linux MIME glob mappings from the shared globs database file." alt="" coords="5,104,189,147"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="70,5,124,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="99,46,100,104,94,103,95,49"/>
+</map>

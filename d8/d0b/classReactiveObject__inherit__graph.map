@@ -1,0 +1,19 @@
+<map id="ReactiveObject" name="ReactiveObject">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,247,117,273"/>
+<area shape="rect" id="Node000002" href="$d4/d06/classFileSurfer_1_1Core_1_1Services_1_1Dialogs_1_1ProgressReporter.html" title="Reports operation progress information to the UI." alt="" coords="180,5,351,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="67,231,79,192,99,146,127,99,163,58,183,46,180,51,166,62,131,102,104,148,84,194,72,232"/>
+<area shape="rect" id="Node000003" href="$d7/d07/classFileSurfer_1_1Core_1_1ViewModels_1_1FileSystemEntryViewModel.html" title="Represents a displayable file system entry (file, or directory) in the FileSurfer application." alt="" coords="171,72,360,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="74,232,110,178,135,149,163,124,186,113,183,117,166,129,138,153,114,181,79,234"/>
+<area shape="rect" id="Node000004" href="$db/d01/classFileSurfer_1_1Core_1_1ViewModels_1_1MainWindowViewModel.html" title="The MainWindowViewModel is the ViewModel for the main window of the application." alt="" coords="171,139,360,181"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="90,236,125,213,163,191,193,180,190,184,166,196,128,217,94,239"/>
+<area shape="rect" id="Node000005" href="$d0/d00/classFileSurfer_1_1Core_1_1ViewModels_1_1SettingsWindowViewModel.html" title="The SettingsWindowViewModel is the ViewModel for the Views.SettingsWindow." alt="" coords="171,205,360,248"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="130,246,173,240,168,244,133,251"/>
+<area shape="rect" id="Node000006" href="$d7/d09/classFileSurfer_1_1Core_1_1ViewModels_1_1SftpConnectionViewModel.html" title="The SftpConnectionViewModel is the ViewModel for the Views.EditSftpWindow." alt="" coords="171,272,360,315"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="131,269,173,277,168,279,133,274"/>
+<area shape="rect" id="Node000007" href="$d7/d08/classFileSurfer_1_1Core_1_1ViewModels_1_1SftpSynchronizerViewModel.html" title="Coordinates initialization and continuous synchronization between local and SFTP locations." alt="" coords="171,339,360,381"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="92,280,128,303,166,324,194,337,189,339,163,329,125,307,93,285"/>
+<area shape="rect" id="Node000008" href="$d5/d03/classFileSurfer_1_1Core_1_1ViewModels_1_1SideBarEntryViewModel.html" title="Represents a local, displayable sidebar entry (file, directory, or drive) in the FileSurfer applicati..." alt="" coords="171,405,360,448"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="77,284,114,339,138,367,166,391,187,404,182,405,163,396,135,371,110,342,76,290"/>
+<area shape="rect" id="Node000009" href="$d2/d08/classFileSurfer_1_1Core_1_1Views_1_1Dialogs_1_1ProgressReporterVm.html" title="View model wrapper that exposes progress and cancellation state for dialog binding." alt="" coords="165,472,366,515"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="70,286,84,326,104,372,131,418,166,458,184,472,179,471,163,462,127,421,99,374,79,328,69,291"/>
+</map>

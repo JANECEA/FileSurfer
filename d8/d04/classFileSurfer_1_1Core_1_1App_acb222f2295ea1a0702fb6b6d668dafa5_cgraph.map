@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.App.OnFrameworkInitializationCompleted" name="FileSurfer.Core.App.OnFrameworkInitializationCompleted">
+<area shape="rect" id="Node000001" title="Invokes FileSurferSettings.Initialize and sets Application.RequestedThemeVariant theme." alt="" coords="5,5,228,48"/>
+<area shape="rect" id="Node000002" href="$d1/d0c/classFileSurfer_1_1Core_1_1FileSurferSettings.html#a21ff88a3781362c2992e07bad0555e06" title=" " alt="" coords="276,5,445,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="228,24,263,27,257,27,228,29"/>
+<area shape="rect" id="Node000003" href="$d1/d0c/classFileSurfer_1_1Core_1_1FileSurferSettings.html#a1395433ec1268eab493653f641600b4f" title="Loads and sanitizes settings from the SettingsRecord object and applies them to the current session." alt="" coords="493,5,662,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="445,24,480,27,475,27,445,29"/>
+</map>

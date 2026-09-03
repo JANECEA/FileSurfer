@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.ViewModels.SftpConnectionViewModel.Save" name="FileSurfer.Core.ViewModels.SftpConnectionViewModel.Save">
+<area shape="rect" id="Node000001" title="Applies values from another view model, updates the model, and finalizes creation when needed." alt="" coords="5,13,215,56"/>
+<area shape="rect" id="Node000002" href="$d7/d09/classFileSurfer_1_1Core_1_1ViewModels_1_1SftpConnectionViewModel.html#a842fc46bc5fbc07aeae5321dc6022610" title="Creates a connection view model from an existing SFTP connection model." alt="" coords="263,5,532,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,32,250,34,244,35,215,37"/>
+</map>

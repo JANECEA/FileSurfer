@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Models.RemoteUnixPathTools" name="FileSurfer.Core.Models.RemoteUnixPathTools">
+<area shape="rect" id="Node000001" title="Provides Unix&#45;style path operations for remote paths using forward slash separators." alt="" coords="5,96,211,139"/>
+<area shape="rect" id="Node000002" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html" title="Provides methods for manipulating paths for specific filesystems." alt="" coords="13,5,203,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="110,62,110,97,106,95,106,66"/>
+</map>

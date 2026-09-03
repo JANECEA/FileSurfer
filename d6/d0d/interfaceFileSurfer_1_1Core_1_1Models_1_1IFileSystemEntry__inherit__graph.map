@@ -1,0 +1,11 @@
+<map id="FileSurfer.Core.Models.IFileSystemEntry" name="FileSurfer.Core.Models.IFileSystemEntry">
+<area shape="rect" id="Node000001" title="Represents a file system entry in context of the FileSurfer app." alt="" coords="129,5,313,48"/>
+<area shape="rect" id="Node000002" href="$dd/d08/classFileSurfer_1_1Core_1_1Models_1_1DirectoryEntry.html" title="Implementation of IFileSystemEntry for a directory." alt="" coords="5,96,218,139"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,60,139,97,135,93,186,56"/>
+<area shape="rect" id="Node000004" href="$d2/d0b/classFileSurfer_1_1Core_1_1Models_1_1FileEntry.html" title="Implementation of IFileSystemEntry for a file." alt="" coords="241,96,422,139"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="259,55,308,95,303,96,258,60"/>
+<area shape="rect" id="Node000003" href="$d7/d03/classFileSurfer_1_1Core_1_1Models_1_1DirectoryEntryInfo.html" title="Represents directory metadata and identity information." alt="" coords="5,187,218,229"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="113,152,114,187,109,185,110,156"/>
+<area shape="rect" id="Node000005" href="$d3/d06/classFileSurfer_1_1Core_1_1Models_1_1FileEntryInfo.html" title="Represents file metadata and identity information." alt="" coords="241,187,422,229"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="333,152,334,188,329,185,330,156"/>
+</map>

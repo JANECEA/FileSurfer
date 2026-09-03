@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['sortby_0',['SortBy',['../d0/d06/namespace_file_surfer.html#a7d93fd9e0886998da504a63742727e69',1,'FileSurfer']]]
+  ['filesystemeventtype_0',['FileSystemEventType',['../dc/d07/namespaceFileSurfer_1_1Core_1_1Services_1_1FileInformation.html#a8a8b6c97d346aa6e8ec08b0cdcb5713e',1,'FileSurfer::Core::Services::FileInformation']]]
 ];

@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Models.FileEntry" name="FileSurfer.Core.Models.FileEntry">
+<area shape="rect" id="Node000001" title="Implementation of IFileSystemEntry for a file." alt="" coords="7,96,188,139"/>
+<area shape="rect" id="Node000002" href="$da/d04/interfaceFileSurfer_1_1Core_1_1Models_1_1IFileSystemEntry.html" title="Represents a file system entry in context of the FileSurfer app." alt="" coords="5,5,190,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="99,62,100,97,95,95,96,66"/>
+</map>

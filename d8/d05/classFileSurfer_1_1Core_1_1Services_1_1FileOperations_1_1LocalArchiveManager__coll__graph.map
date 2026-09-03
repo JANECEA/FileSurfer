@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Services.FileOperations.LocalArchiveManager" name="FileSurfer.Core.Services.FileOperations.LocalArchiveManager">
+<area shape="rect" id="Node000001" title="Handles archive detection, creation, and extraction for local file&#45;system entries using SharpCompress..." alt="" coords="77,120,312,163"/>
+<area shape="rect" id="Node000002" href="$d7/d0a/interfaceFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1IArchiveManager.html" title="Defines archive&#45;related operations used to detect archive files, create new archives from entries,..." alt="" coords="5,5,213,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="135,58,181,119,176,120,132,63"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="236,13,326,40"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="265,51,212,122,208,118,260,53"/>
+</map>

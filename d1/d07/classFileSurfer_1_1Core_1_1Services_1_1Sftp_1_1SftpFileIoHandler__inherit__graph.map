@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.Sftp.SftpFileIoHandler" name="FileSurfer.Core.Services.Sftp.SftpFileIoHandler">
+<area shape="rect" id="Node000001" title="Implements file and directory I/O operations for remote SFTP locations using SSH&#45;backed commands and ..." alt="" coords="16,96,185,139"/>
+<area shape="rect" id="Node000002" href="$d7/d0a/interfaceFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1IFileIoHandler.html" title="Defines file and directory I/O operations used by local and remote file&#45;system implementations." alt="" coords="5,5,196,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,62,103,97,98,95,99,66"/>
+</map>

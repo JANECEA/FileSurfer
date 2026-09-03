@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.FileOperations.Undoable.IUndoableFileOperation" name="FileSurfer.Core.Services.FileOperations.Undoable.IUndoableFileOperation">
+<area shape="rect" id="Node000001" title="Represents an undoable file operation in the context of the FileSurfer app." alt="" coords="5,96,233,155"/>
+<area shape="rect" id="Node000002" href="$dc/d03/interfaceFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1IFileOperation.html" title="Represents a file operation in the context of the FileSurfer app." alt="" coords="24,5,214,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,61,121,97,117,95,117,66"/>
+</map>

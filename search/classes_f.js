@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['sameobjectconverter_0',['SameObjectConverter',['../db/d0b/classFileSurfer_1_1Core_1_1Views_1_1Helpers_1_1SameObjectConverter.html',1,'FileSurfer::Core::Views::Helpers']]],
+  ['searchmanager_1',['SearchManager',['../d7/d0b/classFileSurfer_1_1Core_1_1ViewModels_1_1SearchManager.html',1,'FileSurfer::Core::ViewModels']]],
+  ['settingswindow_2',['SettingsWindow',['../d7/d00/classFileSurfer_1_1Core_1_1Views_1_1SettingsWindow.html',1,'FileSurfer::Core::Views']]],
+  ['settingswindowviewmodel_3',['SettingsWindowViewModel',['../d0/d00/classFileSurfer_1_1Core_1_1ViewModels_1_1SettingsWindowViewModel.html',1,'FileSurfer::Core::ViewModels']]],
+  ['sftpconnectionviewmodel_4',['SftpConnectionViewModel',['../d7/d09/classFileSurfer_1_1Core_1_1ViewModels_1_1SftpConnectionViewModel.html',1,'FileSurfer::Core::ViewModels']]],
+  ['sftpfileinfoprovider_5',['SftpFileInfoProvider',['../de/d0f/classFileSurfer_1_1Core_1_1Models_1_1Sftp_1_1SftpFileInfoProvider.html',1,'FileSurfer::Core::Models::Sftp']]],
+  ['sftpfileiohandler_6',['SftpFileIoHandler',['../df/d0a/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1SftpFileIoHandler.html',1,'FileSurfer::Core::Services::Sftp']]],
+  ['sftpfileproperties_7',['SftpFileProperties',['../d7/d01/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1SftpFileProperties.html',1,'FileSurfer::Core::Services::Sftp']]],
+  ['sftpfilesystem_8',['SftpFileSystem',['../d0/d03/classFileSurfer_1_1Core_1_1Models_1_1Sftp_1_1SftpFileSystem.html',1,'FileSurfer::Core::Models::Sftp']]],
+  ['sftpfilesystemfactory_9',['SftpFileSystemFactory',['../dc/d0e/classFileSurfer_1_1Core_1_1Models_1_1Sftp_1_1SftpFileSystemFactory.html',1,'FileSurfer::Core::Models::Sftp']]],
+  ['sftpsynchronizerviewmodel_10',['SftpSynchronizerViewModel',['../d7/d08/classFileSurfer_1_1Core_1_1ViewModels_1_1SftpSynchronizerViewModel.html',1,'FileSurfer::Core::ViewModels']]],
+  ['sftpsynchronizerwindow_11',['SftpSynchronizerWindow',['../dd/d0e/classFileSurfer_1_1Core_1_1Views_1_1SftpSynchronizerWindow.html',1,'FileSurfer::Core::Views']]],
+  ['sidebarentryviewmodel_12',['SideBarEntryViewModel',['../d5/d03/classFileSurfer_1_1Core_1_1ViewModels_1_1SideBarEntryViewModel.html',1,'FileSurfer::Core::ViewModels']]],
+  ['simpleresult_13',['SimpleResult',['../da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html',1,'FileSurfer::Core::Models']]],
+  ['sortarrowconverter_14',['SortArrowConverter',['../d4/d03/classFileSurfer_1_1Core_1_1Views_1_1Helpers_1_1SortArrowConverter.html',1,'FileSurfer::Core::Views::Helpers']]],
+  ['sshshellhandler_15',['SshShellHandler',['../d4/d0b/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1SshShellHandler.html',1,'FileSurfer::Core::Services::Sftp']]],
+  ['staworkersync_16',['StaWorkerSync',['../da/d04/classFileSurfer_1_1Windows_1_1Services_1_1Shell_1_1StaWorkerSync.html',1,'FileSurfer::Windows::Services::Shell']]],
+  ['stubarchivemanager_17',['StubArchiveManager',['../d2/d0a/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1StubArchiveManager.html',1,'FileSurfer::Core::Services::Sftp']]],
+  ['stubbininteraction_18',['StubBinInteraction',['../d6/d0d/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1StubBinInteraction.html',1,'FileSurfer::Core::Services::Sftp']]],
+  ['stubgitintegration_19',['StubGitIntegration',['../d5/d09/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1StubGitIntegration.html',1,'FileSurfer::Core::Services::Sftp']]],
+  ['suggestinputdialogwindow_20',['SuggestInputDialogWindow',['../d6/d0c/classFileSurfer_1_1Core_1_1Views_1_1Dialogs_1_1SuggestInputDialogWindow.html',1,'FileSurfer::Core::Views::Dialogs']]],
+  ['svghelper_21',['SvgHelper',['../dc/d05/classFileSurfer_1_1Linux_1_1Models_1_1FileInformation_1_1SvgHelper.html',1,'FileSurfer::Linux::Models::FileInformation']]],
+  ['synceventvmfactory_22',['SyncEventVmFactory',['../de/d08/classFileSurfer_1_1Core_1_1ViewModels_1_1SyncEventVmFactory.html',1,'FileSurfer::Core::ViewModels']]]
+];

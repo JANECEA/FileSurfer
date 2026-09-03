@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.FileOperations.Undoable.RenameMultiple.RenameMultiple" name="FileSurfer.Core.Services.FileOperations.Undoable.RenameMultiple.RenameMultiple">
+<area shape="rect" id="Node000001" title="Initializes an undoable multi&#45;entry rename operation." alt="" coords="5,5,223,64"/>
+<area shape="rect" id="Node000002" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html#a79c67989e64cfe8a5bdb1933a8b49999" title="Returns the parent directory of the given path." alt="" coords="271,13,461,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,32,258,34,252,35,223,37"/>
+</map>

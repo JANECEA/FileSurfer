@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.Dialogs.AvaloniaDialogService.InputDialogAsync" name="FileSurfer.Core.Services.Dialogs.AvaloniaDialogService.InputDialogAsync">
+<area shape="rect" id="Node000001" title="Shows an input dialog and returns user&#45;entered text." alt="" coords="5,5,210,64"/>
+<area shape="rect" id="Node000002" href="$dd/d0e/classFileSurfer_1_1Core_1_1Views_1_1Dialogs_1_1InputDialogWindow.html#acdb1f46de19c2ff80e39242bc0d98c68" title="Enables or disables masking of typed input." alt="" coords="258,13,459,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,32,245,34,240,35,210,37"/>
+</map>

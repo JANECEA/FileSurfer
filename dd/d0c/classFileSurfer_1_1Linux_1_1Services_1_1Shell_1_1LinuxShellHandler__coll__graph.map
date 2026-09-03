@@ -1,0 +1,9 @@
+<map id="FileSurfer.Linux.Services.Shell.LinuxShellHandler" name="FileSurfer.Linux.Services.Shell.LinuxShellHandler">
+<area shape="rect" id="Node000001" title="Linux&#45;specific implementation of IShellHandler for shell interactions." alt="" coords="16,277,187,320"/>
+<area shape="rect" id="Node000002" href="$d4/d02/interfaceFileSurfer_1_1Linux_1_1Services_1_1Shell_1_1IShellCommandHandler.html" title="Extends ILocalShellHandler with support for shell commands." alt="" coords="5,187,198,229"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,243,104,278,99,276,100,247"/>
+<area shape="rect" id="Node000003" href="$d6/d05/interfaceFileSurfer_1_1Core_1_1Services_1_1Shell_1_1ILocalShellHandler.html" title="Extends IShellHandler with local desktop shell integration features." alt="" coords="17,96,186,139"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="102,152,104,187,99,186,101,157"/>
+<area shape="rect" id="Node000004" href="$d3/d04/interfaceFileSurfer_1_1Core_1_1Services_1_1Shell_1_1IShellHandler.html" title="Provides operations for invoking shell commands and shell&#45;backed file&#45;system actions." alt="" coords="17,5,186,48"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="102,61,104,96,99,95,101,66"/>
+</map>

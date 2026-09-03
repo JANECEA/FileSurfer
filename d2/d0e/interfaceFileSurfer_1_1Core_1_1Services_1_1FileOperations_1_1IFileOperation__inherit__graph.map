@@ -1,0 +1,30 @@
+<map id="FileSurfer.Core.Services.FileOperations.IFileOperation" name="FileSurfer.Core.Services.FileOperations.IFileOperation">
+<area shape="rect" id="Node000001" title="Represents a file operation in the context of the FileSurfer app." alt="" coords="5,217,196,260"/>
+<area shape="rect" id="Node000002" href="$df/d0a/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1FileOperation.html" title="Provides a shared execution pipeline for batched file operations with progress reporting and cancella..." alt="" coords="264,139,450,181"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,210,287,180,283,184,188,215"/>
+<area shape="rect" id="Node000010" href="$df/d07/interfaceFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1IUndoableFileOperation.html" title="Represents an undoable file operation in the context of the FileSurfer app." alt="" coords="244,251,471,309"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="210,254,246,261,241,263,212,259"/>
+<area shape="rect" id="Node000003" href="$d4/d0f/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1DeleteFiles.html" title="Deletes a batch of file&#45;system entries using the configured IFileIoHandler." alt="" coords="552,64,727,107"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="455,132,558,106,554,109,457,137"/>
+<area shape="rect" id="Node000004" href="$df/d01/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1UndoableFileOperation.html" title="Extends FileOperation with an undo pipeline that replays inverse actions for each processed entry." alt="" coords="528,131,751,189"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="466,157,530,159,525,161,467,163"/>
+<area shape="rect" id="Node000005" href="$de/d0f/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1CopyFilesTo.html" title="Represents the action of copying files and directories to a specific directory." alt="" coords="813,5,1055,48"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="753,121,759,117,773,102,782,88,791,72,807,58,828,50,832,47,810,62,795,76,786,90,778,106,762,121,755,125"/>
+<area shape="rect" id="Node000006" href="$dc/d04/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1DuplicateFiles.html" title="Represents the action of duplicating files or directories in a specific directory." alt="" coords="808,72,1060,115"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="766,129,839,114,834,116,767,134"/>
+<area shape="rect" id="Node000007" href="$da/d0e/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1MoveFilesTo.html" title="Represents the action of moving files and directories to a specific directory." alt="" coords="813,139,1055,181"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="766,157,815,159,810,161,767,163"/>
+<area shape="rect" id="Node000008" href="$d6/d05/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1MoveFilesToTrash.html" title="Represents the action of moving selected files to the system trash." alt="" coords="820,205,1048,264"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="766,189,822,206,817,206,766,195"/>
+<area shape="rect" id="Node000009" href="$d6/d09/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1RenameMultiple.html" title="Represents the action of renaming multiple files or directories." alt="" coords="825,288,1043,347"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="756,195,762,199,779,218,787,238,794,256,810,274,828,288,823,287,807,278,790,259,782,240,774,221,759,203,755,201"/>
+<area shape="poly" id="edge14_Node000010_Node000004" title=" " alt="" coords="428,241,518,199,550,189,546,191,520,204,430,246"/>
+<area shape="rect" id="Node000011" href="$d3/d05/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1FlattenFolder.html" title="Represents the action of flattening a directory." alt="" coords="536,213,744,272"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="486,260,537,256,532,257,487,266"/>
+<area shape="rect" id="Node000012" href="$d1/d07/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1NewDirAt.html" title="Represents the action of creating a new directory." alt="" coords="527,296,752,339"/>
+<area shape="poly" id="edge11_Node000010_Node000012" title=" " alt="" coords="486,294,529,302,524,303,487,300"/>
+<area shape="rect" id="Node000013" href="$d3/d05/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1NewFileAt.html" title="Represents the action of creating a new file." alt="" coords="525,363,754,405"/>
+<area shape="poly" id="edge12_Node000010_Node000013" title=" " alt="" coords="435,314,520,348,557,362,552,362,518,353,435,319"/>
+<area shape="rect" id="Node000014" href="$da/d07/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1RenameOne.html" title="Represents the action of renaming one file or directory." alt="" coords="519,429,760,472"/>
+<area shape="poly" id="edge13_Node000010_Node000014" title=" " alt="" coords="397,318,453,369,486,394,520,415,548,429,542,429,518,420,483,398,449,373,395,323"/>
+</map>

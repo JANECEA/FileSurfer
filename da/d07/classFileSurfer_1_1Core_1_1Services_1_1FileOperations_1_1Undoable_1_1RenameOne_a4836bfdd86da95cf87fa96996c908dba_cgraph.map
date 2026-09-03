@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Services.FileOperations.Undoable.RenameOne.RenameOne" name="FileSurfer.Core.Services.FileOperations.Undoable.RenameOne.RenameOne">
+<area shape="rect" id="Node000001" title="Initializes an undoable rename operation for a single file&#45;system entry." alt="" coords="5,31,223,89"/>
+<area shape="rect" id="Node000002" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html#af36b2e49695ad8aeeaffd20494e4be9c" title="Combines two paths Returns the combined path without trailing separators." alt="" coords="271,5,461,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,43,258,41,253,42,224,48"/>
+<area shape="rect" id="Node000003" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html#a79c67989e64cfe8a5bdb1933a8b49999" title="Returns the parent directory of the given path." alt="" coords="271,72,461,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,72,258,79,253,79,223,77"/>
+</map>

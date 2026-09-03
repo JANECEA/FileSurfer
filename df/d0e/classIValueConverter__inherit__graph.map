@@ -1,0 +1,11 @@
+<map id="IValueConverter" name="IValueConverter">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,80,120,107"/>
+<area shape="rect" id="Node000002" href="$da/d05/classFileSurfer_1_1Core_1_1Views_1_1Helpers_1_1OneWayConverter.html" title="Base value converter for one&#45;way bindings that disallow reverse conversion." alt="" coords="168,72,370,115"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="135,91,170,92,165,94,136,96"/>
+<area shape="rect" id="Node000003" href="$d7/d02/classFileSurfer_1_1Core_1_1Views_1_1Helpers_1_1IsNotEmptyConverter.html" title="Converts a numeric value to a boolean indicating whether it is non&#45;zero." alt="" coords="418,5,620,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="365,65,439,48,434,49,367,70"/>
+<area shape="rect" id="Node000004" href="$db/d0b/classFileSurfer_1_1Core_1_1Views_1_1Helpers_1_1SameObjectConverter.html" title="Converts two inputs to a boolean indicating whether they reference the same object." alt="" coords="418,72,620,115"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="385,91,420,93,415,94,386,96"/>
+<area shape="rect" id="Node000005" href="$d4/d03/classFileSurfer_1_1Core_1_1Views_1_1Helpers_1_1SortArrowConverter.html" title="Converts active sort state to an up/down glyph for the matching sort column." alt="" coords="418,139,620,181"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="366,116,439,138,434,138,366,122"/>
+</map>

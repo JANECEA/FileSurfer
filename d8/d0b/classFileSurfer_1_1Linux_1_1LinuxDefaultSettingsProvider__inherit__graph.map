@@ -1,0 +1,5 @@
+<map id="FileSurfer.Linux.LinuxDefaultSettingsProvider" name="FileSurfer.Linux.LinuxDefaultSettingsProvider">
+<area shape="rect" id="Node000001" title="Resolves Linux defaults for terminal and text editor settings." alt="" coords="5,96,195,139"/>
+<area shape="rect" id="Node000002" href="$d7/d04/interfaceFileSurfer_1_1Core_1_1IDefaultSettingsProvider.html" title="Manages platform dependent default settings for FileSurfer." alt="" coords="20,5,180,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,62,102,97,98,95,98,66"/>
+</map>

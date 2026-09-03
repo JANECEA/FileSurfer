@@ -1,0 +1,9 @@
+<map id="FileSurfer.Windows.Models.FileInformation.WindowsIconProvider" name="FileSurfer.Windows.Models.FileInformation.WindowsIconProvider">
+<area shape="rect" id="Node000001" title="Optimizes Windows icon delivery based on the file extension." alt="" coords="5,261,244,304"/>
+<area shape="rect" id="Node000002" href="$dd/d0a/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1BaseIconProvider.html" title="Provides generic fallback icons for files, directories, and drives." alt="" coords="28,171,221,213"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,227,127,262,122,260,123,231"/>
+<area shape="rect" id="Node000003" href="$d6/d0d/interfaceFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1IIconProvider.html" title="Optimizes icon delivery based on relevant criteria." alt="" coords="34,80,215,123"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="126,136,127,171,122,170,123,141"/>
+<area shape="rect" id="Node000004" href="$d0/d07/classIDisposable.html" title=" " alt="" coords="79,5,170,32"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="125,45,127,80,122,79,124,50"/>
+</map>

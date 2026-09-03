@@ -1,3 +1,7 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d9/d09/class_file_surfer_1_1_models_1_1_undo_redo_handler-1-g.html" title="Generic class for browsing FileSurfer&#39;s history, such as file operations and visited directories." alt="" coords="5,5,195,48"/>
+<area shape="rect" id="Node000000" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html" title="Provides methods for manipulating paths for specific filesystems." alt="" coords="5,39,196,81"/>
+<area shape="rect" id="Node000001" href="$d0/d0b/classFileSurfer_1_1Core_1_1Models_1_1LocalPathTools.html" title="Provides local file&#45;system path operations using platform&#45;specific separator and comparison rules." alt="" coords="251,5,442,48"/>
+<area shape="poly" id="edge15_Node000000_Node000001" title=" " alt="" coords="210,42,253,39,248,40,212,48"/>
+<area shape="rect" id="Node000002" href="$d0/d0a/classFileSurfer_1_1Core_1_1Models_1_1RemoteUnixPathTools.html" title="Provides Unix&#45;style path operations for remote paths using forward slash separators." alt="" coords="244,72,449,115"/>
+<area shape="poly" id="edge16_Node000000_Node000002" title=" " alt="" coords="211,72,246,79,240,80,211,78"/>
 </map>

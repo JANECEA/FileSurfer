@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Extensions.TransferStreamExtensions.WriteWithIoHandlerAsync" name="FileSurfer.Core.Extensions.TransferStreamExtensions.WriteWithIoHandlerAsync">
+<area shape="rect" id="Node000001" title="Writes a directory transfer stream using file I/O operations." alt="" coords="5,35,243,93"/>
+<area shape="rect" id="Node000002" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html#af36b2e49695ad8aeeaffd20494e4be9c" title="Combines two paths Returns the combined path without trailing separators." alt="" coords="293,5,483,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,45,280,42,275,43,244,50"/>
+<area shape="rect" id="Node000003" href="$d7/d0a/interfaceFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1IFileIoHandler.html#a32433f33241efb1b596e0cdcc396c7f4" title="Deletes a directory permanently." alt="" coords="291,72,485,131"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="243,78,278,85,273,86,243,84"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Models.UndoRedoHandler&lt; T &gt;" name="FileSurfer.Core.Models.UndoRedoHandler&lt; T &gt;">
+<area shape="rect" id="Node000001" title="Represents a generic undo/redo history chain that supports navigation, insertion, removal,..." alt="" coords="45,141,235,184"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,13,94,40"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="68,51,129,140,124,142,65,55"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="118,5,344,48"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="211,60,156,143,152,139,206,62"/>
+</map>

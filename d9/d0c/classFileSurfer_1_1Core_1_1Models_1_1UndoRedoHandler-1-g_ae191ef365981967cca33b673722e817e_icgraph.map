@@ -1,0 +1,12 @@
+<map id="FileSurfer.Core.Models.UndoRedoHandler&#45;1&#45;g.UndoRedoNode" name="FileSurfer.Core.Models.UndoRedoHandler&#45;1&#45;g.UndoRedoNode">
+<area shape="rect" id="Node000001" title="Initializes a new node and optionally links it between previous and next nodes." alt="" coords="343,109,559,152"/>
+<area shape="poly" id="edge5_Node000001_Node000001" title=" " alt="" coords="499,94,482,90,451,88,422,90,404,95,397,101,400,110,395,108,392,99,402,90,421,85,451,83,483,85,504,94"/>
+<area shape="rect" id="Node000002" href="$d9/d0c/classFileSurfer_1_1Core_1_1Models_1_1UndoRedoHandler-1-g.html#a42681df10545d3fb7548cf6d3dcd1dce" title="Inserts a new node after the current position and discards any forward history." alt="" coords="48,5,252,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="392,103,294,63,253,50,252,45,296,57,397,101"/>
+<area shape="rect" id="Node000003" href="$d9/d0c/classFileSurfer_1_1Core_1_1Models_1_1UndoRedoHandler-1-g.html#a0f21bf35de9b2cf9278d489b213e00bb" title="Enumerates items from the current position backward." alt="" coords="5,72,295,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="325,116,295,114,295,109,330,115"/>
+<area shape="rect" id="Node000004" href="$d9/d0c/classFileSurfer_1_1Core_1_1Models_1_1UndoRedoHandler-1-g.html#af02229f78798ac81fffdb41309ae8d1c" title="Enumerates items from the current position forward." alt="" coords="20,139,280,197"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="325,147,281,154,279,149,330,145"/>
+<area shape="rect" id="Node000005" href="$d9/d0c/classFileSurfer_1_1Core_1_1Models_1_1UndoRedoHandler-1-g.html#a773346f8b4301fc0b86681064e5a18dd" title="Initializes a new UndoRedoHandler&lt;T&gt; chain." alt="" coords="35,221,265,264"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="402,159,351,188,296,212,259,223,258,218,294,207,349,183,397,161"/>
+</map>

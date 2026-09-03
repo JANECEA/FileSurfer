@@ -1,8 +1,5 @@
 var searchData=
 [
-  ['settingswindow_0',['SettingsWindow',['../dd/d07/class_file_surfer_1_1_views_1_1_settings_window.html',1,'FileSurfer::Views']]],
-  ['settingswindowviewmodel_1',['SettingsWindowViewModel',['../d8/d00/class_file_surfer_1_1_view_models_1_1_settings_window_view_model.html',1,'FileSurfer::ViewModels']]],
-  ['shellexecuteinfo_2',['ShellExecuteInfo',['../d9/d0e/struct_file_surfer_1_1_models_1_1_shell_1_1_windows_file_properties_1_1_shell_execute_info.html',1,'FileSurfer::Models::Shell::WindowsFileProperties']]],
-  ['simpleresult_3',['SimpleResult',['../d9/d09/class_file_surfer_1_1_models_1_1_simple_result.html',1,'FileSurfer::Models']]],
-  ['sortarrowconverter_4',['SortArrowConverter',['../d6/d00/class_file_surfer_1_1_views_1_1_sort_arrow_converter.html',1,'FileSurfer::Views']]]
+  ['newdirat_0',['NewDirAt',['../d1/d07/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1NewDirAt.html',1,'FileSurfer::Core::Services::FileOperations::Undoable']]],
+  ['newfileat_1',['NewFileAt',['../d3/d05/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1NewFileAt.html',1,'FileSurfer::Core::Services::FileOperations::Undoable']]]
 ];

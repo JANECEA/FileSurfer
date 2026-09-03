@@ -1,5 +1,22 @@
 var searchData=
 [
-  ['vcstatus_2ecs_0',['VCStatus.cs',['../da/d03/_v_c_status_8cs.html',1,'']]],
-  ['viewlocator_2ecs_1',['ViewLocator.cs',['../db/d04/_view_locator_8cs.html',1,'']]]
+  ['searchmanager_2ecs_0',['SearchManager.cs',['../d4/d0f/SearchManager_8cs.html',1,'']]],
+  ['settingsrecord_2ecs_1',['SettingsRecord.cs',['../d2/d0c/SettingsRecord_8cs.html',1,'']]],
+  ['settingswindow_2eaxaml_2ecs_2',['SettingsWindow.axaml.cs',['../d5/d00/SettingsWindow_8axaml_8cs.html',1,'']]],
+  ['settingswindowviewmodel_2ecs_3',['SettingsWindowViewModel.cs',['../df/d06/SettingsWindowViewModel_8cs.html',1,'']]],
+  ['sftpconnection_2ecs_4',['SftpConnection.cs',['../dc/d02/SftpConnection_8cs.html',1,'']]],
+  ['sftpconnectionviewmodel_2ecs_5',['SftpConnectionViewModel.cs',['../de/d08/SftpConnectionViewModel_8cs.html',1,'']]],
+  ['sftpfileinfoprovider_2ecs_6',['SftpFileInfoProvider.cs',['../db/d02/SftpFileInfoProvider_8cs.html',1,'']]],
+  ['sftpfileiohandler_2ecs_7',['SftpFileIoHandler.cs',['../d6/d08/SftpFileIoHandler_8cs.html',1,'']]],
+  ['sftpfileproperties_2ecs_8',['SftpFileProperties.cs',['../d3/d0a/SftpFileProperties_8cs.html',1,'']]],
+  ['sftpfilesystem_2ecs_9',['SftpFileSystem.cs',['../d4/d0d/SftpFileSystem_8cs.html',1,'']]],
+  ['sftpfilesystemfactory_2ecs_10',['SftpFileSystemFactory.cs',['../d6/d05/SftpFileSystemFactory_8cs.html',1,'']]],
+  ['sftpstubs_2ecs_11',['SftpStubs.cs',['../d7/d0c/SftpStubs_8cs.html',1,'']]],
+  ['sftpsynchronizerviewmodel_2ecs_12',['SftpSynchronizerViewModel.cs',['../d2/d0e/SftpSynchronizerViewModel_8cs.html',1,'']]],
+  ['sftpsynchronizerwindow_2eaxaml_2ecs_13',['SftpSynchronizerWindow.axaml.cs',['../d0/d0e/SftpSynchronizerWindow_8axaml_8cs.html',1,'']]],
+  ['sidebarentryviewmodel_2ecs_14',['SideBarEntryViewModel.cs',['../dd/d0e/SideBarEntryViewModel_8cs.html',1,'']]],
+  ['sshshellhandler_2ecs_15',['SshShellHandler.cs',['../d1/d00/SshShellHandler_8cs.html',1,'']]],
+  ['staworkersync_2ecs_16',['StaWorkerSync.cs',['../df/d06/StaWorkerSync_8cs.html',1,'']]],
+  ['suggestinputdialogwindow_2eaxaml_2ecs_17',['SuggestInputDialogWindow.axaml.cs',['../d0/d0b/SuggestInputDialogWindow_8axaml_8cs.html',1,'']]],
+  ['svghelper_2ecs_18',['SvgHelper.cs',['../d9/d0b/SvgHelper_8cs.html',1,'']]]
 ];

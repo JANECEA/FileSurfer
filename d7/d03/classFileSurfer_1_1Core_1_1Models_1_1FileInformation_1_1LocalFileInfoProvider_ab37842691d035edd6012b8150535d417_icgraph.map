@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Models.FileInformation.LocalFileInfoProvider.IsOsProtected" name="FileSurfer.Core.Models.FileInformation.LocalFileInfoProvider.IsOsProtected">
+<area shape="rect" id="Node000001" title="Determines whether a local path is protected by the operating system." alt="" coords="270,47,486,105"/>
+<area shape="rect" id="Node000002" href="$d7/d03/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1LocalFileInfoProvider.html#abec88bef86eb4fe3d9329102eab95884" title="Gets files and directories in a directory, with optional inclusion of hidden and system entries." alt="" coords="5,5,222,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="252,57,222,54,222,49,257,56"/>
+<area shape="rect" id="Node000003" href="$d7/d03/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1LocalFileInfoProvider.html#a12da6abcb01659fde9548cef498986aa" title="Asynchronously gets files in a directory, with optional inclusion of hidden and system entries." alt="" coords="5,88,222,147"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="252,96,223,103,222,98,257,95"/>
+</map>

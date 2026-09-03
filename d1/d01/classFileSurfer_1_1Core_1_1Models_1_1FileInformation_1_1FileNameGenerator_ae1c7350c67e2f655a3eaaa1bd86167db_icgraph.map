@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Models.FileInformation.FileNameGenerator.GetAvailableName" name="FileSurfer.Core.Models.FileInformation.FileNameGenerator.GetAvailableName">
+<area shape="rect" id="Node000001" title="Finds a name available to use in directory &#160;based on newName ." alt="" coords="298,47,526,105"/>
+<area shape="rect" id="Node000002" href="$d2/d06/classFileSurfer_1_1Windows_1_1Services_1_1FileOperations_1_1WindowsFileIoHandler.html#abf8ea9df0405982358fead77fbfcc206" title="Renames a directory at the specified path." alt="" coords="5,5,250,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="280,58,250,55,250,50,285,57"/>
+<area shape="rect" id="Node000003" href="$d2/d06/classFileSurfer_1_1Windows_1_1Services_1_1FileOperations_1_1WindowsFileIoHandler.html#a3fd63517b09f5dfce877f943d9f700c8" title="Renames a file at the specified path." alt="" coords="5,88,250,147"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="280,95,251,102,250,97,285,94"/>
+</map>

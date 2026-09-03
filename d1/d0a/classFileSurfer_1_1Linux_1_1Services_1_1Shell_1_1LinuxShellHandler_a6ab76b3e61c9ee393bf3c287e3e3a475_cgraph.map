@@ -1,0 +1,7 @@
+<map id="FileSurfer.Linux.Services.Shell.LinuxShellHandler.OpenTerminalAt" name="FileSurfer.Linux.Services.Shell.LinuxShellHandler.OpenTerminalAt">
+<area shape="rect" id="Node000001" title="Opens a terminal window rooted at the specified directory path." alt="" coords="5,39,262,81"/>
+<area shape="rect" id="Node000002" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#ab0a706a9fa910e36591b5848a33c5a8e" title="Gets a cached failed result with no error message." alt="" coords="310,5,509,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="262,42,296,40,291,41,263,47"/>
+<area shape="rect" id="Node000003" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#a8b372981d4976ffa39f0f4979b883fac" title="Gets a cached successful result with no errors." alt="" coords="310,72,509,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="262,73,297,79,291,79,262,78"/>
+</map>

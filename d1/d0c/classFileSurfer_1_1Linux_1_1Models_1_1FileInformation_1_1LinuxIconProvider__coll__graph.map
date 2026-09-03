@@ -1,0 +1,9 @@
+<map id="FileSurfer.Linux.Models.FileInformation.LinuxIconProvider" name="FileSurfer.Linux.Models.FileInformation.LinuxIconProvider">
+<area shape="rect" id="Node000001" title="Provides Linux file icons by resolving MIME types and loading themed icon assets." alt="" coords="5,261,221,304"/>
+<area shape="rect" id="Node000002" href="$dd/d0a/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1BaseIconProvider.html" title="Provides generic fallback icons for files, directories, and drives." alt="" coords="16,171,210,213"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,227,115,262,111,260,111,231"/>
+<area shape="rect" id="Node000003" href="$d6/d0d/interfaceFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1IIconProvider.html" title="Optimizes icon delivery based on relevant criteria." alt="" coords="23,80,203,123"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="114,136,116,171,110,170,112,141"/>
+<area shape="rect" id="Node000004" href="$d0/d07/classIDisposable.html" title=" " alt="" coords="68,5,158,32"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="114,45,116,80,110,79,112,50"/>
+</map>

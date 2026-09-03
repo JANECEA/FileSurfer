@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['unstaged_0',['Unstaged',['../df/d0c/namespace_file_surfer_1_1_models_1_1_version_control.html#a2c4d5add3822ac940440bcaaaa7cd692ad9c90a7d6a180b805c17ef41e4154095',1,'FileSurfer::Models::VersionControl']]]
+  ['size_0',['Size',['../d2/d05/namespaceFileSurfer_1_1Core.html#ab8e5fe63d38fae809c4607f46949b416a6f6cb72d544962fa333e2e34ce64f719',1,'FileSurfer::Core']]],
+  ['staged_1',['Staged',['../d6/d09/namespaceFileSurfer_1_1Core_1_1Services_1_1VersionControl.html#a89d713e92199c68f61772c3ca9078e14a44bc04de5a94daecaffe9c26f7746988',1,'FileSurfer::Core::Services::VersionControl']]]
 ];

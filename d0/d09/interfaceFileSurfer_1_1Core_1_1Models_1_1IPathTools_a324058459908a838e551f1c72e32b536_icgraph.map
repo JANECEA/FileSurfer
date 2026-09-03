@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Models.IPathTools.GetExtension" name="FileSurfer.Core.Models.IPathTools.GetExtension">
+<area shape="rect" id="Node000001" title="Returns extension part of the given path including the dot &#39;." alt="" coords="282,43,472,85"/>
+<area shape="rect" id="Node000002" href="$d2/d0b/classFileSurfer_1_1Core_1_1Models_1_1FileEntry.html#a787583915c4943e5f8b4947694ad7f12" title="Initializes a new FileEntry from a path using path&#45;tool name and extension parsing." alt="" coords="29,5,210,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="264,49,210,42,210,37,269,47"/>
+<area shape="rect" id="Node000003" href="$d1/d01/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1FileNameGenerator.html#a3ec7f14a4fa934a49e368b8d486bdbee" title="Gets new available names for files represented by entries &#160;according to namingPattern ." alt="" coords="5,72,234,131"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="264,80,235,87,234,82,269,80"/>
+</map>

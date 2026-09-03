@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.VersionControl.IGitIntegration" name="FileSurfer.Core.Services.VersionControl.IGitIntegration">
+<area shape="rect" id="Node000001" title="Defines methods for interacting with the Git version control system within the FileSurfer app." alt="" coords="5,80,198,123"/>
+<area shape="rect" id="Node000002" href="$d0/d07/classIDisposable.html" title=" " alt="" coords="56,5,147,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,46,104,81,99,79,100,50"/>
+</map>

@@ -1,3 +1,9 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d2/d02/class_file_surfer_1_1_models_1_1_undo_redo_handler-1-g_1_1_undo_redo_node.html" title="Nested class representing a node in the UndoRedoHandler&lt;T&gt; chain." alt="" coords="5,5,200,48"/>
+<area shape="rect" id="Node000000" href="$dd/d02/interfaceFileSurfer_1_1Core_1_1Models_1_1IResult.html" title="Represents the result of an operation, indicating success or failure, along with error messages." alt="" coords="5,64,207,91"/>
+<area shape="rect" id="Node000001" href="$df/d0b/classFileSurfer_1_1Core_1_1Models_1_1Result.html" title="A flexible implementation of IResult that supports multiple error messages and can be updated after c..." alt="" coords="256,5,453,32"/>
+<area shape="poly" id="edge17_Node000000_Node000001" title=" " alt="" coords="179,57,297,31,293,34,181,62"/>
+<area shape="rect" id="Node000002" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html" title="An immutable, lightweight, and memory efficient implementation of IResult that supports at most one e..." alt="" coords="255,56,454,99"/>
+<area shape="poly" id="edge18_Node000000_Node000002" title=" " alt="" coords="222,75,257,77,252,78,223,80"/>
+<area shape="rect" id="Node000003" href="$d1/d08/classFileSurfer_1_1Core_1_1Models_1_1ValueResult-1-g.html" title="An immutable, lightweight, and memory efficient implementation of IResult that extends SimpleResult a..." alt="" coords="259,123,450,165"/>
+<area shape="poly" id="edge19_Node000000_Node000003" title=" " alt="" coords="174,93,275,121,270,123,173,98"/>
 </map>

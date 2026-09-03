@@ -1,0 +1,9 @@
+<map id="FileSurfer.Core.ViewModels.SftpSynchronizerViewModel.GetLocalPath" name="FileSurfer.Core.ViewModels.SftpSynchronizerViewModel.GetLocalPath">
+<area shape="rect" id="Node000001" title="Prompts for and validates the local path to pair with a remote synchronization target." alt="" coords="5,72,274,115"/>
+<area shape="rect" id="Node000002" href="$d4/d07/classFileSurfer_1_1Core_1_1Models_1_1Location.html#a79699450b983e69d11c375e156442c85" title="Determines asynchronously whether this directory exists." alt="" coords="322,5,534,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,69,320,51,315,53,236,74"/>
+<area shape="rect" id="Node000003" href="$d8/d07/interfaceFileSurfer_1_1Core_1_1Models_1_1IFileSystem.html#a5cb6e4bd7abfb9e1f62e1e22819353b5" title="Gets a label that identifies this file system." alt="" coords="336,72,520,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="274,91,322,93,317,94,274,96"/>
+<area shape="rect" id="Node000004" href="$d4/d01/interfaceFileSurfer_1_1Core_1_1Services_1_1Dialogs_1_1IDialogService.html#aa2dea87cefae51d6ff9ad65c630ab2c0" title="Shows an input dialog with suggested options and returns user&#45;entered or selected text." alt="" coords="325,139,531,197"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="225,113,312,137,307,138,225,118"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.Sftp.SftpFileIoHandler.DeleteFile" name="FileSurfer.Core.Services.Sftp.SftpFileIoHandler.DeleteFile">
+<area shape="rect" id="Node000001" title="Deletes a file permanently." alt="" coords="259,13,472,56"/>
+<area shape="rect" id="Node000002" href="$df/d0a/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1SftpFileIoHandler.html#a0b0a20d96ad45f1e87146d333878f7a1" title="Writes the filestream into a file with name specified in FileTransferStream.Name." alt="" coords="5,5,211,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,35,211,37,211,32,246,34"/>
+</map>

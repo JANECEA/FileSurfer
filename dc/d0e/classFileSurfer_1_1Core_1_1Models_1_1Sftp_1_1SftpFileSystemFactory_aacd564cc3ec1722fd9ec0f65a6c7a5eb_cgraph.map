@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Models.Sftp.SftpFileSystemFactory.SftpFileSystemFactory" name="FileSurfer.Core.Models.Sftp.SftpFileSystemFactory.SftpFileSystemFactory">
+<area shape="rect" id="Node000001" title="Initializes a new instance of the SftpFileSystemFactory class." alt="" coords="5,5,254,64"/>
+<area shape="rect" id="Node000002" href="$d4/d01/interfaceFileSurfer_1_1Core_1_1Services_1_1Dialogs_1_1IDialogService.html#a6788903a9fa2939e0609f39018133298" title="Shows an input dialog and returns user&#45;entered text." alt="" coords="302,13,563,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="254,32,289,34,284,35,254,37"/>
+</map>

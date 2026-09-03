@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Models.Location.IsSame" name="FileSurfer.Core.Models.Location.IsSame">
+<area shape="rect" id="Node000001" title="Determines whether this location points to the same directory as another location." alt="" coords="5,39,218,81"/>
+<area shape="rect" id="Node000002" href="$d8/d07/interfaceFileSurfer_1_1Core_1_1Models_1_1IFileSystem.html#a131eca290b314fd03690f3bff9c9bcdb" title="Determines whether this file system is local." alt="" coords="280,5,464,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="217,44,267,40,262,41,219,49"/>
+<area shape="rect" id="Node000003" href="$d4/d07/classFileSurfer_1_1Core_1_1Models_1_1Location.html#a28f58d1b1bf03d6164b2d6d38a9a734d" title="Initializes a new instance of the Location class." alt="" coords="266,72,478,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="218,71,253,78,247,78,218,76"/>
+</map>

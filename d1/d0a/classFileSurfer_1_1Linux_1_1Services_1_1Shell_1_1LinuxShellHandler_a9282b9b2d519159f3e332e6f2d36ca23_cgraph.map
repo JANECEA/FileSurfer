@@ -1,0 +1,7 @@
+<map id="FileSurfer.Linux.Services.Shell.LinuxShellHandler.OpenFile" name="FileSurfer.Linux.Services.Shell.LinuxShellHandler.OpenFile">
+<area shape="rect" id="Node000001" title="Opens the specified file using the operating system&#39;s default associated application." alt="" coords="5,39,221,81"/>
+<area shape="rect" id="Node000002" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#ab0a706a9fa910e36591b5848a33c5a8e" title="Gets a cached failed result with no error message." alt="" coords="269,5,468,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,43,256,41,251,42,222,49"/>
+<area shape="rect" id="Node000003" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#a8b372981d4976ffa39f0f4979b883fac" title="Gets a cached successful result with no errors." alt="" coords="269,72,468,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="221,71,256,78,251,78,221,77"/>
+</map>

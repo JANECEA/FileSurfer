@@ -1,0 +1,20 @@
+<map id="FileSurfer.Core.Services.FileOperations.Undoable.UndoableFileOperation" name="FileSurfer.Core.Services.FileOperations.Undoable.UndoableFileOperation">
+<area shape="rect" id="Node000001" title="Extends FileOperation with an undo pipeline that replays inverse actions for each processed entry." alt="" coords="519,131,742,189"/>
+<area shape="rect" id="Node000005" href="$de/d0f/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1CopyFilesTo.html" title="Represents the action of copying files and directories to a specific directory." alt="" coords="795,5,1037,48"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="683,119,733,87,789,58,818,50,823,48,791,62,736,91,685,124"/>
+<area shape="rect" id="Node000006" href="$dc/d04/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1DuplicateFiles.html" title="Represents the action of duplicating files or directories in a specific directory." alt="" coords="790,72,1042,115"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="757,128,824,115,819,116,758,133"/>
+<area shape="rect" id="Node000007" href="$da/d0e/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1MoveFilesTo.html" title="Represents the action of moving files and directories to a specific directory." alt="" coords="795,139,1037,181"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="758,157,797,160,792,160,758,163"/>
+<area shape="rect" id="Node000008" href="$d6/d05/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1MoveFilesToTrash.html" title="Represents the action of moving selected files to the system trash." alt="" coords="802,205,1030,264"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="758,190,804,205,799,205,757,196"/>
+<area shape="rect" id="Node000009" href="$d6/d09/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1RenameMultiple.html" title="Represents the action of renaming multiple files or directories." alt="" coords="807,288,1025,347"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="678,197,731,237,792,274,818,288,812,287,789,278,728,241,676,202"/>
+<area shape="rect" id="Node000002" href="$df/d0a/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1FileOperation.html" title="Provides a shared execution pipeline for batched file operations with progress reporting and cancella..." alt="" coords="264,101,450,144"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="466,135,521,144,516,145,466,140"/>
+<area shape="rect" id="Node000003" href="$dc/d03/interfaceFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1IFileOperation.html" title="Represents a file operation in the context of the FileSurfer app." alt="" coords="5,139,196,181"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="210,141,266,135,261,138,212,146"/>
+<area shape="rect" id="Node000004" href="$df/d07/interfaceFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1IUndoableFileOperation.html" title="Represents an undoable file operation in the context of the FileSurfer app." alt="" coords="244,168,471,227"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="211,173,246,180,241,182,212,179"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="486,177,521,175,516,176,487,182"/>
+</map>

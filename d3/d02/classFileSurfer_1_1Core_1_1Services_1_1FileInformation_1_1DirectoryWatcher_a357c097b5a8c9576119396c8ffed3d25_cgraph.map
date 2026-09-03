@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.FileInformation.DirectoryWatcher.StartAsync" name="FileSurfer.Core.Services.FileInformation.DirectoryWatcher.StartAsync">
+<area shape="rect" id="Node000001" title="Starts watching for changes and keeps polling until cancellation is requested." alt="" coords="5,5,222,64"/>
+<area shape="rect" id="Node000002" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#a8b372981d4976ffa39f0f4979b883fac" title="Gets a cached successful result with no errors." alt="" coords="270,13,469,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,32,257,34,252,35,222,37"/>
+</map>

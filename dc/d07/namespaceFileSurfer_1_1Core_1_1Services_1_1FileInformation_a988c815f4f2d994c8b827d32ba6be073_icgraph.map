@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Services.FileInformation.FileSystemEvent" name="FileSurfer.Core.Services.FileInformation.FileSystemEvent">
+<area shape="rect" id="Node000001" title="Represents a file&#45;system change event raised by IDirectoryWatcher." alt="" coords="261,39,472,81"/>
+<area shape="rect" id="Node000002" href="$de/d08/classFileSurfer_1_1Core_1_1ViewModels_1_1SyncEventVmFactory.html#a64034e93a61e1b8517a81150314c798c" title="Creates a display model for a synchronization event and its mapped remote path." alt="" coords="5,5,213,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,45,213,43,213,37,248,44"/>
+<area shape="rect" id="Node000003" href="$d3/d00/namespaceFileSurfer_1_1Core_1_1Services_1_1Sftp.html#aa2899b1529a5e2de5f4b010f5d9c4683" title="Represents a callback invoked after each synchronized file&#45;system event is processed." alt="" coords="25,72,193,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="242,76,194,85,193,80,248,75"/>
+</map>

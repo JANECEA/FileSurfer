@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Models.FileInformation.ILocalFileInfoProvider" name="FileSurfer.Core.Models.FileInformation.ILocalFileInfoProvider">
+<area shape="rect" id="Node000001" title="Defines methods for retrieving information specific to local file systems." alt="" coords="5,96,222,139"/>
+<area shape="rect" id="Node000002" href="$d8/d04/interfaceFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1IFileInfoProvider.html" title="Defines methods for retrieving file and directory information." alt="" coords="21,5,206,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,62,116,97,111,95,112,66"/>
+</map>

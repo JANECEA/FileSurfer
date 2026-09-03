@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Services.FileOperations.ClipboardManager.CopyPathToFileAsync" name="FileSurfer.Core.Services.FileOperations.ClipboardManager.CopyPathToFileAsync">
+<area shape="rect" id="Node000001" title="Copies the filePath &#160;to the system&#39;s clipboard." alt="" coords="5,31,224,89"/>
+<area shape="rect" id="Node000002" href="$d8/d07/interfaceFileSurfer_1_1Core_1_1Models_1_1IFileSystem.html#a131eca290b314fd03690f3bff9c9bcdb" title="Determines whether this file system is local." alt="" coords="279,5,464,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,43,266,40,261,41,225,48"/>
+<area shape="rect" id="Node000003" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#a8b372981d4976ffa39f0f4979b883fac" title="Gets a cached successful result with no errors." alt="" coords="272,72,471,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="224,72,259,78,254,79,224,77"/>
+</map>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['movetotrashcommand_0',['MoveToTrashCommand',['../d2/d0f/class_file_surfer_1_1_view_models_1_1_main_window_view_model.html#a2a5a5a56de046d6ff2bcbb76ac804007',1,'FileSurfer::ViewModels::MainWindowViewModel']]]
+  ['keypath_0',['KeyPath',['../d7/d09/classFileSurfer_1_1Core_1_1ViewModels_1_1SftpConnectionViewModel.html#ae46ecb366d4cb4cf2edbb63c3acbe622',1,'FileSurfer::Core::ViewModels::SftpConnectionViewModel']]]
 ];

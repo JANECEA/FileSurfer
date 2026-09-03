@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Services.FileOperations.Undoable.NewFileAt" name="FileSurfer.Core.Services.FileOperations.Undoable.NewFileAt">
+<area shape="rect" id="Node000001" title="Represents the action of creating a new file." alt="" coords="5,203,235,245"/>
+<area shape="rect" id="Node000002" href="$df/d07/interfaceFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1IUndoableFileOperation.html" title="Represents an undoable file operation in the context of the FileSurfer app." alt="" coords="6,96,234,155"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,168,122,204,118,201,118,172"/>
+<area shape="rect" id="Node000003" href="$dc/d03/interfaceFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1IFileOperation.html" title="Represents a file operation in the context of the FileSurfer app." alt="" coords="25,5,215,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="121,61,123,96,117,95,119,66"/>
+</map>

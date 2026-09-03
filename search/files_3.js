@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['errorwindow_2eaxaml_2ecs_0',['ErrorWindow.axaml.cs',['../dd/d0d/_error_window_8axaml_8cs.html',1,'']]]
+  ['editsftpwindow_2eaxaml_2ecs_0',['EditSftpWindow.axaml.cs',['../d5/d0e/EditSftpWindow_8axaml_8cs.html',1,'']]]
 ];

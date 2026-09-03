@@ -1,0 +1,9 @@
+<map id="FileSurfer.Core.Services.Shell.IFileProperties" name="FileSurfer.Core.Services.Shell.IFileProperties">
+<area shape="rect" id="Node000001" title="Provides operations for showing platform&#45;specific file property and &quot;Open With&quot; dialogs." alt="" coords="5,72,174,115"/>
+<area shape="rect" id="Node000002" href="$d7/d01/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1SftpFileProperties.html" title="Provides SFTP&#45;specific file property resolution and displays the properties dialog for remote entries..." alt="" coords="235,5,403,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,65,245,47,240,50,180,70"/>
+<area shape="rect" id="Node000003" href="$d5/d04/classFileSurfer_1_1Linux_1_1Services_1_1Shell_1_1LinuxFileProperties.html" title="Displays Linux file properties using Unix metadata and a platform&#45;specific properties view model." alt="" coords="233,72,404,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="189,91,235,93,230,94,189,96"/>
+<area shape="rect" id="Node000004" href="$db/d0e/classFileSurfer_1_1Windows_1_1Services_1_1Shell_1_1WindowsFileProperties.html" title="Provides Windows shell dialogs for file properties and &quot;Open with&quot; operations." alt="" coords="222,139,416,181"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="180,117,245,138,240,138,179,122"/>
+</map>

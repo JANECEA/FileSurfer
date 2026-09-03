@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['vcstatus_0',['VCStatus',['../df/d0c/namespace_file_surfer_1_1_models_1_1_version_control.html#a2c4d5add3822ac940440bcaaaa7cd692',1,'FileSurfer::Models::VersionControl']]]
+  ['gitstatus_0',['GitStatus',['../d6/d09/namespaceFileSurfer_1_1Core_1_1Services_1_1VersionControl.html#a89d713e92199c68f61772c3ca9078e14',1,'FileSurfer::Core::Services::VersionControl']]]
 ];

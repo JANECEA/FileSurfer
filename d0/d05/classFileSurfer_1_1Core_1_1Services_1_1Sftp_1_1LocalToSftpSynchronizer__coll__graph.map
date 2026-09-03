@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.Sftp.LocalToSftpSynchronizer" name="FileSurfer.Core.Services.Sftp.LocalToSftpSynchronizer">
+<area shape="rect" id="Node000001" title="Synchronizes a local directory to a remote one in real&#45;time by reacting to DirectoryWatcher events an..." alt="" coords="5,80,200,123"/>
+<area shape="rect" id="Node000002" href="$d0/d07/classIDisposable.html" title=" " alt="" coords="57,5,148,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,46,105,81,100,79,101,50"/>
+</map>

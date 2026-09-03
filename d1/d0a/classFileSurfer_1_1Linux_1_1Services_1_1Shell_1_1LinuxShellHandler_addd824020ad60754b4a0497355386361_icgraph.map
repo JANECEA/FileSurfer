@@ -1,0 +1,5 @@
+<map id="FileSurfer.Linux.Services.Shell.LinuxShellHandler.ExecuteCommand" name="FileSurfer.Linux.Services.Shell.LinuxShellHandler.ExecuteCommand">
+<area shape="rect" id="Node000001" title="Executes a command and returns stdout." alt="" coords="259,5,470,64"/>
+<area shape="rect" id="Node000002" href="$d1/d0a/classFileSurfer_1_1Linux_1_1Services_1_1Shell_1_1LinuxShellHandler.html#a643ecb6a0e10a3c2e6183cad5cddea51" title="Opens the specified file in the configured text editor (referred to as Notepad in settings)." alt="" coords="5,5,211,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,35,211,37,211,32,246,34"/>
+</map>

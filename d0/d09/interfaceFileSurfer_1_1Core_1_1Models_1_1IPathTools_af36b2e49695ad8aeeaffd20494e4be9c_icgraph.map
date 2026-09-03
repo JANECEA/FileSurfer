@@ -1,0 +1,27 @@
+<map id="FileSurfer.Core.Models.IPathTools.Combine" name="FileSurfer.Core.Models.IPathTools.Combine">
+<area shape="rect" id="Node000001" title="Combines two paths Returns the combined path without trailing separators." alt="" coords="583,385,773,428"/>
+<area shape="rect" id="Node000002" href="$d1/d01/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1FileNameGenerator.html#ae1c7350c67e2f655a3eaaa1bd86167db" title="Finds a name available to use in directory &#160;based on newName ." alt="" coords="302,88,530,147"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="663,370,644,324,617,267,580,210,558,184,533,161,519,150,518,144,537,157,562,180,584,207,621,265,649,322,668,371"/>
+<area shape="rect" id="Node000005" href="$d1/d01/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1FileNameGenerator.html#a4c0e0bd650c01fd9f869c887282f2aaa" title="Finds a name available to use in directory &#160;based on newName ." alt="" coords="302,171,530,229"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="653,372,603,308,570,273,533,244,516,233,515,227,537,239,574,269,607,304,658,372"/>
+<area shape="rect" id="Node000008" href="$d1/d01/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1FileNameGenerator.html#a3ec7f14a4fa934a49e368b8d486bdbee" title="Gets new available names for files represented by entries &#160;according to namingPattern ." alt="" coords="302,253,530,312"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="628,377,534,326,508,315,508,310,536,322,633,376"/>
+<area shape="rect" id="Node000009" href="$d1/d01/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1FileNameGenerator.html#a202eb4908b1bf7d180563cb454afd7de" title="Finds a name available to use in all dirPaths &#160;based on newName ." alt="" coords="302,336,530,395"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="565,390,531,386,530,381,570,389"/>
+<area shape="rect" id="Node000010" href="$d1/d07/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1NewDirAt.html#abd24f09e4b2f0e9291134c79f11ec3a7" title="Initializes an undoable operation that creates a directory and deletes it on undo." alt="" coords="310,419,522,477"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="565,425,524,434,522,429,570,423"/>
+<area shape="rect" id="Node000011" href="$d3/d05/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1NewFileAt.html#a54ee1824914450d273d6a4df1193e335" title="Initializes an undoable operation that creates a file and deletes it on undo." alt="" coords="308,501,524,560"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="633,436,536,492,509,503,507,498,534,487,628,438"/>
+<area shape="rect" id="Node000012" href="$da/d07/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1RenameOne.html#a4836bfdd86da95cf87fa96996c908dba" title="Initializes an undoable rename operation for a single file&#45;system entry." alt="" coords="308,584,525,643"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="657,440,607,509,574,544,537,574,517,586,515,581,533,570,570,540,603,506,653,443"/>
+<area shape="rect" id="Node000013" href="$dd/d0a/classFileSurfer_1_1Core_1_1Extensions_1_1TransferStreamExtensions.html#af4059e49fb2af6e1b789ff64da51e402" title="Writes a directory transfer stream using file I/O operations." alt="" coords="298,667,535,725"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="667,441,649,491,621,548,584,606,562,633,537,657,519,669,517,664,533,653,558,629,580,603,617,546,644,489,663,445"/>
+<area shape="rect" id="Node000003" href="$d2/d06/classFileSurfer_1_1Windows_1_1Services_1_1FileOperations_1_1WindowsFileIoHandler.html#abf8ea9df0405982358fead77fbfcc206" title="Renames a directory at the specified path." alt="" coords="5,5,250,64"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="294,85,234,67,232,62,299,82"/>
+<area shape="rect" id="Node000004" href="$d2/d06/classFileSurfer_1_1Windows_1_1Services_1_1FileOperations_1_1WindowsFileIoHandler.html#a3fd63517b09f5dfce877f943d9f700c8" title="Renames a file at the specified path." alt="" coords="5,88,250,147"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="284,119,251,120,249,115,289,116"/>
+<area shape="rect" id="Node000006" href="$d1/d00/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1LocalArchiveManager.html#aa004410fc7d466c1b4e7070e7c05c310" title="Compresses specified file paths into a new archive." alt="" coords="8,171,247,229"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="284,202,249,202,246,198,289,198"/>
+<area shape="rect" id="Node000007" href="$d1/d00/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1LocalArchiveManager.html#abb52c603f9be0abc6940e8e4df8beaa8" title="Extracts the archive, overwriting already existing files." alt="" coords="8,253,247,312"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="295,236,234,255,231,251,299,232"/>
+</map>

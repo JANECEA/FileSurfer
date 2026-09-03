@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Models.FileInformation.LocalFileInfoProvider.GetPathEntriesAsync" name="FileSurfer.Core.Models.FileInformation.LocalFileInfoProvider.GetPathEntriesAsync">
+<area shape="rect" id="Node000001" title="Asynchronously gets files in a directory, with optional inclusion of hidden and system entries." alt="" coords="5,47,222,105"/>
+<area shape="rect" id="Node000002" href="$d7/d03/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1LocalFileInfoProvider.html#aee6520708871ea6937977d5dfac78946" title="Checks if a path is hidden." alt="" coords="270,5,486,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,56,257,53,251,55,223,62"/>
+<area shape="rect" id="Node000003" href="$d7/d03/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1LocalFileInfoProvider.html#ab37842691d035edd6012b8150535d417" title="Determines whether a local path is protected by the operating system." alt="" coords="270,88,486,147"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="222,90,257,98,251,98,222,96"/>
+</map>

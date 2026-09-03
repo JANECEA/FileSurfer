@@ -1,0 +1,11 @@
+<map id="FileSurfer.Core.Models.FileInformation.IIconProvider" name="FileSurfer.Core.Models.FileInformation.IIconProvider">
+<area shape="rect" id="Node000001" title="Optimizes icon delivery based on relevant criteria." alt="" coords="144,39,324,81"/>
+<area shape="rect" id="Node000003" href="$dd/d0a/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1BaseIconProvider.html" title="Provides generic fallback icons for files, directories, and drives." alt="" coords="372,39,565,81"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="339,57,374,60,369,60,339,63"/>
+<area shape="rect" id="Node000002" href="$d0/d07/classIDisposable.html" title=" " alt="" coords="5,47,96,73"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,57,146,59,141,61,111,63"/>
+<area shape="rect" id="Node000004" href="$de/d0c/classFileSurfer_1_1Linux_1_1Models_1_1FileInformation_1_1LinuxIconProvider.html" title="Provides Linux file icons by resolving MIME types and loading themed icon assets." alt="" coords="625,5,840,48"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="580,43,622,41,627,40,581,49"/>
+<area shape="rect" id="Node000005" href="$dc/d02/classFileSurfer_1_1Windows_1_1Models_1_1FileInformation_1_1WindowsIconProvider.html" title="Optimizes Windows icon delivery based on the file extension." alt="" coords="613,72,852,115"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="581,71,615,78,610,78,581,77"/>
+</map>

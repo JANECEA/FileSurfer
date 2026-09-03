@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['archivetypeextension_0',['ArchiveTypeExtension',['../d3/d01/class_file_surfer_1_1_models_1_1_file_operations_1_1_archive_manager.html#a9cfaddd8eb36a019fae19f897a86725a',1,'FileSurfer::Models::FileOperations::ArchiveManager']]]
+  ['data_0',['Data',['../d9/d0c/classFileSurfer_1_1Core_1_1Models_1_1UndoRedoHandler-1-g.html#afa9988d2f82c8b27969fdafa7683bf4a',1,'FileSurfer::Core::Models::UndoRedoHandler-1-g']]],
+  ['dirseparator_1',['DirSeparator',['../d0/d0a/classFileSurfer_1_1Core_1_1Models_1_1RemoteUnixPathTools.html#a104761ef92ecc011c9a9100bd4409764',1,'FileSurfer::Core::Models::RemoteUnixPathTools']]]
 ];

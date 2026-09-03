@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Models.FileInformation.IIconProvider.GetDriveIconAsync" name="FileSurfer.Core.Models.FileInformation.IIconProvider.GetDriveIconAsync">
+<area shape="rect" id="Node000001" title="Retrieves the icon associated with drives." alt="" coords="297,5,520,64"/>
+<area shape="rect" id="Node000002" href="$d5/d03/classFileSurfer_1_1Core_1_1ViewModels_1_1SideBarEntryViewModel.html#a35751ac093b0392ea87cb49519098c3b" title="Creates a sidebar entry from drive metadata and resolves its icon asynchronously." alt="" coords="5,5,249,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="278,35,249,37,249,32,284,34"/>
+</map>

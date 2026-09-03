@@ -1,0 +1,11 @@
+<map id="FileSurfer.Core.Services.FileOperations.AvaloniaClipboardProxy.CopyToOsClipboardAsync" name="FileSurfer.Core.Services.FileOperations.AvaloniaClipboardProxy.CopyToOsClipboardAsync">
+<area shape="rect" id="Node000001" title="Copies FileSurfer entries to the OS clipboard as storage items." alt="" coords="5,31,220,89"/>
+<area shape="rect" id="Node000002" href="$d0/d0b/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1AvaloniaClipboardProxy.html#a92cb3c66ebf0fb25c3ddb823c05c711b" title="Asynchronously clears the OS clipboard on the UI thread by setting a marker object." alt="" coords="268,31,482,89"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,57,255,60,250,60,221,63"/>
+<area shape="rect" id="Node000003" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#ab0a706a9fa910e36591b5848a33c5a8e" title="Gets a cached failed result with no error message." alt="" coords="530,5,729,48"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="209,27,267,16,331,10,395,8,517,15,512,16,395,14,331,16,268,21,211,33"/>
+<area shape="rect" id="Node000004" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#a8b372981d4976ffa39f0f4979b883fac" title="Gets a cached successful result with no errors." alt="" coords="530,88,729,131"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="211,87,268,99,395,110,517,114,511,114,395,115,267,104,211,93"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="482,43,517,41,512,42,483,49"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="483,78,517,87,512,87,482,83"/>
+</map>

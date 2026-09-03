@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.IPlatformBootstrap" name="FileSurfer.Core.IPlatformBootstrap">
+<area shape="rect" id="Node000001" title="Used to initialize the app with platform specific settings." alt="" coords="5,39,172,81"/>
+<area shape="rect" id="Node000002" href="$d7/d0d/classFileSurfer_1_1Linux_1_1LinuxPlatformBootstrap.html" title="Wires Linux&#45;specific services and dependencies into the main application view model." alt="" coords="220,5,416,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,43,222,40,217,42,188,48"/>
+<area shape="rect" id="Node000003" href="$d9/d07/classFileSurfer_1_1Windows_1_1WindowsPlatformBootstrap.html" title="Provides Windows&#45;specific platform wiring for the application." alt="" coords="221,72,414,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="187,72,223,79,218,79,187,77"/>
+</map>

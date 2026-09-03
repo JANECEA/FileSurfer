@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Models.FileInformation.LocalFileInfoProvider.GetFileLastWriteUtc" name="FileSurfer.Core.Models.FileInformation.LocalFileInfoProvider.GetFileLastWriteUtc">
+<area shape="rect" id="Node000001" title="Gets the last modified Utc time of a file." alt="" coords="270,5,486,64"/>
+<area shape="rect" id="Node000002" href="$d7/d03/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1LocalFileInfoProvider.html#aba23b0d625dd70d9801cd7e74359228d" title="Asynchronously gets the last modified Utc time of a file." alt="" coords="5,5,222,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="252,35,222,37,222,32,257,34"/>
+</map>

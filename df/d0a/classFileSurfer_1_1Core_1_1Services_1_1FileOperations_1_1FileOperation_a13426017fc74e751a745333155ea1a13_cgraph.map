@@ -1,0 +1,11 @@
+<map id="FileSurfer.Core.Services.FileOperations.FileOperation.InvokeInternal" name="FileSurfer.Core.Services.FileOperations.FileOperation.InvokeInternal">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,93,235,152"/>
+<area shape="rect" id="Node000002" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#ab0a706a9fa910e36591b5848a33c5a8e" title="Gets a cached failed result with no error message." alt="" coords="303,5,502,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,90,282,57,307,52,302,54,284,63,195,95"/>
+<area shape="rect" id="Node000003" href="$df/d0b/classFileSurfer_1_1Core_1_1Models_1_1Result.html#aff5d8f883feae2e10e60a46e04ac3a38" title="Appends all errors from another result to this result." alt="" coords="302,72,504,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,108,289,104,284,106,236,113"/>
+<area shape="rect" id="Node000004" href="$df/d0b/classFileSurfer_1_1Core_1_1Models_1_1Result.html#a7b3c3af78f13fd1ad9cdc5f19aba8a93" title="Creates a successful result with no errors." alt="" coords="294,139,512,165"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="235,132,280,139,275,140,236,137"/>
+<area shape="rect" id="Node000005" href="$db/d00/classFileSurfer_1_1Core_1_1Services_1_1Dialogs_1_1CountingReporter.html#a55ef4b598fa81b1c08ef059f5371e7c6" title="Reports the current item and advances the completed&#45;item counter by one." alt="" coords="283,189,523,232"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="207,150,283,175,309,185,304,185,282,180,207,155"/>
+</map>

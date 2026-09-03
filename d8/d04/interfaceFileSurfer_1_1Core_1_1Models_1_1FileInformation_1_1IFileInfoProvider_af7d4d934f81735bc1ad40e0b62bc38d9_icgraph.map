@@ -1,0 +1,9 @@
+<map id="FileSurfer.Core.Models.FileInformation.IFileInfoProvider.ExistsAsync" name="FileSurfer.Core.Models.FileInformation.IFileInfoProvider.ExistsAsync">
+<area shape="rect" id="Node000001" title="Asynchronously determines if the file or directory exists within the containing file system." alt="" coords="568,55,831,97"/>
+<area shape="rect" id="Node000002" href="$d1/d01/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1FileNameGenerator.html#a4c0e0bd650c01fd9f869c887282f2aaa" title="Finds a name available to use in directory &#160;based on newName ." alt="" coords="292,47,520,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="550,76,521,79,520,73,555,76"/>
+<area shape="rect" id="Node000003" href="$d1/d00/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1LocalArchiveManager.html#aa004410fc7d466c1b4e7070e7c05c310" title="Compresses specified file paths into a new archive." alt="" coords="5,5,244,64"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="273,57,244,55,244,50,279,57"/>
+<area shape="rect" id="Node000004" href="$d1/d00/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1LocalArchiveManager.html#abb52c603f9be0abc6940e8e4df8beaa8" title="Extracts the archive, overwriting already existing files." alt="" coords="5,88,244,147"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="274,96,245,102,244,97,279,95"/>
+</map>

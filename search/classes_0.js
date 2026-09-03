@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['app_0',['App',['../d4/d0b/class_file_surfer_1_1_app.html',1,'FileSurfer']]],
-  ['application_1',['Application',['../de/d0b/class_application.html',1,'']]],
-  ['archivemanager_2',['ArchiveManager',['../d3/d01/class_file_surfer_1_1_models_1_1_file_operations_1_1_archive_manager.html',1,'FileSurfer::Models::FileOperations']]]
+  ['app_0',['App',['../d8/d04/classFileSurfer_1_1Core_1_1App.html',1,'FileSurfer::Core']]],
+  ['application_1',['Application',['../d5/d0c/classApplication.html',1,'']]],
+  ['avaloniaclipboardproxy_2',['AvaloniaClipboardProxy',['../d0/d0b/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1AvaloniaClipboardProxy.html',1,'FileSurfer::Core::Services::FileOperations']]],
+  ['avaloniadialogservice_3',['AvaloniaDialogService',['../d3/d00/classFileSurfer_1_1Core_1_1Services_1_1Dialogs_1_1AvaloniaDialogService.html',1,'FileSurfer::Core::Services::Dialogs']]]
 ];

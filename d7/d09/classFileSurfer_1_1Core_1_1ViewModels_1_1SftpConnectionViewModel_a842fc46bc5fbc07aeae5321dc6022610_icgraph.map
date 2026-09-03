@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.ViewModels.SftpConnectionViewModel.SftpConnectionViewModel" name="FileSurfer.Core.ViewModels.SftpConnectionViewModel.SftpConnectionViewModel">
+<area shape="rect" id="Node000001" title="Creates a connection view model from an existing SFTP connection model." alt="" coords="264,31,533,89"/>
+<area shape="rect" id="Node000002" href="$d7/d09/classFileSurfer_1_1Core_1_1ViewModels_1_1SftpConnectionViewModel.html#a8f50922a726b5ee0779e78f6f2278f75" title="Creates a detached copy of the editable connection fields." alt="" coords="5,5,216,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="245,43,216,42,216,36,251,42"/>
+<area shape="rect" id="Node000003" href="$d7/d09/classFileSurfer_1_1Core_1_1ViewModels_1_1SftpConnectionViewModel.html#a89015be63a6dbd57da0615584f26856e" title="Applies values from another view model, updates the model, and finalizes creation when needed." alt="" coords="6,72,215,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="246,78,216,84,215,79,251,77"/>
+</map>

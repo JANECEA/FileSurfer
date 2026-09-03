@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.ViewModels.IDisplayable" name="FileSurfer.Core.ViewModels.IDisplayable">
+<area shape="rect" id="Node000001" title="Represents an object that can present its own UI." alt="" coords="7,5,195,48"/>
+<area shape="rect" id="Node000002" href="$df/d0f/classFileSurfer_1_1Core_1_1ViewModels_1_1PropertiesWindowViewModel.html" title="The PropertiesWindowViewModel is the ViewModel for the PropertiesWindow." alt="" coords="5,96,197,139"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,62,103,97,99,95,99,66"/>
+</map>

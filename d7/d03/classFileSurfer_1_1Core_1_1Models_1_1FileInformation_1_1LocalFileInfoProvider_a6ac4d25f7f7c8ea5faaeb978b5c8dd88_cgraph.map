@@ -1,0 +1,11 @@
+<map id="FileSurfer.Core.Models.FileInformation.LocalFileInfoProvider.ExistsAsync" name="FileSurfer.Core.Models.FileInformation.LocalFileInfoProvider.ExistsAsync">
+<area shape="rect" id="Node000001" title="Asynchronously determines if the file or directory exists within the containing file system." alt="" coords="5,72,222,131"/>
+<area shape="rect" id="Node000002" href="$d7/d03/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1LocalFileInfoProvider.html#ab3d1cae00ba4f01ec40e8fd2af870a7a" title="Determines if the file or directory exists within the containing file system." alt="" coords="270,72,486,131"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,99,257,101,251,102,222,104"/>
+<area shape="rect" id="Node000003" href="$d0/d0c/structFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1ExistsInfo.html#a26a4ba823dad7335edc269a897f0d304" title="Creates an ExistsInfo that represents a missing path." alt="" coords="534,5,769,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="486,69,554,53,559,52,487,74"/>
+<area shape="rect" id="Node000004" href="$d0/d0c/structFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1ExistsInfo.html#acc4fe7a5f620a85f7ff459dfce9baf43" title="Creates an ExistsInfo that represents an existing directory." alt="" coords="548,72,755,131"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="486,99,535,101,530,102,487,104"/>
+<area shape="rect" id="Node000005" href="$d0/d0c/structFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1ExistsInfo.html#ad2a09abb57222a4449453a7ee555900f" title="Creates an ExistsInfo that represents an existing file." alt="" coords="538,155,765,197"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="487,128,559,150,554,150,486,133"/>
+</map>

@@ -1,0 +1,12 @@
+var UndoableFileOperations_8cs =
+[
+    [ "FileSurfer.Core.Services.FileOperations.Undoable.MoveFilesToTrash", "d6/d05/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1MoveFilesToTrash.html", "d6/d05/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1MoveFilesToTrash" ],
+    [ "FileSurfer.Core.Services.FileOperations.Undoable.MoveFilesTo", "da/d0e/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1MoveFilesTo.html", "da/d0e/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1MoveFilesTo" ],
+    [ "FileSurfer.Core.Services.FileOperations.Undoable.CopyFilesTo", "de/d0f/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1CopyFilesTo.html", "de/d0f/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1CopyFilesTo" ],
+    [ "FileSurfer.Core.Services.FileOperations.Undoable.DuplicateFiles", "dc/d04/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1DuplicateFiles.html", "dc/d04/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1DuplicateFiles" ],
+    [ "FileSurfer.Core.Services.FileOperations.Undoable.RenameMultiple", "d6/d09/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1RenameMultiple.html", "d6/d09/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1RenameMultiple" ],
+    [ "FileSurfer.Core.Services.FileOperations.Undoable.FlattenFolder", "d3/d05/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1FlattenFolder.html", "d3/d05/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1FlattenFolder" ],
+    [ "FileSurfer.Core.Services.FileOperations.Undoable.RenameOne", "da/d07/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1RenameOne.html", "da/d07/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1RenameOne" ],
+    [ "FileSurfer.Core.Services.FileOperations.Undoable.NewFileAt", "d3/d05/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1NewFileAt.html", "d3/d05/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1NewFileAt" ],
+    [ "FileSurfer.Core.Services.FileOperations.Undoable.NewDirAt", "d1/d07/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1NewDirAt.html", "d1/d07/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1NewDirAt" ]
+];

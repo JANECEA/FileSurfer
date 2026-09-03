@@ -1,9 +1,6 @@
 var searchData=
 [
-  ['lpclass_0',['lpClass',['../d9/d0e/struct_file_surfer_1_1_models_1_1_shell_1_1_windows_file_properties_1_1_shell_execute_info.html#a4a9930569b9991322c9fd2edb7f165ac',1,'FileSurfer::Models::Shell::WindowsFileProperties::ShellExecuteInfo']]],
-  ['lpdirectory_1',['lpDirectory',['../d9/d0e/struct_file_surfer_1_1_models_1_1_shell_1_1_windows_file_properties_1_1_shell_execute_info.html#a12d652adb836754eca80940b9096eb69',1,'FileSurfer::Models::Shell::WindowsFileProperties::ShellExecuteInfo']]],
-  ['lpfile_2',['lpFile',['../d9/d0e/struct_file_surfer_1_1_models_1_1_shell_1_1_windows_file_properties_1_1_shell_execute_info.html#a0466c23aa3e85d571570bf593002b12a',1,'FileSurfer::Models::Shell::WindowsFileProperties::ShellExecuteInfo']]],
-  ['lpidlist_3',['lpIDList',['../d9/d0e/struct_file_surfer_1_1_models_1_1_shell_1_1_windows_file_properties_1_1_shell_execute_info.html#a4274672b3463db76e9f9d42a132b2b1a',1,'FileSurfer::Models::Shell::WindowsFileProperties::ShellExecuteInfo']]],
-  ['lpparameters_4',['lpParameters',['../d9/d0e/struct_file_surfer_1_1_models_1_1_shell_1_1_windows_file_properties_1_1_shell_execute_info.html#ae75de99e895fe153dd0a5fa9cf5c5e00',1,'FileSurfer::Models::Shell::WindowsFileProperties::ShellExecuteInfo']]],
-  ['lpverb_5',['lpVerb',['../d9/d0e/struct_file_surfer_1_1_models_1_1_shell_1_1_windows_file_properties_1_1_shell_execute_info.html#a917e6054cb9afb8e18fc365658c3f016',1,'FileSurfer::Models::Shell::WindowsFileProperties::ShellExecuteInfo']]]
+  ['repodetails_0',['RepoDetails',['../d6/d09/namespaceFileSurfer_1_1Core_1_1Services_1_1VersionControl.html#aae439f748d9256588631ae1ade8a4a4b',1,'FileSurfer::Core::Services::VersionControl']]],
+  ['repostateinfo_1',['RepoStateInfo',['../d2/d01/namespaceFileSurfer_1_1Core_1_1ViewModels.html#a59c9423b0f74f3609b1e679c9400b955',1,'FileSurfer::Core::ViewModels']]],
+  ['rootdir_2',['RootDir',['../d0/d0a/classFileSurfer_1_1Core_1_1Models_1_1RemoteUnixPathTools.html#abc52d8aa605078508c4ac44e59e1e08f',1,'FileSurfer::Core::Models::RemoteUnixPathTools']]]
 ];

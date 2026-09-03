@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.VersionControl.LocalGitIntegration.FetchChangesAsync" name="FileSurfer.Core.Services.VersionControl.LocalGitIntegration.FetchChangesAsync">
+<area shape="rect" id="Node000001" title="Downloads the latest changes from the version control system to the local repository." alt="" coords="5,5,229,64"/>
+<area shape="rect" id="Node000002" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#ab0a706a9fa910e36591b5848a33c5a8e" title="Gets a cached failed result with no error message." alt="" coords="277,13,476,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="229,32,264,34,259,35,229,37"/>
+</map>

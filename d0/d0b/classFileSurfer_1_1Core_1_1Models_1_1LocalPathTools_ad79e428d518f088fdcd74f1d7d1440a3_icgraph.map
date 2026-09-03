@@ -1,0 +1,9 @@
+<map id="FileSurfer.Core.Models.LocalPathTools.PathsAreEqualNormalized" name="FileSurfer.Core.Models.LocalPathTools.PathsAreEqualNormalized">
+<area shape="rect" id="Node000001" title="Determines whether two already&#45;normalized paths are equal." alt="" coords="277,96,513,139"/>
+<area shape="rect" id="Node000002" href="$d3/d0d/classFileSurfer_1_1Core_1_1Services_1_1VersionControl_1_1LocalGitIntegration.html#a485123b04ead2af997a6338fe568989d" title="Restore changes in the specified file or directory, reverting it to the last commit state." alt="" coords="5,5,229,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="304,92,218,67,218,62,309,90"/>
+<area shape="rect" id="Node000003" href="$d3/d0d/classFileSurfer_1_1Core_1_1Services_1_1VersionControl_1_1LocalGitIntegration.html#af84e1a9182382456eaf9da7c7e27197f" title="Stages changes on the specified path for the next commit." alt="" coords="5,88,229,147"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,118,230,120,229,115,263,117"/>
+<area shape="rect" id="Node000004" href="$d3/d0d/classFileSurfer_1_1Core_1_1Services_1_1VersionControl_1_1LocalGitIntegration.html#a9659e423175d46d604a989bef02ba271" title="Unstages changes in the specified file or directory, reverting it to the previous staged state." alt="" coords="5,171,229,229"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="309,143,219,173,217,167,304,144"/>
+</map>

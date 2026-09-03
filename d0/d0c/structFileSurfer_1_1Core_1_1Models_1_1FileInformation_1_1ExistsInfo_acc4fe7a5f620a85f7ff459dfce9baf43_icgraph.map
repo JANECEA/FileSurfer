@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Models.FileInformation.ExistsInfo.ExistsAsDirectory" name="FileSurfer.Core.Models.FileInformation.ExistsInfo.ExistsAsDirectory">
+<area shape="rect" id="Node000001" title="Creates an ExistsInfo that represents an existing directory." alt="" coords="534,5,740,64"/>
+<area shape="rect" id="Node000002" href="$d7/d03/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1LocalFileInfoProvider.html#ab3d1cae00ba4f01ec40e8fd2af870a7a" title="Determines if the file or directory exists within the containing file system." alt="" coords="270,5,486,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="516,35,487,37,486,32,521,35"/>
+<area shape="rect" id="Node000003" href="$d7/d03/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1LocalFileInfoProvider.html#a6ac4d25f7f7c8ea5faaeb978b5c8dd88" title="Asynchronously determines if the file or directory exists within the containing file system." alt="" coords="5,5,222,64"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="252,35,222,37,222,32,257,34"/>
+</map>

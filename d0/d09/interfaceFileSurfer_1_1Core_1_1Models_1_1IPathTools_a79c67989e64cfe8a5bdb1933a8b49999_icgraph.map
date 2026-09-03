@@ -1,0 +1,11 @@
+<map id="FileSurfer.Core.Models.IPathTools.GetParentDir" name="FileSurfer.Core.Models.IPathTools.GetParentDir">
+<area shape="rect" id="Node000001" title="Returns the parent directory of the given path." alt="" coords="282,137,472,180"/>
+<area shape="rect" id="Node000002" href="$dc/d04/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1DuplicateFiles.html#a49e4e7226b659c62d0827adb58a80e22" title="Initializes an undoable duplicate operation for a batch of entries." alt="" coords="8,5,231,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="326,130,232,78,208,67,207,62,235,74,332,128"/>
+<area shape="rect" id="Node000003" href="$d1/d01/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1FileNameGenerator.html#a3ec7f14a4fa934a49e368b8d486bdbee" title="Gets new available names for files represented by entries &#160;according to namingPattern ." alt="" coords="5,88,234,147"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="264,142,235,138,234,133,269,140"/>
+<area shape="rect" id="Node000004" href="$d6/d09/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1RenameMultiple.html#ae25898bc962b808b6a5c6ecdc41ad737" title="Initializes an undoable multi&#45;entry rename operation." alt="" coords="11,171,228,229"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="264,177,229,185,228,180,268,175"/>
+<area shape="rect" id="Node000005" href="$da/d07/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1Undoable_1_1RenameOne.html#a4836bfdd86da95cf87fa96996c908dba" title="Initializes an undoable rename operation for a single file&#45;system entry." alt="" coords="11,253,228,312"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="332,188,235,244,208,255,206,250,232,239,326,189"/>
+</map>

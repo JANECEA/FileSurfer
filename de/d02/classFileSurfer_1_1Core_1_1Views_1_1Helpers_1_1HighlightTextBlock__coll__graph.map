@@ -1,0 +1,9 @@
+<map id="FileSurfer.Core.Views.Helpers.HighlightTextBlock" name="FileSurfer.Core.Views.Helpers.HighlightTextBlock">
+<area shape="rect" id="Node000001" title="A text block that highlights occurrences of a query string within its text." alt="" coords="392,56,594,99"/>
+<area shape="rect" id="Node000002" href="$d2/d0f/classTextBlock.html" title=" " alt="" coords="64,5,143,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,20,257,30,368,45,407,55,402,56,367,51,256,35,159,25"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,56,202,99"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="217,75,393,76,389,79,217,80"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,123,202,165"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="216,128,367,104,400,100,406,99,368,109,217,133"/>
+</map>

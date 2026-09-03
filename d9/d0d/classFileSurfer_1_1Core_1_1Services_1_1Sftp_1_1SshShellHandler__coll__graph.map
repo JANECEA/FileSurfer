@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.Sftp.SshShellHandler" name="FileSurfer.Core.Services.Sftp.SshShellHandler">
+<area shape="rect" id="Node000001" title="Executes shell operations against a remote host over SSH and SFTP." alt="" coords="5,96,174,139"/>
+<area shape="rect" id="Node000002" href="$d3/d04/interfaceFileSurfer_1_1Core_1_1Services_1_1Shell_1_1IShellHandler.html" title="Provides operations for invoking shell commands and shell&#45;backed file&#45;system actions." alt="" coords="5,5,174,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,62,92,97,87,95,88,66"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Services.FileOperations.AvaloniaClipboardProxy" name="FileSurfer.Core.Services.FileOperations.AvaloniaClipboardProxy">
+<area shape="rect" id="Node000001" title="Provides UI&#45;thread&#45;safe clipboard and storage&#45;provider helpers used by ClipboardManager when synchron..." alt="" coords="5,96,254,139"/>
+<area shape="rect" id="Node000002" href="$de/d0e/interfaceFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1IOsClipboardProxy.html" title="Provides abstracted access to the operating system clipboard with support for text,..." alt="" coords="20,5,239,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,62,132,97,127,95,128,66"/>
+</map>

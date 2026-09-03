@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.ViewModels.SyncEventVmFactory.GetEvent" name="FileSurfer.Core.ViewModels.SyncEventVmFactory.GetEvent">
+<area shape="rect" id="Node000001" title="Creates a display model for a synchronization event and its mapped remote path." alt="" coords="5,5,213,48"/>
+<area shape="rect" id="Node000002" href="$dc/d07/namespaceFileSurfer_1_1Core_1_1Services_1_1FileInformation.html#a988c815f4f2d994c8b827d32ba6be073" title="Represents a file&#45;system change event raised by IDirectoryWatcher." alt="" coords="261,5,472,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,24,248,27,242,27,213,29"/>
+</map>

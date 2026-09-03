@@ -1,0 +1,5 @@
+<map id="FileSurfer.Windows.WindowsDefaultSettingsProvider" name="FileSurfer.Windows.WindowsDefaultSettingsProvider">
+<area shape="rect" id="Node000001" title="Provides Windows&#45;specific default settings." alt="" coords="5,96,199,139"/>
+<area shape="rect" id="Node000002" href="$d7/d04/interfaceFileSurfer_1_1Core_1_1IDefaultSettingsProvider.html" title="Manages platform dependent default settings for FileSurfer." alt="" coords="22,5,182,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,62,104,97,100,95,100,66"/>
+</map>

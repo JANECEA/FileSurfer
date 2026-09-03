@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Models.IFileSystem.IsLocal" name="FileSurfer.Core.Models.IFileSystem.IsLocal">
+<area shape="rect" id="Node000001" title="Determines whether this file system is local." alt="" coords="272,51,456,93"/>
+<area shape="rect" id="Node000002" href="$d2/d09/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1ClipboardManager.html#ad02209e05f37bd64112996a87ccff30b" title="Copies the filePath &#160;to the system&#39;s clipboard." alt="" coords="5,5,224,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="253,56,224,54,224,48,258,55"/>
+<area shape="rect" id="Node000003" href="$d4/d07/classFileSurfer_1_1Core_1_1Models_1_1Location.html#a1d2336f224e77c75b533079493494094" title="Determines whether this location points to the same directory as another location." alt="" coords="8,88,221,131"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="253,89,222,96,221,91,259,88"/>
+</map>

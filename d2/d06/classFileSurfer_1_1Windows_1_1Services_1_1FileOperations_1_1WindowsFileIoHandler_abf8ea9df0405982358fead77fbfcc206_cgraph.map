@@ -1,0 +1,13 @@
+<map id="FileSurfer.Windows.Services.FileOperations.WindowsFileIoHandler.RenameDirAt" name="FileSurfer.Windows.Services.FileOperations.WindowsFileIoHandler.RenameDirAt">
+<area shape="rect" id="Node000001" title="Renames a directory at the specified path." alt="" coords="5,72,250,131"/>
+<area shape="rect" id="Node000002" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#ab0a706a9fa910e36591b5848a33c5a8e" title="Gets a cached failed result with no error message." alt="" coords="312,5,512,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,69,315,51,311,54,243,74"/>
+<area shape="rect" id="Node000003" href="$d1/d01/classFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1FileNameGenerator.html#ae1c7350c67e2f655a3eaaa1bd86167db" title="Finds a name available to use in directory &#160;based on newName ." alt="" coords="298,72,526,131"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="250,99,285,101,280,102,251,104"/>
+<area shape="rect" id="Node000006" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#a8b372981d4976ffa39f0f4979b883fac" title="Gets a cached successful result with no errors." alt="" coords="312,155,512,197"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="242,129,316,150,310,150,242,134"/>
+<area shape="rect" id="Node000004" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html#af36b2e49695ad8aeeaffd20494e4be9c" title="Combines two paths Returns the combined path without trailing separators." alt="" coords="592,47,782,89"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="526,85,579,81,574,82,527,90"/>
+<area shape="rect" id="Node000005" href="$d8/d04/interfaceFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1IFileInfoProvider.html#a32109e7cd611129aa55e4c30d412f1f9" title="Determines if the file or directory exists within the containing file system." alt="" coords="574,113,800,156"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="526,113,561,119,556,119,526,118"/>
+</map>

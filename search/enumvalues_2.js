@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['listview_0',['ListView',['../d0/d06/namespace_file_surfer.html#a659fd608161db0ac107a8d21d0f3057fa416c421e722428b4f6e0863f98a25cff',1,'FileSurfer']]]
+  ['iconview_0',['IconView',['../d2/d05/namespaceFileSurfer_1_1Core.html#afcee5cf60b2e94b7ae704ef909ca249dac689f85d431a8db0da40fceda311eeec',1,'FileSurfer::Core']]]
 ];

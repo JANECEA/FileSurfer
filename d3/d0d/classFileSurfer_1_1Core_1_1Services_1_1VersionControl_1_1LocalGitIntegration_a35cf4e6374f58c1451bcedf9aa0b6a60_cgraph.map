@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Services.VersionControl.LocalGitIntegration.PopChanges" name="FileSurfer.Core.Services.VersionControl.LocalGitIntegration.PopChanges">
+<area shape="rect" id="Node000001" title="Applies last changes made to the current directory and pops the stash entry." alt="" coords="5,31,229,89"/>
+<area shape="rect" id="Node000002" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#ab0a706a9fa910e36591b5848a33c5a8e" title="Gets a cached failed result with no error message." alt="" coords="277,5,476,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="229,43,264,41,259,42,230,48"/>
+<area shape="rect" id="Node000003" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#a8b372981d4976ffa39f0f4979b883fac" title="Gets a cached successful result with no errors." alt="" coords="277,72,476,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="229,72,264,78,259,79,229,77"/>
+</map>

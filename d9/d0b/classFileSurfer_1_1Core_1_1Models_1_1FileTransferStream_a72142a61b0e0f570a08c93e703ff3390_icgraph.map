@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Models.FileTransferStream.Dispose" name="FileSurfer.Core.Models.FileTransferStream.Dispose">
+<area shape="rect" id="Node000001" title=" " alt="" coords="493,5,673,48"/>
+<area shape="rect" id="Node000002" href="$d2/d09/classFileSurfer_1_1Core_1_1Models_1_1DirTransferStream.html#a96ca551d4b14fc730e749fcfbaf39fcb" title=" " alt="" coords="269,5,445,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="475,27,445,29,445,24,480,27"/>
+<area shape="rect" id="Node000003" href="$d2/d09/classFileSurfer_1_1Core_1_1Models_1_1DirTransferStream.html#ae8eba295b6549762372128295ffee933" title="Builds a directory transfer tree from the specified root path." alt="" coords="5,5,221,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="250,27,221,29,221,24,256,27"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="FileSurfer.Windows.Services.Shell.StaWorkerSync" name="FileSurfer.Windows.Services.Shell.StaWorkerSync">
+<area shape="rect" id="Node000001" title="Executes queued work synchronously on a dedicated STA background thread." alt="" coords="5,80,200,123"/>
+<area shape="rect" id="Node000002" href="$d0/d07/classIDisposable.html" title=" " alt="" coords="57,5,148,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,46,105,81,100,79,101,50"/>
+</map>

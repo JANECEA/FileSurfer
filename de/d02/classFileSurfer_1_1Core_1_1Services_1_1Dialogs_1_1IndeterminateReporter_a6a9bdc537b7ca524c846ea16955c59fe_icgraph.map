@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Services.Dialogs.IndeterminateReporter.ReportItem" name="FileSurfer.Core.Services.Dialogs.IndeterminateReporter.ReportItem">
+<area shape="rect" id="Node000001" title="Reports an item label while keeping progress in indeterminate mode." alt="" coords="292,47,494,105"/>
+<area shape="rect" id="Node000002" href="$d1/d00/classFileSurfer_1_1Core_1_1Services_1_1FileOperations_1_1LocalArchiveManager.html#aa004410fc7d466c1b4e7070e7c05c310" title="Compresses specified file paths into a new archive." alt="" coords="5,5,244,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="274,58,244,56,244,50,279,58"/>
+<area shape="rect" id="Node000003" href="$dd/d0a/classFileSurfer_1_1Core_1_1Extensions_1_1TransferStreamExtensions.html#afcb6480539440485d11c07028674af09" title="Writes a file transfer stream to the target stream." alt="" coords="12,88,237,147"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="273,94,238,103,237,97,279,93"/>
+</map>

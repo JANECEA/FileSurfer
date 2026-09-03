@@ -1,0 +1,9 @@
+<map id="FileSurfer.Core.Services.Sftp.SftpFileIoHandler.WriteFileStreamAsync" name="FileSurfer.Core.Services.Sftp.SftpFileIoHandler.WriteFileStreamAsync">
+<area shape="rect" id="Node000001" title="Writes the filestream into a file with name specified in FileTransferStream.Name." alt="" coords="5,31,211,89"/>
+<area shape="rect" id="Node000002" href="$df/d0a/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1SftpFileIoHandler.html#a3bfb84527c840d4010090c77dd918532" title="Deletes a file permanently." alt="" coords="259,5,472,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,44,246,42,241,43,212,49"/>
+<area shape="rect" id="Node000004" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#ab0a706a9fa910e36591b5848a33c5a8e" title="Gets a cached failed result with no error message." alt="" coords="266,72,465,115"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="211,71,253,78,247,79,211,76"/>
+<area shape="rect" id="Node000003" href="$d4/d0b/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1SshShellHandler.html#ac8daed99cbeaedfd9a22c7eae599705f" title="Wraps a string in single quotes and escapes embedded single quotes for safe shell usage." alt="" coords="520,5,705,48"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="472,24,507,26,502,27,473,29"/>
+</map>

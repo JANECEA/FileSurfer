@@ -1,0 +1,9 @@
+<map id="FileSurfer.Linux.Services.Shell.LinuxFileProperties.ShowFileProperties" name="FileSurfer.Linux.Services.Shell.LinuxFileProperties.ShowFileProperties">
+<area shape="rect" id="Node000001" title="Shows the file properties dialog for the specified entry." alt="" coords="5,64,208,123"/>
+<area shape="rect" id="Node000002" href="$da/d01/classFileSurfer_1_1Core_1_1Extensions_1_1ResultExtensions.html#ad84ad7438a029571902b069a8479d02f" title="Returns the first failed result from the provided sequence." alt="" coords="264,5,446,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,64,261,52,256,54,209,69"/>
+<area shape="rect" id="Node000003" href="$da/d0f/classFileSurfer_1_1Core_1_1Models_1_1SimpleResult.html#a8b372981d4976ffa39f0f4979b883fac" title="Gets a cached successful result with no errors." alt="" coords="256,72,455,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,91,242,93,237,94,209,96"/>
+<area shape="rect" id="Node000004" href="$dd/d03/interfaceFileSurfer_1_1Core_1_1ViewModels_1_1IDisplayable.html#a33ea9b48d8482e416a9a85d2ba0a635b" title="Opens or shows the underlying visual representation." alt="" coords="261,139,450,181"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="209,118,261,134,256,134,208,123"/>
+</map>

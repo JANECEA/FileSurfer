@@ -1,0 +1,5 @@
+<map id="FileSurfer.Windows.WindowsPlatformBootstrap" name="FileSurfer.Windows.WindowsPlatformBootstrap">
+<area shape="rect" id="Node000001" title="Provides Windows&#45;specific platform wiring for the application." alt="" coords="5,96,199,139"/>
+<area shape="rect" id="Node000002" href="$d7/d01/interfaceFileSurfer_1_1Core_1_1IPlatformBootstrap.html" title="Used to initialize the app with platform specific settings." alt="" coords="19,5,185,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,62,104,97,100,95,100,66"/>
+</map>

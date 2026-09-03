@@ -1,0 +1,11 @@
+<map id="FileSurfer.Core.Services.Sftp.SshShellHandler.Quote" name="FileSurfer.Core.Services.Sftp.SshShellHandler.Quote">
+<area shape="rect" id="Node000001" title="Wraps a string in single quotes and escapes embedded single quotes for safe shell usage." alt="" coords="520,72,705,115"/>
+<area shape="rect" id="Node000002" href="$df/d0a/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1SftpFileIoHandler.html#a1f82455c78e84924c673437eedecb438" title="Deletes a directory permanently." alt="" coords="261,5,470,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="513,68,447,51,447,46,519,67"/>
+<area shape="rect" id="Node000003" href="$df/d0a/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1SftpFileIoHandler.html#a3bfb84527c840d4010090c77dd918532" title="Deletes a file permanently." alt="" coords="259,72,472,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="502,94,473,96,472,91,507,93"/>
+<area shape="rect" id="Node000005" href="$de/d0f/classFileSurfer_1_1Core_1_1Models_1_1Sftp_1_1SftpFileInfoProvider.html#adf757d020c221ae484162a2dc8ec6d70" title=" " alt="" coords="264,139,467,197"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="527,119,465,141,464,136,522,120"/>
+<area shape="rect" id="Node000004" href="$df/d0a/classFileSurfer_1_1Core_1_1Services_1_1Sftp_1_1SftpFileIoHandler.html#a0b0a20d96ad45f1e87146d333878f7a1" title="Writes the filestream into a file with name specified in FileTransferStream.Name." alt="" coords="5,64,211,123"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="241,94,212,96,211,91,246,93"/>
+</map>

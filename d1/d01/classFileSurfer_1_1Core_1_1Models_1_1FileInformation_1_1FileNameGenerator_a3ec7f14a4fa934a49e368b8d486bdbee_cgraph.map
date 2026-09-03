@@ -1,0 +1,11 @@
+<map id="FileSurfer.Core.Models.FileInformation.FileNameGenerator.GetAvailableNames" name="FileSurfer.Core.Models.FileInformation.FileNameGenerator.GetAvailableNames">
+<area shape="rect" id="Node000001" title="Gets new available names for files represented by entries &#160;according to namingPattern ." alt="" coords="5,97,234,156"/>
+<area shape="rect" id="Node000002" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html#af36b2e49695ad8aeeaffd20494e4be9c" title="Combines two paths Returns the combined path without trailing separators." alt="" coords="300,5,490,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,94,281,57,304,52,300,54,283,63,190,99"/>
+<area shape="rect" id="Node000003" href="$d8/d04/interfaceFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1IFileInfoProvider.html#a32109e7cd611129aa55e4c30d412f1f9" title="Determines if the file or directory exists within the containing file system." alt="" coords="282,72,508,115"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="233,110,269,108,264,110,235,115"/>
+<area shape="rect" id="Node000004" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html#a324058459908a838e551f1c72e32b536" title="Returns extension part of the given path including the dot &#39;." alt="" coords="300,139,490,181"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="234,138,287,146,282,147,234,143"/>
+<area shape="rect" id="Node000005" href="$d0/d09/interfaceFileSurfer_1_1Core_1_1Models_1_1IPathTools.html#a79c67989e64cfe8a5bdb1933a8b49999" title="Returns the parent directory of the given path." alt="" coords="300,205,490,248"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="189,154,283,191,305,200,299,200,281,196,188,159"/>
+</map>

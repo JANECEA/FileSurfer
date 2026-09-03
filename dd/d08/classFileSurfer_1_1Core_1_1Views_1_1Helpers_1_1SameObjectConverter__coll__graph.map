@@ -1,0 +1,7 @@
+<map id="FileSurfer.Core.Views.Helpers.SameObjectConverter" name="FileSurfer.Core.Views.Helpers.SameObjectConverter">
+<area shape="rect" id="Node000001" title="Converts two inputs to a boolean indicating whether they reference the same object." alt="" coords="5,171,208,213"/>
+<area shape="rect" id="Node000002" href="$da/d05/classFileSurfer_1_1Core_1_1Views_1_1Helpers_1_1OneWayConverter.html" title="Base value converter for one&#45;way bindings that disallow reverse conversion." alt="" coords="5,80,208,123"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,136,109,171,104,169,105,140"/>
+<area shape="rect" id="Node000003" href="$d2/d03/classIValueConverter.html" title=" " alt="" coords="49,5,164,32"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="108,45,109,80,104,79,105,50"/>
+</map>

@@ -1,0 +1,23 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$dc/d04/classWindow.html" title=" " alt="" coords="5,313,74,340"/>
+<area shape="rect" id="Node000001" href="$d3/d0c/classFileSurfer_1_1Core_1_1Views_1_1Dialogs_1_1ConfirmationDialogWindow.html" title="Displays a confirmation prompt and returns a yes/no decision." alt="" coords="127,5,328,48"/>
+<area shape="poly" id="edge90_Node000000_Node000001" title=" " alt="" coords="39,297,43,246,55,183,79,116,97,85,120,58,137,46,135,51,124,62,102,89,84,119,60,184,48,247,44,298"/>
+<area shape="rect" id="Node000002" href="$dc/d08/classFileSurfer_1_1Core_1_1Views_1_1Dialogs_1_1InfoDialogWindow.html" title="Represents an information dialog in the FileSurfer app." alt="" coords="127,72,328,115"/>
+<area shape="poly" id="edge91_Node000000_Node000002" title=" " alt="" coords="42,297,50,259,65,212,87,165,120,125,139,113,136,117,124,129,92,168,70,214,55,260,47,298"/>
+<area shape="rect" id="Node000003" href="$dd/d0e/classFileSurfer_1_1Core_1_1Views_1_1Dialogs_1_1InputDialogWindow.html" title="Displays a text input dialog with optional input masking." alt="" coords="127,139,328,181"/>
+<area shape="poly" id="edge92_Node000000_Node000003" title=" " alt="" coords="48,298,75,244,95,215,120,191,141,180,138,184,123,195,100,219,80,246,53,300"/>
+<area shape="rect" id="Node000004" href="$de/d00/classFileSurfer_1_1Core_1_1Views_1_1Dialogs_1_1ProgressDialogWindow.html" title="Displays progress details and optional cancellation controls for long&#45;running operations." alt="" coords="127,205,328,248"/>
+<area shape="poly" id="edge93_Node000000_Node000004" title=" " alt="" coords="63,301,90,278,120,258,148,246,145,251,123,262,93,282,67,304"/>
+<area shape="rect" id="Node000005" href="$d6/d0c/classFileSurfer_1_1Core_1_1Views_1_1Dialogs_1_1SuggestInputDialogWindow.html" title="Displays an input dialog with selectable suggestions and contextual prompt text." alt="" coords="127,272,328,315"/>
+<area shape="poly" id="edge94_Node000000_Node000005" title=" " alt="" coords="87,316,129,309,125,313,91,320"/>
+<area shape="rect" id="Node000006" href="$d6/d05/classFileSurfer_1_1Core_1_1Views_1_1EditSftpWindow.html" title="Represents the window to edit or create new SftpConnectionViewModel." alt="" coords="140,339,316,381"/>
+<area shape="poly" id="edge95_Node000000_Node000006" title=" " alt="" coords="88,333,141,343,137,346,90,338"/>
+<area shape="rect" id="Node000007" href="$dd/d09/classFileSurfer_1_1Core_1_1Views_1_1MainWindow.html" title="Represents the main FileSurfer window." alt="" coords="137,405,318,448"/>
+<area shape="poly" id="edge96_Node000000_Node000007" title=" " alt="" coords="64,348,93,371,123,391,149,404,144,406,120,396,90,375,65,353"/>
+<area shape="rect" id="Node000008" href="$db/d0e/classFileSurfer_1_1Core_1_1Views_1_1PropertiesWindow.html" title="Displays file or directory properties in a dedicated dialog window." alt="" coords="122,472,334,515"/>
+<area shape="poly" id="edge97_Node000000_Node000008" title=" " alt="" coords="51,352,80,407,100,434,123,458,142,471,137,472,120,462,95,438,75,410,51,357"/>
+<area shape="rect" id="Node000009" href="$d7/d00/classFileSurfer_1_1Core_1_1Views_1_1SettingsWindow.html" title="Represents the settings window in the context of the FileSurfer app." alt="" coords="127,539,328,581"/>
+<area shape="poly" id="edge98_Node000000_Node000009" title=" " alt="" coords="45,353,55,393,70,439,92,485,124,525,140,538,135,539,120,529,87,488,65,441,50,395,45,358"/>
+<area shape="rect" id="Node000010" href="$dd/d0e/classFileSurfer_1_1Core_1_1Views_1_1SftpSynchronizerWindow.html" title="Hosts the UI for monitoring and controlling SFTP synchronization." alt="" coords="139,605,316,648"/>
+<area shape="poly" id="edge99_Node000000_Node000010" title=" " alt="" coords="41,353,48,406,60,469,84,535,102,565,124,591,142,607,136,606,120,595,97,568,79,537,55,471,43,407,41,358"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="FileSurfer.Core.Models.Sftp.SftpFileInfoProvider.Exists" name="FileSurfer.Core.Models.Sftp.SftpFileInfoProvider.Exists">
+<area shape="rect" id="Node000001" title="Determines if the file or directory exists within the containing file system." alt="" coords="5,5,193,48"/>
+<area shape="rect" id="Node000002" href="$d0/d0c/structFileSurfer_1_1Core_1_1Models_1_1FileInformation_1_1ExistsInfo.html#a26a4ba823dad7335edc269a897f0d304" title="Creates an ExistsInfo that represents a missing path." alt="" coords="241,5,476,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,24,228,26,222,27,193,29"/>
+</map>
